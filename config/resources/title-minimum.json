@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "assetVersion": 12345,
+  "revision": 2,
+  "fromRevisions": [0, 1],
+  "urlPathFormat": "/cdn/{o}",
+  "entries": [
+    {
+      "id": "title-logo-bundle",
+      "kind": "assetBundle",
+      "octoId": 1,
+      "names": [
+        "ui/localize/es/title/title_logo.unity3d"
+      ],
+      "objectName": "7pXtSo",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4137705874536F_481a6362d5d91b173473f67f5620461b.bundle",
+      "logicalName": "Logo de inicio de Kick-Flight",
+      "description": "AssetBundle Unity localizado que contiene Texture2D y Sprite title_logo."
+    },
+    {
+      "id": "title-music-acb",
+      "kind": "resource",
+      "octoId": 10,
+      "names": [
+        "bgm_title.acb"
+      ],
+      "objectName": "ujPPwv",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/5_unknown/52756A50507776_d81ea6668a513695a380c18a807822d8.bin",
+      "logicalName": "Música de inicio (ACB)",
+      "description": "Banco CRI Atom bgm_title; referencia al archivo AWB mediante StreamAwbHash."
+    },
+    {
+      "id": "title-music-awb",
+      "kind": "resource",
+      "octoId": 11,
+      "names": [
+        "bgm_title.awb"
+      ],
+      "objectName": "Ei4139",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52456934313339_fe5a3cdf02d6abd8e7417b6bbcbd48de.afs2",
+      "logicalName": "Música de inicio (AWB)",
+      "description": "Archivo de ondas CRI Atom asociado al banco bgm_title.acb."
+    }
+  ]
+}

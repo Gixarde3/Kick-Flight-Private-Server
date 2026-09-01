@@ -1,0 +1,13 @@
+{
+  "id": "harness-octo-api-probe",
+  "enabled": true,
+  "host": "colorful-api-octo-sb.grenge.jp",
+  "method": "GET",
+  "path": "/__fixture-probe",
+  "statusCode": 200,
+  "contentType": "application/x-protobuf",
+  "headers": {
+    "x-kickflight-fixture": "harness-octo-api-probe"
+  },
+  "bodyBase64": "CgVsb2NhbA=="
+}

@@ -1,0 +1,15 @@
+{
+  "id": "harness-resource-api-probe",
+  "enabled": true,
+  "host": "kickflight-resource-api.grenge.jp",
+  "method": "GET",
+  "path": "/__fixture-probe",
+  "statusCode": 206,
+  "contentType": "application/octet-stream",
+  "headers": {
+    "Accept-Ranges": "bytes",
+    "Content-Range": "bytes 0-3/4",
+    "x-kickflight-fixture": "harness-resource-api-probe"
+  },
+  "bodyBase64": "S0ZQUw=="
+}

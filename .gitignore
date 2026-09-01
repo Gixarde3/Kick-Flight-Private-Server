@@ -1,0 +1,43 @@
+# Build outputs
+bin/
+obj/
+TestResults/
+coverage/
+*.trx
+
+# Local development certificates and private keys
+certs/*
+!certs/.gitignore
+
+# Captured traffic may contain local identifiers
+captures/*
+!captures/.gitignore
+
+# Local runtime state
+.local/
+logs/
+*.db
+*.db-shm
+*.db-wal
+
+# Android packages and protected game assets
+*.apk
+*.apks
+*.aab
+*.obb
+*.unity3d
+*.bundle
+
+# IDE and OS files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Local overrides
+appsettings.Local.json
+config/fixtures.local/
+config/apk-direct-server.local.json

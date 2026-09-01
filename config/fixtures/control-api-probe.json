@@ -1,0 +1,14 @@
+{
+  "id": "harness-control-api-probe",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/__fixture-probe",
+  "statusCode": 200,
+  "contentType": "application/json; charset=utf-8",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-kickflight-fixture": "harness-control-api-probe"
+  },
+  "body": "{\"fixture\":\"control-api\",\"upstream\":false}"
+}

@@ -1,0 +1,9 @@
+{
+  "source": "Derived from Kick-Flight-Assets/server_revival_analysis protocol inventory; no source files copied.",
+  "hosts": [
+    "kickflight-api.grenge.jp",
+    "colorful-api-octo-sb.grenge.jp",
+    "kickflight-resource-api.grenge.jp"
+  ],
+  "upstreamPolicy": "deny"
+}

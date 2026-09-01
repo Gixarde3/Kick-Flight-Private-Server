@@ -1,0 +1,13 @@
+{
+  "id": "accepted-octo-title-minimum-12345-from-1",
+  "enabled": true,
+  "host": "kickflight-resource-api.grenge.jp",
+  "method": "GET",
+  "path": "/v1/list/12345/1",
+  "statusCode": 200,
+  "contentType": "application/x-protobuf",
+  "headers": {
+    "x-kickflight-fixture": "accepted-octo-title-minimum-12345-from-1"
+  },
+  "bodyBase64": "CAISjgEIARIndWkvbG9jYWxpemUvZXMvdGl0bGUvdGl0bGVfbG9nby51bml0eTNkGid1aS9sb2NhbGl6ZS9lcy90aXRsZS90aXRsZV9sb2dvLnVuaXR5M2QgiaUBKOmngK0CSAFSIDQ4MWE2MzYyZDVkOTFiMTczNDczZjY3ZjU2MjA0NjFiWgY3cFh0U29gAWgBIlkIChINYmdtX3RpdGxlLmFjYhoNYmdtX3RpdGxlLmFjYiDAMiizst7jBUgBUiBkODFlYTY2NjhhNTEzNjk1YTM4MGMxOGE4MDc4MjJkOFoGdWpQUHd2YAFoASJaCAsSDWJnbV90aXRsZS5hd2IaDWJnbV90aXRsZS5hd2IggNVNKKPa1qwOSAFSIGZlNWEzY2RmMDJkNmFiZDhlNzQxN2I2YmJjYmQ0OGRlWgZFaTQxMzlgAWgBKiFodHRwOi8vMTkyLjE2OC4xLjEyOjE4MDgwL2Nkbi97b30="
+}

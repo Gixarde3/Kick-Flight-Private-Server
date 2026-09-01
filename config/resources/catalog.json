@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "resources": [
+    {
+      "id": "title-logo-bundle",
+      "enabled": true,
+      "host": "192.168.1.12",
+      "requestPath": "/cdn/7pXtSo",
+      "logicalName": "Logo de inicio de Kick-Flight",
+      "description": "AssetBundle Unity localizado que contiene Texture2D y Sprite title_logo.",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4137705874536F_481a6362d5d91b173473f67f5620461b.bundle",
+      "contentType": "application/octet-stream",
+      "sha256": "a21fc4d7dbc570a8d9b332a463bd5aeb829375cf0fc5ac1d0c84048f22eada33"
+    },
+    {
+      "id": "title-music-acb",
+      "enabled": true,
+      "host": "192.168.1.12",
+      "requestPath": "/cdn/ujPPwv",
+      "logicalName": "Música de inicio (ACB)",
+      "description": "Banco CRI Atom bgm_title; referencia al archivo AWB mediante StreamAwbHash.",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/5_unknown/52756A50507776_d81ea6668a513695a380c18a807822d8.bin",
+      "contentType": "application/octet-stream",
+      "sha256": "55c2c4432dd349668d137990693a6cdc75725242fe4fe2c31fd6336def7691e2"
+    },
+    {
+      "id": "title-music-awb",
+      "enabled": true,
+      "host": "192.168.1.12",
+      "requestPath": "/cdn/Ei4139",
+      "logicalName": "Música de inicio (AWB)",
+      "description": "Archivo de ondas CRI Atom asociado al banco bgm_title.acb.",
+      "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52456934313339_fe5a3cdf02d6abd8e7417b6bbcbd48de.afs2",
+      "contentType": "application/octet-stream",
+      "sha256": "b64d538a125fa76d9a99c8fd3de509fafcf9f94f81a7e2b5ff3c839f80b38034"
+    }
+  ]
+}
