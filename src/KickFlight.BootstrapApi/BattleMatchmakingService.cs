@@ -124,7 +124,7 @@ public sealed class BattleMatchmakingService
         {
             foreach (var room in _roomsByBattleId.Values)
             {
-                if (room.BattleRuleId == playerSession.BattleRuleId && room.HumanPlayers.Count < 8)
+                if (room.BattleRuleId == playerSession.BattleRuleId && room.HumanPlayers.Count < 6)
                 {
                     // Check if already in this room
                     if (room.HumanPlayers.Any(p => p.UserId == playerSession.UserId))
@@ -158,7 +158,7 @@ public sealed class BattleMatchmakingService
             }
         }
 
-        // Build 8-player battle roster (Human players + AI Bots)
+        // Build 6-player battle roster (Human players + AI Bots for 3v3 arena)
         var battleInfo = BuildRoster(matchedRoom);
         matchedRoom.MatchingInfo = battleInfo;
 
@@ -173,17 +173,17 @@ public sealed class BattleMatchmakingService
         new(1, "Tsubame Bot"),
         new(2, "Kaito Bot"),
         new(3, "Ruriha Bot"),
-        new(4, "Coco Bot"),
         new(5, "Owlbert Bot"),
         new(6, "Grenhawk Bot"),
         new(7, "Pit Bot"),
         new(8, "Anna Bot"),
         new(9, "Diatrius Bot"),
         new(10, "Jay Bot"),
-        new(11, "Eleonora Bot"),
         new(12, "Yukari Bot"),
         new(13, "Yui Bot"),
-        new(14, "Hitagi Bot")
+        new(14, "Hitagi Bot"),
+        new(4, "Coco Bot"),
+        new(11, "Eleonora Bot")
     ];
 
     private static MatchingBattleInfo BuildRoster(ActiveBattleRoom room)
@@ -230,13 +230,16 @@ public sealed class BattleMatchmakingService
             });
         }
 
-        // 2. Fill remaining slots with AI Bots up to 4 on Team 0 (Blue) and 4 on Team 1 (Red) (8 total)
+        // 2. Fill remaining slots with AI Bots up to 3 on Team 0 (Blue) and 3 on Team 1 (Red) (6 total for 3v3)
         var availableBots = BotProfiles.Where(b => !usedKickers.Contains(b.KickerId)).ToList();
         var botIdx = 0;
 
-        while (info.battlePlayerList.Count < 8)
+        const int maxPerTeam = 3;
+        const int totalPlayers = maxPerTeam * 2;
+
+        while (info.battlePlayerList.Count < totalPlayers)
         {
-            int team = (team0Count < 4) ? 0 : 1;
+            int team = (team0Count < maxPerTeam) ? 0 : 1;
             if (team == 0) team0Count++; else team1Count++;
 
             var profile = (botIdx < availableBots.Count) ? availableBots[botIdx++] : new BotProfile(botIdx + 1, $"Bot {botIdx + 1}");

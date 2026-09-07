@@ -287,9 +287,6 @@ adb -s "$DEVICE" shell input tap 540 1200
 sleep 2
 capture_step "03_tap_start_pressed"
 
-# Also tap confirmation if update popup appears
-adb -s "$DEVICE" shell input tap 700 1450 2>/dev/null || true
-
 # ------------------------------------------------------------------------------
 # 5. TRANSITION TO HOMESCENE
 # ------------------------------------------------------------------------------
@@ -299,6 +296,7 @@ echo -e "${BOLD}[5/7] Waiting for HomeScene transition (loading assets)...${NC}"
 HOME_REACHED=0
 START_TIME=$(date +%s)
 LAST_LOG_TIME=$START_TIME
+LAST_TAP_TIME=$START_TIME
 
 while true; do
   CURRENT_PID=$(get_app_pid)
@@ -311,9 +309,6 @@ while true; do
     report_failure "HOME_TRANSITION" "Fatal signal (SIGSEGV) detected in logcat during Home transition."
   fi
   
-  # Dismiss update/confirmation dialog if it appears (OK button around 700, 1450)
-  adb -s "$DEVICE" shell input tap 700 1450 2>/dev/null || true
-  
   # Check if HomeScene reached
   if adb -s "$DEVICE" logcat -d --pid="$APP_PID" | grep -q "HomeScene"; then
     HOME_REACHED=1
@@ -321,6 +316,12 @@ while true; do
   fi
   
   NOW=$(date +%s)
+  if (( NOW - LAST_TAP_TIME >= 5 )); then
+    echo -e "  ${CYAN}👉 Retrying 'TAP START' tap at (540, 1200)...${NC}"
+    adb -s "$DEVICE" shell input tap 540 1200 2>/dev/null || true
+    LAST_TAP_TIME=$NOW
+  fi
+
   if (( NOW - LAST_LOG_TIME >= 10 )); then
     ELAPSED=$(( NOW - START_TIME ))
     echo -e "  ${YELLOW}⏳ Still loading assets (${ELAPSED}s elapsed)...${NC}"
@@ -338,12 +339,12 @@ if [[ $HOME_REACHED -eq 0 ]]; then
   report_failure "HOME_TRANSITION" "Timed out waiting for HomeScene (${TIMEOUT}s limit reached)."
 fi
 
-echo -e "  ${GREEN}✅ HomeScene reached! Waiting 15s for 3D assets, shaders, and announcement modal to finish loading...${NC}"
-sleep 15
+echo -e "  ${GREEN}✅ HomeScene reached! Waiting 22s for 3D assets, shaders, and announcement modal to finish loading...${NC}"
+sleep 22
 
-# Dismiss any announcement, news, or modal popup by tapping close (540, 2220)
-echo -e "  ${CYAN}👉 Dismissing announcement / news modal at (540, 2220)...${NC}"
-adb -s "$DEVICE" shell input tap 540 2220
+# Dismiss any announcement, news, or modal popup by tapping Aceptar (540, 1725) and close (540, 2220)
+echo -e "  ${CYAN}👉 Dismissing announcement / news modal at (540, 1725) and (540, 2220)...${NC}"
+adb -s "$DEVICE" shell input tap 540 1725
 sleep 2
 adb -s "$DEVICE" shell input tap 540 2220
 sleep 2
@@ -361,6 +362,7 @@ capture_step "06_combate_pressed"
 
 MATCH_ROOM_REACHED=0
 START_TIME=$(date +%s)
+LAST_TAP_TIME=$START_TIME
 
 while true; do
   CURRENT_PID=$(get_app_pid)
@@ -368,13 +370,23 @@ while true; do
     report_failure "MATCHMAKING" "App process crashed after tapping Combate."
   fi
   
-  if adb -s "$DEVICE" logcat -d --pid="$APP_PID" | grep -E -q "NormalMatchingJoinBattleRoomState|GetAssignments|battle/entry"; then
+  if adb -s "$DEVICE" logcat -d --pid="$APP_PID" | grep -E -q "MatchingScene|NormalMatchingJoinBattleRoomState|GetAssignments|battle/entry"; then
     MATCH_ROOM_REACHED=1
     break
   fi
   
   NOW=$(date +%s)
-  if (( NOW - START_TIME > 20 )); then
+  if (( NOW - LAST_TAP_TIME >= 4 )); then
+    echo -e "  ${CYAN}👉 Retrying modal dismiss and 'Combate' tap...${NC}"
+    adb -s "$DEVICE" shell input tap 540 1725 2>/dev/null || true
+    sleep 1
+    adb -s "$DEVICE" shell input tap 540 2220 2>/dev/null || true
+    sleep 1
+    adb -s "$DEVICE" shell input tap 820 1480 2>/dev/null || true
+    LAST_TAP_TIME=$NOW
+  fi
+
+  if (( NOW - START_TIME > 25 )); then
     break
   fi
   sleep 1
@@ -400,6 +412,7 @@ capture_step "08_iniciar_combate_pressed"
 
 BATTLE_STARTED=0
 START_TIME=$(date +%s)
+LAST_BATTLE_TAP=$START_TIME
 
 echo -e "  ${CYAN}⏳ Monitoring battle scene transition and character spawning...${NC}"
 
@@ -428,9 +441,18 @@ while true; do
     echo "$BATTLE_LOGS" | tail -n 10
     break
   fi
-  
+
   NOW=$(date +%s)
-  if (( NOW - START_TIME > 40 )); then
+  # If GameScene hasn't started yet, re-tap 'Iniciar combate' every 5 seconds
+  if ! echo "$BATTLE_LOGS" | grep -q "GameScene"; then
+    if (( NOW - LAST_BATTLE_TAP >= 5 )); then
+      echo -e "  ${CYAN}👉 Retrying 'Iniciar combate' tap at (540, 630)...${NC}"
+      adb -s "$DEVICE" shell input tap 540 630 2>/dev/null || true
+      LAST_BATTLE_TAP=$NOW
+    fi
+  fi
+  
+  if (( NOW - START_TIME > 60 )); then
     break
   fi
   sleep 1

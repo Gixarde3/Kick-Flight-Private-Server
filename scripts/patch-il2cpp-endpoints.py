@@ -244,10 +244,166 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("f40000b4020000141f2003d5"),
         },
         {
+            "description": "safely skip null controller in TitleView coroutine MoveNext (0x31c77b4)",
+            "offset": 0x31C77B4,
+            "expected": bytes.fromhex("740000b5e0031faa8c328197"),
+            "replacement": bytes.fromhex("d40000b41f2003d51f2003d5"),
+        },
+        {
+            "description": "safely skip null animation in TitleView coroutine MoveNext (0x31c77d8)",
+            "offset": 0x31C77D8,
+            "expected": bytes.fromhex("540000b584328197"),
+            "replacement": bytes.fromhex("b40000b41f2003d5"),
+        },
+        {
             "description": "safely skip weapon attachment when WeaponModelController is null in PlayerCharacter.SetModel",
             "offset": 0x13C941C,
             "expected": bytes.fromhex("770000b5e0031faa722bf997"),
             "replacement": bytes.fromhex("970600b41f2003d51f2003d5"),
+        },
+        {
+            "description": "safely clamp Team 0 spawn point index to valid array bounds (0x17407f4)",
+            "offset": 0x17407F4,
+            "expected": bytes.fromhex("f451eb97e1031faae2031faa574eeb97"),
+            "replacement": bytes.fromhex("1c0500719cc39f1a020000141f2003d5"),
+        },
+        {
+            "description": "safely clamp Team 1 spawn point index to valid array bounds (0x1740bc0)",
+            "offset": 0x1740BC0,
+            "expected": bytes.fromhex("0151eb97e1031faae2031faa644deb97"),
+            "replacement": bytes.fromhex("1805007118c39f1a020000141f2003d5"),
+        },
+        {
+            "description": "safely clamp Team 1 spawn point index in secondary array (0x1740bf8)",
+            "offset": 0x1740BF8,
+            "expected": bytes.fromhex("f350eb97e1031faae2031faa564deb97"),
+            "replacement": bytes.fromhex("1305007173c29f1a737e409301000014"),
+        },
+        {
+            "description": "safely clamp spawn point slot index in 0x1740d2c (0x1740d5c)",
+            "offset": 0x1740D5C,
+            "expected": bytes.fromhex("9a50eb97e1031faae2031faafd4ceb97"),
+            "replacement": bytes.fromhex("1305007173c29f1a737e409301000014"),
+        },
+        {
+            "description": "safely skip Prop_R muzzle effect when weapon is null in TwoGunsAttackAction..ctor (Coco)",
+            "offset": 0x147CAE0,
+            "expected": bytes.fromhex("560000b5c25df697"),
+            "replacement": bytes.fromhex("360900b41f2003d5"),
+        },
+        {
+            "description": "safely skip Prop_L muzzle effect when weapon is null in TwoGunsAttackAction..ctor (Coco)",
+            "offset": 0x147CC60,
+            "expected": bytes.fromhex("540000b5625df697"),
+            "replacement": bytes.fromhex("b40700b41f2003d5"),
+        },
+        {
+            "description": "safely skip Prop_R muzzle effect when weapon is null in LaserAttackAction..ctor (Eleonora)",
+            "offset": 0x16D7788,
+            "expected": bytes.fromhex("560000b598f2ec97"),
+            "replacement": bytes.fromhex("360900b41f2003d5"),
+        },
+        {
+            "description": "safely skip Prop_L muzzle effect when weapon is null in LaserAttackAction..ctor (Eleonora)",
+            "offset": 0x16D7908,
+            "expected": bytes.fromhex("540000b538f2ec97"),
+            "replacement": bytes.fromhex("b40700b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in BowgunAttackAction..ctor (Owlbert)",
+            "offset": 0x14D75F0,
+            "expected": bytes.fromhex("540000b5fef2f497"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_14a5fa4..ctor",
+            "offset": 0x14A6078,
+            "expected": bytes.fromhex("540000b55cb8f597"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_13f9fd8..ctor",
+            "offset": 0x13FA0B4,
+            "expected": bytes.fromhex("540000b54d68f897"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_151e3cc..ctor",
+            "offset": 0x151E4A0,
+            "expected": bytes.fromhex("540000b552d7f397"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_160846c..ctor",
+            "offset": 0x1608540,
+            "expected": bytes.fromhex("540000b52a2ff097"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_16989b0..ctor",
+            "offset": 0x1698A84,
+            "expected": bytes.fromhex("540000b5d9eded97"),
+            "replacement": bytes.fromhex("940300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_149d72c..ctor",
+            "offset": 0x149D8F4,
+            "expected": bytes.fromhex("540000b53ddaf597"),
+            "replacement": bytes.fromhex("540200b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_1439e0c..ctor",
+            "offset": 0x1439EE0,
+            "expected": bytes.fromhex("550000b5c268f797"),
+            "replacement": bytes.fromhex("950300b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_168efe4..ctor",
+            "offset": 0x168F0F8,
+            "expected": bytes.fromhex("540000b53c14ee97"),
+            "replacement": bytes.fromhex("b40600b41f2003d5"),
+        },
+        {
+            "description": "safely skip missing effect attachment in AttackAction_15ca5e0..ctor",
+            "offset": 0x15CA6EC,
+            "expected": bytes.fromhex("540000b5bf26f197"),
+            "replacement": bytes.fromhex("b40600b41f2003d5"),
+        },
+        {
+            "description": "safely return from PlayerCharacter.UpdateLookTarget when look target is uninitialized",
+            "offset": 0x013CD984,
+            "expected": bytes.fromhex("ee0f16fc"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "safely return from PlayerCharacter.UpdateIdleTypeRate when idle rate is uninitialized",
+            "offset": 0x013CE3DC,
+            "expected": bytes.fromhex("ee0f19fc"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "safely return from PlayerBoneController.LateUpdate when bone transforms are uninitialized",
+            "offset": 0x013BA08C,
+            "expected": bytes.fromhex("f50f1df8"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "safely return from PlayerBoneController.SetPose when bone transforms are uninitialized",
+            "offset": 0x013BA8F4,
+            "expected": bytes.fromhex("ed33ba6d"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "safely return from PlayerBoneController.InterpolationUpdate when bone transforms are uninitialized",
+            "offset": 0x013BA65C,
+            "expected": bytes.fromhex("ffc305d1"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "force GameManager.get_IsAllPlayerLoaded to true for offline battle start sequence",
+            "offset": 0x0156D7D8,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
         },
     ],
     "armeabi-v7a": [
