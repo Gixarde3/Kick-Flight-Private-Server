@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "kickerAiDiscId1": 1,
+    "kickerAiDiscId2": 2,
+    "kickerAiDiscId3": 3,
+    "kickerAiDiscId4": 4
+  },
+  {
+    "id": 2,
+    "kickerAiDiscId1": 5,
+    "kickerAiDiscId2": 6,
+    "kickerAiDiscId3": 7,
+    "kickerAiDiscId4": 8
+  }
+]

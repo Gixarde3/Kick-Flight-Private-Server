@@ -1,0 +1,16 @@
+{
+  "id": "demo-auth-index",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/auth/index",
+  "statusCode": 200,
+  "contentType": "application/octet-stream",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-app-user-id": "1000001",
+    "x-app-access-token": "demo-access-token-0000000000000000000000000000",
+    "x-kickflight-fixture": "demo-auth-index"
+  },
+  "bodyBase64": "ECEyQ1RldoeYqbrL3O3+D7vUhNdZAW3QnimHnXTUuoQ="
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "rarityType": 0,
+    "level": 1,
+    "necessaryDiscForceAmount": 50,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 2,
+    "rarityType": 0,
+    "level": 2,
+    "necessaryDiscForceAmount": 70,
+    "totalDiscAmount": 3
+  },
+  {
+    "id": 3,
+    "rarityType": 0,
+    "level": 3,
+    "necessaryDiscForceAmount": 390,
+    "totalDiscAmount": 5
+  },
+  {
+    "id": 4,
+    "rarityType": 0,
+    "level": 4,
+    "necessaryDiscForceAmount": 880,
+    "totalDiscAmount": 25
+  },
+  {
+    "id": 5,
+    "rarityType": 0,
+    "level": 5,
+    "necessaryDiscForceAmount": 1400,
+    "totalDiscAmount": 100
+  },
+  {
+    "id": 6,
+    "rarityType": 0,
+    "level": 6,
+    "necessaryDiscForceAmount": 2000,
+    "totalDiscAmount": 150
+  },
+  {
+    "id": 7,
+    "rarityType": 0,
+    "level": 7,
+    "necessaryDiscForceAmount": 2800,
+    "totalDiscAmount": 250
+  },
+  {
+    "id": 8,
+    "rarityType": 0,
+    "level": 8,
+    "necessaryDiscForceAmount": 4000,
+    "totalDiscAmount": 400
+  },
+  {
+    "id": 9,
+    "rarityType": 0,
+    "level": 9,
+    "necessaryDiscForceAmount": 5600,
+    "totalDiscAmount": 500
+  },
+  {
+    "id": 10,
+    "rarityType": 1,
+    "level": 2,
+    "necessaryDiscForceAmount": 150,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 11,
+    "rarityType": 1,
+    "level": 3,
+    "necessaryDiscForceAmount": 400,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 12,
+    "rarityType": 1,
+    "level": 4,
+    "necessaryDiscForceAmount": 1200,
+    "totalDiscAmount": 5
+  },
+  {
+    "id": 13,
+    "rarityType": 1,
+    "level": 5,
+    "necessaryDiscForceAmount": 2000,
+    "totalDiscAmount": 15
+  },
+  {
+    "id": 14,
+    "rarityType": 1,
+    "level": 6,
+    "necessaryDiscForceAmount": 3000,
+    "totalDiscAmount": 25
+  },
+  {
+    "id": 15,
+    "rarityType": 1,
+    "level": 7,
+    "necessaryDiscForceAmount": 4300,
+    "totalDiscAmount": 40
+  },
+  {
+    "id": 16,
+    "rarityType": 1,
+    "level": 8,
+    "necessaryDiscForceAmount": 6000,
+    "totalDiscAmount": 60
+  },
+  {
+    "id": 17,
+    "rarityType": 1,
+    "level": 9,
+    "necessaryDiscForceAmount": 8400,
+    "totalDiscAmount": 80
+  },
+  {
+    "id": 18,
+    "rarityType": 2,
+    "level": 3,
+    "necessaryDiscForceAmount": 470,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 19,
+    "rarityType": 2,
+    "level": 4,
+    "necessaryDiscForceAmount": 1880,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 20,
+    "rarityType": 2,
+    "level": 5,
+    "necessaryDiscForceAmount": 3300,
+    "totalDiscAmount": 4
+  },
+  {
+    "id": 21,
+    "rarityType": 2,
+    "level": 6,
+    "necessaryDiscForceAmount": 5000,
+    "totalDiscAmount": 8
+  },
+  {
+    "id": 22,
+    "rarityType": 2,
+    "level": 7,
+    "necessaryDiscForceAmount": 7200,
+    "totalDiscAmount": 10
+  },
+  {
+    "id": 23,
+    "rarityType": 2,
+    "level": 8,
+    "necessaryDiscForceAmount": 10000,
+    "totalDiscAmount": 12
+  },
+  {
+    "id": 24,
+    "rarityType": 2,
+    "level": 9,
+    "necessaryDiscForceAmount": 14000,
+    "totalDiscAmount": 15
+  },
+  {
+    "id": 25,
+    "rarityType": 3,
+    "level": 4,
+    "necessaryDiscForceAmount": 2620,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 26,
+    "rarityType": 3,
+    "level": 5,
+    "necessaryDiscForceAmount": 4600,
+    "totalDiscAmount": 1
+  },
+  {
+    "id": 27,
+    "rarityType": 3,
+    "level": 6,
+    "necessaryDiscForceAmount": 7000,
+    "totalDiscAmount": 2
+  },
+  {
+    "id": 28,
+    "rarityType": 3,
+    "level": 7,
+    "necessaryDiscForceAmount": 10000,
+    "totalDiscAmount": 3
+  },
+  {
+    "id": 29,
+    "rarityType": 3,
+    "level": 8,
+    "necessaryDiscForceAmount": 14000,
+    "totalDiscAmount": 3
+  },
+  {
+    "id": 30,
+    "rarityType": 3,
+    "level": 9,
+    "necessaryDiscForceAmount": 20000,
+    "totalDiscAmount": 4
+  }
+]

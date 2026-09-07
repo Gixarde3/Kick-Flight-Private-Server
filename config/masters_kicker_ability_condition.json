@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "kickerAbilityId": 1,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 2,
+    "kickerAbilityId": 2,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 3,
+    "kickerAbilityId": 3,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 4,
+    "kickerAbilityId": 4,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 5,
+    "kickerAbilityId": 5,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 6,
+    "kickerAbilityId": 6,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 7,
+    "kickerAbilityId": 7,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 8,
+    "kickerAbilityId": 8,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 9,
+    "kickerAbilityId": 9,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 10,
+    "kickerAbilityId": 10,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 11,
+    "kickerAbilityId": 11,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 12,
+    "kickerAbilityId": 12,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 13,
+    "kickerAbilityId": 13,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  },
+  {
+    "id": 14,
+    "kickerAbilityId": 14,
+    "conditionType": 1,
+    "duration": 5.0,
+    "interval": 1.0,
+    "effectValue": 1.2,
+    "triggerType": 1,
+    "limitCount": 1
+  }
+]

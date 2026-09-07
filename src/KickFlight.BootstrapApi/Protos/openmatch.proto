@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package openmatch;
+
+option csharp_namespace = "OpenMatch";
+
+import "google/protobuf/struct.proto";
+
+service Frontend {
+  rpc GetAssignments (GetAssignmentsRequest) returns (stream GetAssignmentsResponse);
+}
+
+message GetAssignmentsRequest {
+  string ticket_id = 1;
+}
+
+message GetAssignmentsResponse {
+  Assignment assignment = 1;
+}
+
+message Assignment {
+  string connection = 1;
+  google.protobuf.Struct properties = 2;
+  Status error = 3;
+}
+
+message Status {
+  int32 code = 1;
+  string message = 2;
+}

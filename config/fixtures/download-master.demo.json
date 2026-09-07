@@ -1,0 +1,15 @@
+{
+  "id": "demo-download-master-empty",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/download/master",
+  "statusCode": 200,
+  "contentType": "application/octet-stream",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-app-master-hash": "demo-master-v1",
+    "x-kickflight-fixture": "demo-download-master-empty"
+  },
+  "bodyBase64": "MkNUZXaHmKm6y9zt/g8QIbxZa/o7lU8N6/BqEKJ7nVO3qotwfEEjnvJcWYj3+2At"
+}

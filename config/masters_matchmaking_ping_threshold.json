@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "matchmakingPingThresholdType": 1,
+    "maxPing": 9999
+  },
+  {
+    "id": 2,
+    "matchmakingPingThresholdType": 2,
+    "maxPing": 9999
+  },
+  {
+    "id": 3,
+    "matchmakingPingThresholdType": 3,
+    "maxPing": 9999
+  }
+]

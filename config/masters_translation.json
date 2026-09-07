@@ -1,0 +1,2682 @@
+[
+  {
+    "id": 1,
+    "key": "common.pointUnit",
+    "text": "pt"
+  },
+  {
+    "id": 2,
+    "key": "common.dataUpdateTitle",
+    "text": "Actualización de datos"
+  },
+  {
+    "id": 3,
+    "key": "common.dataUpdateDescription",
+    "text": "Hay nuevos datos disponibles."
+  },
+  {
+    "id": 4,
+    "key": "common.dataUpdateReturnHomeDescription",
+    "text": "Regresando a la pantalla de inicio..."
+  },
+  {
+    "id": 5,
+    "key": "common.dataSize",
+    "text": "Tamaño: {0}"
+  },
+  {
+    "id": 6,
+    "key": "common.ok",
+    "text": "Aceptar"
+  },
+  {
+    "id": 7,
+    "key": "common.changeHomeConfirmTitle",
+    "text": "Changehomeconfirmtitle: {0}"
+  },
+  {
+    "id": 8,
+    "key": "common.changeHomeConfirmDescription",
+    "text": "Changehomeconfirmdescription: {0}"
+  },
+  {
+    "id": 9,
+    "key": "common.achievement",
+    "text": "Achievement: {0}"
+  },
+  {
+    "id": 10,
+    "key": "common.gameCenterAccountLinkTitle",
+    "text": "Gamecenteraccountlinktitle: {0}"
+  },
+  {
+    "id": 11,
+    "key": "common.userIdTitleFormat",
+    "text": "Useridtitleformat: {0}"
+  },
+  {
+    "id": 12,
+    "key": "common.received",
+    "text": "Received: {0}"
+  },
+  {
+    "id": 13,
+    "key": "common.receive",
+    "text": "Receive: {0}"
+  },
+  {
+    "id": 14,
+    "key": "common.detail",
+    "text": "Detalles"
+  },
+  {
+    "id": 15,
+    "key": "common.battleRuleRegular",
+    "text": "Combate normal"
+  },
+  {
+    "id": 16,
+    "key": "common.battleRuleRanker",
+    "text": "Combate de clasificación"
+  },
+  {
+    "id": 17,
+    "key": "common.battleRuleSeason",
+    "text": "Combate de temporada"
+  },
+  {
+    "id": 18,
+    "key": "common.battleRuleFestival",
+    "text": "Festival Kick-Flight"
+  },
+  {
+    "id": 19,
+    "key": "common.battleRuleCustom",
+    "text": "Combate personalizado"
+  },
+  {
+    "id": 20,
+    "key": "common.battleRuleRegularMatch",
+    "text": "Combate normal"
+  },
+  {
+    "id": 21,
+    "key": "common.battleRuleRankerMatch",
+    "text": "Combate de clasificación"
+  },
+  {
+    "id": 22,
+    "key": "common.battleRuleSeasonMatch",
+    "text": "Combate de temporada"
+  },
+  {
+    "id": 23,
+    "key": "common.battleRuleCustomMatch",
+    "text": "Combate personalizado"
+  },
+  {
+    "id": 24,
+    "key": "common.battleRuleFestivalMatch",
+    "text": "Festival Kick-Flight"
+  },
+  {
+    "id": 25,
+    "key": "common.ranking",
+    "text": "Ranking: {0}"
+  },
+  {
+    "id": 26,
+    "key": "common.chat",
+    "text": "Chat: {0}"
+  },
+  {
+    "id": 27,
+    "key": "common.skillGaugeMax",
+    "text": "Skillgaugemax: {0}"
+  },
+  {
+    "id": 28,
+    "key": "common.rankUpDiscCountDescriptionFormat",
+    "text": "Disponibles: {0}"
+  },
+  {
+    "id": 29,
+    "key": "common.kickerTicket",
+    "text": "Tickets de Kicker"
+  },
+  {
+    "id": 30,
+    "key": "common.lackTicket",
+    "text": "Lackticket: {0}"
+  },
+  {
+    "id": 31,
+    "key": "common.purchaseJetCoin",
+    "text": "Purchasejetcoin: {0}"
+  },
+  {
+    "id": 32,
+    "key": "common.follow",
+    "text": "Seguir"
+  },
+  {
+    "id": 33,
+    "key": "common.follower",
+    "text": "Seguidores"
+  },
+  {
+    "id": 34,
+    "key": "common.kickerPurchaseTitle",
+    "text": "Kickerpurchasetitle: {0}"
+  },
+  {
+    "id": 35,
+    "key": "common.termsOfService",
+    "text": "Termsofservice: {0}"
+  },
+  {
+    "id": 36,
+    "key": "common.characterVoiceFormat",
+    "text": "Charactervoiceformat: {0}"
+  },
+  {
+    "id": 37,
+    "key": "common.levelTitle",
+    "text": "Nivel"
+  },
+  {
+    "id": 38,
+    "key": "common.on",
+    "text": "Activado"
+  },
+  {
+    "id": 39,
+    "key": "common.off",
+    "text": "Sin filtro"
+  },
+  {
+    "id": 40,
+    "key": "common.sortTypeId",
+    "text": "Nº de ID"
+  },
+  {
+    "id": 41,
+    "key": "common.sortTypeGet",
+    "text": "Obtención"
+  },
+  {
+    "id": 42,
+    "key": "common.copyright",
+    "text": "Copyright: {0}"
+  },
+  {
+    "id": 43,
+    "key": "common.privacyPolicy",
+    "text": "Privacypolicy: {0}"
+  },
+  {
+    "id": 44,
+    "key": "common.lackJetCoinText",
+    "text": "Lackjetcointext: {0}"
+  },
+  {
+    "id": 45,
+    "key": "common.toPurchaseWindow",
+    "text": "Topurchasewindow: {0}"
+  },
+  {
+    "id": 46,
+    "key": "common.purchaseCancelTitle",
+    "text": "Purchasecanceltitle: {0}"
+  },
+  {
+    "id": 47,
+    "key": "common.purchaseCancelText",
+    "text": "Purchasecanceltext: {0}"
+  },
+  {
+    "id": 48,
+    "key": "common.purchaseFailureTitle",
+    "text": "Purchasefailuretitle: {0}"
+  },
+  {
+    "id": 49,
+    "key": "common.purchaseFailureText",
+    "text": "Purchasefailuretext: {0}"
+  },
+  {
+    "id": 50,
+    "key": "common.purchaseResultTitle",
+    "text": "Purchaseresulttitle: {0}"
+  },
+  {
+    "id": 51,
+    "key": "common.purchaseResultText",
+    "text": "Purchaseresulttext: {0}"
+  },
+  {
+    "id": 52,
+    "key": "common.purchaseInvalidTitle",
+    "text": "Purchaseinvalidtitle: {0}"
+  },
+  {
+    "id": 53,
+    "key": "common.purchaseInvalidText",
+    "text": "Purchaseinvalidtext: {0}"
+  },
+  {
+    "id": 54,
+    "key": "common.purchaseRetryTitle",
+    "text": "Purchaseretrytitle: {0}"
+  },
+  {
+    "id": 55,
+    "key": "common.purchaseRetryText",
+    "text": "Purchaseretrytext: {0}"
+  },
+  {
+    "id": 56,
+    "key": "common.day",
+    "text": "días"
+  },
+  {
+    "id": 57,
+    "key": "common.days",
+    "text": "días"
+  },
+  {
+    "id": 58,
+    "key": "common.canNotReceive",
+    "text": "Cannotreceive: {0}"
+  },
+  {
+    "id": 59,
+    "key": "common.termsOfServiceDescriptionForJapanese",
+    "text": "Termsofservicedescriptionforjapanese: {0}"
+  },
+  {
+    "id": 60,
+    "key": "common.termsOfServiceDescription",
+    "text": "Termsofservicedescription: {0}"
+  },
+  {
+    "id": 61,
+    "key": "common.freePrice",
+    "text": "Freeprice: {0}"
+  },
+  {
+    "id": 62,
+    "key": "common.premium",
+    "text": "Premium: {0}"
+  },
+  {
+    "id": 63,
+    "key": "common.remaining",
+    "text": "Remaining: {0}"
+  },
+  {
+    "id": 64,
+    "key": "common.selected",
+    "text": "Selected: {0}"
+  },
+  {
+    "id": 65,
+    "key": "common.battleRecord",
+    "text": "Historial de combate"
+  },
+  {
+    "id": 66,
+    "key": "common.account",
+    "text": "Account: {0}"
+  },
+  {
+    "id": 67,
+    "key": "common.help",
+    "text": "Ayuda"
+  },
+  {
+    "id": 68,
+    "key": "common.notificationService",
+    "text": "Notificationservice: {0}"
+  },
+  {
+    "id": 69,
+    "key": "common.faqTitle",
+    "text": "Faqtitle: {0}"
+  },
+  {
+    "id": 70,
+    "key": "common.question",
+    "text": "Question: {0}"
+  },
+  {
+    "id": 71,
+    "key": "common.bugReport",
+    "text": "Bugreport: {0}"
+  },
+  {
+    "id": 72,
+    "key": "common.online",
+    "text": "En línea"
+  },
+  {
+    "id": 73,
+    "key": "common.offline",
+    "text": "Offline: {0}"
+  },
+  {
+    "id": 74,
+    "key": "common.inBattle",
+    "text": "Inbattle: {0}"
+  },
+  {
+    "id": 75,
+    "key": "common.random",
+    "text": "Random: {0}"
+  },
+  {
+    "id": 76,
+    "key": "common.battlePlayerCount1vs1",
+    "text": "Battleplayercount1vs1: {0}"
+  },
+  {
+    "id": 77,
+    "key": "common.battlePlayerCount2vs2",
+    "text": "Battleplayercount2vs2: {0}"
+  },
+  {
+    "id": 78,
+    "key": "common.battlePlayerCount3vs3",
+    "text": "Battleplayercount3vs3: {0}"
+  },
+  {
+    "id": 79,
+    "key": "common.battlePlayerCount4vs4",
+    "text": "Battleplayercount4vs4: {0}"
+  },
+  {
+    "id": 80,
+    "key": "common.followListEmpty",
+    "text": "Followlistempty: {0}"
+  },
+  {
+    "id": 81,
+    "key": "common.followerListEmpty",
+    "text": "Followerlistempty: {0}"
+  },
+  {
+    "id": 82,
+    "key": "common.idSearch",
+    "text": "Idsearch: {0}"
+  },
+  {
+    "id": 83,
+    "key": "common.idSearchDescription",
+    "text": "Idsearchdescription: {0}"
+  },
+  {
+    "id": 84,
+    "key": "common.idSearchUserNotFound",
+    "text": "Idsearchusernotfound: {0}"
+  },
+  {
+    "id": 85,
+    "key": "common.idSearchDialogTitle",
+    "text": "Idsearchdialogtitle: {0}"
+  },
+  {
+    "id": 86,
+    "key": "common.arNotAvailableTitle",
+    "text": "Arnotavailabletitle: {0}"
+  },
+  {
+    "id": 87,
+    "key": "common.arNotAvailableDescription",
+    "text": "Arnotavailabledescription: {0}"
+  },
+  {
+    "id": 88,
+    "key": "dataTransfer.error",
+    "text": "Error: {0}"
+  },
+  {
+    "id": 89,
+    "key": "dataTransfer.failed",
+    "text": "Failed: {0}"
+  },
+  {
+    "id": 90,
+    "key": "dataTransfer.gameCenterNotRegisted",
+    "text": "Gamecenternotregisted: {0}"
+  },
+  {
+    "id": 91,
+    "key": "dataTransfer.googlePlayNotRegisted",
+    "text": "Googleplaynotregisted: {0}"
+  },
+  {
+    "id": 92,
+    "key": "dataTransfer.id",
+    "text": "Id: {0}"
+  },
+  {
+    "id": 93,
+    "key": "dataTransfer.loginFinished",
+    "text": "Loginfinished: {0}"
+  },
+  {
+    "id": 94,
+    "key": "dataTransfer.password",
+    "text": "Password: {0}"
+  },
+  {
+    "id": 95,
+    "key": "dataTransfer.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 96,
+    "key": "dataTransfer.purchaseIncompleteDescription",
+    "text": "Purchaseincompletedescription: {0}"
+  },
+  {
+    "id": 97,
+    "key": "dataTransfer.register",
+    "text": "Register: {0}"
+  },
+  {
+    "id": 98,
+    "key": "dataTransfer.registerExecuteDescription",
+    "text": "Registerexecutedescription: {0}"
+  },
+  {
+    "id": 99,
+    "key": "dataTransfer.registerFinished",
+    "text": "Registerfinished: {0}"
+  },
+  {
+    "id": 100,
+    "key": "dataTransfer.registerFinishedDescription",
+    "text": "Registerfinisheddescription: {0}"
+  },
+  {
+    "id": 101,
+    "key": "dataTransfer.registerSelectGameCenter",
+    "text": "Registerselectgamecenter: {0}"
+  },
+  {
+    "id": 102,
+    "key": "dataTransfer.registerSelectGooglePlay",
+    "text": "Registerselectgoogleplay: {0}"
+  },
+  {
+    "id": 103,
+    "key": "dataTransfer.loginSelectGameCenter",
+    "text": "Loginselectgamecenter: {0}"
+  },
+  {
+    "id": 104,
+    "key": "dataTransfer.loginSelectGooglePlay",
+    "text": "Loginselectgoogleplay: {0}"
+  },
+  {
+    "id": 105,
+    "key": "common.suddenDeath",
+    "text": "Suddendeath: {0}"
+  },
+  {
+    "id": 106,
+    "key": "matchTypeDescription.regular",
+    "text": "Combate con jugadores de todo el mundo"
+  },
+  {
+    "id": 107,
+    "key": "matchTypeDescription.ranker",
+    "text": "Combate feroz con rangos S"
+  },
+  {
+    "id": 108,
+    "key": "matchTypeDescription.season",
+    "text": "Temporada {0}"
+  },
+  {
+    "id": 109,
+    "key": "matchTypeDescription.custom",
+    "text": "¡Compite libremente con tus amigos!"
+  },
+  {
+    "id": 110,
+    "key": "kicker.ticketGetTitle",
+    "text": "Ticketgettitle: {0}"
+  },
+  {
+    "id": 111,
+    "key": "common.getKickerTicketTitle",
+    "text": "Getkickertickettitle: {0}"
+  },
+  {
+    "id": 112,
+    "key": "capsule.setupping",
+    "text": "Setupping: {0}"
+  },
+  {
+    "id": 113,
+    "key": "capsule.setuped",
+    "text": "Setuped: {0}"
+  },
+  {
+    "id": 114,
+    "key": "capsule.slotAttentionOK",
+    "text": "Slotattentionok: {0}"
+  },
+  {
+    "id": 115,
+    "key": "capsule.slotAttentionDescription",
+    "text": "Slotattentiondescription: {0}"
+  },
+  {
+    "id": 116,
+    "key": "capsule.slotAttentionTitle",
+    "text": "Slotattentiontitle: {0}"
+  },
+  {
+    "id": 117,
+    "key": "disc.drawFreeTitle",
+    "text": "Tirada gratuita de discos"
+  },
+  {
+    "id": 118,
+    "key": "disc.nextDropRewardTitleFormat",
+    "text": "Próxima recompensa en: {0}"
+  },
+  {
+    "id": 119,
+    "key": "disc.set",
+    "text": "Equipar"
+  },
+  {
+    "id": 120,
+    "key": "disc.sort",
+    "text": "Ordenar"
+  },
+  {
+    "id": 121,
+    "key": "gear.analysis",
+    "text": "Analysis: {0}"
+  },
+  {
+    "id": 122,
+    "key": "gear.notPossession",
+    "text": "Notpossession: {0}"
+  },
+  {
+    "id": 123,
+    "key": "gear.setTitle",
+    "text": "Settitle: {0}"
+  },
+  {
+    "id": 124,
+    "key": "gear.notSetDesripction",
+    "text": "Notsetdesripction: {0}"
+  },
+  {
+    "id": 125,
+    "key": "shop.gachaTutorialPack",
+    "text": "Gachatutorialpack: {0}"
+  },
+  {
+    "id": 126,
+    "key": "shop.discFreePop",
+    "text": "Discfreepop: {0}"
+  },
+  {
+    "id": 127,
+    "key": "social.facebookAuth",
+    "text": "Facebookauth: {0}"
+  },
+  {
+    "id": 128,
+    "key": "social.twitterAuth",
+    "text": "Twitterauth: {0}"
+  },
+  {
+    "id": 129,
+    "key": "social.facebookAuthDescription",
+    "text": "Facebookauthdescription: {0}"
+  },
+  {
+    "id": 130,
+    "key": "social.twitterAuthDescription",
+    "text": "Twitterauthdescription: {0}"
+  },
+  {
+    "id": 131,
+    "key": "social.twitterAccountLinkTitle",
+    "text": "Twitteraccountlinktitle: {0}"
+  },
+  {
+    "id": 132,
+    "key": "social.twitterAccountDisconnectExecute",
+    "text": "Twitteraccountdisconnectexecute: {0}"
+  },
+  {
+    "id": 133,
+    "key": "social.accountMessage",
+    "text": "Accountmessage: {0}"
+  },
+  {
+    "id": 134,
+    "key": "social.twitterAccountLinkExecute",
+    "text": "Twitteraccountlinkexecute: {0}"
+  },
+  {
+    "id": 135,
+    "key": "social.twitterAccountDisconnectExecute",
+    "text": "Twitteraccountdisconnectexecute: {0}"
+  },
+  {
+    "id": 136,
+    "key": "social.facebookFriendSettingLinkExecute",
+    "text": "Facebookfriendsettinglinkexecute: {0}"
+  },
+  {
+    "id": 137,
+    "key": "social.facebookFriendSettingDisconnectExecute",
+    "text": "Facebookfriendsettingdisconnectexecute: {0}"
+  },
+  {
+    "id": 138,
+    "key": "social.twitterFriendSettingLinkExecute",
+    "text": "Twitterfriendsettinglinkexecute: {0}"
+  },
+  {
+    "id": 139,
+    "key": "social.twitterFriendSettingDisconnectExecute",
+    "text": "Twitterfriendsettingdisconnectexecute: {0}"
+  },
+  {
+    "id": 140,
+    "key": "social.facebookListEmpty",
+    "text": "Facebooklistempty: {0}"
+  },
+  {
+    "id": 141,
+    "key": "social.twitterListEmpty",
+    "text": "Twitterlistempty: {0}"
+  },
+  {
+    "id": 142,
+    "key": "present.limitTitle",
+    "text": "Limittitle: {0}"
+  },
+  {
+    "id": 143,
+    "key": "present.receiveDay",
+    "text": "Receiveday: {0}"
+  },
+  {
+    "id": 144,
+    "key": "present.limitTitleLongFormat",
+    "text": "Limittitlelongformat: {0}"
+  },
+  {
+    "id": 145,
+    "key": "present.receiveDayLongFormat",
+    "text": "Receivedaylongformat: {0}"
+  },
+  {
+    "id": 146,
+    "key": "mission.limitTitle",
+    "text": "Limittitle: {0}"
+  },
+  {
+    "id": 147,
+    "key": "mission.recieveLimit",
+    "text": "Recievelimit: {0}"
+  },
+  {
+    "id": 148,
+    "key": "missionWindow.limitTitleFormat",
+    "text": "Limittitleformat: {0}"
+  },
+  {
+    "id": 149,
+    "key": "applicationQuit.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 150,
+    "key": "applicationQuit.description",
+    "text": "Description: {0}"
+  },
+  {
+    "id": 151,
+    "key": "battleRuleDescription.scramble50",
+    "text": "Scramble50: {0}"
+  },
+  {
+    "id": 152,
+    "key": "battleRuleDescription.flagBattle",
+    "text": "Flagbattle: {0}"
+  },
+  {
+    "id": 153,
+    "key": "matching.codeTitleFormat",
+    "text": "Codetitleformat: {0}"
+  },
+  {
+    "id": 154,
+    "key": "matching.customCodeTitleFormat",
+    "text": "Customcodetitleformat: {0}"
+  },
+  {
+    "id": 155,
+    "key": "matching.regulerFixedLevelDescription",
+    "text": "En combates normales el nivel está fijado"
+  },
+  {
+    "id": 156,
+    "key": "matching.festivalFixedLevelDescription",
+    "text": "Festivalfixedleveldescription: {0}"
+  },
+  {
+    "id": 157,
+    "key": "matching.inputCode",
+    "text": "Introducir código"
+  },
+  {
+    "id": 158,
+    "key": "matching.inputCustomCode",
+    "text": "Inputcustomcode: {0}"
+  },
+  {
+    "id": 159,
+    "key": "matching.customKickerDescription",
+    "text": "Customkickerdescription: {0}"
+  },
+  {
+    "id": 160,
+    "key": "matching.customDiscDescription",
+    "text": "Customdiscdescription: {0}"
+  },
+  {
+    "id": 161,
+    "key": "game.skillDescriptionAttributeChange",
+    "text": "Skilldescriptionattributechange: {0}"
+  },
+  {
+    "id": 162,
+    "key": "game.skillDescriptionAttributeChanged",
+    "text": "Skilldescriptionattributechanged: {0}"
+  },
+  {
+    "id": 163,
+    "key": "gameReady.ruleTitle",
+    "text": "Ruletitle: {0}"
+  },
+  {
+    "id": 164,
+    "key": "gameReady.ruleScramble50",
+    "text": "Rulescramble50: {0}"
+  },
+  {
+    "id": 165,
+    "key": "gameReady.ruleFlagBattle",
+    "text": "Ruleflagbattle: {0}"
+  },
+  {
+    "id": 166,
+    "key": "gameReady.ruleBallShoot",
+    "text": "Ruleballshoot: {0}"
+  },
+  {
+    "id": 167,
+    "key": "error.titleError",
+    "text": "Titleerror: {0}"
+  },
+  {
+    "id": 168,
+    "key": "error.titleDownloadError",
+    "text": "Titledownloaderror: {0}"
+  },
+  {
+    "id": 169,
+    "key": "error.titleNetworkError",
+    "text": "Titlenetworkerror: {0}"
+  },
+  {
+    "id": 170,
+    "key": "error.titleReachableError",
+    "text": "Titlereachableerror: {0}"
+  },
+  {
+    "id": 171,
+    "key": "error.titleTimeoutError",
+    "text": "Titletimeouterror: {0}"
+  },
+  {
+    "id": 172,
+    "key": "error.titleDisconnectError",
+    "text": "Titledisconnecterror: {0}"
+  },
+  {
+    "id": 173,
+    "key": "error.titleIoStorageError",
+    "text": "Titleiostorageerror: {0}"
+  },
+  {
+    "id": 174,
+    "key": "error.title.teamBattle",
+    "text": "Teambattle: {0}"
+  },
+  {
+    "id": 175,
+    "key": "error.title.battleJoin",
+    "text": "Battlejoin: {0}"
+  },
+  {
+    "id": 176,
+    "key": "error.title.teamDissolution",
+    "text": "Teamdissolution: {0}"
+  },
+  {
+    "id": 177,
+    "key": "error.title.timeout",
+    "text": "Timeout: {0}"
+  },
+  {
+    "id": 178,
+    "key": "error.title.banToTitle",
+    "text": "Bantotitle: {0}"
+  },
+  {
+    "id": 179,
+    "key": "error.title.forceUpdateToTitle",
+    "text": "Forceupdatetotitle: {0}"
+  },
+  {
+    "id": 180,
+    "key": "error.title.agreementUpdateToTitle",
+    "text": "Agreementupdatetotitle: {0}"
+  },
+  {
+    "id": 181,
+    "key": "error.title.invalidSpd",
+    "text": "Invalidspd: {0}"
+  },
+  {
+    "id": 182,
+    "key": "error.title.warning",
+    "text": "Warning: {0}"
+  },
+  {
+    "id": 183,
+    "key": "error.title.reconnecting",
+    "text": "Reconnecting: {0}"
+  },
+  {
+    "id": 184,
+    "key": "error.title.reconnectFailed",
+    "text": "Reconnectfailed: {0}"
+  },
+  {
+    "id": 185,
+    "key": "error.title.purchaseInit",
+    "text": "Purchaseinit: {0}"
+  },
+  {
+    "id": 186,
+    "key": "error.title.purchaseMonthlyLimit",
+    "text": "Purchasemonthlylimit: {0}"
+  },
+  {
+    "id": 187,
+    "key": "error.title.matchingError",
+    "text": "Matchingerror: {0}"
+  },
+  {
+    "id": 188,
+    "key": "error.title.chatRoomCommentMinLength",
+    "text": "Chatroomcommentminlength: {0}"
+  },
+  {
+    "id": 189,
+    "key": "error.title.chatRoomCommentMaxLength",
+    "text": "Chatroomcommentmaxlength: {0}"
+  },
+  {
+    "id": 190,
+    "key": "error.title.chatRoomCommentNgWord",
+    "text": "Chatroomcommentngword: {0}"
+  },
+  {
+    "id": 191,
+    "key": "error.message",
+    "text": "Message: {0}"
+  },
+  {
+    "id": 192,
+    "key": "error.message.roomPlayerOver",
+    "text": "Roomplayerover: {0}"
+  },
+  {
+    "id": 193,
+    "key": "error.message.blueRoomPlayerOver",
+    "text": "Blueroomplayerover: {0}"
+  },
+  {
+    "id": 194,
+    "key": "error.message.redRoomPlayerOver",
+    "text": "Redroomplayerover: {0}"
+  },
+  {
+    "id": 195,
+    "key": "error.message.roomEnd",
+    "text": "Roomend: {0}"
+  },
+  {
+    "id": 196,
+    "key": "error.message.codeNothing",
+    "text": "Codenothing: {0}"
+  },
+  {
+    "id": 197,
+    "key": "error.message.teamDissolution",
+    "text": "Teamdissolution: {0}"
+  },
+  {
+    "id": 198,
+    "key": "error.message.timeout",
+    "text": "Timeout: {0}"
+  },
+  {
+    "id": 199,
+    "key": "error.message.banToTitle",
+    "text": "Bantotitle: {0}"
+  },
+  {
+    "id": 200,
+    "key": "error.message.forceUpdateToTitle",
+    "text": "Forceupdatetotitle: {0}"
+  },
+  {
+    "id": 201,
+    "key": "error.message.agreementUpdateToTitle",
+    "text": "Agreementupdatetotitle: {0}"
+  },
+  {
+    "id": 202,
+    "key": "error.message.purchaseInit",
+    "text": "Purchaseinit: {0}"
+  },
+  {
+    "id": 203,
+    "key": "error.message.purchaseMonthlyLimit",
+    "text": "Purchasemonthlylimit: {0}"
+  },
+  {
+    "id": 204,
+    "key": "error.message.matchingError",
+    "text": "Matchingerror: {0}"
+  },
+  {
+    "id": 205,
+    "key": "error.message.teamTimeout",
+    "text": "Teamtimeout: {0}"
+  },
+  {
+    "id": 206,
+    "key": "error.message.chatRoomCommentMinLength",
+    "text": "Chatroomcommentminlength: {0}"
+  },
+  {
+    "id": 207,
+    "key": "error.message.chatRoomCommentMaxLength",
+    "text": "Chatroomcommentmaxlength: {0}"
+  },
+  {
+    "id": 208,
+    "key": "error.message.chatRoomCommentNgWord",
+    "text": "Chatroomcommentngword: {0}"
+  },
+  {
+    "id": 209,
+    "key": "error.agreement.forceUpdate",
+    "text": "Forceupdate: {0}"
+  },
+  {
+    "id": 210,
+    "key": "error.message.invalidSpd",
+    "text": "Invalidspd: {0}"
+  },
+  {
+    "id": 211,
+    "key": "error.codeFormat",
+    "text": "Codeformat: {0}"
+  },
+  {
+    "id": 212,
+    "key": "error.maintenanceTitle",
+    "text": "Maintenancetitle: {0}"
+  },
+  {
+    "id": 213,
+    "key": "error.maintenanceDescription",
+    "text": "Maintenancedescription: {0}"
+  },
+  {
+    "id": 214,
+    "key": "error.message.reconnecting",
+    "text": "Reconnecting: {0}"
+  },
+  {
+    "id": 215,
+    "key": "error.message.reconnectFailed",
+    "text": "Reconnectfailed: {0}"
+  },
+  {
+    "id": 216,
+    "key": "error.message.reconnectRoomFailed",
+    "text": "Reconnectroomfailed: {0}"
+  },
+  {
+    "id": 217,
+    "key": "error.message.pingAlert",
+    "text": "Pingalert: {0}"
+  },
+  {
+    "id": 218,
+    "key": "killLog.unknowsAttackText",
+    "text": "Unknowsattacktext: {0}"
+  },
+  {
+    "id": 219,
+    "key": "killLog.guardianFormat",
+    "text": "Guardianformat: {0}"
+  },
+  {
+    "id": 220,
+    "key": "killLog.defeatFormat",
+    "text": "Defeatformat: {0}"
+  },
+  {
+    "id": 221,
+    "key": "attackType.default",
+    "text": "Ataque normal"
+  },
+  {
+    "id": 222,
+    "key": "attackType.skill",
+    "text": "Técnica / Habilidad"
+  },
+  {
+    "id": 223,
+    "key": "tutorial.defaultPlayerName",
+    "text": "Piloto"
+  },
+  {
+    "id": 224,
+    "key": "inGameTutorial.moveTitle",
+    "text": "Movetitle: {0}"
+  },
+  {
+    "id": 225,
+    "key": "inGameTutorial.attackTitle",
+    "text": "Attacktitle: {0}"
+  },
+  {
+    "id": 226,
+    "key": "inGameTutorial.attackGuardianTitle",
+    "text": "Attackguardiantitle: {0}"
+  },
+  {
+    "id": 227,
+    "key": "inGameTutorial.attackGuardianDescription",
+    "text": "Attackguardiandescription: {0}"
+  },
+  {
+    "id": 228,
+    "key": "inGameTutorial.autoAttackTitle",
+    "text": "Ataque Automático"
+  },
+  {
+    "id": 229,
+    "key": "inGameTutorial.autoAttackDescription",
+    "text": "Vuela cerca de un rival fijado para atacarlo automáticamente."
+  },
+  {
+    "id": 230,
+    "key": "inGameTutorial.timesUnit",
+    "text": "Timesunit: {0}"
+  },
+  {
+    "id": 231,
+    "key": "inGameTutorial.boostDashTitleFormat",
+    "text": "Aceleración Boost"
+  },
+  {
+    "id": 232,
+    "key": "inGameTutorial.boostDashDescription",
+    "text": "Mantén pulsado con dos dedos o botón para acelerar a máxima velocidad."
+  },
+  {
+    "id": 233,
+    "key": "inGameTutorial.boostDashSubDescription",
+    "text": "Consume barra de boost mientras aceleras."
+  },
+  {
+    "id": 234,
+    "key": "inGameTutorial.catchCrystalTitleFormat",
+    "text": "Recolección de Cristales"
+  },
+  {
+    "id": 235,
+    "key": "inGameTutorial.catchCrystalSubDescription",
+    "text": "Toca los cristales flotantes para recogerlos."
+  },
+  {
+    "id": 236,
+    "key": "inGameTutorial.crysrtalUnit",
+    "text": "cristales"
+  },
+  {
+    "id": 237,
+    "key": "inGameTutorial.depositCrystalTitle",
+    "text": "Depósito de Cristales"
+  },
+  {
+    "id": 238,
+    "key": "inGameTutorial.depositCrystalDescription",
+    "text": "Lleva los cristales al guardián de tu equipo para sumar puntos."
+  },
+  {
+    "id": 239,
+    "key": "inGameTutorial.depositCrystalDescription2",
+    "text": "Deposita cristales antes de que te derriben."
+  },
+  {
+    "id": 240,
+    "key": "inGameTutorial.depositCrystalDescription3",
+    "text": "El equipo con más cristales al expirar el tiempo gana."
+  },
+  {
+    "id": 241,
+    "key": "inGameTutorial.endDescriptionFormat",
+    "text": "Enddescriptionformat: {0}"
+  },
+  {
+    "id": 242,
+    "key": "inGameTutorial.flipTurnTitleFormat",
+    "text": "Giro Rápido (Flip Turn)"
+  },
+  {
+    "id": 243,
+    "key": "inGameTutorial.hitDiscSkillTitleFormat",
+    "text": "Uso de Discos"
+  },
+  {
+    "id": 244,
+    "key": "inGameTutorial.hitDiscSkillDescription",
+    "text": "Desliza el disco equipado hacia arriba para desatar su habilidad."
+  },
+  {
+    "id": 245,
+    "key": "inGameTutorial.hitKickerSkillTitleFormat",
+    "text": "Técnica de Kicker"
+  },
+  {
+    "id": 246,
+    "key": "inGameTutorial.hitKickerSkillDescription",
+    "text": "Toca el icono de técnica especial para usar tu habilidad característica."
+  },
+  {
+    "id": 247,
+    "key": "inGameTutorial.moveTitleFormat",
+    "text": "Vuelo Tridimensional"
+  },
+  {
+    "id": 248,
+    "key": "inGameTutorial.moveDistanceUnit",
+    "text": "m"
+  },
+  {
+    "id": 249,
+    "key": "inGameTutorial.moveSubDescription",
+    "text": "Desliza para moverte libremente por el espacio aéreo 3D."
+  },
+  {
+    "id": 250,
+    "key": "inGameTutorial.startDescriptionFormat",
+    "text": "Startdescriptionformat: {0}"
+  },
+  {
+    "id": 251,
+    "key": "inGameTutorial.turnAvoidTitleFormat",
+    "text": "Evasión Rápida"
+  },
+  {
+    "id": 252,
+    "key": "inGameTutorial.toBattleDescription",
+    "text": "Tobattledescription: {0}"
+  },
+  {
+    "id": 253,
+    "key": "inGameTutorial.underFlickTitleFormat",
+    "text": "Flick Hacia Abajo"
+  },
+  {
+    "id": 254,
+    "key": "inGameTutorial.specialSkillTitleFormat",
+    "text": "Habilidad Especial"
+  },
+  {
+    "id": 255,
+    "key": "inGameTutorial.specialSkillDescription",
+    "text": "Desliza el botón de Habilidad Especial cuando el medidor esté lleno."
+  },
+  {
+    "id": 256,
+    "key": "inGameTutorial.enemyUserName",
+    "text": "Rival de Práctica"
+  },
+  {
+    "id": 257,
+    "key": "outGameTutorial.capsule1",
+    "text": "¡Has conseguido una cápsula de combate!"
+  },
+  {
+    "id": 258,
+    "key": "outGameTutorial.capsule2",
+    "text": "Abre cápsulas para obtener nuevos discos y DiscForce."
+  },
+  {
+    "id": 259,
+    "key": "outGameTutorial.growDisc1",
+    "text": "Puedes subir de nivel tus discos usando DiscForce."
+  },
+  {
+    "id": 260,
+    "key": "outGameTutorial.growDisc2",
+    "text": "Mejora los discos para potenciar tu salud y daño de ataque."
+  },
+  {
+    "id": 261,
+    "key": "outGameTutorial.discGacha1",
+    "text": "Usa la ruleta de discos para expandir tu colección."
+  },
+  {
+    "id": 262,
+    "key": "outGameTutorial.discGacha2",
+    "text": "¡Obtén discos de rareza superior con habilidades devastadoras!"
+  },
+  {
+    "id": 263,
+    "key": "outGameTutorial.discGacha3",
+    "text": "Configura tus mazos para adaptarte a cada modo de combate."
+  },
+  {
+    "id": 264,
+    "key": "outGameTutorial.kickerScout1",
+    "text": "Recluta nuevos Kickers usando Tickets de Kicker."
+  },
+  {
+    "id": 265,
+    "key": "outGameTutorial.changeKicker1",
+    "text": "Cambia de Kicker según tu estilo de juego favorito."
+  },
+  {
+    "id": 266,
+    "key": "outGameTutorial.inputName1",
+    "text": "Introduce tu nombre de piloto:"
+  },
+  {
+    "id": 267,
+    "key": "outGameTutorial.inputName2",
+    "text": "Puedes cambiar tu nombre más tarde en ajustes."
+  },
+  {
+    "id": 268,
+    "key": "premium.description",
+    "text": "Pase Premium Kick-Flight"
+  },
+  {
+    "id": 269,
+    "key": "premium.missionDescription",
+    "text": "Misiones exclusivas con recompensas adicionales diarias."
+  },
+  {
+    "id": 270,
+    "key": "premium.capsuleSlotDescription",
+    "text": "Ranuras de cápsulas ampliadas para investigar más botín a la vez."
+  },
+  {
+    "id": 271,
+    "key": "premium.discForceDescription",
+    "text": "Multiplicador del 50% de ganancia de DiscForce en todas las batallas."
+  },
+  {
+    "id": 272,
+    "key": "premium.precautionsTitle",
+    "text": "Precautionstitle: {0}"
+  },
+  {
+    "id": 273,
+    "key": "premium.precautionsMessage",
+    "text": "Precautionsmessage: {0}"
+  },
+  {
+    "id": 274,
+    "key": "premium.purchase",
+    "text": "Purchase: {0}"
+  },
+  {
+    "id": 275,
+    "key": "premium.missionRewardList",
+    "text": "Missionrewardlist: {0}"
+  },
+  {
+    "id": 276,
+    "key": "premium.popText",
+    "text": "Poptext: {0}"
+  },
+  {
+    "id": 277,
+    "key": "premium.remainingDays",
+    "text": "Remainingdays: {0}"
+  },
+  {
+    "id": 278,
+    "key": "premium.remainingHours",
+    "text": "Remaininghours: {0}"
+  },
+  {
+    "id": 279,
+    "key": "premium.remainingMinutes",
+    "text": "Remainingminutes: {0}"
+  },
+  {
+    "id": 280,
+    "key": "premium.remainingSeconds",
+    "text": "Remainingseconds: {0}"
+  },
+  {
+    "id": 281,
+    "key": "premium.guideText",
+    "text": "Guidetext: {0}"
+  },
+  {
+    "id": 282,
+    "key": "shop.lockRankPackDescription",
+    "text": "Lockrankpackdescription: {0}"
+  },
+  {
+    "id": 283,
+    "key": "shop.addItemMessage",
+    "text": "Additemmessage: {0}"
+  },
+  {
+    "id": 284,
+    "key": "shopProduct.detail",
+    "text": "Detail: {0}"
+  },
+  {
+    "id": 285,
+    "key": "shopProduct.notices",
+    "text": "Notices: {0}"
+  },
+  {
+    "id": 286,
+    "key": "localPush.setupCapsule",
+    "text": "Setupcapsule: {0}"
+  },
+  {
+    "id": 287,
+    "key": "localPush.gachaFree",
+    "text": "Gachafree: {0}"
+  },
+  {
+    "id": 288,
+    "key": "replay.channelUpdateTimeAnnounce",
+    "text": "Channelupdatetimeannounce: {0}"
+  },
+  {
+    "id": 289,
+    "key": "replay.localDataAnnounce",
+    "text": "Localdataannounce: {0}"
+  },
+  {
+    "id": 290,
+    "key": "battleDisconnect.warningTitle",
+    "text": "Aviso de Desconexión"
+  },
+  {
+    "id": 291,
+    "key": "battleDisconnect.warningText1",
+    "text": "Abandonar un combate en curso perjudica a tu equipo."
+  },
+  {
+    "id": 292,
+    "key": "battleDisconnect.warningText2",
+    "text": "Las desconexiones intencionadas pueden conllevar penalizaciones temporales."
+  },
+  {
+    "id": 293,
+    "key": "battleDisconnect.penaltyText1",
+    "text": "Penalización de puntos de batalla aplicada."
+  },
+  {
+    "id": 294,
+    "key": "battleDisconnect.penaltyText2",
+    "text": "Espera unos momentos antes de volver a buscar partida."
+  },
+  {
+    "id": 295,
+    "key": "battleDisconnect.resultText",
+    "text": "Resultado del combate"
+  },
+  {
+    "id": 296,
+    "key": "common.ability",
+    "text": "Habilidad"
+  },
+  {
+    "id": 297,
+    "key": "common.show",
+    "text": "Mostrar"
+  },
+  {
+    "id": 298,
+    "key": "common.hide",
+    "text": "Ocultar"
+  },
+  {
+    "id": 299,
+    "key": "common.pickup",
+    "text": "Destacados"
+  },
+  {
+    "id": 300,
+    "key": "common.rank",
+    "text": "Rango"
+  },
+  {
+    "id": 301,
+    "key": "common.rankFormat",
+    "text": "Rango {0}"
+  },
+  {
+    "id": 302,
+    "key": "common.enableGetDiscRank",
+    "text": "Rango necesario: {0}"
+  },
+  {
+    "id": 303,
+    "key": "common.minutesAgo",
+    "text": "Hace {0} min"
+  },
+  {
+    "id": 304,
+    "key": "common.daysAgo",
+    "text": "Hace {0} días"
+  },
+  {
+    "id": 305,
+    "key": "common.hoursAgo",
+    "text": "Hace {0} h"
+  },
+  {
+    "id": 306,
+    "key": "common.secondsAgo",
+    "text": "Hace {0} s"
+  },
+  {
+    "id": 307,
+    "key": "gacha.dailyLimitMessage",
+    "text": "Dailylimitmessage: {0}"
+  },
+  {
+    "id": 308,
+    "key": "gacha.limitMessage",
+    "text": "Limitmessage: {0}"
+  },
+  {
+    "id": 309,
+    "key": "gacha.limitCount",
+    "text": "Limitcount: {0}"
+  },
+  {
+    "id": 310,
+    "key": "gacha.paidOnlyMessage",
+    "text": "Paidonlymessage: {0}"
+  },
+  {
+    "id": 311,
+    "key": "gacha.discPurchaseConfirm",
+    "text": "¿Deseas realizar esta tirada de discos?"
+  },
+  {
+    "id": 312,
+    "key": "battleRankDiscProvisionRate",
+    "text": "Battlerankdiscprovisionrate: {0}"
+  },
+  {
+    "id": 313,
+    "key": "gachaDetail.getDiscRank",
+    "text": "Disponible a partir de {0}"
+  },
+  {
+    "id": 314,
+    "key": "gachaDetail.unlockRank",
+    "text": "Desbloqueo en {0}"
+  },
+  {
+    "id": 315,
+    "key": "loginBonus.day",
+    "text": "Day: {0}"
+  },
+  {
+    "id": 316,
+    "key": "itemExchange.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 317,
+    "key": "itemExchange.message",
+    "text": "Message: {0}"
+  },
+  {
+    "id": 318,
+    "key": "disableDevice.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 319,
+    "key": "disableDevice.message",
+    "text": "Message: {0}"
+  },
+  {
+    "id": 320,
+    "key": "game.lastSeconds30",
+    "text": "Lastseconds30: {0}"
+  },
+  {
+    "id": 321,
+    "key": "game.lastMinutes1",
+    "text": "Lastminutes1: {0}"
+  },
+  {
+    "id": 322,
+    "key": "loading.remainCount",
+    "text": "Remaincount: {0}"
+  },
+  {
+    "id": 323,
+    "key": "matching.waitCount",
+    "text": "Waitcount: {0}"
+  },
+  {
+    "id": 324,
+    "key": "matching.waitingMember",
+    "text": "Esperando participantes..."
+  },
+  {
+    "id": 325,
+    "key": "realFriend.rewardNumberFormat",
+    "text": "Rewardnumberformat: {0}"
+  },
+  {
+    "id": 326,
+    "key": "realFriend.rewardProgressFormat",
+    "text": "Rewardprogressformat: {0}"
+  },
+  {
+    "id": 327,
+    "key": "realFriend.rewardDetail.beforeRenewal",
+    "text": "Beforerenewal: {0}"
+  },
+  {
+    "id": 328,
+    "key": "realFriend.rewardDetail.afterRenewal",
+    "text": "Afterrenewal: {0}"
+  },
+  {
+    "id": 329,
+    "key": "realFriend.warning.beforeRenewal",
+    "text": "Beforerenewal: {0}"
+  },
+  {
+    "id": 330,
+    "key": "realFriend.warning.afterRenewal",
+    "text": "Afterrenewal: {0}"
+  },
+  {
+    "id": 331,
+    "key": "replayReward.messageKickerMvp",
+    "text": "Messagekickermvp: {0}"
+  },
+  {
+    "id": 332,
+    "key": "replayReward.messageKicker",
+    "text": "Messagekicker: {0}"
+  },
+  {
+    "id": 333,
+    "key": "replayReward.messageRank",
+    "text": "Messagerank: {0}"
+  },
+  {
+    "id": 334,
+    "key": "replayReward.messagePickup",
+    "text": "Messagepickup: {0}"
+  },
+  {
+    "id": 335,
+    "key": "replayReward.honorific",
+    "text": "Honorific: {0}"
+  },
+  {
+    "id": 336,
+    "key": "replayReward.publishTerm",
+    "text": "Publishterm: {0}"
+  },
+  {
+    "id": 337,
+    "key": "replay.publishEndAttention",
+    "text": "Publishendattention: {0}"
+  },
+  {
+    "id": 338,
+    "key": "common.last",
+    "text": "Quedan"
+  },
+  {
+    "id": 339,
+    "key": "common.lastDay",
+    "text": "Último día"
+  },
+  {
+    "id": 340,
+    "key": "common.lastHour",
+    "text": "Faltan {0}h"
+  },
+  {
+    "id": 341,
+    "key": "common.lastMinute",
+    "text": "Faltan {0}m"
+  },
+  {
+    "id": 342,
+    "key": "common.lastSecond",
+    "text": "Faltan {0}s"
+  },
+  {
+    "id": 343,
+    "key": "common.nextOpenDay",
+    "text": "En {0} días"
+  },
+  {
+    "id": 344,
+    "key": "common.nextOpenHour",
+    "text": "En {0} h"
+  },
+  {
+    "id": 345,
+    "key": "common.nextOpenMinute",
+    "text": "En {0} min"
+  },
+  {
+    "id": 346,
+    "key": "common.nextOpenSecond",
+    "text": "En {0} s"
+  },
+  {
+    "id": 347,
+    "key": "battleRule.openRank",
+    "text": "Rango {0}"
+  },
+  {
+    "id": 348,
+    "key": "battleRule.openRuleText2",
+    "text": "Desbloquea en {0}"
+  },
+  {
+    "id": 349,
+    "key": "battleRule.openRuleText3",
+    "text": "Disponible en {0}"
+  },
+  {
+    "id": 350,
+    "key": "mission.dailyClearTitle",
+    "text": "Dailycleartitle: {0}"
+  },
+  {
+    "id": 351,
+    "key": "mission.limitedClearTitle",
+    "text": "Limitedcleartitle: {0}"
+  },
+  {
+    "id": 352,
+    "key": "mission.festivalClearTitle",
+    "text": "Festivalcleartitle: {0}"
+  },
+  {
+    "id": 353,
+    "key": "mission.clearTitle",
+    "text": "Cleartitle: {0}"
+  },
+  {
+    "id": 354,
+    "key": "training.allClearDescription",
+    "text": "Allcleardescription: {0}"
+  },
+  {
+    "id": 355,
+    "key": "training.allClearMessage",
+    "text": "Allclearmessage: {0}"
+  },
+  {
+    "id": 356,
+    "key": "training.nextAvailable",
+    "text": "Nextavailable: {0}"
+  },
+  {
+    "id": 357,
+    "key": "training.homeRankerDisable",
+    "text": "Homerankerdisable: {0}"
+  },
+  {
+    "id": 358,
+    "key": "training.resultRankerDisable",
+    "text": "Resultrankerdisable: {0}"
+  },
+  {
+    "id": 359,
+    "key": "shop.unlockRankFormat",
+    "text": "Disponible en {0}"
+  },
+  {
+    "id": 360,
+    "key": "game.crystalDeposite",
+    "text": "Depósito de Cristales"
+  },
+  {
+    "id": 361,
+    "key": "common.purchase",
+    "text": "Comprar"
+  },
+  {
+    "id": 362,
+    "key": "inGameTutorial.countDownMessage",
+    "text": "¡Comienza el combate!"
+  },
+  {
+    "id": 363,
+    "key": "common.requestCameraAuthTitle",
+    "text": "Requestcameraauthtitle: {0}"
+  },
+  {
+    "id": 364,
+    "key": "common.requestCameraAuthDescription",
+    "text": "Requestcameraauthdescription: {0}"
+  },
+  {
+    "id": 365,
+    "key": "skillActionType.shotAttackDetail",
+    "text": "Disparo a distancia guiado."
+  },
+  {
+    "id": 366,
+    "key": "skillActionType.aroundAttackDetail",
+    "text": "Ataque radial en área de impacto circular."
+  },
+  {
+    "id": 367,
+    "key": "skillActionType.moveAttackDetail",
+    "text": "Embestida rápida con desplazamiento frontal."
+  },
+  {
+    "id": 368,
+    "key": "skillActionType.frontAttackDetail",
+    "text": "Ataque frontal cuerpo a cuerpo contundente."
+  },
+  {
+    "id": 369,
+    "key": "challenge.badgeGet",
+    "text": "Badgeget: {0}"
+  },
+  {
+    "id": 370,
+    "key": "challenge.secretBadgeGet",
+    "text": "Secretbadgeget: {0}"
+  },
+  {
+    "id": 371,
+    "key": "social.followNum",
+    "text": "Follownum: {0}"
+  },
+  {
+    "id": 372,
+    "key": "social.followerNum",
+    "text": "Followernum: {0}"
+  },
+  {
+    "id": 373,
+    "key": "purchaseAlert.message",
+    "text": "Message: {0}"
+  },
+  {
+    "id": 374,
+    "key": "common.ageUnder",
+    "text": "Ageunder: {0}"
+  },
+  {
+    "id": 375,
+    "key": "common.ageOver",
+    "text": "Ageover: {0}"
+  },
+  {
+    "id": 376,
+    "key": "common.purchaseLimit",
+    "text": "Purchaselimit: {0}"
+  },
+  {
+    "id": 377,
+    "key": "common.purchaseNoLimit",
+    "text": "Purchasenolimit: {0}"
+  },
+  {
+    "id": 378,
+    "key": "birthdayRegistration.day",
+    "text": "Day: {0}"
+  },
+  {
+    "id": 379,
+    "key": "campaign.discForceMessage",
+    "text": "Discforcemessage: {0}"
+  },
+  {
+    "id": 380,
+    "key": "campaign.capsuleMessage",
+    "text": "Capsulemessage: {0}"
+  },
+  {
+    "id": 381,
+    "key": "campaign.capsuleDropMessage",
+    "text": "Capsuledropmessage: {0}"
+  },
+  {
+    "id": 382,
+    "key": "noInputNotification.forceDisconnectTitle",
+    "text": "Forcedisconnecttitle: {0}"
+  },
+  {
+    "id": 383,
+    "key": "noInputNotification.forceDisconnectMessage",
+    "text": "Forcedisconnectmessage: {0}"
+  },
+  {
+    "id": 384,
+    "key": "remainDateTimeFormat.dhm",
+    "text": "Dhm: {0}"
+  },
+  {
+    "id": 385,
+    "key": "remainDateTimeFormat.hms",
+    "text": "Hms: {0}"
+  },
+  {
+    "id": 386,
+    "key": "common.paidFree",
+    "text": "Gratis / De pago"
+  },
+  {
+    "id": 387,
+    "key": "common.possession",
+    "text": "En posesión: {0}"
+  },
+  {
+    "id": 388,
+    "key": "common.discForce",
+    "text": "DiscForce"
+  },
+  {
+    "id": 389,
+    "key": "shop.purchaseDiscForce",
+    "text": "Comprar DiscForce"
+  },
+  {
+    "id": 390,
+    "key": "inApp.trainingTitle",
+    "text": "Trainingtitle: {0}"
+  },
+  {
+    "id": 391,
+    "key": "inApp.discLevelUpTitle",
+    "text": "Mejora de Disco"
+  },
+  {
+    "id": 392,
+    "key": "rankingReward.rankFormat",
+    "text": "Rankformat: {0}"
+  },
+  {
+    "id": 393,
+    "key": "ranking.empty",
+    "text": "Empty: {0}"
+  },
+  {
+    "id": 394,
+    "key": "ranking.localEmpty",
+    "text": "Localempty: {0}"
+  },
+  {
+    "id": 395,
+    "key": "ranking.followEmpty",
+    "text": "Followempty: {0}"
+  },
+  {
+    "id": 396,
+    "key": "ranking.aggregate",
+    "text": "Aggregate: {0}"
+  },
+  {
+    "id": 397,
+    "key": "ranking.finish",
+    "text": "Finish: {0}"
+  },
+  {
+    "id": 398,
+    "key": "ranking.rank",
+    "text": "Rank: {0}"
+  },
+  {
+    "id": 399,
+    "key": "season.termFormat",
+    "text": "Termformat: {0}"
+  },
+  {
+    "id": 400,
+    "key": "friendMatch.invite",
+    "text": "Invite: {0}"
+  },
+  {
+    "id": 401,
+    "key": "friendMatch.invited",
+    "text": "Invited: {0}"
+  },
+  {
+    "id": 402,
+    "key": "friendMatch.inviting",
+    "text": "Inviting: {0}"
+  },
+  {
+    "id": 403,
+    "key": "friendMatch.rankerDisable",
+    "text": "Rankerdisable: {0}"
+  },
+  {
+    "id": 404,
+    "key": "friendMatch.leaveTeam",
+    "text": "Leaveteam: {0}"
+  },
+  {
+    "id": 405,
+    "key": "exchange.monthLimit",
+    "text": "Monthlimit: {0}"
+  },
+  {
+    "id": 406,
+    "key": "exchange.limit",
+    "text": "Limit: {0}"
+  },
+  {
+    "id": 407,
+    "key": "exchange.monthEnd",
+    "text": "Monthend: {0}"
+  },
+  {
+    "id": 408,
+    "key": "exchange.end",
+    "text": "End: {0}"
+  },
+  {
+    "id": 409,
+    "key": "exchangeConfirm.amount",
+    "text": "Amount: {0}"
+  },
+  {
+    "id": 410,
+    "key": "exchangeComfirm.discAmount",
+    "text": "Discamount: {0}"
+  },
+  {
+    "id": 411,
+    "key": "exchangeConfirm.message",
+    "text": "Message: {0}"
+  },
+  {
+    "id": 412,
+    "key": "exchangeComfirm.discMessage",
+    "text": "Discmessage: {0}"
+  },
+  {
+    "id": 413,
+    "key": "exchangeRefresh.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 414,
+    "key": "exchangeRefresh.impossibleTitle",
+    "text": "Impossibletitle: {0}"
+  },
+  {
+    "id": 415,
+    "key": "exchangeRefresh.impossibleDescription",
+    "text": "Impossibledescription: {0}"
+  },
+  {
+    "id": 416,
+    "key": "exchangeRefresh.notUpdateTitle",
+    "text": "Notupdatetitle: {0}"
+  },
+  {
+    "id": 417,
+    "key": "exchangeRefresh.notUpdateDescription",
+    "text": "Notupdatedescription: {0}"
+  },
+  {
+    "id": 418,
+    "key": "pickUp.by",
+    "text": "By: {0}"
+  },
+  {
+    "id": 419,
+    "key": "social.inviteLineMessage",
+    "text": "Invitelinemessage: {0}"
+  },
+  {
+    "id": 420,
+    "key": "socialGiftee.lineMessage",
+    "text": "Linemessage: {0}"
+  },
+  {
+    "id": 421,
+    "key": "common.lackKickPoint",
+    "text": "Lackkickpoint: {0}"
+  },
+  {
+    "id": 422,
+    "key": "exchangeResult.direct",
+    "text": "Direct: {0}"
+  },
+  {
+    "id": 423,
+    "key": "exchangeResult.present",
+    "text": "Present: {0}"
+  },
+  {
+    "id": 424,
+    "key": "exchangeConfirm.title",
+    "text": "Title: {0}"
+  },
+  {
+    "id": 425,
+    "key": "challenge.empty",
+    "text": "Empty: {0}"
+  },
+  {
+    "id": 426,
+    "key": "seasonPassMission.value",
+    "text": "Value: {0}"
+  },
+  {
+    "id": 427,
+    "key": "seasonPassMission.endTitle",
+    "text": "Endtitle: {0}"
+  },
+  {
+    "id": 428,
+    "key": "seasonPassMission.endMessage",
+    "text": "Endmessage: {0}"
+  },
+  {
+    "id": 429,
+    "key": "seasonPassMission.lockMessage",
+    "text": "Lockmessage: {0}"
+  },
+  {
+    "id": 430,
+    "key": "seasonPassMission.empty",
+    "text": "Empty: {0}"
+  },
+  {
+    "id": 431,
+    "key": "common.all",
+    "text": "Todos"
+  },
+  {
+    "id": 432,
+    "key": "battleSummary.battleCount",
+    "text": "Combates: {0}"
+  },
+  {
+    "id": 433,
+    "key": "battleSummary.winCount",
+    "text": "Victorias: {0}"
+  },
+  {
+    "id": 434,
+    "key": "battleSummary.mvpCount",
+    "text": "MVP: {0}"
+  },
+  {
+    "id": 435,
+    "key": "battleSummary.goodCount",
+    "text": "Goodcount: {0}"
+  },
+  {
+    "id": 436,
+    "key": "battleSummary.killCount",
+    "text": "Derribos: {0}"
+  },
+  {
+    "id": 437,
+    "key": "battleSummary.killAssistCount",
+    "text": "Asistencias: {0}"
+  },
+  {
+    "id": 438,
+    "key": "battleSummary.assistCount",
+    "text": "Assistcount: {0}"
+  },
+  {
+    "id": 439,
+    "key": "battleSummary.usedDiscSkillCount",
+    "text": "Discos usados: {0}"
+  },
+  {
+    "id": 440,
+    "key": "battleSummary.usedKickerSkillCount",
+    "text": "Técnicas usadas: {0}"
+  },
+  {
+    "id": 441,
+    "key": "battleSummary.usedSpecialSkillCount",
+    "text": "Habilidades especiales: {0}"
+  },
+  {
+    "id": 442,
+    "key": "battleSummary.killedCount",
+    "text": "Killedcount: {0}"
+  },
+  {
+    "id": 443,
+    "key": "battleSummary.acquiredCrystalCount",
+    "text": "Acquiredcrystalcount: {0}"
+  },
+  {
+    "id": 444,
+    "key": "battleSummary.releasedCrystalCount",
+    "text": "Releasedcrystalcount: {0}"
+  },
+  {
+    "id": 445,
+    "key": "battleSummary.flagGoalCount",
+    "text": "Flaggoalcount: {0}"
+  },
+  {
+    "id": 446,
+    "key": "battleSummary.enemyFlagDropCount",
+    "text": "Enemyflagdropcount: {0}"
+  },
+  {
+    "id": 447,
+    "key": "battleSummary.ballShootPoint",
+    "text": "Ballshootpoint: {0}"
+  },
+  {
+    "id": 448,
+    "key": "battleSummary.ballDropCount",
+    "text": "Balldropcount: {0}"
+  },
+  {
+    "id": 449,
+    "key": "battleSummary.rankFormat",
+    "text": "Rango {0}"
+  },
+  {
+    "id": 450,
+    "key": "battleSummary.movingDistance",
+    "text": "Distancia volada: {0} m"
+  },
+  {
+    "id": 451,
+    "key": "battle.backHome",
+    "text": "Volver a Inicio"
+  },
+  {
+    "id": 452,
+    "key": "socialGiftee.rewardButton",
+    "text": "Rewardbutton: {0}"
+  },
+  {
+    "id": 453,
+    "key": "socialGiftee.rewardButtonEnd",
+    "text": "Rewardbuttonend: {0}"
+  },
+  {
+    "id": 454,
+    "key": "socialGiftee.topMessage",
+    "text": "Topmessage: {0}"
+  },
+  {
+    "id": 455,
+    "key": "socialGiftee.topMessageEnd",
+    "text": "Topmessageend: {0}"
+  },
+  {
+    "id": 456,
+    "key": "socialGiftee.tweetText",
+    "text": "Tweettext: {0}"
+  },
+  {
+    "id": 457,
+    "key": "{0}pt",
+    "text": "{0} pt"
+  },
+  {
+    "id": 458,
+    "key": "battle.single",
+    "text": "Solo"
+  },
+  {
+    "id": 459,
+    "key": "battle.team",
+    "text": "Equipo"
+  },
+  {
+    "id": 460,
+    "key": "battle.start",
+    "text": "Combate"
+  },
+  {
+    "id": 461,
+    "key": "common.cancel",
+    "text": "Cancelar"
+  },
+  {
+    "id": 462,
+    "key": "common.close",
+    "text": "Cerrar"
+  },
+  {
+    "id": 463,
+    "key": "common.back",
+    "text": "Atrás"
+  },
+  {
+    "id": 464,
+    "key": "common.next",
+    "text": "Siguiente"
+  },
+  {
+    "id": 465,
+    "key": "common.battle",
+    "text": "Combate"
+  },
+  {
+    "id": 466,
+    "key": "common.kicker",
+    "text": "Kickers"
+  },
+  {
+    "id": 467,
+    "key": "common.disc",
+    "text": "Discos"
+  },
+  {
+    "id": 468,
+    "key": "common.gacha",
+    "text": "Cápsulas"
+  },
+  {
+    "id": 469,
+    "key": "common.shop",
+    "text": "Tienda"
+  },
+  {
+    "id": 470,
+    "key": "battleRule.rule",
+    "text": "Reglas"
+  },
+  {
+    "id": 471,
+    "key": "common.rule",
+    "text": "Reglas"
+  },
+  {
+    "id": 472,
+    "key": "battle.rules",
+    "text": "Reglas"
+  },
+  {
+    "id": 473,
+    "key": "common.rules",
+    "text": "Reglas"
+  },
+  {
+    "id": 474,
+    "key": "rule",
+    "text": "Reglas"
+  },
+  {
+    "id": 475,
+    "key": "rules",
+    "text": "Reglas"
+  },
+  {
+    "id": 476,
+    "key": "custom.join",
+    "text": "Unirse al combate"
+  },
+  {
+    "id": 477,
+    "key": "custom.search",
+    "text": "Buscar participantes"
+  },
+  {
+    "id": 478,
+    "key": "custom.challenge",
+    "text": "Desafío"
+  },
+  {
+    "id": 479,
+    "key": "matching.join",
+    "text": "Unirse al combate"
+  },
+  {
+    "id": 480,
+    "key": "matching.search",
+    "text": "Buscar participantes"
+  },
+  {
+    "id": 481,
+    "key": "matching.challenge",
+    "text": "Desafío"
+  },
+  {
+    "id": 482,
+    "key": "customMatch.join",
+    "text": "Unirse al combate"
+  },
+  {
+    "id": 483,
+    "key": "customMatch.search",
+    "text": "Buscar participantes"
+  },
+  {
+    "id": 484,
+    "key": "customMatch.challenge",
+    "text": "Desafío"
+  },
+  {
+    "id": 485,
+    "key": "common.ruleShort",
+    "text": "Reglas"
+  },
+  {
+    "id": 486,
+    "key": "matching.single",
+    "text": "Solo"
+  },
+  {
+    "id": 487,
+    "key": "matching.team",
+    "text": "Equipo"
+  },
+  {
+    "id": 488,
+    "key": "matching.joinTeam",
+    "text": "Unirse al combate"
+  },
+  {
+    "id": 489,
+    "key": "matching.memberRecruting",
+    "text": "Buscar participantes"
+  },
+  {
+    "id": 490,
+    "key": "common.challenge",
+    "text": "Desafío"
+  },
+  {
+    "id": 491,
+    "key": "battle.rankerDisable",
+    "text": "Fuera de temporada"
+  },
+  {
+    "id": 492,
+    "key": "common.rankUp",
+    "text": "¡Ascenso de rango!"
+  },
+  {
+    "id": 493,
+    "key": "common.rankUpTitle",
+    "text": "Ascenso de rango"
+  },
+  {
+    "id": 494,
+    "key": "common.explainRule",
+    "text": "Reglas"
+  },
+  {
+    "id": 495,
+    "key": "matching.battleStart",
+    "text": "Iniciar combate"
+  },
+  {
+    "id": 496,
+    "key": "matching.waitMemberTitle",
+    "text": "Esperando participantes"
+  },
+  {
+    "id": 497,
+    "key": "matching.teamWaitTitle",
+    "text": "Sala de espera"
+  },
+  {
+    "id": 498,
+    "key": "matching.teamListTitle",
+    "text": "Lista de equipos"
+  },
+  {
+    "id": 499,
+    "key": "matching.teamDecide",
+    "text": "Fijar equipo"
+  },
+  {
+    "id": 500,
+    "key": "matching.selfDeck",
+    "text": "Mazo propio"
+  },
+  {
+    "id": 501,
+    "key": "common.dayName",
+    "text": "d"
+  },
+  {
+    "id": 502,
+    "key": "common.kickerSkill",
+    "text": "Habilidad"
+  },
+  {
+    "id": 503,
+    "key": "common.specialSkill",
+    "text": "Habilidad especial"
+  },
+  {
+    "id": 504,
+    "key": "common.specialSkillCut",
+    "text": "Animación HE"
+  },
+  {
+    "id": 505,
+    "key": "common.characterSelect",
+    "text": "Elegir kicker"
+  },
+  {
+    "id": 506,
+    "key": "common.costumeAndGear",
+    "text": "Aspectos y accesorios"
+  },
+  {
+    "id": 507,
+    "key": "common.gear",
+    "text": "Accesorios"
+  },
+  {
+    "id": 508,
+    "key": "common.gearSet",
+    "text": "Equipar accesorios"
+  },
+  {
+    "id": 509,
+    "key": "common.guardianRank",
+    "text": "Nivel de jugador"
+  },
+  {
+    "id": 510,
+    "key": "common.levelUp",
+    "text": "¡Subida de nivel!"
+  },
+  {
+    "id": 511,
+    "key": "common.levelUpTitle",
+    "text": "Subida de nivel"
+  },
+  {
+    "id": 512,
+    "key": "common.levelUpBonus",
+    "text": "Bonus de nivel"
+  },
+  {
+    "id": 513,
+    "key": "common.winReward",
+    "text": "Recompensa de victoria"
+  },
+  {
+    "id": 514,
+    "key": "common.remainCount",
+    "text": "Restantes: {0}"
+  },
+  {
+    "id": 515,
+    "key": "common.remainCount8",
+    "text": "Restantes: {0}"
+  },
+  {
+    "id": 516,
+    "key": "common.tap",
+    "text": "Toca para continuar"
+  },
+  {
+    "id": 517,
+    "key": "common.tips",
+    "text": "Consejos"
+  },
+  {
+    "id": 518,
+    "key": "common.training",
+    "text": "Entrenamiento"
+  },
+  {
+    "id": 519,
+    "key": "common.tutorial",
+    "text": "Tutorial"
+  },
+  {
+    "id": 520,
+    "key": "common.try",
+    "text": "Probar"
+  },
+  {
+    "id": 521,
+    "key": "common.replay",
+    "text": "Repetición"
+  },
+  {
+    "id": 522,
+    "key": "common.friend",
+    "text": "Amigos"
+  },
+  {
+    "id": 523,
+    "key": "common.friendFollow",
+    "text": "Seguir"
+  },
+  {
+    "id": 524,
+    "key": "common.friendFollowing",
+    "text": "Siguiendo"
+  },
+  {
+    "id": 525,
+    "key": "common.download",
+    "text": "Descargar"
+  },
+  {
+    "id": 526,
+    "key": "common.loading",
+    "text": "Cargando..."
+  },
+  {
+    "id": 527,
+    "key": "common.confirm",
+    "text": "Confirmar"
+  },
+  {
+    "id": 528,
+    "key": "common.complete",
+    "text": "Completado"
+  },
+  {
+    "id": 529,
+    "key": "common.detailSetting",
+    "text": "Ajustes"
+  },
+  {
+    "id": 530,
+    "key": "common.info",
+    "text": "Avisos"
+  },
+  {
+    "id": 531,
+    "key": "common.informationTitle",
+    "text": "Avisos"
+  },
+  {
+    "id": 532,
+    "key": "common.latestInformation",
+    "text": "Novedades"
+  },
+  {
+    "id": 533,
+    "key": "common.menuTitle",
+    "text": "Menú"
+  },
+  {
+    "id": 534,
+    "key": "common.toShop",
+    "text": "Ir a la tienda"
+  },
+  {
+    "id": 535,
+    "key": "common.profile",
+    "text": "Perfil"
+  },
+  {
+    "id": 536,
+    "key": "common.mvp",
+    "text": "MVP"
+  }
+]

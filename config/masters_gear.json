@@ -1,0 +1,4002 @@
+[
+  {
+    "id": 1,
+    "name": "Engranaje Aumento de PS Máximos (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 1,
+    "coefficient": 0.02
+  },
+  {
+    "id": 2,
+    "name": "Engranaje Aumento de PS Máximos (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 1,
+    "coefficient": 0.025
+  },
+  {
+    "id": 3,
+    "name": "Engranaje Aumento de PS Máximos (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 1,
+    "coefficient": 0.03
+  },
+  {
+    "id": 4,
+    "name": "Engranaje Aumento de PS Máximos (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 1,
+    "coefficient": 0.035
+  },
+  {
+    "id": 5,
+    "name": "Engranaje Aumento de PS Máximos (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 1,
+    "coefficient": 0.04
+  },
+  {
+    "id": 6,
+    "name": "Engranaje Aumento de PS Máximos (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 1,
+    "coefficient": 0.04
+  },
+  {
+    "id": 7,
+    "name": "Engranaje Aumento de PS Máximos (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 1,
+    "coefficient": 0.045
+  },
+  {
+    "id": 8,
+    "name": "Engranaje Aumento de PS Máximos (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 1,
+    "coefficient": 0.05
+  },
+  {
+    "id": 9,
+    "name": "Engranaje Aumento de PS Máximos (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 1,
+    "coefficient": 0.055
+  },
+  {
+    "id": 10,
+    "name": "Engranaje Aumento de PS Máximos (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 1,
+    "coefficient": 0.06
+  },
+  {
+    "id": 11,
+    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 1,
+    "coefficient": 0.06
+  },
+  {
+    "id": 12,
+    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 1,
+    "coefficient": 0.065
+  },
+  {
+    "id": 13,
+    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 1,
+    "coefficient": 0.07
+  },
+  {
+    "id": 14,
+    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 1,
+    "coefficient": 0.075
+  },
+  {
+    "id": 15,
+    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 1,
+    "coefficient": 0.08
+  },
+  {
+    "id": 16,
+    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 1,
+    "coefficient": 0.08
+  },
+  {
+    "id": 17,
+    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 1,
+    "coefficient": 0.085
+  },
+  {
+    "id": 18,
+    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 1,
+    "coefficient": 0.09
+  },
+  {
+    "id": 19,
+    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 1,
+    "coefficient": 0.095
+  },
+  {
+    "id": 20,
+    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 1,
+    "coefficient": 0.1
+  },
+  {
+    "id": 21,
+    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 2,
+    "coefficient": 0.02
+  },
+  {
+    "id": 22,
+    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 2,
+    "coefficient": 0.025
+  },
+  {
+    "id": 23,
+    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 2,
+    "coefficient": 0.03
+  },
+  {
+    "id": 24,
+    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 2,
+    "coefficient": 0.035
+  },
+  {
+    "id": 25,
+    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 2,
+    "coefficient": 0.04
+  },
+  {
+    "id": 26,
+    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 2,
+    "coefficient": 0.04
+  },
+  {
+    "id": 27,
+    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 2,
+    "coefficient": 0.045
+  },
+  {
+    "id": 28,
+    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 2,
+    "coefficient": 0.05
+  },
+  {
+    "id": 29,
+    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 2,
+    "coefficient": 0.055
+  },
+  {
+    "id": 30,
+    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 2,
+    "coefficient": 0.06
+  },
+  {
+    "id": 31,
+    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 2,
+    "coefficient": 0.06
+  },
+  {
+    "id": 32,
+    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 2,
+    "coefficient": 0.065
+  },
+  {
+    "id": 33,
+    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 2,
+    "coefficient": 0.07
+  },
+  {
+    "id": 34,
+    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 2,
+    "coefficient": 0.075
+  },
+  {
+    "id": 35,
+    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 2,
+    "coefficient": 0.08
+  },
+  {
+    "id": 36,
+    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 2,
+    "coefficient": 0.08
+  },
+  {
+    "id": 37,
+    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 2,
+    "coefficient": 0.085
+  },
+  {
+    "id": 38,
+    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 2,
+    "coefficient": 0.09
+  },
+  {
+    "id": 39,
+    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 2,
+    "coefficient": 0.095
+  },
+  {
+    "id": 40,
+    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 2,
+    "coefficient": 0.1
+  },
+  {
+    "id": 41,
+    "name": "Engranaje Velocidad de Movimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 3,
+    "coefficient": 0.02
+  },
+  {
+    "id": 42,
+    "name": "Engranaje Velocidad de Movimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 3,
+    "coefficient": 0.025
+  },
+  {
+    "id": 43,
+    "name": "Engranaje Velocidad de Movimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 3,
+    "coefficient": 0.03
+  },
+  {
+    "id": 44,
+    "name": "Engranaje Velocidad de Movimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 3,
+    "coefficient": 0.035
+  },
+  {
+    "id": 45,
+    "name": "Engranaje Velocidad de Movimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 3,
+    "coefficient": 0.04
+  },
+  {
+    "id": 46,
+    "name": "Engranaje Velocidad de Movimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 3,
+    "coefficient": 0.04
+  },
+  {
+    "id": 47,
+    "name": "Engranaje Velocidad de Movimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 3,
+    "coefficient": 0.045
+  },
+  {
+    "id": 48,
+    "name": "Engranaje Velocidad de Movimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 3,
+    "coefficient": 0.05
+  },
+  {
+    "id": 49,
+    "name": "Engranaje Velocidad de Movimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 3,
+    "coefficient": 0.055
+  },
+  {
+    "id": 50,
+    "name": "Engranaje Velocidad de Movimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 3,
+    "coefficient": 0.06
+  },
+  {
+    "id": 51,
+    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 3,
+    "coefficient": 0.06
+  },
+  {
+    "id": 52,
+    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 3,
+    "coefficient": 0.065
+  },
+  {
+    "id": 53,
+    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 3,
+    "coefficient": 0.07
+  },
+  {
+    "id": 54,
+    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 3,
+    "coefficient": 0.075
+  },
+  {
+    "id": 55,
+    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 3,
+    "coefficient": 0.08
+  },
+  {
+    "id": 56,
+    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 3,
+    "coefficient": 0.08
+  },
+  {
+    "id": 57,
+    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 3,
+    "coefficient": 0.085
+  },
+  {
+    "id": 58,
+    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 3,
+    "coefficient": 0.09
+  },
+  {
+    "id": 59,
+    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 3,
+    "coefficient": 0.095
+  },
+  {
+    "id": 60,
+    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 3,
+    "coefficient": 0.1
+  },
+  {
+    "id": 61,
+    "name": "Engranaje Potenciación de Fuego (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 4,
+    "coefficient": 0.02
+  },
+  {
+    "id": 62,
+    "name": "Engranaje Potenciación de Fuego (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 4,
+    "coefficient": 0.025
+  },
+  {
+    "id": 63,
+    "name": "Engranaje Potenciación de Fuego (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 4,
+    "coefficient": 0.03
+  },
+  {
+    "id": 64,
+    "name": "Engranaje Potenciación de Fuego (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 4,
+    "coefficient": 0.035
+  },
+  {
+    "id": 65,
+    "name": "Engranaje Potenciación de Fuego (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 4,
+    "coefficient": 0.04
+  },
+  {
+    "id": 66,
+    "name": "Engranaje Potenciación de Fuego (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 4,
+    "coefficient": 0.04
+  },
+  {
+    "id": 67,
+    "name": "Engranaje Potenciación de Fuego (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 4,
+    "coefficient": 0.045
+  },
+  {
+    "id": 68,
+    "name": "Engranaje Potenciación de Fuego (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 4,
+    "coefficient": 0.05
+  },
+  {
+    "id": 69,
+    "name": "Engranaje Potenciación de Fuego (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 4,
+    "coefficient": 0.055
+  },
+  {
+    "id": 70,
+    "name": "Engranaje Potenciación de Fuego (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 4,
+    "coefficient": 0.06
+  },
+  {
+    "id": 71,
+    "name": "Engranaje Potenciación de Fuego (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 4,
+    "coefficient": 0.06
+  },
+  {
+    "id": 72,
+    "name": "Engranaje Potenciación de Fuego (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 4,
+    "coefficient": 0.065
+  },
+  {
+    "id": 73,
+    "name": "Engranaje Potenciación de Fuego (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 4,
+    "coefficient": 0.07
+  },
+  {
+    "id": 74,
+    "name": "Engranaje Potenciación de Fuego (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 4,
+    "coefficient": 0.075
+  },
+  {
+    "id": 75,
+    "name": "Engranaje Potenciación de Fuego (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 4,
+    "coefficient": 0.08
+  },
+  {
+    "id": 76,
+    "name": "Engranaje Potenciación de Fuego (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 4,
+    "coefficient": 0.08
+  },
+  {
+    "id": 77,
+    "name": "Engranaje Potenciación de Fuego (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 4,
+    "coefficient": 0.085
+  },
+  {
+    "id": 78,
+    "name": "Engranaje Potenciación de Fuego (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 4,
+    "coefficient": 0.09
+  },
+  {
+    "id": 79,
+    "name": "Engranaje Potenciación de Fuego (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 4,
+    "coefficient": 0.095
+  },
+  {
+    "id": 80,
+    "name": "Engranaje Potenciación de Fuego (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 4,
+    "coefficient": 0.1
+  },
+  {
+    "id": 81,
+    "name": "Engranaje Potenciación de Agua (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 5,
+    "coefficient": 0.02
+  },
+  {
+    "id": 82,
+    "name": "Engranaje Potenciación de Agua (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 5,
+    "coefficient": 0.025
+  },
+  {
+    "id": 83,
+    "name": "Engranaje Potenciación de Agua (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 5,
+    "coefficient": 0.03
+  },
+  {
+    "id": 84,
+    "name": "Engranaje Potenciación de Agua (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 5,
+    "coefficient": 0.035
+  },
+  {
+    "id": 85,
+    "name": "Engranaje Potenciación de Agua (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 5,
+    "coefficient": 0.04
+  },
+  {
+    "id": 86,
+    "name": "Engranaje Potenciación de Agua (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 5,
+    "coefficient": 0.04
+  },
+  {
+    "id": 87,
+    "name": "Engranaje Potenciación de Agua (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 5,
+    "coefficient": 0.045
+  },
+  {
+    "id": 88,
+    "name": "Engranaje Potenciación de Agua (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 5,
+    "coefficient": 0.05
+  },
+  {
+    "id": 89,
+    "name": "Engranaje Potenciación de Agua (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 5,
+    "coefficient": 0.055
+  },
+  {
+    "id": 90,
+    "name": "Engranaje Potenciación de Agua (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 5,
+    "coefficient": 0.06
+  },
+  {
+    "id": 91,
+    "name": "Engranaje Potenciación de Agua (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 5,
+    "coefficient": 0.06
+  },
+  {
+    "id": 92,
+    "name": "Engranaje Potenciación de Agua (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 5,
+    "coefficient": 0.065
+  },
+  {
+    "id": 93,
+    "name": "Engranaje Potenciación de Agua (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 5,
+    "coefficient": 0.07
+  },
+  {
+    "id": 94,
+    "name": "Engranaje Potenciación de Agua (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 5,
+    "coefficient": 0.075
+  },
+  {
+    "id": 95,
+    "name": "Engranaje Potenciación de Agua (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 5,
+    "coefficient": 0.08
+  },
+  {
+    "id": 96,
+    "name": "Engranaje Potenciación de Agua (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 5,
+    "coefficient": 0.08
+  },
+  {
+    "id": 97,
+    "name": "Engranaje Potenciación de Agua (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 5,
+    "coefficient": 0.085
+  },
+  {
+    "id": 98,
+    "name": "Engranaje Potenciación de Agua (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 5,
+    "coefficient": 0.09
+  },
+  {
+    "id": 99,
+    "name": "Engranaje Potenciación de Agua (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 5,
+    "coefficient": 0.095
+  },
+  {
+    "id": 100,
+    "name": "Engranaje Potenciación de Agua (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 5,
+    "coefficient": 0.1
+  },
+  {
+    "id": 101,
+    "name": "Engranaje Potenciación de Viento (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 6,
+    "coefficient": 0.02
+  },
+  {
+    "id": 102,
+    "name": "Engranaje Potenciación de Viento (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 6,
+    "coefficient": 0.025
+  },
+  {
+    "id": 103,
+    "name": "Engranaje Potenciación de Viento (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 6,
+    "coefficient": 0.03
+  },
+  {
+    "id": 104,
+    "name": "Engranaje Potenciación de Viento (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 6,
+    "coefficient": 0.035
+  },
+  {
+    "id": 105,
+    "name": "Engranaje Potenciación de Viento (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 6,
+    "coefficient": 0.04
+  },
+  {
+    "id": 106,
+    "name": "Engranaje Potenciación de Viento (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 6,
+    "coefficient": 0.04
+  },
+  {
+    "id": 107,
+    "name": "Engranaje Potenciación de Viento (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 6,
+    "coefficient": 0.045
+  },
+  {
+    "id": 108,
+    "name": "Engranaje Potenciación de Viento (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 6,
+    "coefficient": 0.05
+  },
+  {
+    "id": 109,
+    "name": "Engranaje Potenciación de Viento (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 6,
+    "coefficient": 0.055
+  },
+  {
+    "id": 110,
+    "name": "Engranaje Potenciación de Viento (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 6,
+    "coefficient": 0.06
+  },
+  {
+    "id": 111,
+    "name": "Engranaje Potenciación de Viento (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 6,
+    "coefficient": 0.06
+  },
+  {
+    "id": 112,
+    "name": "Engranaje Potenciación de Viento (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 6,
+    "coefficient": 0.065
+  },
+  {
+    "id": 113,
+    "name": "Engranaje Potenciación de Viento (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 6,
+    "coefficient": 0.07
+  },
+  {
+    "id": 114,
+    "name": "Engranaje Potenciación de Viento (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 6,
+    "coefficient": 0.075
+  },
+  {
+    "id": 115,
+    "name": "Engranaje Potenciación de Viento (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 6,
+    "coefficient": 0.08
+  },
+  {
+    "id": 116,
+    "name": "Engranaje Potenciación de Viento (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 6,
+    "coefficient": 0.08
+  },
+  {
+    "id": 117,
+    "name": "Engranaje Potenciación de Viento (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 6,
+    "coefficient": 0.085
+  },
+  {
+    "id": 118,
+    "name": "Engranaje Potenciación de Viento (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 6,
+    "coefficient": 0.09
+  },
+  {
+    "id": 119,
+    "name": "Engranaje Potenciación de Viento (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 6,
+    "coefficient": 0.095
+  },
+  {
+    "id": 120,
+    "name": "Engranaje Potenciación de Viento (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 6,
+    "coefficient": 0.1
+  },
+  {
+    "id": 121,
+    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 7,
+    "coefficient": 0.02
+  },
+  {
+    "id": 122,
+    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 7,
+    "coefficient": 0.025
+  },
+  {
+    "id": 123,
+    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 7,
+    "coefficient": 0.03
+  },
+  {
+    "id": 124,
+    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 7,
+    "coefficient": 0.035
+  },
+  {
+    "id": 125,
+    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 7,
+    "coefficient": 0.04
+  },
+  {
+    "id": 126,
+    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 7,
+    "coefficient": 0.04
+  },
+  {
+    "id": 127,
+    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 7,
+    "coefficient": 0.045
+  },
+  {
+    "id": 128,
+    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 7,
+    "coefficient": 0.05
+  },
+  {
+    "id": 129,
+    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 7,
+    "coefficient": 0.055
+  },
+  {
+    "id": 130,
+    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 7,
+    "coefficient": 0.06
+  },
+  {
+    "id": 131,
+    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 7,
+    "coefficient": 0.06
+  },
+  {
+    "id": 132,
+    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 7,
+    "coefficient": 0.065
+  },
+  {
+    "id": 133,
+    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 7,
+    "coefficient": 0.07
+  },
+  {
+    "id": 134,
+    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 7,
+    "coefficient": 0.075
+  },
+  {
+    "id": 135,
+    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 7,
+    "coefficient": 0.08
+  },
+  {
+    "id": 136,
+    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 7,
+    "coefficient": 0.08
+  },
+  {
+    "id": 137,
+    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 7,
+    "coefficient": 0.085
+  },
+  {
+    "id": 138,
+    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 7,
+    "coefficient": 0.09
+  },
+  {
+    "id": 139,
+    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 7,
+    "coefficient": 0.095
+  },
+  {
+    "id": 140,
+    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 7,
+    "coefficient": 0.1
+  },
+  {
+    "id": 141,
+    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 8,
+    "coefficient": 0.02
+  },
+  {
+    "id": 142,
+    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 8,
+    "coefficient": 0.025
+  },
+  {
+    "id": 143,
+    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 8,
+    "coefficient": 0.03
+  },
+  {
+    "id": 144,
+    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 8,
+    "coefficient": 0.035
+  },
+  {
+    "id": 145,
+    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 8,
+    "coefficient": 0.04
+  },
+  {
+    "id": 146,
+    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 8,
+    "coefficient": 0.04
+  },
+  {
+    "id": 147,
+    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 8,
+    "coefficient": 0.045
+  },
+  {
+    "id": 148,
+    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 8,
+    "coefficient": 0.05
+  },
+  {
+    "id": 149,
+    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 8,
+    "coefficient": 0.055
+  },
+  {
+    "id": 150,
+    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 8,
+    "coefficient": 0.06
+  },
+  {
+    "id": 151,
+    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 8,
+    "coefficient": 0.06
+  },
+  {
+    "id": 152,
+    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 8,
+    "coefficient": 0.065
+  },
+  {
+    "id": 153,
+    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 8,
+    "coefficient": 0.07
+  },
+  {
+    "id": 154,
+    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 8,
+    "coefficient": 0.075
+  },
+  {
+    "id": 155,
+    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 8,
+    "coefficient": 0.08
+  },
+  {
+    "id": 156,
+    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 8,
+    "coefficient": 0.08
+  },
+  {
+    "id": 157,
+    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 8,
+    "coefficient": 0.085
+  },
+  {
+    "id": 158,
+    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 8,
+    "coefficient": 0.09
+  },
+  {
+    "id": 159,
+    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 8,
+    "coefficient": 0.095
+  },
+  {
+    "id": 160,
+    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 8,
+    "coefficient": 0.1
+  },
+  {
+    "id": 161,
+    "name": "Engranaje Resistencia al Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 9,
+    "coefficient": 0.02
+  },
+  {
+    "id": 162,
+    "name": "Engranaje Resistencia al Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 9,
+    "coefficient": 0.025
+  },
+  {
+    "id": 163,
+    "name": "Engranaje Resistencia al Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 9,
+    "coefficient": 0.03
+  },
+  {
+    "id": 164,
+    "name": "Engranaje Resistencia al Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 9,
+    "coefficient": 0.035
+  },
+  {
+    "id": 165,
+    "name": "Engranaje Resistencia al Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 9,
+    "coefficient": 0.04
+  },
+  {
+    "id": 166,
+    "name": "Engranaje Resistencia al Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 9,
+    "coefficient": 0.04
+  },
+  {
+    "id": 167,
+    "name": "Engranaje Resistencia al Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 9,
+    "coefficient": 0.045
+  },
+  {
+    "id": 168,
+    "name": "Engranaje Resistencia al Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 9,
+    "coefficient": 0.05
+  },
+  {
+    "id": 169,
+    "name": "Engranaje Resistencia al Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 9,
+    "coefficient": 0.055
+  },
+  {
+    "id": 170,
+    "name": "Engranaje Resistencia al Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 9,
+    "coefficient": 0.06
+  },
+  {
+    "id": 171,
+    "name": "Engranaje Resistencia al Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 9,
+    "coefficient": 0.06
+  },
+  {
+    "id": 172,
+    "name": "Engranaje Resistencia al Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 9,
+    "coefficient": 0.065
+  },
+  {
+    "id": 173,
+    "name": "Engranaje Resistencia al Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 9,
+    "coefficient": 0.07
+  },
+  {
+    "id": 174,
+    "name": "Engranaje Resistencia al Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 9,
+    "coefficient": 0.075
+  },
+  {
+    "id": 175,
+    "name": "Engranaje Resistencia al Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 9,
+    "coefficient": 0.08
+  },
+  {
+    "id": 176,
+    "name": "Engranaje Resistencia al Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 9,
+    "coefficient": 0.08
+  },
+  {
+    "id": 177,
+    "name": "Engranaje Resistencia al Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 9,
+    "coefficient": 0.085
+  },
+  {
+    "id": 178,
+    "name": "Engranaje Resistencia al Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 9,
+    "coefficient": 0.09
+  },
+  {
+    "id": 179,
+    "name": "Engranaje Resistencia al Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 9,
+    "coefficient": 0.095
+  },
+  {
+    "id": 180,
+    "name": "Engranaje Resistencia al Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 9,
+    "coefficient": 0.1
+  },
+  {
+    "id": 181,
+    "name": "Engranaje Resistencia al Silencio (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 10,
+    "coefficient": 0.02
+  },
+  {
+    "id": 182,
+    "name": "Engranaje Resistencia al Silencio (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 10,
+    "coefficient": 0.025
+  },
+  {
+    "id": 183,
+    "name": "Engranaje Resistencia al Silencio (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 10,
+    "coefficient": 0.03
+  },
+  {
+    "id": 184,
+    "name": "Engranaje Resistencia al Silencio (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 10,
+    "coefficient": 0.035
+  },
+  {
+    "id": 185,
+    "name": "Engranaje Resistencia al Silencio (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 10,
+    "coefficient": 0.04
+  },
+  {
+    "id": 186,
+    "name": "Engranaje Resistencia al Silencio (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 10,
+    "coefficient": 0.04
+  },
+  {
+    "id": 187,
+    "name": "Engranaje Resistencia al Silencio (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 10,
+    "coefficient": 0.045
+  },
+  {
+    "id": 188,
+    "name": "Engranaje Resistencia al Silencio (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 10,
+    "coefficient": 0.05
+  },
+  {
+    "id": 189,
+    "name": "Engranaje Resistencia al Silencio (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 10,
+    "coefficient": 0.055
+  },
+  {
+    "id": 190,
+    "name": "Engranaje Resistencia al Silencio (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 10,
+    "coefficient": 0.06
+  },
+  {
+    "id": 191,
+    "name": "Engranaje Resistencia al Silencio (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 10,
+    "coefficient": 0.06
+  },
+  {
+    "id": 192,
+    "name": "Engranaje Resistencia al Silencio (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 10,
+    "coefficient": 0.065
+  },
+  {
+    "id": 193,
+    "name": "Engranaje Resistencia al Silencio (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 10,
+    "coefficient": 0.07
+  },
+  {
+    "id": 194,
+    "name": "Engranaje Resistencia al Silencio (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 10,
+    "coefficient": 0.075
+  },
+  {
+    "id": 195,
+    "name": "Engranaje Resistencia al Silencio (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 10,
+    "coefficient": 0.08
+  },
+  {
+    "id": 196,
+    "name": "Engranaje Resistencia al Silencio (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 10,
+    "coefficient": 0.08
+  },
+  {
+    "id": 197,
+    "name": "Engranaje Resistencia al Silencio (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 10,
+    "coefficient": 0.085
+  },
+  {
+    "id": 198,
+    "name": "Engranaje Resistencia al Silencio (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 10,
+    "coefficient": 0.09
+  },
+  {
+    "id": 199,
+    "name": "Engranaje Resistencia al Silencio (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 10,
+    "coefficient": 0.095
+  },
+  {
+    "id": 200,
+    "name": "Engranaje Resistencia al Silencio (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 10,
+    "coefficient": 0.1
+  },
+  {
+    "id": 201,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 11,
+    "coefficient": 0.02
+  },
+  {
+    "id": 202,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 11,
+    "coefficient": 0.025
+  },
+  {
+    "id": 203,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 11,
+    "coefficient": 0.03
+  },
+  {
+    "id": 204,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 11,
+    "coefficient": 0.035
+  },
+  {
+    "id": 205,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 11,
+    "coefficient": 0.04
+  },
+  {
+    "id": 206,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 11,
+    "coefficient": 0.04
+  },
+  {
+    "id": 207,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 11,
+    "coefficient": 0.045
+  },
+  {
+    "id": 208,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 11,
+    "coefficient": 0.05
+  },
+  {
+    "id": 209,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 11,
+    "coefficient": 0.055
+  },
+  {
+    "id": 210,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 11,
+    "coefficient": 0.06
+  },
+  {
+    "id": 211,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 11,
+    "coefficient": 0.06
+  },
+  {
+    "id": 212,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 11,
+    "coefficient": 0.065
+  },
+  {
+    "id": 213,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 11,
+    "coefficient": 0.07
+  },
+  {
+    "id": 214,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 11,
+    "coefficient": 0.075
+  },
+  {
+    "id": 215,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 11,
+    "coefficient": 0.08
+  },
+  {
+    "id": 216,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 11,
+    "coefficient": 0.08
+  },
+  {
+    "id": 217,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 11,
+    "coefficient": 0.085
+  },
+  {
+    "id": 218,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 11,
+    "coefficient": 0.09
+  },
+  {
+    "id": 219,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 11,
+    "coefficient": 0.095
+  },
+  {
+    "id": 220,
+    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 11,
+    "coefficient": 0.1
+  },
+  {
+    "id": 221,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 12,
+    "coefficient": 0.02
+  },
+  {
+    "id": 222,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 12,
+    "coefficient": 0.025
+  },
+  {
+    "id": 223,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 12,
+    "coefficient": 0.03
+  },
+  {
+    "id": 224,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 12,
+    "coefficient": 0.035
+  },
+  {
+    "id": 225,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 12,
+    "coefficient": 0.04
+  },
+  {
+    "id": 226,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 12,
+    "coefficient": 0.04
+  },
+  {
+    "id": 227,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 12,
+    "coefficient": 0.045
+  },
+  {
+    "id": 228,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 12,
+    "coefficient": 0.05
+  },
+  {
+    "id": 229,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 12,
+    "coefficient": 0.055
+  },
+  {
+    "id": 230,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 12,
+    "coefficient": 0.06
+  },
+  {
+    "id": 231,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 12,
+    "coefficient": 0.06
+  },
+  {
+    "id": 232,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 12,
+    "coefficient": 0.065
+  },
+  {
+    "id": 233,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 12,
+    "coefficient": 0.07
+  },
+  {
+    "id": 234,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 12,
+    "coefficient": 0.075
+  },
+  {
+    "id": 235,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 12,
+    "coefficient": 0.08
+  },
+  {
+    "id": 236,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 12,
+    "coefficient": 0.08
+  },
+  {
+    "id": 237,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 12,
+    "coefficient": 0.085
+  },
+  {
+    "id": 238,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 12,
+    "coefficient": 0.09
+  },
+  {
+    "id": 239,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 12,
+    "coefficient": 0.095
+  },
+  {
+    "id": 240,
+    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 12,
+    "coefficient": 0.1
+  },
+  {
+    "id": 241,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 13,
+    "coefficient": 0.02
+  },
+  {
+    "id": 242,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 13,
+    "coefficient": 0.025
+  },
+  {
+    "id": 243,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 13,
+    "coefficient": 0.03
+  },
+  {
+    "id": 244,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 13,
+    "coefficient": 0.035
+  },
+  {
+    "id": 245,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 13,
+    "coefficient": 0.04
+  },
+  {
+    "id": 246,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 13,
+    "coefficient": 0.04
+  },
+  {
+    "id": 247,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 13,
+    "coefficient": 0.045
+  },
+  {
+    "id": 248,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 13,
+    "coefficient": 0.05
+  },
+  {
+    "id": 249,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 13,
+    "coefficient": 0.055
+  },
+  {
+    "id": 250,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 13,
+    "coefficient": 0.06
+  },
+  {
+    "id": 251,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 13,
+    "coefficient": 0.06
+  },
+  {
+    "id": 252,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 13,
+    "coefficient": 0.065
+  },
+  {
+    "id": 253,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 13,
+    "coefficient": 0.07
+  },
+  {
+    "id": 254,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 13,
+    "coefficient": 0.075
+  },
+  {
+    "id": 255,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 13,
+    "coefficient": 0.08
+  },
+  {
+    "id": 256,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 13,
+    "coefficient": 0.08
+  },
+  {
+    "id": 257,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 13,
+    "coefficient": 0.085
+  },
+  {
+    "id": 258,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 13,
+    "coefficient": 0.09
+  },
+  {
+    "id": 259,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 13,
+    "coefficient": 0.095
+  },
+  {
+    "id": 260,
+    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 13,
+    "coefficient": 0.1
+  },
+  {
+    "id": 261,
+    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 14,
+    "coefficient": 0.02
+  },
+  {
+    "id": 262,
+    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 14,
+    "coefficient": 0.025
+  },
+  {
+    "id": 263,
+    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 14,
+    "coefficient": 0.03
+  },
+  {
+    "id": 264,
+    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 14,
+    "coefficient": 0.035
+  },
+  {
+    "id": 265,
+    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 14,
+    "coefficient": 0.04
+  },
+  {
+    "id": 266,
+    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 14,
+    "coefficient": 0.04
+  },
+  {
+    "id": 267,
+    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 14,
+    "coefficient": 0.045
+  },
+  {
+    "id": 268,
+    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 14,
+    "coefficient": 0.05
+  },
+  {
+    "id": 269,
+    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 14,
+    "coefficient": 0.055
+  },
+  {
+    "id": 270,
+    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 14,
+    "coefficient": 0.06
+  },
+  {
+    "id": 271,
+    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 14,
+    "coefficient": 0.06
+  },
+  {
+    "id": 272,
+    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 14,
+    "coefficient": 0.065
+  },
+  {
+    "id": 273,
+    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 14,
+    "coefficient": 0.07
+  },
+  {
+    "id": 274,
+    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 14,
+    "coefficient": 0.075
+  },
+  {
+    "id": 275,
+    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 14,
+    "coefficient": 0.08
+  },
+  {
+    "id": 276,
+    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 14,
+    "coefficient": 0.08
+  },
+  {
+    "id": 277,
+    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 14,
+    "coefficient": 0.085
+  },
+  {
+    "id": 278,
+    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 14,
+    "coefficient": 0.09
+  },
+  {
+    "id": 279,
+    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 14,
+    "coefficient": 0.095
+  },
+  {
+    "id": 280,
+    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 14,
+    "coefficient": 0.1
+  },
+  {
+    "id": 281,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 15,
+    "coefficient": 0.02
+  },
+  {
+    "id": 282,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 15,
+    "coefficient": 0.025
+  },
+  {
+    "id": 283,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 15,
+    "coefficient": 0.03
+  },
+  {
+    "id": 284,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 15,
+    "coefficient": 0.035
+  },
+  {
+    "id": 285,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 15,
+    "coefficient": 0.04
+  },
+  {
+    "id": 286,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 15,
+    "coefficient": 0.04
+  },
+  {
+    "id": 287,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 15,
+    "coefficient": 0.045
+  },
+  {
+    "id": 288,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 15,
+    "coefficient": 0.05
+  },
+  {
+    "id": 289,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 15,
+    "coefficient": 0.055
+  },
+  {
+    "id": 290,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 15,
+    "coefficient": 0.06
+  },
+  {
+    "id": 291,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 15,
+    "coefficient": 0.06
+  },
+  {
+    "id": 292,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 15,
+    "coefficient": 0.065
+  },
+  {
+    "id": 293,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 15,
+    "coefficient": 0.07
+  },
+  {
+    "id": 294,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 15,
+    "coefficient": 0.075
+  },
+  {
+    "id": 295,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 15,
+    "coefficient": 0.08
+  },
+  {
+    "id": 296,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 15,
+    "coefficient": 0.08
+  },
+  {
+    "id": 297,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 15,
+    "coefficient": 0.085
+  },
+  {
+    "id": 298,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 15,
+    "coefficient": 0.09
+  },
+  {
+    "id": 299,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 15,
+    "coefficient": 0.095
+  },
+  {
+    "id": 300,
+    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 15,
+    "coefficient": 0.1
+  },
+  {
+    "id": 301,
+    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 16,
+    "coefficient": 0.02
+  },
+  {
+    "id": 302,
+    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 16,
+    "coefficient": 0.025
+  },
+  {
+    "id": 303,
+    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 16,
+    "coefficient": 0.03
+  },
+  {
+    "id": 304,
+    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 16,
+    "coefficient": 0.035
+  },
+  {
+    "id": 305,
+    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 16,
+    "coefficient": 0.04
+  },
+  {
+    "id": 306,
+    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 16,
+    "coefficient": 0.04
+  },
+  {
+    "id": 307,
+    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 16,
+    "coefficient": 0.045
+  },
+  {
+    "id": 308,
+    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 16,
+    "coefficient": 0.05
+  },
+  {
+    "id": 309,
+    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 16,
+    "coefficient": 0.055
+  },
+  {
+    "id": 310,
+    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 16,
+    "coefficient": 0.06
+  },
+  {
+    "id": 311,
+    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 16,
+    "coefficient": 0.06
+  },
+  {
+    "id": 312,
+    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 16,
+    "coefficient": 0.065
+  },
+  {
+    "id": 313,
+    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 16,
+    "coefficient": 0.07
+  },
+  {
+    "id": 314,
+    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 16,
+    "coefficient": 0.075
+  },
+  {
+    "id": 315,
+    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 16,
+    "coefficient": 0.08
+  },
+  {
+    "id": 316,
+    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 16,
+    "coefficient": 0.08
+  },
+  {
+    "id": 317,
+    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 16,
+    "coefficient": 0.085
+  },
+  {
+    "id": 318,
+    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 16,
+    "coefficient": 0.09
+  },
+  {
+    "id": 319,
+    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 16,
+    "coefficient": 0.095
+  },
+  {
+    "id": 320,
+    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 16,
+    "coefficient": 0.1
+  },
+  {
+    "id": 321,
+    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 17,
+    "coefficient": 0.02
+  },
+  {
+    "id": 322,
+    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 17,
+    "coefficient": 0.025
+  },
+  {
+    "id": 323,
+    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 17,
+    "coefficient": 0.03
+  },
+  {
+    "id": 324,
+    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 17,
+    "coefficient": 0.035
+  },
+  {
+    "id": 325,
+    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 17,
+    "coefficient": 0.04
+  },
+  {
+    "id": 326,
+    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 17,
+    "coefficient": 0.04
+  },
+  {
+    "id": 327,
+    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 17,
+    "coefficient": 0.045
+  },
+  {
+    "id": 328,
+    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 17,
+    "coefficient": 0.05
+  },
+  {
+    "id": 329,
+    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 17,
+    "coefficient": 0.055
+  },
+  {
+    "id": 330,
+    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 17,
+    "coefficient": 0.06
+  },
+  {
+    "id": 331,
+    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 17,
+    "coefficient": 0.06
+  },
+  {
+    "id": 332,
+    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 17,
+    "coefficient": 0.065
+  },
+  {
+    "id": 333,
+    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 17,
+    "coefficient": 0.07
+  },
+  {
+    "id": 334,
+    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 17,
+    "coefficient": 0.075
+  },
+  {
+    "id": 335,
+    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 17,
+    "coefficient": 0.08
+  },
+  {
+    "id": 336,
+    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 17,
+    "coefficient": 0.08
+  },
+  {
+    "id": 337,
+    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 17,
+    "coefficient": 0.085
+  },
+  {
+    "id": 338,
+    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 17,
+    "coefficient": 0.09
+  },
+  {
+    "id": 339,
+    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 17,
+    "coefficient": 0.095
+  },
+  {
+    "id": 340,
+    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 17,
+    "coefficient": 0.1
+  },
+  {
+    "id": 341,
+    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 18,
+    "coefficient": 0.02
+  },
+  {
+    "id": 342,
+    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 18,
+    "coefficient": 0.025
+  },
+  {
+    "id": 343,
+    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 18,
+    "coefficient": 0.03
+  },
+  {
+    "id": 344,
+    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 18,
+    "coefficient": 0.035
+  },
+  {
+    "id": 345,
+    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 18,
+    "coefficient": 0.04
+  },
+  {
+    "id": 346,
+    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 18,
+    "coefficient": 0.04
+  },
+  {
+    "id": 347,
+    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 18,
+    "coefficient": 0.045
+  },
+  {
+    "id": 348,
+    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 18,
+    "coefficient": 0.05
+  },
+  {
+    "id": 349,
+    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 18,
+    "coefficient": 0.055
+  },
+  {
+    "id": 350,
+    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 18,
+    "coefficient": 0.06
+  },
+  {
+    "id": 351,
+    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 18,
+    "coefficient": 0.06
+  },
+  {
+    "id": 352,
+    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 18,
+    "coefficient": 0.065
+  },
+  {
+    "id": 353,
+    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 18,
+    "coefficient": 0.07
+  },
+  {
+    "id": 354,
+    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 18,
+    "coefficient": 0.075
+  },
+  {
+    "id": 355,
+    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 18,
+    "coefficient": 0.08
+  },
+  {
+    "id": 356,
+    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 18,
+    "coefficient": 0.08
+  },
+  {
+    "id": 357,
+    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 18,
+    "coefficient": 0.085
+  },
+  {
+    "id": 358,
+    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 18,
+    "coefficient": 0.09
+  },
+  {
+    "id": 359,
+    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 18,
+    "coefficient": 0.095
+  },
+  {
+    "id": 360,
+    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 18,
+    "coefficient": 0.1
+  },
+  {
+    "id": 361,
+    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 19,
+    "coefficient": 0.02
+  },
+  {
+    "id": 362,
+    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 19,
+    "coefficient": 0.025
+  },
+  {
+    "id": 363,
+    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 19,
+    "coefficient": 0.03
+  },
+  {
+    "id": 364,
+    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 19,
+    "coefficient": 0.035
+  },
+  {
+    "id": 365,
+    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 19,
+    "coefficient": 0.04
+  },
+  {
+    "id": 366,
+    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 19,
+    "coefficient": 0.04
+  },
+  {
+    "id": 367,
+    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 19,
+    "coefficient": 0.045
+  },
+  {
+    "id": 368,
+    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 19,
+    "coefficient": 0.05
+  },
+  {
+    "id": 369,
+    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 19,
+    "coefficient": 0.055
+  },
+  {
+    "id": 370,
+    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 19,
+    "coefficient": 0.06
+  },
+  {
+    "id": 371,
+    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 19,
+    "coefficient": 0.06
+  },
+  {
+    "id": 372,
+    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 19,
+    "coefficient": 0.065
+  },
+  {
+    "id": 373,
+    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 19,
+    "coefficient": 0.07
+  },
+  {
+    "id": 374,
+    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 19,
+    "coefficient": 0.075
+  },
+  {
+    "id": 375,
+    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 19,
+    "coefficient": 0.08
+  },
+  {
+    "id": 376,
+    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 19,
+    "coefficient": 0.08
+  },
+  {
+    "id": 377,
+    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 19,
+    "coefficient": 0.085
+  },
+  {
+    "id": 378,
+    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 19,
+    "coefficient": 0.09
+  },
+  {
+    "id": 379,
+    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 19,
+    "coefficient": 0.095
+  },
+  {
+    "id": 380,
+    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 19,
+    "coefficient": 0.1
+  },
+  {
+    "id": 381,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 20,
+    "coefficient": 0.02
+  },
+  {
+    "id": 382,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 20,
+    "coefficient": 0.025
+  },
+  {
+    "id": 383,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 20,
+    "coefficient": 0.03
+  },
+  {
+    "id": 384,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 20,
+    "coefficient": 0.035
+  },
+  {
+    "id": 385,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 20,
+    "coefficient": 0.04
+  },
+  {
+    "id": 386,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 20,
+    "coefficient": 0.04
+  },
+  {
+    "id": 387,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 20,
+    "coefficient": 0.045
+  },
+  {
+    "id": 388,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 20,
+    "coefficient": 0.05
+  },
+  {
+    "id": 389,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 20,
+    "coefficient": 0.055
+  },
+  {
+    "id": 390,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 20,
+    "coefficient": 0.06
+  },
+  {
+    "id": 391,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 20,
+    "coefficient": 0.06
+  },
+  {
+    "id": 392,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 20,
+    "coefficient": 0.065
+  },
+  {
+    "id": 393,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 20,
+    "coefficient": 0.07
+  },
+  {
+    "id": 394,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 20,
+    "coefficient": 0.075
+  },
+  {
+    "id": 395,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 20,
+    "coefficient": 0.08
+  },
+  {
+    "id": 396,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 20,
+    "coefficient": 0.08
+  },
+  {
+    "id": 397,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 20,
+    "coefficient": 0.085
+  },
+  {
+    "id": 398,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 20,
+    "coefficient": 0.09
+  },
+  {
+    "id": 399,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 20,
+    "coefficient": 0.095
+  },
+  {
+    "id": 400,
+    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 20,
+    "coefficient": 0.1
+  },
+  {
+    "id": 401,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 21,
+    "coefficient": 0.02
+  },
+  {
+    "id": 402,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 21,
+    "coefficient": 0.025
+  },
+  {
+    "id": 403,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 21,
+    "coefficient": 0.03
+  },
+  {
+    "id": 404,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 21,
+    "coefficient": 0.035
+  },
+  {
+    "id": 405,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 21,
+    "coefficient": 0.04
+  },
+  {
+    "id": 406,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 21,
+    "coefficient": 0.04
+  },
+  {
+    "id": 407,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 21,
+    "coefficient": 0.045
+  },
+  {
+    "id": 408,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 21,
+    "coefficient": 0.05
+  },
+  {
+    "id": 409,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 21,
+    "coefficient": 0.055
+  },
+  {
+    "id": 410,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 21,
+    "coefficient": 0.06
+  },
+  {
+    "id": 411,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 21,
+    "coefficient": 0.06
+  },
+  {
+    "id": 412,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 21,
+    "coefficient": 0.065
+  },
+  {
+    "id": 413,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 21,
+    "coefficient": 0.07
+  },
+  {
+    "id": 414,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 21,
+    "coefficient": 0.075
+  },
+  {
+    "id": 415,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 21,
+    "coefficient": 0.08
+  },
+  {
+    "id": 416,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 21,
+    "coefficient": 0.08
+  },
+  {
+    "id": 417,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 21,
+    "coefficient": 0.085
+  },
+  {
+    "id": 418,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 21,
+    "coefficient": 0.09
+  },
+  {
+    "id": 419,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 21,
+    "coefficient": 0.095
+  },
+  {
+    "id": 420,
+    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 21,
+    "coefficient": 0.1
+  },
+  {
+    "id": 421,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 22,
+    "coefficient": 0.02
+  },
+  {
+    "id": 422,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 22,
+    "coefficient": 0.025
+  },
+  {
+    "id": 423,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 22,
+    "coefficient": 0.03
+  },
+  {
+    "id": 424,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 22,
+    "coefficient": 0.035
+  },
+  {
+    "id": 425,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 22,
+    "coefficient": 0.04
+  },
+  {
+    "id": 426,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 22,
+    "coefficient": 0.04
+  },
+  {
+    "id": 427,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 22,
+    "coefficient": 0.045
+  },
+  {
+    "id": 428,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 22,
+    "coefficient": 0.05
+  },
+  {
+    "id": 429,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 22,
+    "coefficient": 0.055
+  },
+  {
+    "id": 430,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 22,
+    "coefficient": 0.06
+  },
+  {
+    "id": 431,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 22,
+    "coefficient": 0.06
+  },
+  {
+    "id": 432,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 22,
+    "coefficient": 0.065
+  },
+  {
+    "id": 433,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 22,
+    "coefficient": 0.07
+  },
+  {
+    "id": 434,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 22,
+    "coefficient": 0.075
+  },
+  {
+    "id": 435,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 22,
+    "coefficient": 0.08
+  },
+  {
+    "id": 436,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 22,
+    "coefficient": 0.08
+  },
+  {
+    "id": 437,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 22,
+    "coefficient": 0.085
+  },
+  {
+    "id": 438,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 22,
+    "coefficient": 0.09
+  },
+  {
+    "id": 439,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 22,
+    "coefficient": 0.095
+  },
+  {
+    "id": 440,
+    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 22,
+    "coefficient": 0.1
+  },
+  {
+    "id": 441,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 23,
+    "coefficient": 0.02
+  },
+  {
+    "id": 442,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 23,
+    "coefficient": 0.025
+  },
+  {
+    "id": 443,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 23,
+    "coefficient": 0.03
+  },
+  {
+    "id": 444,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 23,
+    "coefficient": 0.035
+  },
+  {
+    "id": 445,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 23,
+    "coefficient": 0.04
+  },
+  {
+    "id": 446,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 23,
+    "coefficient": 0.04
+  },
+  {
+    "id": 447,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 23,
+    "coefficient": 0.045
+  },
+  {
+    "id": 448,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 23,
+    "coefficient": 0.05
+  },
+  {
+    "id": 449,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 23,
+    "coefficient": 0.055
+  },
+  {
+    "id": 450,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 23,
+    "coefficient": 0.06
+  },
+  {
+    "id": 451,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 23,
+    "coefficient": 0.06
+  },
+  {
+    "id": 452,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 23,
+    "coefficient": 0.065
+  },
+  {
+    "id": 453,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 23,
+    "coefficient": 0.07
+  },
+  {
+    "id": 454,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 23,
+    "coefficient": 0.075
+  },
+  {
+    "id": 455,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 23,
+    "coefficient": 0.08
+  },
+  {
+    "id": 456,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 23,
+    "coefficient": 0.08
+  },
+  {
+    "id": 457,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 23,
+    "coefficient": 0.085
+  },
+  {
+    "id": 458,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 23,
+    "coefficient": 0.09
+  },
+  {
+    "id": 459,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 23,
+    "coefficient": 0.095
+  },
+  {
+    "id": 460,
+    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 23,
+    "coefficient": 0.1
+  },
+  {
+    "id": 461,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 24,
+    "coefficient": 0.02
+  },
+  {
+    "id": 462,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 24,
+    "coefficient": 0.025
+  },
+  {
+    "id": 463,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 24,
+    "coefficient": 0.03
+  },
+  {
+    "id": 464,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 24,
+    "coefficient": 0.035
+  },
+  {
+    "id": 465,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 24,
+    "coefficient": 0.04
+  },
+  {
+    "id": 466,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 24,
+    "coefficient": 0.04
+  },
+  {
+    "id": 467,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 24,
+    "coefficient": 0.045
+  },
+  {
+    "id": 468,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 24,
+    "coefficient": 0.05
+  },
+  {
+    "id": 469,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 24,
+    "coefficient": 0.055
+  },
+  {
+    "id": 470,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 24,
+    "coefficient": 0.06
+  },
+  {
+    "id": 471,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 24,
+    "coefficient": 0.06
+  },
+  {
+    "id": 472,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 24,
+    "coefficient": 0.065
+  },
+  {
+    "id": 473,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 24,
+    "coefficient": 0.07
+  },
+  {
+    "id": 474,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 24,
+    "coefficient": 0.075
+  },
+  {
+    "id": 475,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 24,
+    "coefficient": 0.08
+  },
+  {
+    "id": 476,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 24,
+    "coefficient": 0.08
+  },
+  {
+    "id": 477,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 24,
+    "coefficient": 0.085
+  },
+  {
+    "id": 478,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 24,
+    "coefficient": 0.09
+  },
+  {
+    "id": 479,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 24,
+    "coefficient": 0.095
+  },
+  {
+    "id": 480,
+    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 24,
+    "coefficient": 0.1
+  },
+  {
+    "id": 481,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 0,
+    "gearSkillId": 25,
+    "coefficient": 0.02
+  },
+  {
+    "id": 482,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 1,
+    "gearSkillId": 25,
+    "coefficient": 0.025
+  },
+  {
+    "id": 483,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 2,
+    "gearSkillId": 25,
+    "coefficient": 0.03
+  },
+  {
+    "id": 484,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 3,
+    "gearSkillId": 25,
+    "coefficient": 0.035
+  },
+  {
+    "id": 485,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "rarityType": 0,
+    "gearColorType": 4,
+    "gearSkillId": 25,
+    "coefficient": 0.04
+  },
+  {
+    "id": 486,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 0,
+    "gearSkillId": 25,
+    "coefficient": 0.04
+  },
+  {
+    "id": 487,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 1,
+    "gearSkillId": 25,
+    "coefficient": 0.045
+  },
+  {
+    "id": 488,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 2,
+    "gearSkillId": 25,
+    "coefficient": 0.05
+  },
+  {
+    "id": 489,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 3,
+    "gearSkillId": 25,
+    "coefficient": 0.055
+  },
+  {
+    "id": 490,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "rarityType": 1,
+    "gearColorType": 4,
+    "gearSkillId": 25,
+    "coefficient": 0.06
+  },
+  {
+    "id": 491,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 0,
+    "gearSkillId": 25,
+    "coefficient": 0.06
+  },
+  {
+    "id": 492,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 1,
+    "gearSkillId": 25,
+    "coefficient": 0.065
+  },
+  {
+    "id": 493,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 2,
+    "gearSkillId": 25,
+    "coefficient": 0.07
+  },
+  {
+    "id": 494,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 3,
+    "gearSkillId": 25,
+    "coefficient": 0.075
+  },
+  {
+    "id": 495,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "rarityType": 2,
+    "gearColorType": 4,
+    "gearSkillId": 25,
+    "coefficient": 0.08
+  },
+  {
+    "id": 496,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 0,
+    "gearSkillId": 25,
+    "coefficient": 0.08
+  },
+  {
+    "id": 497,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 1,
+    "gearSkillId": 25,
+    "coefficient": 0.085
+  },
+  {
+    "id": 498,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 2,
+    "gearSkillId": 25,
+    "coefficient": 0.09
+  },
+  {
+    "id": 499,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 3,
+    "gearSkillId": 25,
+    "coefficient": 0.095
+  },
+  {
+    "id": 500,
+    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "rarityType": 3,
+    "gearColorType": 4,
+    "gearSkillId": 25,
+    "coefficient": 0.1
+  }
+]

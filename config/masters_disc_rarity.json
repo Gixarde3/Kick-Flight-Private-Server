@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "rarityType": 0,
+    "initialLevel": 1
+  },
+  {
+    "id": 2,
+    "rarityType": 1,
+    "initialLevel": 1
+  },
+  {
+    "id": 3,
+    "rarityType": 2,
+    "initialLevel": 1
+  },
+  {
+    "id": 4,
+    "rarityType": 3,
+    "initialLevel": 1
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "id": "demo-auth-prepare",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/auth/prepare",
+  "statusCode": 200,
+  "contentType": "application/json; charset=utf-8",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-kickflight-fixture": "demo-auth-prepare"
+  },
+  "body": "{\"apiKey\":\"demo-api-key-00000000000000000000\",\"nonce\":\"demo-nonce-0000000000000000000000\"}"
+}

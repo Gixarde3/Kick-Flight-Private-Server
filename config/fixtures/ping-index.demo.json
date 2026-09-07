@@ -1,0 +1,14 @@
+{
+  "id": "demo-ping-index",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/ping/index",
+  "statusCode": 200,
+  "contentType": "application/octet-stream",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-kickflight-fixture": "demo-ping-index"
+  },
+  "bodyBase64": "ECEyQ1RldoeYqbrL3O3+D7vUhNdZAW3QnimHnXTUuoQ="
+}

@@ -6,6 +6,33 @@ El estado actual es un arnés .NET 8 ejecutable y probado. Intercepta los tres h
 
 ## Inicio rápido del servidor
 
+### macOS (APK directa, sin proxy ni CA)
+
+Con `config/apk-direct-server.local.json` apuntando a la IP actual del Mac:
+
+```bash
+./scripts/run-direct.sh
+```
+
+El backend queda en `18080`. Para volver a firmar la APK parcheada al cambiar de
+IP y regenerar el catálogo:
+
+```bash
+SERVER_BASE_URL=http://IP_DEL_MAC:18080 ./scripts/build-direct-apk.sh
+python3 scripts/build-title-resource-catalog.py
+```
+
+Con Android visible por ADB, instala el artefacto generado:
+
+```bash
+adb install -r .local/artifacts/KickFlight-2.11.0-direct-IP_DEL_MAC-18080.apk
+```
+
+Consulta [docs/MACOS_HOTEL_SETUP.md](docs/MACOS_HOTEL_SETUP.md) para redes de
+hotspot y acceso desde otro equipo.
+
+### Windows
+
 ```powershell
 .\scripts\check-prerequisites.ps1
 .\scripts\run-local.ps1 -HttpPort 8080
@@ -75,6 +102,24 @@ recarga automáticamente; no hace falta recompilar ni reiniciar el servidor.
 Para una zona móvil puede indicarse su nombre con `-InterfaceAlias` y el script
 actualizará la URL conservando el puerto existente.
 
+### Generación Automática de APK y Servidor (macOS / Linux)
+
+Para detectar la IP automáticamente, parchear y firmar el APK, e iniciar el servidor en un solo paso:
+
+```bash
+./run-apk.sh
+```
+
+Opciones:
+- `./run-apk.sh` : Detecta automáticamente tu IP Wi-Fi/Ethernet, parchea el APK y arranca el servidor.
+- `./run-apk.sh --build-only` : Solo genera y firma el APK sin arrancar el servidor.
+- `./run-apk.sh 192.168.1.50` : Fuerza una IP específica si tienes múltiples adaptadores.
+
+El APK generado se guarda en:
+`.local/artifacts/KickFlight-2.11.0-direct-<IP>-18080.apk`
+
+Si hay un dispositivo Android conectado por USB, `adb install -r` lo instala automáticamente.
+
 Después se aplica el proxy del emulador con `configure-android-proxy.ps1`. La instalación y retirada de la CA se explican en [docs/ANDROID_SETUP.md](docs/ANDROID_SETUP.md). El proxy TLS responde localmente a todo host no permitido y reescribe exclusivamente los tres hosts first-party a `127.0.0.1:18080`; no existe ruta de forward a Grenge.
 
 ## Pruebas
@@ -83,4 +128,7 @@ Después se aplica el proxy del emulador con `configure-android-proxy.ps1`. La i
 .\.local\tools\dotnet\dotnet.exe test .\KickFlight.PrivateServer.sln --nologo
 ```
 
-Consulta [docs/PHASE1_RESULT.md](docs/PHASE1_RESULT.md) para el resultado observado y [PRESERVATION_POLICY.md](PRESERVATION_POLICY.md) para los límites del repositorio.
+Consulta [docs/PHASE1_RESULT.md](docs/PHASE1_RESULT.md) para el resultado observado,
+[docs/HOME_DEMO_STATUS.md](docs/HOME_DEMO_STATUS.md) para el contrato estático y
+el siguiente paso hacia Home, y [PRESERVATION_POLICY.md](PRESERVATION_POLICY.md)
+para los límites del repositorio.

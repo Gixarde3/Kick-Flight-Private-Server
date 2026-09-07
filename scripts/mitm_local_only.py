@@ -4,6 +4,8 @@ Every decrypted request is either rewritten to the loopback fixture server or
 answered locally.  The addon never preserves an Internet destination.
 """
 
+import os
+
 from mitmproxy import http
 
 
@@ -12,8 +14,8 @@ FIRST_PARTY_HOSTS = {
     "colorful-api-octo-sb.grenge.jp",
     "kickflight-resource-api.grenge.jp",
 }
-BACKEND_HOST = "127.0.0.1"
-BACKEND_PORT = 18080
+BACKEND_HOST = os.environ.get("KICKFLIGHT_BACKEND_HOST", "127.0.0.1")
+BACKEND_PORT = int(os.environ.get("KICKFLIGHT_BACKEND_PORT", "18080"))
 
 
 def request(flow: http.HTTPFlow) -> None:

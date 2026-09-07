@@ -1,0 +1,14 @@
+{
+  "id": "demo-startup-index-home-ready",
+  "enabled": true,
+  "host": "kickflight-api.grenge.jp",
+  "method": "POST",
+  "path": "/startup/index",
+  "statusCode": 200,
+  "contentType": "application/octet-stream",
+  "headers": {
+    "x-app-status-code": "0",
+    "x-kickflight-fixture": "demo-startup-index-home-ready"
+  },
+  "bodyBase64": "ITJDVGV2h5ipusvc7f4PEGGf6plzXwqyP9QM2Ob4z+GTj51rMThT6pFECo1hRKDBdVE8WbhK5uhoifv92VK/mNliNi3+eyv8PlMk/A5EsTJPmiv89L5A7q/a7eHiBqvfXieniDw0P6gTS+18tA7G/M5s0/fZiiVbG6vWyOkJsX3gOgld47bA62+QoAeK02sHojjtQ337gITtsy6sXgY8BBoyt6CJHnqCwN1qxSFKQk3KjIldjda43l1e1hF/wC3eo4eDl5x+4YQrqeJjBIqPBKMuTGte9KG9kwR+LmagA6Boe6maYvM6DwxO1/ypsZBrNolIRtDK6TQIed5OA3qUXkgUa9yqqyGZ1hf+YTCXwUVnkDDgwZNaEzanpkkh5ULxmxzj80b2PYE3TYLMHcqqbZXkIDYPC8P6RbQ5SxOEE177G9a5gLJO5upzqamp786rgVWffgCHYRWBKLru/aalgg1qyY+kRh8/+xFKt0O0YGyNhVlOXjUoTjCgBW8hOkhPEbUQvOoxlQppCssnRRbv6tIfNJEVyy/yK0LukKAh872EPHo5aXjTPMV92I9R1Pdq3KMzrpqykiRZy836E3iTQeGU9p8ODyuC7rDPsVjsmQ/djU20z2zkpqeFDduzy6dibrqenv19EAqTBbcfNYpdzejTirQ5b4Ndlf6MbuvXCnFflTc+mfmFl4D93kk00iHJ6+j0FwzcOIKWMzd3c4FwK6klFnMlnNcHN6h42ciGijaFtsO6J0vAzkuLiJplxod14WHkfj5bqlMmRlBbfzdLXqgjlV89Z2oF1rNdlMGy6NSRVQEKnS0sMm0c3WvgDpvkdDjHjcnnCqoQw0datxpJPp/d7l7i0bnF9ISmXFiifCZZiYfSb24/jm0UxgSv8Em8pflxCJlHxKH/nDoOv8hfuC3lHWwyRY7ViiQjlyUajmGRUPo1pwiTvIc6RZhFO/cryxDvdDNAl5WA9MtsA4d3JcqgKzzK/e93N+/81R1OKO8HaQH4tsfmxNBkG3CObPzcPDttxH02FypkrmnSbzj8fg+K85+adE+kmPvogYrNPd3TmWKklNyrB58P9VxqkOLeOtQs3lCmYoU5L0h4i3dAqX6SDlKZ/uXZC/7YVD4N/wbvsLIbupbPc7P79R79yyb0MgVOdhtzno1vcuSO21TSzEynmX6zlPYG6Uz1k5CyIZr2sPxEVtHnETwDBezHp4hoTPebcNaFaKvbKHbKtWDfg5relBrnG7UU366GJMHs3g3uvs4Ogjl8tkyaVwt463IAUn62hJ9V0ifkTAHr9WQZNEEjM9zYyHR55Bv92v8xzO3hItrItz3QY/kgAEVTyXvGeotDztiYAzyjxCvincK7UzBAsi3nay0bU6KwZUR+ys0nc+YDbEFY26hRkeNaFcELV7+rNUq0vcjRJ3apzyU+R0Qg0wH+TDEPkF4V9B2hMrwBjr7ZKVD4XFhuni+YMt7DQ2zhgvfzOAP9myS3g0A9F7wNOvNasmtWGtXRK4e9T/eElC4sY/i5N71p+o+u2p5w"
+}

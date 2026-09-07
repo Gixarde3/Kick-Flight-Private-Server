@@ -62,6 +62,10 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--definition", default="config/resources/title-minimum.json")
     parser.add_argument("--direct-config", default="config/apk-direct-server.local.json")
+    parser.add_argument(
+        "--server-base-url",
+        help="Override serverBaseUrl (useful for the first-party proxy mode)",
+    )
     parser.add_argument("--catalog", default="config/resources/catalog.json")
     parser.add_argument("--fixtures", default="config/fixtures")
     args = parser.parse_args()
@@ -72,9 +76,11 @@ def main() -> None:
     catalog_path = resolve_path(repo, args.catalog)
     fixtures_path = resolve_path(repo, args.fixtures)
     definition = json.loads(definition_path.read_text(encoding="utf-8-sig"))
-    direct_config = json.loads(direct_config_path.read_text(encoding="utf-8-sig"))
-
-    server_base_url = direct_config["serverBaseUrl"].rstrip("/")
+    if args.server_base_url:
+        server_base_url = args.server_base_url.rstrip("/")
+    else:
+        direct_config = json.loads(direct_config_path.read_text(encoding="utf-8-sig"))
+        server_base_url = direct_config["serverBaseUrl"].rstrip("/")
     parsed_url = urlparse(server_base_url)
     if parsed_url.scheme not in ("http", "https") or not parsed_url.netloc:
         raise ValueError(f"Invalid serverBaseUrl: {server_base_url}")
@@ -100,28 +106,33 @@ def main() -> None:
             )
             (asset_messages if entry["kind"] == "assetBundle" else resource_messages).append(message)
 
-        managed_catalog_entries.append(
-            {
-                "id": entry["id"],
-                "enabled": True,
-                "host": parsed_url.hostname,
-                "requestPath": definition["urlPathFormat"].replace("{o}", entry["objectName"]),
-                "logicalName": entry["logicalName"],
-                "description": entry["description"],
-                "sourcePath": Path(entry["sourcePath"]).as_posix(),
-                "contentType": "application/octet-stream",
-                "sha256": sha256,
-            }
-        )
-
-    database = field_varint(1, definition["revision"])
-    database += b"".join(field_bytes(2, item) for item in asset_messages)
-    database += b"".join(field_bytes(4, item) for item in resource_messages)
-    database += field_string(5, url_format)
+        req_path = definition["urlPathFormat"].replace("{o}", entry["objectName"])
+        if not any(m["requestPath"] == req_path for m in managed_catalog_entries):
+            managed_catalog_entries.append(
+                {
+                    "id": entry["id"],
+                    "enabled": True,
+                    "host": parsed_url.hostname,
+                    "requestPath": req_path,
+                    "logicalName": entry["logicalName"],
+                    "description": entry["description"],
+                    "sourcePath": Path(entry["sourcePath"]).as_posix(),
+                    "contentType": "application/octet-stream",
+                    "sha256": sha256,
+                }
+            )
 
     fixtures_path.mkdir(parents=True, exist_ok=True)
     fixture_paths = []
     for from_revision in definition.get("fromRevisions", [0]):
+        database = field_varint(1, definition["revision"])
+        if from_revision < definition["revision"]:
+            database += b"".join(field_bytes(2, item) for item in asset_messages)
+            database += b"".join(field_bytes(4, item) for item in resource_messages)
+        # Octo calls SetUrls for every successfully decoded database, including
+        # an up-to-date response with no asset delta. Omitting this field makes
+        # the client overwrite its working CDN formats with an empty string.
+        database += field_string(5, url_format)
         fixture_id = (
             f'accepted-octo-title-minimum-{definition["assetVersion"]}-from-{from_revision}'
         )
@@ -142,9 +153,9 @@ def main() -> None:
         fixture_paths.append(fixture_path)
 
     catalog = json.loads(catalog_path.read_text(encoding="utf-8-sig"))
-    managed_ids = {entry["id"] for entry in managed_catalog_entries}
+    managed_paths = {entry["requestPath"] for entry in managed_catalog_entries}
     catalog["resources"] = [
-        entry for entry in catalog.get("resources", []) if entry.get("id") not in managed_ids
+        entry for entry in catalog.get("resources", []) if entry.get("requestPath") not in managed_paths
     ] + managed_catalog_entries
     catalog_path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 

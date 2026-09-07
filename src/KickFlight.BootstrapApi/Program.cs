@@ -16,12 +16,20 @@ builder.Services.Configure<HarnessOptions>(builder.Configuration.GetSection("Har
 builder.Services.AddSingleton<FixtureStore>();
 builder.Services.AddSingleton<ResourceCatalogStore>();
 builder.Services.AddSingleton<SafeRequestInspector>();
+builder.Services.AddSingleton<BattleMatchmakingService>();
+builder.Services.AddSingleton<OpenMatchFrontendService>();
+builder.Services.AddSingleton<DemoSessionApi>();
+builder.Services.AddGrpc();
 
 var certificatePath = builder.Configuration["Certificate:Path"];
 var certificatePassword = builder.Configuration["Certificate:Password"];
+var httpPort = builder.Configuration.GetValue("HttpPort", 8080);
+var grpcPort = builder.Configuration.GetValue("GrpcPort", 18081);
+
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(builder.Configuration.GetValue("HttpPort", 8080));
+    options.ListenAnyIP(httpPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1);
+    options.ListenAnyIP(grpcPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
     if (!string.IsNullOrWhiteSpace(certificatePath) && File.Exists(certificatePath))
     {
         options.ListenAnyIP(builder.Configuration.GetValue("HttpsPort", 8443), listen =>
@@ -31,6 +39,7 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 app.UseMiddleware<RequestCaptureMiddleware>();
+app.MapGrpcService<OpenMatchFrontendService>();
 
 app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
 app.MapGet("/health/ready", (FixtureStore store, ResourceCatalogStore resourceStore) =>
@@ -44,7 +53,8 @@ app.MapGet("/health/ready", (FixtureStore store, ResourceCatalogStore resourceSt
 });
 
 app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS" },
-    (HttpContext context, FixtureStore store, ResourceCatalogStore resourceStore, IOptions<HarnessOptions> options, ILoggerFactory loggerFactory) =>
+    async (HttpContext context, FixtureStore store, ResourceCatalogStore resourceStore, DemoSessionApi demoSessionApi,
+        IOptions<HarnessOptions> options, ILoggerFactory loggerFactory) =>
     {
         var host = FixtureStore.NormalizeHost(context.Request.Host.Host);
         var firstParty = options.Value.FirstPartyHosts.Contains(host, StringComparer.OrdinalIgnoreCase);
@@ -53,6 +63,9 @@ app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HE
         {
             return Results.Json(new { error = "local-host-not-allowed", host }, statusCode: 421);
         }
+
+        var demoResult = await demoSessionApi.TryHandleAsync(context);
+        if (demoResult is not null) return demoResult;
 
         if (HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method))
         {

@@ -5,4 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.83.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="Protos/openmatch.proto" GrpcServices="Server" />
+  </ItemGroup>
 </Project>

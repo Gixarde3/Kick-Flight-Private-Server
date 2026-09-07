@@ -1,0 +1,114 @@
+[
+  {
+    "id": 1,
+    "name": "Tsubame",
+    "shortName": "Tsubame",
+    "nameSpelling": "Tsubame",
+    "voiceActorName": "CV: 内田雄馬 (Yuma Uchida)",
+    "cv": "Kaito Ishikawa"
+  },
+  {
+    "id": 2,
+    "name": "Ruriha",
+    "shortName": "Ruriha",
+    "nameSpelling": "Ruriha",
+    "voiceActorName": "CV: 佐倉綾音 (Ayane Sakura)",
+    "cv": "Azumi Waki"
+  },
+  {
+    "id": 3,
+    "name": "Coco",
+    "shortName": "Coco",
+    "nameSpelling": "Coco Guamrail",
+    "voiceActorName": "CV: 五十嵐裕美 (Hiromi Igarashi)",
+    "cv": "Yuki Kuwahara"
+  },
+  {
+    "id": 4,
+    "name": "Kite",
+    "shortName": "Kite",
+    "nameSpelling": "Kite",
+    "voiceActorName": "CV: 石川界人 (Kaito Ishikawa)",
+    "cv": "Kouki Uchiyama"
+  },
+  {
+    "id": 5,
+    "name": "Owlbert",
+    "shortName": "Owlbert",
+    "nameSpelling": "Owlbert",
+    "voiceActorName": "CV: 岡本信彦 (Nobuhiko Okamoto)",
+    "cv": "Mutsumi Tamura"
+  },
+  {
+    "id": 6,
+    "name": "Pitophy",
+    "shortName": "Pitophy",
+    "nameSpelling": "Pitophy",
+    "voiceActorName": "CV: 石上静香 (Shizuka Ishigami)",
+    "cv": "Miku Ito"
+  },
+  {
+    "id": 7,
+    "name": "Grenhawk",
+    "shortName": "Grenhawk",
+    "nameSpelling": "Grenhawk",
+    "voiceActorName": "CV: 杉田智和 (Tomokazu Sugita)",
+    "cv": "Hiroki Yasumoto"
+  },
+  {
+    "id": 8,
+    "name": "Anna",
+    "shortName": "Anna",
+    "nameSpelling": "Anna Starling",
+    "voiceActorName": "CV: 早見沙織 (Saori Hayami)",
+    "cv": "Shizuka Ito"
+  },
+  {
+    "id": 9,
+    "name": "Jay",
+    "shortName": "Jay",
+    "nameSpelling": "Jay",
+    "voiceActorName": "CV: 吉野裕行 (Hiroyuki Yoshino)",
+    "cv": "Hiroyuki Yoshino"
+  },
+  {
+    "id": 10,
+    "name": "Yuyan",
+    "shortName": "Yuyan",
+    "nameSpelling": "Yuyan",
+    "voiceActorName": "CV: 内山昂輝 (Koki Uchiyama)",
+    "cv": "Yu Kobayashi"
+  },
+  {
+    "id": 11,
+    "name": "Diatrius",
+    "shortName": "Diatrius",
+    "nameSpelling": "Diatrius",
+    "voiceActorName": "CV: 安元洋貴 (Hiroki Yasumoto)",
+    "cv": "Tetsu Inada"
+  },
+  {
+    "id": 12,
+    "name": "Buzzy Big",
+    "shortName": "Buzzy Big",
+    "nameSpelling": "Buzzy Big",
+    "voiceActorName": "CV: 木村昴 (Subaru Kimura)",
+    "cv": "Subaru Kimura"
+  },
+  {
+    "id": 13,
+    "name": "Hitagi",
+    "shortName": "Hitagi",
+    "nameSpelling": "Hitagi",
+    "voiceActorName": "CV: 桑島法子 (Houko Kuwashima)",
+    "cv": "Rika Tachibana"
+  },
+  {
+    "id": 14,
+    "name": "Sid",
+    "shortName": "Sid",
+    "nameSpelling": "Sid",
+    "voiceActorName": "CV: 森久保祥太郎 (Showtaro Morikubo)",
+    "cv": "Tomokazu Sugita"
+  }
+]
