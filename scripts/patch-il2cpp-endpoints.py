@@ -243,6 +243,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("740000b5e0031faa1d328197"),
             "replacement": bytes.fromhex("f40000b4020000141f2003d5"),
         },
+
         {
             "description": "safely skip null controller in TitleView coroutine MoveNext (0x31c77b4)",
             "offset": 0x31C77B4,
@@ -404,6 +405,96 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x0156D7D8,
             "expected": bytes.fromhex("f44fbea9fd7b01a9"),
             "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__1 to return false (0) to bypass room property wait",
+            "offset": 0x01579940,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__2 to return false (0) to bypass room property wait",
+            "offset": 0x0157999C,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__3 to return false (0) to bypass room property wait",
+            "offset": 0x01579A38,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__4 to return false (0) to bypass room property wait",
+            "offset": 0x01579AC8,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__5 to return false (0) to bypass room property wait",
+            "offset": 0x01579B80,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "force GameManager.<BeginAsync>b__6 to return false (0) to bypass room property wait",
+            "offset": 0x01579C1C,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "bypass GameResultFade and ReplayManager in GameManager.<BeginAsync>d__71.MoveNext by jumping State 10 directly to 0x157a44c",
+            "offset": 0x0157A30C,
+            "expected": bytes.fromhex("08008012681200b9"),
+            "replacement": bytes.fromhex("500000141f2003d5"),  # b #0x157a44c; nop
+        },
+        {
+            "description": "safely skip PlayEnvironmentEffect and jump to GameReadyAsync when StageManager.Instance is null in GameManager.<BeginAsync>d__71.MoveNext",
+            "offset": 0x0157A488,
+            "expected": bytes.fromhex("550000b55867f297"),
+            "replacement": bytes.fromhex("150a00b41f2003d5"),  # cbz x21, #0x157a5c8; nop
+        },
+        {
+            "description": "force branch to 0x157a5c8 (GameReadyAsync) in GameManager.<BeginAsync>d__71.MoveNext bypassing static fields and AR reconnect",
+            "offset": 0x0157A4A0,
+            "expected": bytes.fromhex("c80240f9085d40f908654039e8080034"),
+            "replacement": bytes.fromhex("4a0000141f2003d51f2003d51f2003d5"),  # b #0x157a5c8; 3x nop
+        },
+        {
+            "description": "safely stub LoadDeckSummonModel to return immediately to avoid missing summon model crash in offline mode",
+            "offset": 0x016E6CA8,
+            "expected": bytes.fromhex("fc6fbaa9"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "safely stub PlayerBoneController.GetDisplayAngles to return Vector3.zero avoiding null transform crash on combat start",
+            "offset": 0x013BC3A8,
+            "expected": bytes.fromhex("ed33bb6deb2b016de923026df44f03a9"),
+            "replacement": bytes.fromhex("e003271ee103271ee203271ec0035fd6"),  # fmov s0..s2, wzr; ret
+        },
+        {
+            "description": "bypass ReplayManager.BeginSession in GameScene.<PreBeginAsync>d__0.MoveNext when ReplayManager is null in offline mode",
+            "offset": 0x0176280C,
+            "expected": bytes.fromhex("540000b577c6ea97"),
+            "replacement": bytes.fromhex("050000141f2003d5"),  # b #0x1762820; nop
+        },
+        {
+            "description": "bypass ReplayManager.EndSession in GameScene.<PostEndAsync>d__3.MoveNext when ReplayManager is null in offline mode",
+            "offset": 0x01762640,
+            "expected": bytes.fromhex("550000b5eac6ea97"),
+            "replacement": bytes.fromhex("050000141f2003d5"),  # b #0x1762654; nop
+        },
+        {
+            "description": "safely stub CharacterAnimatorBase.IsCurrentState to return false avoiding null animator controller crash during combat flight",
+            "offset": 0x016B5D5C,
+            "expected": bytes.fromhex("ff4302d1f53300f9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "safely stub CharacterAnimatorBase.IsInTransition to return false avoiding null animator controller crash during combat flight",
+            "offset": 0x016B5D24,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
         },
     ],
     "armeabi-v7a": [

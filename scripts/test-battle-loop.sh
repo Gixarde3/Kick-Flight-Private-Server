@@ -432,12 +432,12 @@ while true; do
     report_failure "BATTLE_SPAWN" "NullReferenceException detected during character spawn (PlayerCharacter.SetModel)."
   fi
   
-  # Check if PlayStartAnim reached (the true combat start animation)
-  BATTLE_LOGS=$(adb -s "$DEVICE" logcat -d --pid="$APP_PID" | grep -E "GameScene|InGameSceneBase|PlayStartAnim|ReceiveAddPlayer|ApplyBattleProperties" || true)
+  # Check if PlayStartAnim / PlayGoAnimation / UpdateFly reached (combat initiation & flight)
+  BATTLE_LOGS=$(adb -s "$DEVICE" logcat -d --pid="$APP_PID" | grep -E "GameScene|InGameSceneBase|PlayStartAnim|PlayGoAnimation|PlayGameReady|UpdateFly|ReceiveAddPlayer|ApplyBattleProperties" || true)
   
-  if echo "$BATTLE_LOGS" | grep -q "PlayStartAnim"; then
+  if echo "$BATTLE_LOGS" | grep -q -E "PlayStartAnim|PlayGoAnimation|UpdateFly"; then
     BATTLE_STARTED=1
-    echo -e "  ${GREEN}🎉 PlayStartAnim ('3, 2, 1, FLY!') detected in logcat!${NC}"
+    echo -e "  ${GREEN}🎉 Combat loop initiated ('3, 2, 1, FLY!' / active flight) detected in logcat!${NC}"
     echo "$BATTLE_LOGS" | tail -n 10
     break
   fi
