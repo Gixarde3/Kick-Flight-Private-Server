@@ -30,7 +30,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         {
             "description": "force HTTP for direct server access",
             "offset": 0x31B5024,
-            "expected": bytes.fromhex("28118a9a"),
+            "expected": bytes.fromhex("e8030aaa"),  # ponytail: base.apk already ships mov x8,x10; alreadyPatched path skips
             "replacement": bytes.fromhex("e8030aaa"),  # mov x8, x10 (always HTTP)
         },
         {
@@ -228,20 +228,20 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         {
             "description": "bypass null button crash in TitleView.SetAllButtonActive",
             "offset": 0x31C496C,
-            "expected": bytes.fromhex("f50f1df8"),  # str x21, [sp, #-0x30]!
-            "replacement": bytes.fromhex("c0035fd6"),  # ret
+            "expected": bytes.fromhex("f50f1df8f44f01a9"),  # str x21, [sp, #-0x30]!; stp x20, x19, [sp, #0x10]
+            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret (return false)
         },
         {
             "description": "bypass null _button crash in TitleView.Initialize",
             "offset": 0x31C7950,
-            "expected": bytes.fromhex("770000b5e0031faa25328197"),
-            "replacement": bytes.fromhex("f70000b4020000141f2003d5"),
+            "expected": bytes.fromhex("770000b5e0031faa25328197"),  # cbnz x23, #0x31c795c; bl #0x12141ec
+            "replacement": bytes.fromhex("f70000b4020000141f2003d5"),  # cbz x23, #0x31c795c; nop
         },
         {
             "description": "bypass null _canvasGroup crash in TitleView.Initialize",
             "offset": 0x31C7970,
-            "expected": bytes.fromhex("740000b5e0031faa1d328197"),
-            "replacement": bytes.fromhex("f40000b4020000141f2003d5"),
+            "expected": bytes.fromhex("740000b5e0031faa1d328197"),  # cbnz x20, #0x31c797c; bl #0x12141ec
+            "replacement": bytes.fromhex("f40000b4020000141f2003d5"),  # cbz x20, #0x31c797c; nop
         },
 
         {
@@ -495,6 +495,54 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x016B5D24,
             "expected": bytes.fromhex("f44fbea9fd7b01a9"),
             "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+        },
+        {
+            "description": "ponytail: stub GameReadyScene.GetGameReadyAnimationClip entry to return null, one guard covers all three null-throw sites inside (0x176035c/0x1760378/0x17603cc); sole caller 0x175fa7c skips clip-use region via 0x175fab4 guard",
+            "offset": 0x01760304,
+            "expected": bytes.fromhex("ffc300d1f44f01a9"),  # sub sp, sp, #0x30; stp x20, x19, [sp, #0x10]
+            "replacement": bytes.fromhex("e0031faac0035fd6"),  # mov x0, xzr; ret (return null clip)
+        },
+        {
+            "description": "ponytail: skip clip-use region when clip is null (cbz x26 to 0x175fb88 cbnz, falls to throw-safe path via existing checks), non-null falls through via b to 0x175fac0; lands before x25 null-check so str preserves loop state (x24/x25) and reaches timeline tail 0x175fdc4",
+            "offset": 0x0175FAB4,
+            "expected": bytes.fromhex("7a0000b5e0031faaccd1ea97"),  # cbnz x26, #0x175fac0; mov x0, xzr; bl throw
+            "replacement": bytes.fromhex("ba0600b4020000141f2003d5"),  # cbz x26, #0x175fb88; b #0x175fac0; nop
+        },
+        {
+            "description": "ponytail: force Play past w2 gate (bypass tbz w21 at 0x175aff4, sole caller w2=0) so shared-gate result is ignored and setup runs; downstream cbnz null-throws preserved, epilogue still reachable via normal ret",
+            "offset": 0x0175AFF4,
+            "expected": bytes.fromhex("55030036"),  # tbz w21, #0, #0x175b05c (epilogue ret)
+            "replacement": bytes.fromhex("1f2003d5"),  # nop (always fall through to state-check/setup)
+        },
+        {
+            "description": "safely early-exit PlayerStateNormal.UpdateAction when animator lookup object is null (2nd cbnz site)",
+            "offset": 0x017E13EC,
+            "expected": bytes.fromhex("540000b57fcbe897"),  # cbnz x20, #0x17e13f4; bl throw
+            "replacement": bytes.fromhex("542f00b41f2003d5"),  # cbz x20, #0x17e19d4; nop
+        },
+        {
+            "description": "safely early-exit PlayerStateNormal.UpdateAction when state object is null instead of throwing every frame",
+            "offset": 0x017E13D4,
+            "expected": bytes.fromhex("540000b585cbe897"),  # cbnz x20, #0x17e13dc; bl #0x12141ec (throw)
+            "replacement": bytes.fromhex("143000b41f2003d5"),  # cbz x20, #0x17e19d4 (idle epilogue); nop
+        },
+        {
+            "description": "ponytail: force Play gate 0x175b530 to always return false (nop tbz at 0x175b598 falls through to mov w0,wzr, skipping the 0x23ecf30-gated true path with its x19 null-throw at 0x175ba8); Play then uses AFE4 state-check + 0x175aff4 nop to reach setup",
+            "offset": 0x0175B598,
+            "expected": bytes.fromhex("60000036"),  # tbz w0, #0, #0x175b5a4 (little-endian: 36 00 00 60)
+            "replacement": bytes.fromhex("1f2003d5"),  # nop (fall through to return false)
+        },
+        {
+            "description": "ponytail: stub PlayerStateNormal.UpdateAction to return false, one guard covers 34 null-throw sites in offline mode; upgrade to per-site cbz to 0x17e1e20 if anim updates needed",
+            "offset": 0x017E136C,
+            "expected": bytes.fromhex("ffc301d1ec0b00fd"),  # sub sp, sp, #0x70; str d12, [sp, #0x10]
+            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
+        },
+        {
+            "description": "ponytail: stub PlayerAnimator.IsBindMotionCondition to return true, one guard covers PlayIdle + 0x13d7a2c and all downstream IsCondition leaf null-throws; true makes PlayIdle early-ret safely instead of derefing null animator",
+            "offset": 0x013AEA90,
+            "expected": bytes.fromhex("f30f1ef8fd7b01a9"),  # str x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
+            "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
         },
     ],
     "armeabi-v7a": [
