@@ -6,7 +6,7 @@
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
-      3010122,
+      3010001,
       3010002,
       3010003,
       3010004
@@ -64,7 +64,7 @@
     },
     "3010006": {
       "DiscId": 3010006,
-      "Level": 12,
+      "Level": 11,
       "Amount": 99
     },
     "3010007": {
@@ -670,6 +670,6 @@
   },
   "ItemJetCoins": 208754,
   "ItemPaidJetCoins": 10000,
-  "ItemDiscForce": 997799,
+  "ItemDiscForce": 998899,
   "ItemKickPoints": 50000
 }
