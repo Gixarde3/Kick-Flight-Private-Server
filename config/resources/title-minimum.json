@@ -582,192 +582,159 @@
       "kind": "resource",
       "octoId": 46,
       "names": [
+        "bgm_menu_fes.awb",
         "stream_2SG6Gm.awb"
       ],
       "objectName": "2SG6Gm",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/5232534736476D_d14385dc163faacf6a2c25d3c8cb80a4.afs2",
-      "logicalName": "CriWare Wave Bank 2SG6Gm.awb",
-      "description": "Streaming audio waveforms for stream_2SG6Gm.awb"
+      "logicalName": "CriWare Wave Bank bgm_menu_fes.awb",
+      "description": "Streaming audio waveforms for bgm_menu_fes.awb"
     },
     {
       "id": "audio-awb-6HrrEs",
       "kind": "resource",
       "octoId": 47,
       "names": [
+        "bgm_training.awb",
         "stream_6HrrEs.awb"
       ],
       "objectName": "6HrrEs",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52364872724573_69a939a81867bd371f24f2b0709b25d4.afs2",
-      "logicalName": "CriWare Wave Bank 6HrrEs.awb",
-      "description": "Streaming audio waveforms for stream_6HrrEs.awb"
+      "logicalName": "CriWare Wave Bank bgm_training.awb",
+      "description": "Streaming audio waveforms for bgm_training.awb"
     },
     {
       "id": "audio-awb-DctlF0",
       "kind": "resource",
       "octoId": 48,
       "names": [
+        "bgm_battle03.awb",
         "stream_DctlF0.awb"
       ],
       "objectName": "DctlF0",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/524463746C4630_7caf0c7b5fd9722a26a5c1dcdb27bfd0.afs2",
-      "logicalName": "CriWare Wave Bank DctlF0.awb",
-      "description": "Streaming audio waveforms for stream_DctlF0.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle03.awb",
+      "description": "Streaming audio waveforms for bgm_battle03.awb"
     },
     {
       "id": "audio-awb-DozCgw",
       "kind": "resource",
       "octoId": 49,
       "names": [
+        "bgm_menu00.awb",
         "stream_DozCgw.awb"
       ],
       "objectName": "DozCgw",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52446F7A436777_93586cc18d2445ceece55184724c6d93.afs2",
-      "logicalName": "CriWare Wave Bank DozCgw.awb",
-      "description": "Streaming audio waveforms for stream_DozCgw.awb"
+      "logicalName": "CriWare Wave Bank bgm_menu00.awb",
+      "description": "Streaming audio waveforms for bgm_menu00.awb"
     },
     {
       "id": "audio-awb-Ei4139",
       "kind": "resource",
       "octoId": 50,
       "names": [
-        "common_se.awb",
-        "in_game_se.awb",
-        "out_game_se.awb",
-        "bgm_training.awb",
-        "bgm_menu01.awb",
-        "bgm_result01.awb",
-        "pc_013_001.awb",
-        "bgm_menu00.awb",
-        "se_005_001.awb",
-        "bgm_battle02.awb",
-        "se_011_001.awb",
-        "bgm_battle04.awb",
-        "se_013_001.awb",
-        "pc_009_001.awb",
-        "pc_012_001.awb",
-        "bgm_battle01_fes.awb",
-        "bgm_battle03.awb",
-        "pc_006_001.awb",
-        "se_003_001.awb",
-        "common_se.awb",
-        "se_012_001.awb",
-        "pc_005_001.awb",
-        "se_009_001.awb",
-        "bgm_battle01.awb",
-        "se_001_001.awb",
-        "pc_003_001.awb",
-        "in_game_se.awb",
-        "out_game_se.awb",
-        "pc_011_001.awb",
-        "pc_014_001.awb",
-        "bgm_battle03_fes.awb",
-        "pc_001_001.awb",
-        "se_014_001.awb",
-        "bgm_menu_fes.awb",
-        "pc_002_001.awb",
-        "bgm_battle05.awb",
-        "pc_008_001.awb",
-        "se_004_001.awb",
-        "pc_007_001.awb",
-        "se_007_001.awb",
-        "se_006_001.awb",
-        "se_002_001.awb",
-        "pc_010_001.awb",
         "bgm_title.awb",
-        "colorful.awb",
-        "se_008_001.awb",
-        "pc_004_001.awb",
-        "se_010_001.awb"
+        "common_se.awb",
+        "in_game_se.awb",
+        "out_game_se.awb",
+        "stream_Ei4139.awb"
       ],
       "objectName": "Ei4139",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52456934313339_fe5a3cdf02d6abd8e7417b6bbcbd48de.afs2",
-      "logicalName": "CriWare Wave Bank Ei4139.awb",
-      "description": "Streaming audio waveforms for common_se.awb"
+      "logicalName": "CriWare Wave Bank bgm_title.awb",
+      "description": "Streaming audio waveforms for bgm_title.awb"
     },
     {
       "id": "audio-awb-Il7irs",
       "kind": "resource",
       "octoId": 51,
       "names": [
+        "bgm_battle03_fes.awb",
         "stream_Il7irs.awb"
       ],
       "objectName": "Il7irs",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52496C37697273_2fbc3965527c16c8baa74ea4f0140906.afs2",
-      "logicalName": "CriWare Wave Bank Il7irs.awb",
-      "description": "Streaming audio waveforms for stream_Il7irs.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle03_fes.awb",
+      "description": "Streaming audio waveforms for bgm_battle03_fes.awb"
     },
     {
       "id": "audio-awb-VtvVWA",
       "kind": "resource",
       "octoId": 52,
       "names": [
+        "bgm_battle01_fes.awb",
         "stream_VtvVWA.awb"
       ],
       "objectName": "VtvVWA",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52567476565741_0b5ff17abe47aff8b9af42bd96e8f7a9.afs2",
-      "logicalName": "CriWare Wave Bank VtvVWA.awb",
-      "description": "Streaming audio waveforms for stream_VtvVWA.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle01_fes.awb",
+      "description": "Streaming audio waveforms for bgm_battle01_fes.awb"
     },
     {
       "id": "audio-awb-eMUsI7",
       "kind": "resource",
       "octoId": 53,
       "names": [
+        "bgm_menu01.awb",
         "stream_eMUsI7.awb"
       ],
       "objectName": "eMUsI7",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52654D55734937_b7fce8bbd07b4fef5c4470eec4d7ab7d.afs2",
-      "logicalName": "CriWare Wave Bank eMUsI7.awb",
-      "description": "Streaming audio waveforms for stream_eMUsI7.awb"
+      "logicalName": "CriWare Wave Bank bgm_menu01.awb",
+      "description": "Streaming audio waveforms for bgm_menu01.awb"
     },
     {
       "id": "audio-awb-o9LHyy",
       "kind": "resource",
       "octoId": 54,
       "names": [
+        "bgm_battle01.awb",
         "stream_o9LHyy.awb"
       ],
       "objectName": "o9LHyy",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/526F394C487979_77b591650b9ca1e97ddf147b61433ff7.afs2",
-      "logicalName": "CriWare Wave Bank o9LHyy.awb",
-      "description": "Streaming audio waveforms for stream_o9LHyy.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle01.awb",
+      "description": "Streaming audio waveforms for bgm_battle01.awb"
     },
     {
       "id": "audio-awb-pUu3wD",
       "kind": "resource",
       "octoId": 55,
       "names": [
+        "bgm_battle04.awb",
         "stream_pUu3wD.awb"
       ],
       "objectName": "pUu3wD",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52705575337744_cb7ac413c02150279c70469c8ef029bf.afs2",
-      "logicalName": "CriWare Wave Bank pUu3wD.awb",
-      "description": "Streaming audio waveforms for stream_pUu3wD.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle04.awb",
+      "description": "Streaming audio waveforms for bgm_battle04.awb"
     },
     {
       "id": "audio-awb-qJTA70",
       "kind": "resource",
       "octoId": 56,
       "names": [
-        "bgm_menu01.awb",
-        "bgm_home.awb"
+        "bgm_result01.awb",
+        "stream_qJTA70.awb"
       ],
       "objectName": "qJTA70",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/52714A54413730_023e12dab0d1ce9d0832a741d94ab03e.afs2",
-      "logicalName": "CriWare Wave Bank qJTA70.awb",
-      "description": "Streaming audio waveforms for bgm_menu01.awb"
+      "logicalName": "CriWare Wave Bank bgm_result01.awb",
+      "description": "Streaming audio waveforms for bgm_result01.awb"
     },
     {
       "id": "audio-awb-qUKhxa",
       "kind": "resource",
       "octoId": 57,
       "names": [
+        "bgm_battle02.awb",
         "stream_qUKhxa.awb"
       ],
       "objectName": "qUKhxa",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/1_afs2_archives/5271554B687861_f8f4fe2097b7cbd4e35d8eb533c4c19e.afs2",
-      "logicalName": "CriWare Wave Bank qUKhxa.awb",
-      "description": "Streaming audio waveforms for stream_qUKhxa.awb"
+      "logicalName": "CriWare Wave Bank bgm_battle02.awb",
+      "description": "Streaming audio waveforms for bgm_battle02.awb"
     },
     {
       "id": "cri-usm-disc_3010111_usm",

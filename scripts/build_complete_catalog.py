@@ -106,19 +106,29 @@ def main() -> None:
     # 2. STREAMING AUDIO WAVEFORMS (.awb / AFS2)
     print("Indexing CriWare waveform archives (.awb / AFS2)...")
     afs2_files = sorted(OCTO_AFS2_DIR.glob("*.afs2"))
-    # Map common_se.awb specifically to 52456934313339 (REi4139)
+    
+    bgm_awb_map = {
+        "o9LHyy": ["bgm_battle01.awb"],
+        "VtvVWA": ["bgm_battle01_fes.awb"],
+        "qUKhxa": ["bgm_battle02.awb"],
+        "DctlF0": ["bgm_battle03.awb"],
+        "Il7irs": ["bgm_battle03_fes.awb"],
+        "pUu3wD": ["bgm_battle04.awb"],
+        "DozCgw": ["bgm_menu00.awb"],
+        "eMUsI7": ["bgm_menu01.awb"],
+        "2SG6Gm": ["bgm_menu_fes.awb"],
+        "qJTA70": ["bgm_result01.awb"],
+        "Ei4139": ["bgm_title.awb", "common_se.awb", "in_game_se.awb", "out_game_se.awb"],
+        "6HrrEs": ["bgm_training.awb"]
+    }
+
     for f in afs2_files:
         hex_prefix = f.name.split("_")[0]
         obj_name = bytes.fromhex(hex_prefix).decode("ascii", "ignore")[1:]
-        names = []
-        if obj_name == "Ei4139":
-            names = ["common_se.awb", "in_game_se.awb", "out_game_se.awb"] + extra_awb_names
-        elif obj_name == "RrrEs":
-            names = ["bgm_title.awb"]
-        elif obj_name == "qJTA70":
-            names = ["bgm_menu01.awb", "bgm_home.awb"]
-        else:
-            names = [f"stream_{obj_name}.awb"]
+        names = list(bgm_awb_map.get(obj_name, [f"stream_{obj_name}.awb"]))
+        # Also include stream alias
+        if f"stream_{obj_name}.awb" not in names:
+            names.append(f"stream_{obj_name}.awb")
 
         for n in names:
             seen_names.add(n)
@@ -130,7 +140,7 @@ def main() -> None:
             "names": names,
             "objectName": obj_name,
             "sourcePath": os.path.relpath(f, REPO_ROOT),
-            "logicalName": f"CriWare Wave Bank {obj_name}.awb",
+            "logicalName": f"CriWare Wave Bank {names[0]}",
             "description": f"Streaming audio waveforms for {names[0]}"
         })
         octo_id_counter += 1

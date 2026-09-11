@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  luxon-server:
+    container_name: luxon-server
+    image: gcc:14-bookworm
+    working_dir: /src
+    volumes:
+      - ./submodules/luxonserver:/src
+    command: ["/src/luxon_server"]
+    ports:
+      # Photon MasterServer
+      - "5055:5055/udp"
+      - "5055:5055/tcp"
+      # Photon GameServer
+      - "5056:5056/udp"
+      - "5056:5056/tcp"
+      # Photon NameServer
+      - "5058:5058/udp"
+      - "5058:5058/tcp"
+      # Photon Alternative / On-Premise Ports (27000: NameServer, 27001: MasterServer, 27002: GameServer)
+      - "27000-27002:27000-27002/udp"
+      - "27000-27002:27000-27002/tcp"
+    restart: unless-stopped
+    networks:
+      - kickflight-net
+
+  kickflight-api:
+    container_name: kickflight-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - HttpPort=18080
+      - GrpcPort=18081
+      - PhotonServer__Host=luxon-server
+      - PhotonServer__MasterServerPort=5055
+      - PhotonServer__GameServerPort=5056
+      - PhotonServer__NameServerPort=5058
+    ports:
+      - "18080:18080"
+      - "18081:18081"
+    depends_on:
+      - luxon-server
+    restart: unless-stopped
+    networks:
+      - kickflight-net
+
+networks:
+  kickflight-net:
+    driver: bridge
