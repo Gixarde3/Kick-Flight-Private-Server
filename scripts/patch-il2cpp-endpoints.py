@@ -106,12 +106,6 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("e0031f2a01a68e52e2031faadca01394fd7b43a9f44f42a9f65741a9f70744f8c0035fd61f2003d51f2003d5"),
         },
         {
-            "description": "transition from GrpcGetAssignments response to NormalMatchingJoinBattleRoomState",
-            "offset": 0x13EE4EC,
-            "expected": bytes.fromhex("e8031e32681a00b93e000014"),
-            "replacement": bytes.fromhex("100000141f2003d51f2003d5"),
-        },
-        {
             "description": "bypass ObjectDisposedException in GetAssignmentsDestroy on scene exit",
             "offset": 0x13EAFB4,
             "expected": bytes.fromhex("b4010036"),  # tbz w20, #0, #0x13eafe8
@@ -521,10 +515,178 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("542f00b41f2003d5"),  # cbz x20, #0x17e19d4; nop
         },
         {
-            "description": "safely early-exit PlayerStateNormal.UpdateAction when state object is null instead of throwing every frame",
-            "offset": 0x017E13D4,
-            "expected": bytes.fromhex("540000b585cbe897"),  # cbnz x20, #0x17e13dc; bl #0x12141ec (throw)
-            "replacement": bytes.fromhex("143000b41f2003d5"),  # cbz x20, #0x17e19d4 (idle epilogue); nop
+            "description": "safely gate PlayerStateNormal.UpdateAction for local User (PlayerType == 1), exit early to epilogue for null or bots/AI",
+            "offset": 0x017E13C4,
+            "expected": bytes.fromhex("e00313aae1031faa537e0394f40300aa540000b585cbe897"),  # mov x0, x19; mov x1, xzr; bl get_Player; mov x20, x0; cbnz x20, #0x17e13dc; bl throw
+            "replacement": bytes.fromhex("680a40f9683000b4098941b93f05007101300054f40308aa"),  # ldr x8, [x19, #0x10]; cbz x8, #0x17e19d4; ldr w9, [x8, #0x188]; cmp w9, #1; b.ne #0x17e19d4; mov x20, x8
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1420,
+            "expected": bytes.fromhex("73cbe897"),
+            "replacement": bytes.fromhex("6d010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1444,
+            "expected": bytes.fromhex("6acbe897"),
+            "replacement": bytes.fromhex("64010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E14AC,
+            "expected": bytes.fromhex("50cbe897"),
+            "replacement": bytes.fromhex("4a010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E14C4,
+            "expected": bytes.fromhex("4acbe897"),
+            "replacement": bytes.fromhex("44010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E153C,
+            "expected": bytes.fromhex("2ccbe897"),
+            "replacement": bytes.fromhex("26010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1564,
+            "expected": bytes.fromhex("22cbe897"),
+            "replacement": bytes.fromhex("1c010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E158C,
+            "expected": bytes.fromhex("18cbe897"),
+            "replacement": bytes.fromhex("12010014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely skip WeaponAction attack in PlayerStateNormal.UpdateAction when null",
+            "offset": 0x017E15A0,
+            "expected": bytes.fromhex("750000b5"),  # cbnz x21, #0x17e15ac
+            "replacement": bytes.fromhex("950700b4"),  # cbz x21, #0x17e1690
+        },
+        {
+            "description": "safely skip WeaponAction attack throw in PlayerStateNormal.UpdateAction",
+            "offset": 0x017E15A8,
+            "expected": bytes.fromhex("11cbe897"),
+            "replacement": bytes.fromhex("3a000014"),  # b #0x17e1690
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E16A4,
+            "expected": bytes.fromhex("d2cae897"),
+            "replacement": bytes.fromhex("cc000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely skip Land state routine in PlayerStateNormal.UpdateAction when null",
+            "offset": 0x017E16BC,
+            "expected": bytes.fromhex("950300b4"),  # cbz x21, #0x17e172c
+            "replacement": bytes.fromhex("150400b4"),  # cbz x21, #0x17e173c
+        },
+        {
+            "description": "safely skip Land state throw in PlayerStateNormal.UpdateAction",
+            "offset": 0x017E16F8,
+            "expected": bytes.fromhex("bdcae897"),
+            "replacement": bytes.fromhex("11000014"),  # b #0x17e173c
+        },
+        {
+            "description": "safely skip Land state cast throw in PlayerStateNormal.UpdateAction",
+            "offset": 0x017E172C,
+            "expected": bytes.fromhex("b0cae897"),
+            "replacement": bytes.fromhex("04000014"),  # b #0x17e173c
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1750,
+            "expected": bytes.fromhex("a7cae897"),
+            "replacement": bytes.fromhex("a1000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1768,
+            "expected": bytes.fromhex("a1cae897"),
+            "replacement": bytes.fromhex("9b000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1794,
+            "expected": bytes.fromhex("96cae897"),
+            "replacement": bytes.fromhex("90000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E17AC,
+            "expected": bytes.fromhex("90cae897"),
+            "replacement": bytes.fromhex("8a000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E17D4,
+            "expected": bytes.fromhex("86cae897"),
+            "replacement": bytes.fromhex("80000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E17EC,
+            "expected": bytes.fromhex("80cae897"),
+            "replacement": bytes.fromhex("7a000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1818,
+            "expected": bytes.fromhex("75cae897"),
+            "replacement": bytes.fromhex("6f000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1858,
+            "expected": bytes.fromhex("65cae897"),
+            "replacement": bytes.fromhex("5f000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1870,
+            "expected": bytes.fromhex("5fcae897"),
+            "replacement": bytes.fromhex("59000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1898,
+            "expected": bytes.fromhex("55cae897"),
+            "replacement": bytes.fromhex("4f000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E18D8,
+            "expected": bytes.fromhex("45cae897"),
+            "replacement": bytes.fromhex("3f000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E18F0,
+            "expected": bytes.fromhex("3fcae897"),
+            "replacement": bytes.fromhex("39000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E190C,
+            "expected": bytes.fromhex("38cae897"),
+            "replacement": bytes.fromhex("32000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E194C,
+            "expected": bytes.fromhex("28cae897"),
+            "replacement": bytes.fromhex("22000014"),  # b #0x17e19d4
+        },
+        {
+            "description": "safely branch to epilogue in PlayerStateNormal.UpdateAction throw sites instead of throwing NRE every frame",
+            "offset": 0x017E1964,
+            "expected": bytes.fromhex("22cae897"),
+            "replacement": bytes.fromhex("1c000014"),  # b #0x17e19d4
         },
         {
             "description": "ponytail: force Play gate 0x175b530 to always return false (nop tbz at 0x175b598 falls through to mov w0,wzr, skipping the 0x23ecf30-gated true path with its x19 null-throw at 0x175ba8); Play then uses AFE4 state-check + 0x175aff4 nop to reach setup",
@@ -533,9 +695,15 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("1f2003d5"),  # nop (fall through to return false)
         },
         {
-            "description": "ponytail: stub PlayerStateNormal.UpdateAction to return false, one guard covers 34 null-throw sites in offline mode; upgrade to per-site cbz to 0x17e1e20 if anim updates needed",
-            "offset": 0x017E136C,
-            "expected": bytes.fromhex("ffc301d1ec0b00fd"),  # sub sp, sp, #0x70; str d12, [sp, #0x10]
+            "description": "force ReplayManager.get_ReplayMode to return 0 (not replay/playback)",
+            "offset": 0x1773670,
+            "expected": bytes.fromhex("f30f1ef8fd7b01a9"),  # str x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
+            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
+        },
+        {
+            "description": "force GameManager.GetMenuType to return 0 (MenuType.Default)",
+            "offset": 0x1570EA8,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),  # stp x20, x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
             "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
         },
         {
@@ -543,6 +711,30 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x013AEA90,
             "expected": bytes.fromhex("f30f1ef8fd7b01a9"),  # str x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
             "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
+        },
+        {
+            "description": "safely stub PlayerBoneController.SetDisplayAngles to return immediately avoiding null model crash",
+            "offset": 0x013BC314,
+            "expected": bytes.fromhex("ea0f1cfc"),  # str d10, [sp, #-0x40]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "bypass null festival check in GameStartAnimation.PlayReadyAnimation by jumping directly to non-festival setup",
+            "offset": 0x01762D80,
+            "expected": bytes.fromhex("540000b51ac5ea97"),  # cbnz x20, #0x1762d88; bl #0x12141ec
+            "replacement": bytes.fromhex("f40d00b41f2003d5"),  # cbz x20, #0x1762f3c; nop
+        },
+        {
+            "description": "determine IsAi from MatchingPlayerBattleInfo.kickerAiParameterId instead of PhotonPlayer null-check",
+            "offset": 0x017A17F4,
+            "expected": bytes.fromhex("f35cf097e1031faad1090594f50300aa770000b5e0031faa78cae997bf0200f1e1179f1a"),
+            "replacement": bytes.fromhex("084740b91f010071e1079f1a1f2003d51f2003d51f2003d51f2003d51f2003d51f2003d5"),
+        },
+        {
+            "description": "safely clamp DroneAbilityParameter.get_TimeData to element 0 when length <= 1 avoiding IndexOutOfRangeException",
+            "offset": 0x0149D3A8,
+            "expected": bytes.fromhex("07dff597e1031faae2031faa6adbf597"),
+            "replacement": bytes.fromhex("601240f9040000141f2003d51f2003d5"),
         },
     ],
     "armeabi-v7a": [
@@ -723,7 +915,7 @@ def patch_metadata(path: Path, base_url: str, authority: str) -> list[dict[str, 
     return report
 
 
-def patch_native(path: Path, abi: str) -> list[dict[str, object]]:
+def patch_native(path: Path, abi: str, dry_run: bool = False) -> list[dict[str, object]]:
     patches = NATIVE_PATCHES[abi]
     data = bytearray(path.read_bytes())
     reports: list[dict[str, object]] = []
@@ -756,7 +948,8 @@ def patch_native(path: Path, abi: str) -> list[dict[str, object]]:
             "from": expected.hex(),
             "to": replacement.hex(),
         })
-    path.write_bytes(data)
+    if not dry_run:
+        path.write_bytes(data)
     return reports
 
 
@@ -803,12 +996,26 @@ def patch_unity_native(path: Path, abi: str) -> list[dict[str, object]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--metadata", required=True, type=Path)
-    parser.add_argument("--arm64", required=True, type=Path)
-    parser.add_argument("--armv7", required=True, type=Path)
+    parser.add_argument("--dry-run", action="store_true", help="Validate patches without writing")
+    parser.add_argument("--metadata", required=False, type=Path)
+    parser.add_argument("--arm64", required=False, type=Path)
+    parser.add_argument("--armv7", required=False, type=Path)
     parser.add_argument("--arm64-unity", required=False, type=Path)
-    parser.add_argument("--base-url", required=True)
+    parser.add_argument("--base-url", required=False)
+    parser.add_argument("dry_run_target", nargs="?", type=Path, help="Target .so file for dry-run")
     args = parser.parse_args()
+
+    if args.dry_run:
+        target = args.dry_run_target or args.arm64
+        if not target:
+            print("Error: dry-run requires a target .so file (e.g. --dry-run .local/libil2cpp_clean.so)", file=sys.stderr)
+            return 1
+        reports = patch_native(target, "arm64-v8a", dry_run=True)
+        print(f"Dry-run successful on {target}: verified {len(reports)} patches.")
+        return 0
+
+    if not (args.metadata and args.arm64 and args.armv7 and args.base_url):
+        parser.error("the following arguments are required: --metadata, --arm64, --armv7, --base-url")
 
     base_url, authority = normalize_base_url(args.base_url)
     native_reports = [

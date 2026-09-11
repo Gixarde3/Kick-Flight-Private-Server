@@ -1,9 +1,9 @@
 {
-  "UserId": "1000001",
+  "UserId": "ddec253bf2fb4558b8776d26adf59d9d",
   "UserName": "Gixarde3",
-  "KickerId": 8,
-  "KickerCostumeId": 2,
-  "ActiveDeckNumber": 2,
+  "KickerId": 1,
+  "KickerCostumeId": 1,
+  "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
       3010001,
@@ -12,10 +12,10 @@
       3010004
     ],
     "2": [
-      3010050,
-      3010051,
-      3010052,
-      3010053
+      3010005,
+      3010006,
+      3010007,
+      3010008
     ],
     "3": [
       3010009,

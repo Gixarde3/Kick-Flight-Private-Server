@@ -57,7 +57,7 @@ public sealed class BattleMatchmakingService
         public int kickerId { get; set; } = 1;
         public int kickerCostumeId { get; set; } = 1;
         public int honorId { get; set; } = 6010000;
-        public int teamType { get; set; } = 1; // 1 = Blue, 2 = Red
+        public int teamType { get; set; } = 0; // 0 = Blue, 1 = Red (Colorful.TeamType)
         public int kickerAiParameterId { get; set; } = 0; // 0 for human, > 0 for bot
         public int kickerAiDiscDeckId { get; set; } = 0; // 0 for human, > 0 for bot
         public string languageCode { get; set; } = "es";
@@ -100,7 +100,16 @@ public sealed class BattleMatchmakingService
         return (entryId, ticketId);
     }
 
+    private readonly object _matchLock = new();
+    private ActiveBattleRoom? _pendingRoom;
+    private TaskCompletionSource<MatchingBattleInfo>? _pendingRoomTcs;
+
     public (string connection, string battleJson)? ResolveAssignment(string ticketId)
+    {
+        return ResolveAssignmentAsync(ticketId).GetAwaiter().GetResult();
+    }
+
+    public async Task<(string connection, string battleJson)?> ResolveAssignmentAsync(string ticketId, CancellationToken cancellationToken = default)
     {
         if (!_entriesByTicket.TryGetValue(ticketId, out var playerSession))
         {
@@ -118,52 +127,268 @@ public sealed class BattleMatchmakingService
             };
         }
 
-        // Multi-client matching check: find existing room with available human player slot for the same rule
-        ActiveBattleRoom? matchedRoom = null;
-        lock (_roomsByBattleId)
+        ActiveBattleRoom? targetRoom = null;
+        Task<MatchingBattleInfo>? waitTask = null;
+
+        lock (_matchLock)
         {
+            // Check if user is already in an active room with completed roster
             foreach (var room in _roomsByBattleId.Values)
             {
-                if (room.BattleRuleId == playerSession.BattleRuleId && room.HumanPlayers.Count < 6)
+                if (room.HumanPlayers.Any(p => p.UserId == playerSession.UserId) && room.MatchingInfo.battlePlayerList.Count > 0)
                 {
-                    // Check if already in this room
-                    if (room.HumanPlayers.Any(p => p.UserId == playerSession.UserId))
-                    {
-                        matchedRoom = room;
-                        break;
-                    }
-                    if (room.HumanPlayers.Count < 2) // Join as second player!
-                    {
-                        matchedRoom = room;
-                        room.HumanPlayers.Add(playerSession);
-                        _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, room.BattleId);
-                        break;
-                    }
+                    var cachedJson = JsonSerializer.Serialize(room.MatchingInfo);
+                    return (room.BattleId, cachedJson);
                 }
             }
 
-            if (matchedRoom == null)
+            // Multi-client matching check: check if there is an active pending room waiting for player 2
+            if (_pendingRoom != null &&
+                _pendingRoom.BattleRuleId == playerSession.BattleRuleId &&
+                _pendingRoom.HumanPlayers.Count == 1 &&
+                !_pendingRoom.HumanPlayers.Any(p => p.UserId == playerSession.UserId))
+            {
+                targetRoom = _pendingRoom;
+                targetRoom.HumanPlayers.Add(playerSession);
+                _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
+
+                var roster = BuildRoster(targetRoom);
+                targetRoom.MatchingInfo = roster;
+
+                var tcs = _pendingRoomTcs;
+                _pendingRoom = null;
+                _pendingRoomTcs = null;
+                tcs?.TrySetResult(roster);
+
+                var json = JsonSerializer.Serialize(roster);
+                return (targetRoom.BattleId, json);
+            }
+
+            // Otherwise create a new room and wait for a second player
+            var nextId = Interlocked.Increment(ref _battleCounter);
+            var battleId = $"battle-{nextId}";
+            targetRoom = new ActiveBattleRoom
+            {
+                BattleId = battleId,
+                BattleRuleId = playerSession.BattleRuleId,
+                FieldId = 101,
+                HumanPlayers = [playerSession]
+            };
+            _roomsByBattleId[battleId] = targetRoom;
+            _pendingRoom = targetRoom;
+            _pendingRoomTcs = new TaskCompletionSource<MatchingBattleInfo>(TaskCreationOptions.RunContinuationsAsynchronously);
+            waitTask = _pendingRoomTcs.Task;
+            _logger.LogInformation("Created pending battle room {BattleId} for user {UserId}, waiting up to 4s for second player", battleId, playerSession.UserId);
+        }
+
+        // Wait up to 4 seconds for opponent to join
+        try
+        {
+            var completedTask = await Task.WhenAny(waitTask, Task.Delay(4000, cancellationToken));
+            if (completedTask == waitTask)
+            {
+                var roster = await waitTask;
+                _logger.LogInformation("Returning matched 2-player roster for user {UserId} in room {BattleId}", playerSession.UserId, targetRoom.BattleId);
+                return (targetRoom.BattleId, JsonSerializer.Serialize(roster));
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Client disconnected or cancelled
+        }
+
+        // Timeout expired: fill with AI bots and start solo
+        lock (_matchLock)
+        {
+            if (_pendingRoom == targetRoom)
+            {
+                _pendingRoom = null;
+                _pendingRoomTcs = null;
+                var soloRoster = BuildRoster(targetRoom);
+                targetRoom.MatchingInfo = soloRoster;
+                _logger.LogInformation("Room {BattleId} matchmaking timed out, starting solo match with AI bots for user {UserId}", targetRoom.BattleId, playerSession.UserId);
+                return (targetRoom.BattleId, JsonSerializer.Serialize(soloRoster));
+            }
+            else
+            {
+                // Second player joined right before timeout
+                return (targetRoom.BattleId, JsonSerializer.Serialize(targetRoom.MatchingInfo));
+            }
+        }
+    }
+
+    private static MatchingBattleInfo BuildInitialRoster(BattleEntrySession player)
+    {
+        var discs = player.DeckDiscs.Count >= 4 ? player.DeckDiscs : [3010001, 3010002, 3010003, 3010004];
+        return new MatchingBattleInfo
+        {
+            matchmakingExpirationDatetime = DateTime.UtcNow.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"),
+            photonCloudRegionId = 1,
+            battlePlayerList =
+            [
+                new MatchingPlayerBattleInfo
+                {
+                    userId = player.UserId,
+                    matchmakingTeamId = "team-1",
+                    battleEntryId = player.BattleEntryId,
+                    name = player.UserName,
+                    rank = 13,
+                    kickerId = player.KickerId,
+                    kickerCostumeId = player.KickerCostumeId,
+                    honorId = 6010000,
+                    teamType = 0,
+                    kickerAiParameterId = 0,
+                    kickerAiDiscDeckId = 0,
+                    languageCode = "es",
+                    frameId = 1,
+                    discId1 = discs[0], discLevel1 = 10,
+                    discId2 = discs[1], discLevel2 = 10,
+                    discId3 = discs[2], discLevel3 = 10,
+                    discId4 = discs[3], discLevel4 = 10
+                }
+            ]
+        };
+    }
+
+    public async Task StreamAssignmentsAsync(
+        string ticketId,
+        IServerStreamWriter<GetAssignmentsResponse> responseStream,
+        CancellationToken cancellationToken)
+    {
+        if (!_entriesByTicket.TryGetValue(ticketId, out var playerSession))
+        {
+            playerSession = new BattleEntrySession
+            {
+                TicketId = ticketId,
+                BattleEntryId = "be-demo-001",
+                UserId = "1000001",
+                UserName = "Gixarde3",
+                KickerId = 1,
+                KickerCostumeId = 1,
+                BattleRuleId = 1,
+                DeckDiscs = [3010001, 3010002, 3010003, 3010004]
+            };
+        }
+
+        ActiveBattleRoom targetRoom;
+        Task<MatchingBattleInfo>? waitTask = null;
+        bool isSecondPlayer = false;
+
+        lock (_matchLock)
+        {
+            // Check if there is an active pending room waiting for player 2
+            if (_pendingRoom != null &&
+                _pendingRoom.BattleRuleId == playerSession.BattleRuleId &&
+                _pendingRoom.HumanPlayers.Count == 1 &&
+                !_pendingRoom.HumanPlayers.Any(p => p.UserId == playerSession.UserId))
+            {
+                targetRoom = _pendingRoom;
+                targetRoom.HumanPlayers.Add(playerSession);
+                isSecondPlayer = true;
+                _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
+
+                var roster = BuildRoster(targetRoom);
+                targetRoom.MatchingInfo = roster;
+
+                var tcs = _pendingRoomTcs;
+                _pendingRoom = null;
+                _pendingRoomTcs = null;
+                tcs?.TrySetResult(roster);
+            }
+            else
             {
                 var nextId = Interlocked.Increment(ref _battleCounter);
                 var battleId = $"battle-{nextId}";
-                matchedRoom = new ActiveBattleRoom
+                targetRoom = new ActiveBattleRoom
                 {
                     BattleId = battleId,
                     BattleRuleId = playerSession.BattleRuleId,
                     FieldId = 101,
                     HumanPlayers = [playerSession]
                 };
-                _roomsByBattleId[battleId] = matchedRoom;
-                _logger.LogInformation("Created new battle room {BattleId} for user {UserId}", battleId, playerSession.UserId);
+                _roomsByBattleId[battleId] = targetRoom;
+                _pendingRoom = targetRoom;
+                _pendingRoomTcs = new TaskCompletionSource<MatchingBattleInfo>(TaskCreationOptions.RunContinuationsAsynchronously);
+                waitTask = _pendingRoomTcs.Task;
+                _logger.LogInformation("Created pending battle room {BattleId} for user {UserId}", battleId, playerSession.UserId);
             }
         }
 
-        // Build 6-player battle roster (Human players + AI Bots for 3v3 arena)
-        var battleInfo = BuildRoster(matchedRoom);
-        matchedRoom.MatchingInfo = battleInfo;
+        // --- STAGE 1: Stream initial update so MatchingWaitMemberDisplay renders with 'Buscando...' slots ---
+        var initialRoster = BuildInitialRoster(playerSession);
+        await SendAssignmentUpdateAsync(responseStream, "", initialRoster);
+        _logger.LogInformation("Streamed Stage 1 (room preparation / searching) for user {UserId}", playerSession.UserId);
 
-        var json = JsonSerializer.Serialize(battleInfo);
-        return (matchedRoom.BattleId, json);
+        // --- STAGE 2: Wait for second player or countdown, then stream full roster ---
+        MatchingBattleInfo fullRoster;
+        if (isSecondPlayer)
+        {
+            fullRoster = targetRoom.MatchingInfo;
+            await Task.Delay(1500, cancellationToken);
+        }
+        else
+        {
+            try
+            {
+                var completed = await Task.WhenAny(waitTask!, Task.Delay(3500, cancellationToken));
+                if (completed == waitTask)
+                {
+                    fullRoster = await waitTask!;
+                }
+                else
+                {
+                    lock (_matchLock)
+                    {
+                        if (_pendingRoom == targetRoom)
+                        {
+                            _pendingRoom = null;
+                            _pendingRoomTcs = null;
+                        }
+                    }
+                    fullRoster = BuildRoster(targetRoom);
+                    targetRoom.MatchingInfo = fullRoster;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+        }
+
+        // Stream Stage 2: All 8 slots populated -> UI switches to 'Iniciar combate'!
+        await SendAssignmentUpdateAsync(responseStream, "", fullRoster);
+        _logger.LogInformation("Streamed Stage 2 (full roster / Iniciar combate) for user {UserId}", playerSession.UserId);
+
+        // Hold room on 'Iniciar combate' for 2 seconds so user sees the complete roster
+        await Task.Delay(2000, cancellationToken);
+
+        // --- STAGE 3: Final assignment with non-empty Connection -> triggers Success (Result 1) and enters battle! ---
+        await SendAssignmentUpdateAsync(responseStream, targetRoom.BattleId, fullRoster);
+        _logger.LogInformation("Streamed Stage 3 (battle start assignment: {BattleId}) for user {UserId}", targetRoom.BattleId, playerSession.UserId);
+    }
+
+    private static async Task SendAssignmentUpdateAsync(
+        IServerStreamWriter<GetAssignmentsResponse> responseStream,
+        string connection,
+        MatchingBattleInfo roster)
+    {
+        var json = JsonSerializer.Serialize(roster);
+        var battleStruct = Struct.Parser.ParseJson(json);
+        var propertiesStruct = new Struct();
+        propertiesStruct.Fields["battle"] = Value.ForStruct(battleStruct);
+        propertiesStruct.Fields["RoomBattleInfo"] = Value.ForStruct(battleStruct);
+        propertiesStruct.Fields["matchStatus"] = Value.ForStruct(battleStruct);
+
+        var response = new GetAssignmentsResponse
+        {
+            Assignment = new Assignment
+            {
+                Connection = connection,
+                Properties = propertiesStruct
+            }
+        };
+
+        await responseStream.WriteAsync(response);
     }
 
     public sealed record BotProfile(int KickerId, string Name);
@@ -173,7 +398,7 @@ public sealed class BattleMatchmakingService
         new(1, "Tsubame Bot"),
         new(2, "Kaito Bot"),
         new(3, "Ruriha Bot"),
-        new(5, "Owlbert Bot"),
+        new(4, "Coco Bot"),
         new(6, "Grenhawk Bot"),
         new(7, "Pit Bot"),
         new(8, "Anna Bot"),
@@ -182,8 +407,8 @@ public sealed class BattleMatchmakingService
         new(12, "Yukari Bot"),
         new(13, "Yui Bot"),
         new(14, "Hitagi Bot"),
-        new(4, "Coco Bot"),
-        new(11, "Eleonora Bot")
+        new(11, "Eleonora Bot"),
+        new(5, "Owlbert Bot")
     ];
 
     private static MatchingBattleInfo BuildRoster(ActiveBattleRoom room)
@@ -230,11 +455,11 @@ public sealed class BattleMatchmakingService
             });
         }
 
-        // 2. Fill remaining slots with AI Bots up to 3 on Team 0 (Blue) and 3 on Team 1 (Red) (6 total for 3v3)
+        // 2. Fill remaining slots with AI Bots up to 4 on Team 0 (Blue) and 4 on Team 1 (Red) (8 total for 4v4)
         var availableBots = BotProfiles.Where(b => !usedKickers.Contains(b.KickerId)).ToList();
         var botIdx = 0;
 
-        const int maxPerTeam = 3;
+        const int maxPerTeam = 4;
         const int totalPlayers = maxPerTeam * 2;
 
         while (info.battlePlayerList.Count < totalPlayers)
@@ -289,32 +514,18 @@ public sealed class OpenMatchFrontendService : Frontend.FrontendBase
     {
         _logger.LogInformation("gRPC GetAssignments invoked for ticket {TicketId}", request.TicketId);
 
-        var assignment = _matchmaking.ResolveAssignment(request.TicketId);
-        if (assignment == null)
+        try
         {
-            _logger.LogWarning("Could not resolve assignment for ticket {TicketId}", request.TicketId);
-            return;
+            await _matchmaking.StreamAssignmentsAsync(request.TicketId, responseStream, context.CancellationToken);
         }
-
-        var (connection, battleJson) = assignment.Value;
-        _logger.LogInformation("Resolved ticket {TicketId} -> connection: {Connection}", request.TicketId, connection);
-
-        var battleStruct = Struct.Parser.ParseJson(battleJson);
-        var propertiesStruct = new Struct();
-        propertiesStruct.Fields["battle"] = Value.ForStruct(battleStruct);
-        propertiesStruct.Fields["RoomBattleInfo"] = Value.ForStruct(battleStruct);
-        propertiesStruct.Fields["matchStatus"] = Value.ForStruct(battleStruct);
-
-        var response = new GetAssignmentsResponse
+        catch (OperationCanceledException)
         {
-            Assignment = new Assignment
-            {
-                Connection = connection,
-                Properties = propertiesStruct
-            }
-        };
-
-        await responseStream.WriteAsync(response);
-        _logger.LogInformation("Streamed GetAssignmentsResponse for ticket {TicketId} successfully", request.TicketId);
+            _logger.LogInformation("GetAssignments stream cancelled for ticket {TicketId}", request.TicketId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetAssignments for ticket {TicketId}", request.TicketId);
+        }
     }
 }
+

@@ -59,7 +59,7 @@ app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HE
         var host = FixtureStore.NormalizeHost(context.Request.Host.Host);
         var firstParty = options.Value.FirstPartyHosts.Contains(host, StringComparer.OrdinalIgnoreCase);
         var directClient = options.Value.DirectClientHosts.Contains(host, StringComparer.OrdinalIgnoreCase)
-            || System.Net.IPAddress.TryParse(host, out _);
+            || (!options.Value.StrictMode && System.Net.IPAddress.TryParse(host, out _));
         if (!firstParty && !directClient)
         {
             return Results.Json(new { error = "local-host-not-allowed", host }, statusCode: 421);
