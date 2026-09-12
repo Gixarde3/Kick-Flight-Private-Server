@@ -1,0 +1,114 @@
+[
+ {
+  "id": 1,
+  "kickerId": 1,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 2,
+  "kickerId": 2,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 3,
+  "kickerId": 3,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 4,
+  "kickerId": 4,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 5,
+  "kickerId": 5,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 6,
+  "kickerId": 6,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 7,
+  "kickerId": 7,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 8,
+  "kickerId": 8,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 9,
+  "kickerId": 9,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 10,
+  "kickerId": 10,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 11,
+  "kickerId": 11,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 12,
+  "kickerId": 12,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 13,
+  "kickerId": 13,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ },
+ {
+  "id": 14,
+  "kickerId": 14,
+  "duration": 5.0,
+  "coefficient": 3.0,
+  "range": 10.0,
+  "finishTime": 1.0
+ }
+]

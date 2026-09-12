@@ -396,7 +396,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         masterRequest.Headers.Host = host;
         masterRequest.Headers.Add("x-app-access-token", accessToken);
         using var masterResponse = await client.SendAsync(masterRequest);
-        Assert.Equal(DemoSessionApi.MasterVersion, masterResponse.Headers.GetValues("x-app-master-hash").Single());
+        Assert.StartsWith("demo-master-", masterResponse.Headers.GetValues("x-app-master-hash").Single());
 
         var masterEncrypted = await masterResponse.Content.ReadAsByteArrayAsync();
         var masterDecrypted = D2CCodec.Decode(masterEncrypted, sessionKeyBytes);

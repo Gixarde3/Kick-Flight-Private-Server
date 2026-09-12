@@ -149,6 +149,16 @@ En `BattleMatchmakingService.cs`:
   ```bash
   adb -s emulator-5556 install -r .local/artifacts/KickFlight-2.11.0-direct-10.0.2.2-18080.apk
   ```
+- [ ] **OBLIGATORIO: sembrar la caché Octo completa en cada dispositivo** (ver §7.1):
+  ```bash
+  python3 scripts/seed-device-cache.py -s emulator-5554
+  python3 scripts/seed-device-cache.py -s emulator-5556 --skip-tar
+  ```
+  El flujo de descarga normal sólo deja ~850 bundles en `files/octo`; `GameScene` necesita los
+  2,579 preservados. Sin la siembra el cliente muere en la pantalla "Cargando..." con
+  `SIGSEGV fault addr 0x7b0` en `libunity.so+0x34426c`. `pm clear` borra la siembra: repetirla
+  después de cualquier `--clean`. `scripts/test-battle-loop.sh` ahora lo comprueba y siembra solo
+  (`--no-seed` para omitirlo).
 
 ### Paso 3: Validar Flujo Monojugador (1 Emulador)
 - [ ] Ejecutar: `./scripts/test-battle-loop.sh --no-install -d emulator-5554`.
@@ -191,3 +201,123 @@ adb -s emulator-5554 logcat -d | grep -E "MatchingScene|GetAssignments|NormalMat
 # Test automatizado de combate
 ./scripts/test-battle-loop.sh --no-install -d emulator-5554
 ```
+
+---
+
+## 7. PROBLEMAS CONOCIDOS (actualizado 2026-09-11, commit 99a7f6f)
+
+### 7.1. Crash en "Cargando..." de `GameScene` si la caché Octo no está sembrada — RESUELTO (procedimiento)
+- **Síntoma**: `SIGSEGV, SEGV_MAPERR, fault addr 0x7b0`, hilo `UnityMain`, frames
+  `libunity.so+0x34426c` / `+0x6d86c4`, entre 7 y 13 s después de `D Unity: GameScene`, sin que
+  la arena llegue a dibujarse. No aparece ninguna excepción Unity previa en logcat.
+- **Causa**: assets faltantes. El catálogo (`config/resources/catalog.json`) sólo hace que el cliente
+  descargue ~850 archivos; `libunity.so+0x344238` es la rutina variádica de log/assert de Unity y el
+  cliente muere intentando *reportar* el fallo de carga. No depende del commit, de la ABI ni de la
+  traducción `ndk_translation` (se reprodujo 3/3 en x86_64 y desapareció al sembrar).
+- **Solución**: `scripts/seed-device-cache.py` (2,579 bundles, 729 MB) antes de entrar a combate.
+  Verificación rápida: `adb shell run-as jp.grenge.kickflight find files/octo -type f | wc -l`
+  debe dar ~5160. Tras sembrar, el arranque hace **1** petición `/cdn/` en lugar de ~280.
+- **Verificado con siembra** en `KickFlight_A15` (x86_64 + ndk_translation): sala 4v4, presentación
+  de aliados y enemigos sin crash, HUD real (`PlayerInfoPresenter`), controles de vuelo operativos,
+  0 excepciones Unity, proceso vivo > 3 min. Capturas: `.local/battle-test/run-99a7f6f-seeded/`.
+
+### 7.2. La partida nunca arrancaba: reloj fijo en 3:00 — RESUELTO (2026-09-11)
+- **Síntoma**: tras la presentación de equipos el HUD aparece completo pero el temporizador no
+  cuenta, el marcador no cambia y los 7 bots (`kickerAiParameterId > 0`) se quedan en su spawn.
+  El jugador humano sí vuela y la cámara le sigue.
+- **Lo que sí ocurre**: `battle/entry` 200 → gRPC Stage 1/2/3 → `battle/start` 200; el cliente
+  carga `FLD00101`, instancia los 8 kickers y construye el HUD. Ninguna excepción en logcat.
+- **Causa raíz (ingeniería inversa de `libil2cpp.so`, 2026-09-11)**:
+  - El reloj usa `GameManager.GameElapsedTime`, que devuelve 0 mientras `IsGameStarted == false`.
+    `IsGameStarted` sólo se pone a `true` en `set_GameStartTime(t)` con `t != -1`, y ese valor llega
+    **exclusivamente** por la propiedad de sala Photon `"RoomStartTime"` (`CallbackRoomPropertiesUpdate`
+    RVA `0x1574BA4`, `GetRoomProperty<double>(room, "RoomStartTime", -1.0)`).
+  - `"RoomStartTime"` la escribe el master en `GameManager.UpdateState` (RVA `0x156E8E0`), una máquina
+    de estados sobre la propiedad de sala `"RoomState"` (`PhotonRoomStateType`):
+    `None/Matched` --(PlayerState==PreLoaded)--> `PreLoaded(4)` --(==CreatedObject)--> `CreatedObject(5)`
+    --(==Readied)--> `Playing(6)` --(PlayerState==Playing)--> escribe `RoomStartTime = NetworkTime`.
+    Cada transición exige que **todos** los jugadores Photon tengan `"PlayerState"` **exactamente** igual
+    al valor esperado (`IsPlayerStateComplete`, RVA `0x1A29FF4`, `cmp w0,w21; b.ne`). En modo offline
+    la lista de jugadores es sólo el local, y `IsRoomLocalPlayerMaster()` es `true` (`PhotonManager.IsOffline`).
+  - `UpdateState` se ejecuta por dos vías: (1) `ManagedUpdate` cada frame, pero sólo cuando el manager
+    está `Initialized`, es decir **después** de que `GameManager.BeginAsync` termine
+    (`SystemManager.Update` filtra `ManagerInfo.IsState(2)`); (2) dentro de
+    `PhotonPropertyManagerBase.IsRoomStateComplete(n)` (RVA `0x1A2A608`), que hace
+    `this.UpdateState(); return RoomState == n;` y es el predicado de los `WaitWhile` de `BeginAsync`.
+  - Los parches previos forzaban a `false` los seis `<BeginAsync>b__1..b__6`. `b__2` y `b__5` son
+    `!IsRoomStateComplete(4)` / `!IsRoomStateComplete(5)`: al anularlos, `UpdateState` nunca corre
+    durante `BeginAsync`, `RoomState` se queda en `None` y, cuando `ManagedUpdate` empieza a llamarlo,
+    `PlayerState` ya es 3-4 mientras el caso `None` exige exactamente 1. Bloqueo permanente: sin
+    `RoomStartTime`, sin `IsGameStarted`, sin reloj y sin IA.
+  - El transporte offline sí funciona: `Player/Room.SetCustomProperties` de este PUN2 hacen `Merge` y
+    disparan `OnPlayerPropertiesUpdate` / `OnRoomPropertiesUpdate` síncronamente cuando la sala es offline.
+- **Fix aplicado**: eliminar de `scripts/patch-il2cpp-endpoints.py` los parches de `0x0157999C` (`b__2`)
+  y `0x01579B80` (`b__5`). Se mantienen `b__1/b__3/b__4/b__6` (`IsCreatedSceneObject`, `IsCreatedPlayer`,
+  `IsCreatedCommonObject`), que sí dependen de instanciación Photon. Orden verificado en la corrutina:
+  estado 5 `UpdatePlayerState(1)` → espera `b__2`; estado 8 `UpdatePlayerState(2)` → espera `b__5`;
+  `WaitReadiedAsync` → `UpdatePlayerState(3)`; `OnEndReadyGoAnimation` → `UpdatePlayerState(4)`.
+- **Segundo bloqueo encontrado con trazas (`KF_DIAG=1`, tag logcat `KFDIAG`)**: aun con los waits
+  restaurados la traza era `PlayerState 1 -> RoomState 4 -> PlayerState 2 -> RoomState 5 -> PlayerState 4`
+  y **nunca `PlayerState 3 (Readied)`**. `Readied` sólo lo publica `WaitReadiedAsync`, que arranca desde
+  `GameReadyScene._onCompleted` (`OnEndCutScene -> OnCompleted`), es decir al terminar la timeline de la
+  escena de preparación — que los parches ponytail saltan por completo. Sin `Readied`, `UpdateState`
+  no pasa de `CreatedObject(5)` y `RoomStartTime` nunca se escribe.
+- **Fix 2**: cave en `GameManager.GetMenuType` (cuerpo muerto) + hook en
+  `GameStartAnimation.PlayGoAnimation` (`0x17630EC`) que llama a `GameManager.CompleteGameReady()`
+  (`GetSubScene<GameReadyScene>() -> Complete() -> OnCompleted()`, idempotente, y además restaura cámara,
+  DOF y canvas: invocar sólo el delegado deja la cámara cinemática sin HUD).
+- **Fix 3**: en este flujo `OnEndReadyGoAnimation` publica `Playing(4)` ~0,2 s ANTES de que el
+  `WaitReadiedAsync` asíncrono escriba `Readied(3)` (lo pisa). Se relaja el último gate de `UpdateState`
+  (`0x156EB14`: `cmp w0,#4; b.ne` -> `cmp w0,#3; b.lt`, PlayerState >= Readied).
+- **Resultado**: reloj 3:00 -> 2:42 -> 2:10 -> 1:41, `RoomState = Playing`, `IsGameStarted = true`.
+  Capturas: `.local/battle-test/run-final-clean/`.
+
+### 7.4. IA de los bots — PARCIAL (2026-09-11)
+- **Bloqueo 1 (resuelto)**: el parche de `0x017E13C4` salía de `PlayerStateNormal.UpdateAction` para todo
+  `PlayerType != User`, apagando la máquina de movimiento de los 7 bots. Ahora sólo queda el null-guard
+  sobre el `PlayerCharacter` dueño.
+- **Bloqueo 2 (resuelto)**: al habilitar `UpdateAction` para bots aparecían ~40 `NullReferenceException`/s
+  desde `libunity` (`Animator.SetFloat` con `Animator` nulo/destruido) vía
+  `PlayerAnimator.SetParamVelocity`. Cada excepción abortaba `ObjectManager.ManagedUpdate` y con ello
+  todos los managers posteriores del frame (incluido `GameManager`: reloj parado). Guard de entrada en
+  `SetParamVelocity` (`0x13B3BA4` -> cave): retorna si `Animator == null` o su `m_CachedPtr == 0`.
+- **Estado**: con la build limpia los 7 bots tienen `_enableAi = true` y `AIPlayerEngine.Start`
+  ejecutado (trazas `601`/`700` x7), 0 excepciones, y **Kaito Bot se mueve por la arena**. Coco, Ruriha y
+  el resto siguen quietos: `AIPlayerEngine.ManagedUpdate` los deja en `WaitForWarpOut` porque su
+  `IsWarp` nunca se limpia — la animación de warp-in depende del `Animator`, que para esos kickers está
+  muerto (objeto Unity destruido/sin nativo; `PlayerCharacter.SetAnimator` no lanza, así que se crea y
+  algo lo destruye después). Siguiente paso: averiguar qué destruye el objeto Animator de los bots
+  (candidatos: `PrepareAI`/`ResetAi`, `ModelManager.InstantiatePlayerAnimator` para kickers != 1/2, o
+  la ruta de modelos "enemigos" estubada) — con `KF_DIAG=1` el hook I registra el sitio de cada NRE.
+- **Bloqueo 3 (resuelto)**: los bots restantes no salían del warp-in. `AIPlayerEngine.ManagedUpdate` los deja
+  en `WaitForWarpOut` mientras `IsWarp` (`PlayerCharacter+0x2b4`) esté activo, y sólo `AcceptCancelWarp` lo
+  limpia — que empieza con `if (!CharacterBase.IsMine) return`. `IsMine` es `photonView.IsMine`: false para
+  los bots (sus PhotonView pertenecen a actores inexistentes). Online el master posee a los jugadores IA;
+  offline el único cliente debe poseerlo todo. Parche: `CharacterBase.IsMine` (`0x16B69BC`) devuelve `true`
+  cuando `PhotonManager.IsOffline()` (cave en el cuerpo muerto de `ReplayManager.get_ReplayMode`).
+- **Bloqueo 4 (resuelto, servidor)**: `PlayerCharacter.GetKickerAIParameterMaster(kickerId, rank)` elige la
+  fila de `KickerAiParameter` más cercana con `fila.rank <= rango del jugador`. Todas las filas tienen
+  `rank = 13` y el roster daba a los bots `rank = 10 + i % 4`, así que sólo los de rango 13 (Coco, Diatrius)
+  tenían parámetros de IA. `BattleMatchmakingService.BuildRoster` ahora envía `rank = 13` a los bots.
+- (Descartado) el prefab de rutas `AI/Helper/Scramble50` sí está en los Resources de la APK (`data.unity3d`
+  contiene `ai/helper/{ballshoot,default,flagbattle,scramble50,trial,tutorial}`).
+- Herramientas: `scripts/re/` (disasm anotado, xref, slots) y el bloque `DIAG_PATCHES_ARM64`.
+
+### 7.5. Partida completa y pantalla de resultados — FUNCIONA (2026-09-11)
+- Con el reloj corriendo la partida llega a `Timeup` a los 3:00 (banner "queda 1 minuto" a 1:00),
+  `battle/end` 200, `ResultScene`, `battle/result`, marcador de equipos, "Aceptar", resultado personal,
+  "Volver a Inicio" -> `home/index` -> `HomeScene`. Sin crashes.
+- `/battle/result` caía en el comodín `/battle/*` (`{}`); el cliente construye `BattleResultInfo` sin
+  comprobar nulos (`PlayerLevelUpRewardListInfo..ctor` -> NRE) y la pantalla se quedaba sin botón.
+  Nuevo `HandleBattleResultAsync` en `DemoSessionApi.cs` con todas las listas de
+  `BattleResultResponseData` (vacías) y `userExp` coherente con el exp servido en `home/index`
+  (si no, la barra muestra "-37200/1000").
+- Cosmético: `ResultUIManager.PlayRandomStamp` lanza un `ArgumentOutOfRangeException` una vez (lista de
+  stamps vacía); inocuo.
+- **Estado**: ver resultado de la prueba en `.local/adb-loop-notes.md`.
+
+### 7.3. `scripts/patch-il2cpp-endpoints.py` guard #1 (`0x31B5024`) vs `base.apk` pristina
+- Desde ca0d3b4 el guard esperaba `e8030aaa` (base ya parcheada). Con la `base.apk` original
+  (sha256 `2993d66e…`, la registrada en `config/apk-direct-server.local.json`) el byte es `28118a9a`
+  y el `--dry-run` fallaba en la primera entrada. Restaurado a `28118a9a`; la ruta `alreadyPatched`
+  sigue aceptando bases pre-parcheadas. Los 118 parches arm64 verifican contra la base pristina.

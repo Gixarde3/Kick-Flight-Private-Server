@@ -476,7 +476,10 @@ public sealed class BattleMatchmakingService
                 matchmakingTeamId = $"team-{(team == 0 ? 1 : 2)}",
                 battleEntryId = $"be-bot-{info.battlePlayerList.Count}",
                 name = profile.Name,
-                rank = 10 + (info.battlePlayerList.Count % 4),
+                // Must be >= the `rank` of the kicker's rows in masters_kicker_ai_parameter.json (all 13):
+                // PlayerCharacter.GetKickerAIParameterMaster picks the closest row with row.rank <= player rank,
+                // so a lower rank leaves the bot without AI parameters and it never acts.
+                rank = 13,
                 kickerId = profile.KickerId,
                 kickerCostumeId = 1,
                 honorId = 6010000,
