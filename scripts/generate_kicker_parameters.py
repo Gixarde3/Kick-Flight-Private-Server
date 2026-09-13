@@ -43,6 +43,37 @@ param_list = []
 for kid in range(1, 15):
     role = kickers_roles[kid]
     weapon = kickers_weapons[kid]
+    
+    # Speed calibration:
+    # 0 = Speed (fastest, high dash boost, nimble turning)
+    # 2 = Attack (balanced fast, good dash)
+    # 1 = Support (medium speed, good turning)
+    # 3 = Tank (heavy, steady speed)
+    if role == 0:
+        base_speed = 24.0
+        dash_coeff = 3.2
+        accel = 36.0
+        turn_coeff = 1.35
+        dash_range = 18.0
+    elif role == 2:
+        base_speed = 21.0
+        dash_coeff = 2.9
+        accel = 32.0
+        turn_coeff = 1.15
+        dash_range = 15.0
+    elif role == 1:
+        base_speed = 20.0
+        dash_coeff = 2.8
+        accel = 30.0
+        turn_coeff = 1.2
+        dash_range = 13.0
+    else: # Tank (3)
+        base_speed = 18.0
+        dash_coeff = 2.6
+        accel = 28.0
+        turn_coeff = 1.0
+        dash_range = 12.0
+
     param_list.append({
         "id": kid,
         "kickerId": kid,
@@ -51,17 +82,17 @@ for kid in range(1, 15):
         "maxHp": 1200 if role == 3 else (1000 if role == 1 else 900),
         "attack": 120 if role == 2 else 100,
         "defense": 100,
-        "speed": 1.2 if role == 0 else 1.0,
+        "speed": base_speed,
         "moveSpeedCoefficient": 1.0,
-        "moveTurningSpeedCoefficient": 1.0,
-        "moveDashSpeedCoefficient": 1.0,
+        "moveTurningSpeedCoefficient": turn_coeff,
+        "moveDashSpeedCoefficient": dash_coeff,
         "groundMoveSpeedCoefficient": 1.0,
         "groundMoveTurningSpeedCoefficient": 1.0,
-        "acceleration": 1.0,
+        "acceleration": accel,
         "attackTargetSearchDistance": 12.0,
         "attackTargetSearchAngle": 60.0,
         "skillId": kid,
-        "dashAttackRange": 5.0,
+        "dashAttackRange": dash_range,
         "dashAttackSpeedWeight": 1.0,
         "dashAttackTime": 0.5,
         "dashAttackFollowThroughTime": 0.3,

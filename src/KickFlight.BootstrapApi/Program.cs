@@ -13,9 +13,11 @@ builder.Logging.AddJsonConsole(options =>
 });
 
 builder.Services.Configure<HarnessOptions>(builder.Configuration.GetSection("Harness"));
+builder.Services.Configure<PhotonServerOptions>(builder.Configuration.GetSection(PhotonServerOptions.SectionName));
 builder.Services.AddSingleton<FixtureStore>();
 builder.Services.AddSingleton<ResourceCatalogStore>();
 builder.Services.AddSingleton<SafeRequestInspector>();
+builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
 builder.Services.AddSingleton<DemoSessionApi>();
@@ -42,14 +44,24 @@ app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
 
 app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
-app.MapGet("/health/ready", (FixtureStore store, ResourceCatalogStore resourceStore) =>
+app.MapGet("/health/photon", async (IPhotonServerManager photonManager, CancellationToken ct) =>
+{
+    var status = await photonManager.CheckHealthAsync(ct);
+    return Results.Json(status, statusCode: (status.MasterReachable || !status.Enabled) ? 200 : 503);
+});
+app.MapGet("/health/ready", async (FixtureStore store, ResourceCatalogStore resourceStore, IPhotonServerManager photonManager, CancellationToken ct) =>
 {
     var snapshot = store.GetSnapshot();
     var resourceSnapshot = resourceStore.GetSnapshot();
-    var errors = snapshot.Errors.Concat(resourceSnapshot.Errors).ToArray();
-    return errors.Length == 0
-        ? Results.Json(new { status = "ready", fixtureCount = snapshot.Fixtures.Count, resourceCount = resourceSnapshot.Resources.Count })
-        : Results.Json(new { status = "not-ready", errors }, statusCode: 503);
+    var photonStatus = await photonManager.CheckHealthAsync(ct);
+    var errors = snapshot.Errors.Concat(resourceSnapshot.Errors).ToList();
+    if (photonStatus.Enabled && !photonStatus.MasterReachable)
+    {
+        errors.Add($"Photon MasterServer unreachable at {photonStatus.Host}:{photonStatus.MasterServerPort}");
+    }
+    return errors.Count == 0
+        ? Results.Json(new { status = "ready", fixtureCount = snapshot.Fixtures.Count, resourceCount = resourceSnapshot.Resources.Count, photon = photonStatus })
+        : Results.Json(new { status = "not-ready", errors, photon = photonStatus }, statusCode: 503);
 });
 
 app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS" },

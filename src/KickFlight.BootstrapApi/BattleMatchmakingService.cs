@@ -9,13 +9,15 @@ namespace KickFlight.BootstrapApi;
 public sealed class BattleMatchmakingService
 {
     private readonly ILogger<BattleMatchmakingService> _logger;
+    private readonly IPhotonServerManager _photonManager;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
     private int _battleCounter = 1000;
 
-    public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger)
+    public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger, IPhotonServerManager photonManager)
     {
         _logger = logger;
+        _photonManager = photonManager;
     }
 
     public sealed class BattleEntrySession
@@ -181,10 +183,10 @@ public sealed class BattleMatchmakingService
             _logger.LogInformation("Created pending battle room {BattleId} for user {UserId}, waiting up to 4s for second player", battleId, playerSession.UserId);
         }
 
-        // Wait up to 4 seconds for opponent to join
+        // Wait up to 25 seconds for opponent to join
         try
         {
-            var completedTask = await Task.WhenAny(waitTask, Task.Delay(4000, cancellationToken));
+            var completedTask = await Task.WhenAny(waitTask, Task.Delay(25000, cancellationToken));
             if (completedTask == waitTask)
             {
                 var roster = await waitTask;
@@ -324,13 +326,12 @@ public sealed class BattleMatchmakingService
         if (isSecondPlayer)
         {
             fullRoster = targetRoom.MatchingInfo;
-            await Task.Delay(1500, cancellationToken);
         }
         else
         {
             try
             {
-                var completed = await Task.WhenAny(waitTask!, Task.Delay(3500, cancellationToken));
+                var completed = await Task.WhenAny(waitTask!, Task.Delay(25000, cancellationToken));
                 if (completed == waitTask)
                 {
                     fullRoster = await waitTask!;
@@ -432,13 +433,19 @@ public sealed class BattleMatchmakingService
             if (team == 0) team0Count++; else team1Count++;
             usedKickers.Add(p.KickerId);
 
+            var playerName = p.UserName;
+            if (i > 0 && playerName == room.HumanPlayers[0].UserName)
+            {
+                playerName = $"{p.UserName} (P{i + 1})";
+            }
+
             var discs = p.DeckDiscs.Count >= 4 ? p.DeckDiscs : [3010001, 3010002, 3010003, 3010004];
             info.battlePlayerList.Add(new MatchingPlayerBattleInfo
             {
                 userId = p.UserId,
                 matchmakingTeamId = $"team-{(team == 0 ? 1 : 2)}",
                 battleEntryId = p.BattleEntryId,
-                name = p.UserName,
+                name = playerName,
                 rank = 13,
                 kickerId = p.KickerId,
                 kickerCostumeId = p.KickerCostumeId,
