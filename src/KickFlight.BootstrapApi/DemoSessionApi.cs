@@ -8,7 +8,10 @@ namespace KickFlight.BootstrapApi;
 public sealed class DemoSessionApi
 {
     private const string CommonCode = "1a837b9ee2ae11a07a0f529a4cd4b61c";
-    public const string MasterVersion = "demo-master-v27";
+    // The client keeps its downloaded masters until this header changes, so it must follow the content:
+    // a SHA-256 over every served table (see the end of the constructor). Editing any config/masters_*.json
+    // and restarting the server therefore makes the client re-download on its next launch.
+    public string MasterVersion { get; private set; } = "demo-master-v27";
     private const string AccessToken = "demo-access-token-0000000000000000000000000000";
 
     public sealed class SessionState
@@ -108,20 +111,27 @@ public sealed class DemoSessionApi
         _encryptedMasters["KickerCostume"] = EncryptMaster(costumeJson);
         _encryptedMasters["KickerDetail"] = EncryptMaster(detailJson);
         _encryptedMasters["KickerParameter"] = EncryptMaster(parameterJson);
-        _encryptedMasters["KickerAbility"] = EncryptMaster(abilityJson);
+        _encryptedMasters["KickerAbility"] = EncryptMaster(ApplyObscuredOffsets("KickerAbility", abilityJson));
         _encryptedMasters["KickerAbilityCondition"] = EncryptMaster(abilityConditionJson);
         _encryptedMasters["Translation"] = EncryptMaster(translationJson);
 
         _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
-        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":10000,"attack":1000}]""");
+        // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
+        // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
+        // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
+        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot).
+        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        // guardianAmount is per team: GameManager.CreateGuardian spawns it for both teams and indexes
+        // FieldManager.GetGuardianInitialPosition, and FLD00101_1 (the crystal-rule variant) has exactly two
+        // guardian points; the flag/ball variants have none, so only battleRuleType 1 gets turrets.
         _encryptedMasters["BattleRule"] = EncryptMaster("""
             [
-              {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":3,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
-              {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
+              {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
+              {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
             ]
             """);
         _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":100},{"id":2,"battleRuleId":2,"fieldId":101,"ratio":100},{"id":3,"battleRuleId":3,"fieldId":101,"ratio":100},{"id":4,"battleRuleId":4,"fieldId":101,"ratio":100},{"id":5,"battleRuleId":5,"fieldId":101,"ratio":100},{"id":6,"battleRuleId":6,"fieldId":101,"ratio":100}]""");
@@ -186,7 +196,7 @@ public sealed class DemoSessionApi
 
         var weaponList = new List<object>();
         int weaponId = 1;
-        var catalogPath = Path.Combine(contentRoot, "config/resources/catalog.json");
+        var catalogPath = RepositoryPaths.Resolve("config/resources/catalog.json", contentRoot);
         bool loadedFromCatalog = false;
 
         if (File.Exists(catalogPath))
@@ -196,6 +206,15 @@ public sealed class DemoSessionApi
                 using var catDoc = JsonDocument.Parse(File.ReadAllText(catalogPath));
                 if (catDoc.RootElement.TryGetProperty("resources", out var resArray))
                 {
+                    // weaponType per kicker: a Drone (4) is not held, it hovers from the body's Prop_Common bone
+                    var weaponTypes = new Dictionary<int, int>();
+                    try
+                    {
+                        using var kpDoc = JsonDocument.Parse(parameterJson);
+                        foreach (var k in kpDoc.RootElement.EnumerateArray())
+                            if (k.TryGetProperty("weaponType", out var wt)) weaponTypes[k.GetProperty("kickerId").GetInt32()] = wt.GetInt32();
+                    }
+                    catch (Exception ex) { _logger.LogWarning("Could not read weapon types: {Error}", ex.Message); }
                     var validWeapons = new SortedSet<(int kickerId, int modelId, int propId)>();
                     var weaponRegex = new System.Text.RegularExpressions.Regex(@"weapon/wp_(\d+)/wp_\d+_(\d+)_(\d+)\.unity3d");
                     foreach (var res in resArray.EnumerateArray())
@@ -218,8 +237,30 @@ public sealed class DemoSessionApi
                     {
                         foreach (var (k, m, p) in validWeapons)
                         {
-                            var bone = p == 1 ? "Prop_R" : p == 2 ? "Prop_L" : "";
-                            var attach = (p == 1 || p == 2) ? 1 : 2;
+                            // props 101/201 are alternate right-hand models, 102/202 alternate left-hand ones (JapaneseSword
+                            // "OverSoul" 201/202, Drone/Laser 101...). A row with an empty bone is parented to nothing and
+                            // JapaneseSwordAction.Initialize then dies in GetComponentInParent -> the whole home/select model fails.
+                            // Only the base props are attach rows. 101/201/202 (Drone extras, JapaneseSword "OverSoul"
+                            // forms...) are swapped in by the weapon/skill code itself; served as attach rows they leave
+                            // Owlbert/Jay/Yuyan/Hitagi without a model in Home and character select.
+                            weaponTypes.TryGetValue(k, out var kwt);
+                            string bone;
+                            var attach = 1;                                               // PropAttachType.Child
+                            if (p == 1) bone = kwt == 4 ? "Prop_Common" : "Prop_R";      // a Drone hovers from the body
+                            else if (p == 2) bone = "Prop_L";
+                            else if (p == 201 && kwt == 11) bone = "wp_010_001_Grip_L";  // Nunchaku free stick hangs off the handle's Grip_L locator
+                            else if (p == 201 && (kwt == 4 || (kwt == 10 && m >= 100)))
+                            {
+                                // Bat (Jay): only the high (cut-in) model gets the row - with a prop-201 row on the battle model
+                                // (wp_009_001_201) the client SIGSEGVs ~7 s into GameScene (logcat 14Mon09 01:28, 17:18:31).
+                                // Drone (Owlbert) and Bat (Jay) special-skill cut-ins call HighPlayerCharacter.GetWeapon(201)
+                                // and dereference its ModelCtr (DroneSpecialSkillCutAction/BatSpecialSkillCutAction.Initialize):
+                                // without a 201 row the NRE kills PlayerCharacter.ResetPlayer and the battle never loads.
+                                // Attached as a Child of the base bone like prop 1 (the cut-in shows/hides it itself); the old
+                                // breakage with 101/201 rows came from serving them as PropAttachType.Replace rows.
+                                bone = kwt == 4 ? "Prop_Common" : "Prop_R";
+                            }
+                            else continue;
                             weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = "", attachType = attach });
                         }
                         loadedFromCatalog = true;
@@ -241,16 +282,16 @@ public sealed class DemoSessionApi
                 [2] = [1],
                 [3] = [1],
                 // 4 has no weapons
-                [5] = [1, 101, 201],
+                [5] = [1],
                 [6] = [1],
                 [7] = [1],
                 [8] = [1],
-                [9] = [1, 201],
-                [10] = [1, 201],
+                [9] = [1],
+                [10] = [1],
                 // 11 has no weapons
                 [12] = [1, 2],
-                [13] = [1, 2, 201, 202],
-                [14] = [1, 2, 101]
+                [13] = [1, 2],
+                [14] = [1, 2]
             };
 
             foreach (var (k, props) in kickerProps)
@@ -267,6 +308,28 @@ public sealed class DemoSessionApi
             }
         }
 
+        // TwoGuns kickers fire from both hands: TwoGunsAttackAction resolves the weapon by bone name ("Prop_R" for
+        // RightHandWeapon, "Prop_L" for LeftHandWeapon) and the only bundle that exists is prop 1, so the left gun is a
+        // second attach row of the same model on Prop_L (otherwise PlayerCharacter.GetWeapon returns null -> NRE per shot).
+        try
+        {
+            using var kpDoc = JsonDocument.Parse(parameterJson);
+            var twoGunKickers = kpDoc.RootElement.EnumerateArray()
+                .Where(k => k.TryGetProperty("weaponType", out var wt) && wt.GetInt32() == 1)
+                .Select(k => k.GetProperty("kickerId").GetInt32()).ToHashSet();
+            var leftHand = new List<object>();
+            foreach (var w in weaponList)
+            {
+                var wj = JsonSerializer.SerializeToElement(w);
+                if (twoGunKickers.Contains(wj.GetProperty("kickerId").GetInt32()) && wj.GetProperty("propId").GetInt32() == 1)
+                    leftHand.Add(new { id = weaponId++, kickerId = wj.GetProperty("kickerId").GetInt32(), modelId = wj.GetProperty("modelId").GetInt32(), propId = 1, boneName = "Prop_L", rootName = "", attachType = 1 });
+            }
+            weaponList.AddRange(leftHand);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not add left-hand weapon rows: {Error}", ex.Message);
+        }
         _encryptedMasters["Weapon"] = EncryptMaster(JsonSerializer.Serialize(weaponList));
 
 
@@ -317,8 +380,8 @@ public sealed class DemoSessionApi
             for (var i = 3010001; i <= 3010135; i++) _discIdList.Add(i);
         }
 
-        _encryptedMasters["Disc"] = EncryptMaster(discJson);
-        _encryptedMasters["Skill"] = EncryptMaster(skillJson);
+        _encryptedMasters["Disc"] = EncryptMaster(ApplyObscuredOffsets("Disc", discJson));
+        _encryptedMasters["Skill"] = EncryptMaster(ApplyObscuredOffsets("Skill", skillJson));
         _encryptedMasters["DiscGrow"] = EncryptMaster(discGrowJson);
         _encryptedMasters["DiscBuildup"] = EncryptMaster(discBuildupJson);
         _encryptedMasters["DiscForceCampaign"] = EncryptMaster("[]");
@@ -337,47 +400,40 @@ public sealed class DemoSessionApi
         _encryptedMasters["KickerAiDiscDeck"] = EncryptMaster(aiDeckJson);
         _encryptedMasters["MatchmakingPingThreshold"] = EncryptMaster(pingThresholdJson);
 
-        // Battle & Combat Masters
-        var specialSkills = Enumerable.Range(1, 14).Select(k => new
+        // Battle & Combat Masters. Every table is a config/masters_*.json file (templates come from
+        // scripts/generate_combat_masters.py, column meanings in docs/COMBAT_MASTERS_FILL_IN.md). The client
+        // throws NullReferenceException inside animation events when the per-kicker WeaponAttackHit/Collision
+        // rows or the per-skill Summon row are missing, so a missing file falls back to an empty table only.
+        foreach (var (masterName, fileName) in new (string, string)[]
         {
-            id = k,
-            kickerId = k,
-            duration = 5.0f,
-            coefficient = 1.0f,
-            range = 10.0f,
-            finishTime = 1.0f
-        });
-        _encryptedMasters["SpecialSkill"] = EncryptMaster(JsonSerializer.Serialize(specialSkills));
-
-        var specialSkillConditions = Enumerable.Range(1, 14).Select(k => new
+            ("WeaponAttack", "masters_weapon_attack.json"),
+            ("WeaponAttackHit", "masters_weapon_attack_hit.json"),
+            ("WeaponAttackCollision", "masters_weapon_attack_collision.json"),
+            ("WeaponAttackBullet", "masters_weapon_attack_bullet.json"),
+            ("WeaponAttackCondition", "masters_weapon_attack_condition.json"),
+            ("SkillCondition", "masters_skill_condition.json"),
+            ("SkillHeal", "masters_skill_heal.json"),
+            ("SkillBlowOff", "masters_skill_blow_off.json"),
+            ("SkillPullIn", "masters_skill_pull_in.json"),
+            ("SkillTrap", "masters_skill_trap.json"),
+            ("SkillCollision", "masters_skill_collision.json"),   // guardian turret beam (NPCSkillParameter.SetCollisionInitInfos)
+            ("SkillHit", "masters_skill_hit.json"),               // guardian turret beam (NPCSkillParameter.SetAttackHitInfos)
+            ("Summon", "masters_summon.json"),
+            ("CommonConditionHit", "masters_common_condition_hit.json"),
+            ("SpecialSkill", "masters_special_skill.json"),
+            ("SpecialSkillHit", "masters_special_skill_hit.json"),
+            ("SpecialSkillCollision", "masters_special_skill_collision.json"),
+            ("SpecialSkillBullet", "masters_special_skill_bullet.json"),
+            ("SpecialSkillCondition", "masters_special_skill_condition.json"),
+            ("SpecialSkillBlowOff", "masters_special_skill_blow_off.json"),
+            ("SpecialSkillTrap", "masters_special_skill_trap.json"),
+        })
         {
-            id = k,
-            specialSkillId = k,
-            conditionType = 0,
-            duration = 5.0f,
-            interval = 1.0f,
-            effectValue = 100.0f,
-            triggerType = 0
-        });
-        _encryptedMasters["SpecialSkillCondition"] = EncryptMaster(JsonSerializer.Serialize(specialSkillConditions));
-        _encryptedMasters["SpecialSkillBlowOff"] = EncryptMaster("[]");
-        _encryptedMasters["SpecialSkillBullet"] = EncryptMaster("[]");
-        _encryptedMasters["SpecialSkillCollision"] = EncryptMaster("[]");
-        _encryptedMasters["SpecialSkillHit"] = EncryptMaster("[]");
-        _encryptedMasters["SpecialSkillTrap"] = EncryptMaster("[]");
-
-        var weaponAttacks = new List<object>();
-        for (int k = 1; k <= 14; k++)
-        {
-            weaponAttacks.Add(new { id = k * 10 + 1, kickerId = k, attackCount = 1, coefficient = 1.0f, seId = 1001 });
-            weaponAttacks.Add(new { id = k * 10 + 2, kickerId = k, attackCount = 2, coefficient = 1.0f, seId = 1002 });
-            weaponAttacks.Add(new { id = k * 10 + 3, kickerId = k, attackCount = 3, coefficient = 1.2f, seId = 1003 });
+            var json = LoadJson(contentRoot, "config/" + fileName, "[]");
+            if (json.Trim() == "[]" && masterName is "WeaponAttack" or "WeaponAttackHit" or "WeaponAttackCollision" or "Summon" or "SpecialSkill" or "SpecialSkillHit" or "SpecialSkillCollision")
+                _logger.LogWarning("Combat master {Master} is empty ({File} missing?) - attacks/skills will throw in the client", masterName, fileName);
+            _encryptedMasters[masterName] = EncryptMaster(ApplyObscuredOffsets(masterName, json));
         }
-        _encryptedMasters["WeaponAttack"] = EncryptMaster(JsonSerializer.Serialize(weaponAttacks));
-        _encryptedMasters["WeaponAttackCondition"] = EncryptMaster("[]");
-        _encryptedMasters["WeaponAttackBullet"] = EncryptMaster("[]");
-        _encryptedMasters["WeaponAttackHit"] = EncryptMaster("[]");
-        _encryptedMasters["WeaponAttackCollision"] = EncryptMaster("[]");
 
         _encryptedMasters["BattleRuleScramble"] = EncryptMaster("""
             [
@@ -431,6 +487,19 @@ public sealed class DemoSessionApi
         });
         _encryptedMasters["KickerAi"] = EncryptMaster(JsonSerializer.Serialize(kickerAis));
         _encryptedMasters["TutorialKickerAi"] = EncryptMaster("[]");
+
+        using (var sha = SHA256.Create())
+        {
+            foreach (var kvp in _encryptedMasters.OrderBy(k => k.Key, StringComparer.Ordinal))
+            {
+                var nameBytes = Encoding.UTF8.GetBytes(kvp.Key);
+                sha.TransformBlock(nameBytes, 0, nameBytes.Length, null, 0);
+                sha.TransformBlock(kvp.Value, 0, kvp.Value.Length, null, 0);
+            }
+            sha.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+            MasterVersion = "demo-master-" + Convert.ToHexString(sha.Hash!)[..16].ToLowerInvariant();
+        }
+        _logger.LogInformation("Master version {MasterVersion} ({Count} tables)", MasterVersion, _encryptedMasters.Count);
     }
 
     private SessionState GetOrCreateUserState(string userId)
@@ -453,6 +522,19 @@ public sealed class DemoSessionApi
                         if (!loaded.Discs.ContainsKey(discId))
                         {
                             loaded.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
+                        }
+                    }
+                    // a deck slot pointing at a disc that no longer exists in masters_disc.json makes the
+                    // client throw in PlayerDeckParameter..ctor and the battle never loads: swap it for a valid disc
+                    foreach (var (deckNumber, deck) in loaded.Decks)
+                    {
+                        for (var slot = 0; slot < deck.Count; slot++)
+                        {
+                            if (_discIdList.Contains(deck[slot])) continue;
+                            var replacement = _discIdList.FirstOrDefault(id => !deck.Contains(id), _discIdList[0]);
+                            _logger.LogWarning("User {UserId} deck {Deck} slot {Slot}: disc {DiscId} is not in the masters, replaced with {Replacement}",
+                                userId, deckNumber, slot + 1, deck[slot], replacement);
+                            deck[slot] = replacement;
                         }
                     }
                     return loaded;
@@ -493,6 +575,33 @@ public sealed class DemoSessionApi
     {
         var resolved = RepositoryPaths.Resolve(relativePath, contentRoot);
         return File.Exists(resolved) ? File.ReadAllText(resolved) : fallback;
+    }
+
+    // The client's master getters subtract a fixed anti-tamper offset from these integer columns
+    // (SkillMasterData.get_CoolTime = coolTime - 230, DiscMasterData.get_MinHp = minHp - 928, ...), so the served
+    // JSON must carry value + offset. Config files hold the human-readable values; the offset is added here.
+    private static readonly Dictionary<string, (string field, int offset)[]> ObscuredMasterOffsets = new(StringComparer.Ordinal)
+    {
+        ["Skill"] = [("coolTime", 0xe6)],
+        ["Disc"] = [("minHp", 0x3a0), ("maxHp", 0x2cb), ("minAttack", 0xa7), ("maxAttack", 0x2ad)],
+        ["KickerAbility"] = [("overlapCount", 0xcb)],
+        ["SpecialSkillHit"] = [("fixedDamage", 0x1c6)],
+    };
+
+    private static string ApplyObscuredOffsets(string masterName, string json)
+    {
+        if (!ObscuredMasterOffsets.TryGetValue(masterName, out var fields)) return json;
+        var root = System.Text.Json.Nodes.JsonNode.Parse(json) as System.Text.Json.Nodes.JsonArray;
+        if (root == null) return json;
+        foreach (var row in root.OfType<System.Text.Json.Nodes.JsonObject>())
+        {
+            foreach (var (field, offset) in fields)
+            {
+                if (row[field] is System.Text.Json.Nodes.JsonValue v && v.TryGetValue<double>(out var d))
+                    row[field] = (int)Math.Round(d) + offset;
+            }
+        }
+        return root.ToJsonString();
     }
 
     private static byte[] EncryptMaster(string json) =>
@@ -603,6 +712,11 @@ public sealed class DemoSessionApi
         if (path == "/battle/end" || path == "/customBattle/end")
         {
             return await HandleBattleEndAsync(context, state, key);
+        }
+
+        if (path == "/battle/result" || path == "/customBattle/result")
+        {
+            return await HandleBattleResultAsync(context, state, key);
         }
 
         if (path == "/battle/cancel" || path == "/battle/teamCancel" || path == "/matching/cancel")
@@ -1074,6 +1188,40 @@ public sealed class DemoSessionApi
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-start";
         _logger.LogInformation("Handled /battle/start for {UserId}", state.UserId);
+        return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
+    }
+
+    // Colorful.Networking.BattleResultResponseData: every list must be present (empty is fine); the client
+    // constructs BattleResultInfo from it unconditionally and NREs on a missing array, which leaves the
+    // ResultScene stuck on the score board. Values mirror the static userBattleRankList served at startup.
+    private Task<IResult?> HandleBattleResultAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var rank = new { battleRuleType = 1, battlePoint = 4877, rank = 13 };
+        var resp = new
+        {
+            userExp = 38500 + 800, // the user's total exp (see the static exp served at startup) plus this battle's reward
+            userBattleRank = rank,
+            beforeUserBattleRank = rank,
+            playerLevelUpRewardList = Array.Empty<object>(),
+            receivedUserCapsuleList = Array.Empty<object>(),
+            receivedUserItemList = Array.Empty<object>(),
+            receivedUserPresentList = Array.Empty<object>(),
+            userMissionProgressList = Array.Empty<object>(),
+            userDailyRandomMissionTaskList = Array.Empty<object>(),
+            receivedRewardList = Array.Empty<object>(),
+            badConnectionReliefFlag = false,
+            battleCount = 1,
+            battleWinCount = 0,
+            matchmakingTeamId = "team-1",
+            campaignList = Array.Empty<object>(),
+            userFestivalTeam = new { battleRuleId = 1, festivalTeamId = 0, festivalPoint = 0 },
+            festivalPoint = 0,
+            lotteryFestivalPointId = 0
+        };
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-result";
+        _logger.LogInformation("Handled /battle/result for {UserId}", state.UserId);
         return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
     }
 

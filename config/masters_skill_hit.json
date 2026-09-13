@@ -1,0 +1,17 @@
+[
+ {
+  "id": 1,
+  "skillId": 1,
+  "commonHitEffectType": 11,
+  "hitSeId": 0,
+  "effectPath": "",
+  "parentBone": 9,
+  "offsetX": 0.0,
+  "offsetY": 0.0,
+  "offsetZ": 0.0,
+  "transformType": 0,
+  "shakeVolume": 0.2,
+  "knockBackFlag": false,
+  "fixedDamage": 0
+ }
+]

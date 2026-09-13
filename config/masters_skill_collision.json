@@ -1,0 +1,15 @@
+[
+ {
+  "id": 1,
+  "skillId": 1,
+  "collisionType": 1,
+  "collisionHitType": 1,
+  "hitLayer": 4864,
+  "radius": 1.5,
+  "length": 0.0,
+  "originCenterFlag": true,
+  "scaleX": 1.0,
+  "scaleY": 1.0,
+  "scaleZ": 1.0
+ }
+]

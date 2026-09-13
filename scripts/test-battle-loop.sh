@@ -33,6 +33,8 @@ SERVER_PORT="${PORT:-18080}"
 DO_BUILD=0
 DO_INSTALL=1
 DO_CLEAN=0
+DO_SEED=1
+SEED_MIN_FILES=2000
 TIMEOUT=60
 APP_PACKAGE="jp.grenge.kickflight"
 APP_ACTIVITY="com.google.firebase.MessagingUnityPlayerActivity"
@@ -50,6 +52,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --clean)
       DO_CLEAN=1
+      shift
+      ;;
+    --no-seed)
+      DO_SEED=0
       shift
       ;;
     --device|-d)
@@ -75,6 +81,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --build, -b         Rebuild direct APK before testing"
       echo "  --no-install        Skip APK installation (use currently installed app)"
       echo "  --clean             Clear app storage (pm clear) before running"
+      echo "  --no-seed           Skip the Octo cache check/seed (scripts/seed-device-cache.py)"
       echo "  --device, -d <id>   Target ADB device (default: auto-detect)"
       echo "  --server-ip, -s <ip> Server IP (default: 10.0.2.2)"
       echo "  --port, -p <port>   Server port (default: 18080)"
@@ -228,6 +235,27 @@ if [[ $DO_CLEAN -eq 1 ]]; then
   adb -s "$DEVICE" shell pm grant "$APP_PACKAGE" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 fi
 
+# The client only downloads what the Octo catalog advertises (~850 files). GameScene needs
+# the full preserved set (2,579 bundles); without it Unity dies on the loading screen with
+# SIGSEGV fault addr 0x7b0 in libunity.so while trying to log the load failure. pm clear wipes
+# the seed, so the check runs after --clean and before every launch.
+if [[ $DO_SEED -eq 1 ]]; then
+  echo ""
+  echo -e "${BOLD}[3/7] Checking Octo asset cache on $DEVICE...${NC}"
+  CACHE_FILES=$(adb -s "$DEVICE" shell "run-as $APP_PACKAGE find files/octo -type f 2>/dev/null | wc -l" 2>/dev/null | tr -cd '0-9' || true)
+  [[ "$CACHE_FILES" =~ ^[0-9]+$ ]] || CACHE_FILES=0
+  PYTHON_BIN=$(command -v python3 || command -v python)
+  if (( CACHE_FILES < SEED_MIN_FILES )); then
+    echo -e "  ${YELLOW}⚠️  Octo cache has $CACHE_FILES files (< $SEED_MIN_FILES). Seeding full asset set...${NC}"
+    SEED_ARGS=(-s "$DEVICE")
+    [[ -f "$REPO_ROOT/octo_cache.tar" ]] && SEED_ARGS+=(--skip-tar)
+    if ! "$PYTHON_BIN" "$REPO_ROOT/scripts/seed-device-cache.py" "${SEED_ARGS[@]}"; then
+      report_failure "CACHE_SEED" "seed-device-cache.py failed. Run it manually or pass --no-seed."
+    fi
+    CACHE_FILES=$(adb -s "$DEVICE" shell "run-as $APP_PACKAGE find files/octo -type f 2>/dev/null | wc -l" 2>/dev/null | tr -cd '0-9' || true)
+  fi
+  echo -e "  ${GREEN}✅ Octo cache ready ($CACHE_FILES files).${NC}"
+fi
 adb -s "$DEVICE" shell am start -n "$APP_PACKAGE/$APP_ACTIVITY" >/dev/null
 
 # Wait for process to spawn

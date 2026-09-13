@@ -64,7 +64,7 @@
     },
     "3010006": {
       "DiscId": 3010006,
-      "Level": 11,
+      "Level": 10,
       "Amount": 99
     },
     "3010007": {
@@ -668,8 +668,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 209754,
   "ItemPaidJetCoins": 10000,
-  "ItemDiscForce": 998899,
-  "ItemKickPoints": 50000
+  "ItemDiscForce": 999999,
+  "ItemKickPoints": 50200
 }

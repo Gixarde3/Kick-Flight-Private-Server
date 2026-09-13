@@ -80,7 +80,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x10 }, body[..2]);
+        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -100,7 +100,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x10 }, body[..2]);
+        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
     }
 
     [Fact]
@@ -396,7 +396,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         masterRequest.Headers.Host = host;
         masterRequest.Headers.Add("x-app-access-token", accessToken);
         using var masterResponse = await client.SendAsync(masterRequest);
-        Assert.Equal(DemoSessionApi.MasterVersion, masterResponse.Headers.GetValues("x-app-master-hash").Single());
+        Assert.StartsWith("demo-master-", masterResponse.Headers.GetValues("x-app-master-hash").Single());
 
         var masterEncrypted = await masterResponse.Content.ReadAsByteArrayAsync();
         var masterDecrypted = D2CCodec.Decode(masterEncrypted, sessionKeyBytes);
@@ -469,7 +469,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var userKickerList = startupDoc.RootElement.GetProperty("userKickerList");
         Assert.Equal(14, userKickerList.GetArrayLength());
         var userDiscList = startupDoc.RootElement.GetProperty("userDiscList");
-        Assert.Equal(126, userDiscList.GetArrayLength());
+        Assert.Equal(131, userDiscList.GetArrayLength());   // every disc in masters_disc.json
 
         // 7. Request POST /home/index (initial kickerId = 1, 5 decks)
         using var homeRequest = new HttpRequestMessage(HttpMethod.Post, "/home/index")

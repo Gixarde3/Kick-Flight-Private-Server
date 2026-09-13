@@ -1,0 +1,3817 @@
+{
+ "_about": "Disc list, one entry per Disc.id (131). Ids were established by template-matching card art against the APK thumbnails (scripts/match_disc_cards.py) from the user's screenshots and the Discord #resources previews, then cross-checked against the Appliv disc table (https://games.app-liv.jp/archives/450371): its icons were matched the same way and its Lv.10 stats agree with every card. 'effect' is the EN client text (or a translation of 'effect_jp' for the 22 N discs, which have no EN card); 'lv1'/'lv10' and 'coefficient_appliv' come from Appliv; atk/hp/coolTime = Lv.10. 'attribute' from the card frame colour (N discs: from the name/icon). 'typeToSkillActionType' maps the card type to Skill.skillActionType.",
+ "typeToSkillActionType": {
+  "ATK(Long Distance)": 1,
+  "ATK(Circumference)": 2,
+  "ATK(Rush)": 3,
+  "ATK(Short Distance)": 4,
+  "HEAL": 6,
+  "BUFF": 6,
+  "TRAP": 7,
+  "WARP": 8,
+  "MOVE": 22,
+  "MOVE(vertical loop)": 21
+ },
+ "typeToSkillCategoryType": {
+  "ATK": 0,
+  "HEAL": 1,
+  "BUFF": 2,
+  "TRAP": 3,
+  "WARP": 4,
+  "MOVE": 5
+ },
+ "cards": [
+  {
+   "screenshot": "033",
+   "discId": 3010001,
+   "name": "Leorex",
+   "rarity": "UR",
+   "type": "ATK(Rush)",
+   "effect": "Deals large frontal damage using high-speed dash pursuit attack",
+   "level": 10,
+   "atk": 563,
+   "hp": 8024,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "レオレックス",
+   "effect_jp": "前方に大ダメージの高速追撃突進攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 220,
+    "hp": 3128,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 563,
+    "hp": 8024,
+    "coolTime": 35
+   },
+   "coefficient_appliv": "4.0"
+  },
+  {
+   "screenshot": "035",
+   "discId": 3010002,
+   "name": "Geckosaurus",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front & movement speed down (5 seconds)",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 25,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ゲコダルマ",
+   "effect_jp": "前方1体に中ダメージ攻撃 ＋5秒間移動速度中ダウン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 29
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 25
+   },
+   "coefficient_appliv": "3.2"
+  },
+  {
+   "screenshot": "026",
+   "discId": 3010003,
+   "name": "Bombster",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ボムスター",
+   "effect_jp": "前方1体に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.4"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010004,
+   "name": "Red Blaster",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 21,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "レッドブラスター",
+   "effect_jp": "前方1体に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.2",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010005,
+   "name": "Air Blaster",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 21,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "エアブラスター",
+   "effect_jp": "前方1体に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.2",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010006,
+   "name": "Blue Blaster",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 21,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ブルーブラスター",
+   "effect_jp": "前方1体に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.2",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "081",
+   "discId": 3010007,
+   "name": "Junk Bullet",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium continuous damage to one enemy in front & attack down (8 seconds)",
+   "level": 10,
+   "atk": 695,
+   "hp": 5796,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ジャンクバレット",
+   "effect_jp": "前方1体に連続攻撃(合計中ダメージ) ＋8秒間攻撃力中ダウン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 271,
+    "hp": 2259,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 695,
+    "hp": 5796,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "0.7 ×4"
+  },
+  {
+   "screenshot": "052",
+   "discId": 3010008,
+   "name": "Jet Hammer",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small damage to one enemy in front & stun attack",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 25,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ジェットハンマー",
+   "effect_jp": "前方1体に小ダメージ攻撃 ＋スタン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 29
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 25
+   },
+   "coefficient_appliv": "0.5"
+  },
+  {
+   "screenshot": "007",
+   "discId": 3010009,
+   "name": "Flamizaurus",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals large frontal damage & knocks them away",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "フレイムザウラー",
+   "effect_jp": "前方範囲に大ダメージ攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 47
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 41
+   },
+   "coefficient_appliv": "4.3"
+  },
+  {
+   "screenshot": "008",
+   "discId": 3010010,
+   "name": "Giamoth",
+   "rarity": "UR",
+   "type": "ATK(Rush)",
+   "effect": "Deals medium frontal damage using a dash pierce attack & shield break",
+   "level": 10,
+   "atk": 482,
+   "hp": 9033,
+   "coolTime": 29,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ガイモス",
+   "effect_jp": "前方に中ダメージの貫通突進攻撃 ＋シールドブレイク",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 188,
+    "hp": 3521,
+    "coolTime": 33
+   },
+   "lv10": {
+    "atk": 482,
+    "hp": 9033,
+    "coolTime": 29
+   },
+   "coefficient_appliv": "3.5"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010011,
+   "name": "Jet Shark",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using a dash pierce attack & shield break",
+   "level": 10,
+   "atk": 641,
+   "hp": 5341,
+   "coolTime": 16,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ジェットシャーク",
+   "effect_jp": "前方に小ダメージの貫通突進攻撃 ＋シールドブレイク",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 250,
+    "hp": 2082,
+    "coolTime": 18
+   },
+   "lv10": {
+    "atk": 641,
+    "hp": 5341,
+    "coolTime": 16
+   },
+   "coefficient_appliv": "0.8",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010012,
+   "name": "Rush Blade",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using a dash pierce attack & shield break",
+   "level": 10,
+   "atk": 499,
+   "hp": 7117,
+   "coolTime": 23,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ラッシュブレイド",
+   "effect_jp": "前方に小ダメージの貫通突進攻撃 ＋シールドブレイク",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 194,
+    "hp": 2775,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 499,
+    "hp": 7117,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "1.7",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "018",
+   "discId": 3010013,
+   "name": "Boarush",
+   "rarity": "SR",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using a dash pursuit attack",
+   "level": 10,
+   "atk": 657,
+   "hp": 6274,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "イノッシン",
+   "effect_jp": "前方に小ダメージの追撃突進攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 256,
+    "hp": 2445,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 657,
+    "hp": 6274,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "2.1"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010014,
+   "name": "Propedile",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using a dash pursuit attack",
+   "level": 10,
+   "atk": 463,
+   "hp": 7571,
+   "coolTime": 19,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "プロペダイル",
+   "effect_jp": "前方に小ダメージの追撃突進攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 180,
+    "hp": 2951,
+    "coolTime": 22
+   },
+   "lv10": {
+    "atk": 463,
+    "hp": 7571,
+    "coolTime": 19
+   },
+   "coefficient_appliv": "1.2",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "048",
+   "discId": 3010015,
+   "name": "Jack Upper",
+   "rarity": "SR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals high damage to nearby opponents & knocks them upwards",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ジャックアッパー",
+   "effect_jp": "近くの相手に大ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "4.6"
+  },
+  {
+   "screenshot": "040",
+   "discId": 3010016,
+   "name": "Walrock",
+   "rarity": "R",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals small damage to nearby opponents & slam attack",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 11,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "トドロック",
+   "effect_jp": "近くの相手に小ダメージ攻撃 ＋叩きつけ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 13
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 11
+   },
+   "coefficient_appliv": "1.3"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010017,
+   "name": "Rhinot",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals medium damage to nearby opponents & knocks them upwards",
+   "level": 10,
+   "atk": 641,
+   "hp": 5341,
+   "coolTime": 20,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ライノット",
+   "effect_jp": "近くの相手に中ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 250,
+    "hp": 2082,
+    "coolTime": 23
+   },
+   "lv10": {
+    "atk": 641,
+    "hp": 5341,
+    "coolTime": 20
+   },
+   "coefficient_appliv": "3.4",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010018,
+   "name": "Hatakidora",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals small damage to nearby opponents & knocks them upwards",
+   "level": 10,
+   "atk": 428,
+   "hp": 8012,
+   "coolTime": 9,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ハタキドラ",
+   "effect_jp": "近くの相手に小ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 167,
+    "hp": 3124,
+    "coolTime": 10
+   },
+   "lv10": {
+    "atk": 428,
+    "hp": 8012,
+    "coolTime": 9
+   },
+   "coefficient_appliv": "0.6",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010019,
+   "name": "Yanchara",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals small damage to nearby opponents & slam attack",
+   "level": 10,
+   "atk": 570,
+   "hp": 6236,
+   "coolTime": 16,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ヤンチャラ",
+   "effect_jp": "近くの相手に小ダメージ攻撃 ＋叩きつけ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 222,
+    "hp": 2431,
+    "coolTime": 18
+   },
+   "lv10": {
+    "atk": 570,
+    "hp": 6236,
+    "coolTime": 16
+   },
+   "coefficient_appliv": "2.3",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "009",
+   "discId": 3010020,
+   "name": "Raging Kong",
+   "rarity": "UR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals massive damage to surrounding circular area",
+   "level": 10,
+   "atk": 522,
+   "hp": 8536,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "レイジコング",
+   "effect_jp": "周囲球状に極大ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 204,
+    "hp": 3327,
+    "coolTime": 47
+   },
+   "lv10": {
+    "atk": 522,
+    "hp": 8536,
+    "coolTime": 41
+   },
+   "coefficient_appliv": "5.8"
+  },
+  {
+   "screenshot": "041",
+   "discId": 3010021,
+   "name": "Shockhog",
+   "rarity": "R",
+   "type": "ATK(Circumference)",
+   "effect": "Deals small damage to surrounding circular area & paralyzes them",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 22,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ビリリット",
+   "effect_jp": "周囲球状に小ダメージ攻撃 ＋シビレ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 26
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 22
+   },
+   "coefficient_appliv": "1.8"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010022,
+   "name": "Volcatus",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to surrounding circular area",
+   "level": 10,
+   "atk": 428,
+   "hp": 8012,
+   "coolTime": 32,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ボルケータス",
+   "effect_jp": "周囲球状に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 167,
+    "hp": 3124,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 428,
+    "hp": 8012,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "3.8",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010023,
+   "name": "Kazetachinu",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to surrounding circular area",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 32,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "カゼタチヌ",
+   "effect_jp": "周囲球状に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "3.8",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010024,
+   "name": "Hanapoogon",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "ATK(Circumference)",
+   "effect": "Deals small damage to surrounding circular area",
+   "level": 10,
+   "atk": 499,
+   "hp": 7117,
+   "coolTime": 18,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ハナプーゴン",
+   "effect_jp": "周囲球状に小ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 194,
+    "hp": 2775,
+    "coolTime": 21
+   },
+   "lv10": {
+    "atk": 499,
+    "hp": 7117,
+    "coolTime": 18
+   },
+   "coefficient_appliv": "2.1",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "056",
+   "discId": 3010025,
+   "name": "Deviathan",
+   "rarity": "UR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to surrounding circular area & paralyzes them",
+   "level": 10,
+   "atk": 683,
+   "hp": 6519,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "タイダリオン",
+   "effect_jp": "周囲球状に中ダメージ攻撃 ＋シビレ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 267,
+    "hp": 2541,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 683,
+    "hp": 6519,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "2.8"
+  },
+  {
+   "screenshot": "080",
+   "discId": 3010026,
+   "name": "Cycrane",
+   "rarity": "SR",
+   "type": "MOVE(vertical loop)",
+   "effect": "While flipping in the air, deal small damage to enemies behind & paralyze them",
+   "level": 10,
+   "atk": 541,
+   "hp": 7723,
+   "coolTime": 12,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "クックロン",
+   "effect_jp": "宙返りしながら、自身後方に小ダメージ攻撃 ＋シビレ",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 211,
+    "hp": 3010,
+    "coolTime": 14
+   },
+   "lv10": {
+    "atk": 541,
+    "hp": 7723,
+    "coolTime": 12
+   },
+   "coefficient_appliv": "1.0"
+  },
+  {
+   "screenshot": "discord_3010027",
+   "discId": 3010027,
+   "name": "Pyronkey",
+   "rarity": "SR",
+   "type": "MOVE",
+   "effect": "Deals large rear continuous damage while dashing",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 284x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ホノウッキー",
+   "effect_jp": "ダッシュしながら、自身後方に連続攻撃(合計大ダメージ)",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 30
+   },
+   "coefficient_appliv": "1.1 ×4"
+  },
+  {
+   "screenshot": "022",
+   "discId": 3010028,
+   "name": "Gastornis",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium frontal damage & knocks targets far away",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ガストル",
+   "effect_jp": "前方範囲に中ダメージ攻撃 ＋超吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "3.8"
+  },
+  {
+   "screenshot": "027",
+   "discId": 3010029,
+   "name": "Fairy Lizard",
+   "rarity": "R",
+   "type": "ATK(Circumference)",
+   "effect": "Deals small damage to surrounding circular area & knocks them upwards",
+   "level": 10,
+   "atk": 594,
+   "hp": 6501,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "フェアリザード",
+   "effect_jp": "周囲球状に小ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 232,
+    "hp": 2534,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 594,
+    "hp": 6501,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "1.9"
+  },
+  {
+   "screenshot": "028",
+   "discId": 3010030,
+   "name": "Uber Beaver",
+   "rarity": "R",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to surrounding circular area & knocks them upwards",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 36,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ウーバービーバー",
+   "effect_jp": "周囲球状に中ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 36
+   },
+   "coefficient_appliv": "3.1"
+  },
+  {
+   "screenshot": "088",
+   "discId": 3010031,
+   "name": "Liberwolf",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Creates an area that deals massive damage over 8 seconds",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 48,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "リベリオウルフ",
+   "effect_jp": "連続ダメージを与える空間を8秒間生成(合計極大ダメージ)",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 56
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 48
+   },
+   "coefficient_appliv": "1.0 ×19"
+  },
+  {
+   "screenshot": "019",
+   "discId": 3010032,
+   "name": "Horwhale",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium frontal damage & knocks away targets",
+   "level": 10,
+   "atk": 464,
+   "hp": 8693,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ホエーリア",
+   "effect_jp": "前方範囲に中ダメージ攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 180,
+    "hp": 3388,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 464,
+    "hp": 8693,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "2.7"
+  },
+  {
+   "screenshot": "discord_3010033",
+   "discId": 3010033,
+   "name": "Power Dog",
+   "rarity": "R",
+   "type": "HEAL",
+   "effect": "Medium boost energy recovery",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 18,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "パワワンワ",
+   "effect_jp": "自身のブーストエネルギーを中回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 21
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 18
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010034,
+   "name": "Lapibit",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage & knocks away targets",
+   "level": 10,
+   "atk": 570,
+   "hp": 6236,
+   "coolTime": 22,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ラピビット",
+   "effect_jp": "前方範囲に小ダメージ攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 222,
+    "hp": 2431,
+    "coolTime": 26
+   },
+   "lv10": {
+    "atk": 570,
+    "hp": 6236,
+    "coolTime": 22
+   },
+   "coefficient_appliv": "1.1",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010035,
+   "name": "Armed Calis",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage & knocks away targets",
+   "level": 10,
+   "atk": 499,
+   "hp": 7117,
+   "coolTime": 32,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "アームドカリス",
+   "effect_jp": "前方範囲に小ダメージ攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 194,
+    "hp": 2775,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 499,
+    "hp": 7117,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "2.3",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "057",
+   "discId": 3010036,
+   "name": "Hyper Bomb",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets large damage bomb trap that knocks away opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 47,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ハイパーボム",
+   "effect_jp": "大ダメージ＋吹き飛ばす爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 55
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 47
+   },
+   "coefficient_appliv": "4.1"
+  },
+  {
+   "screenshot": "053",
+   "discId": 3010037,
+   "name": "Booby Bomb",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets small damage bomb trap that knocks away opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 25,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ブービーボンバー",
+   "effect_jp": "小ダメージ＋吹き飛ばす爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 29
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 25
+   },
+   "coefficient_appliv": "1.2"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010038,
+   "name": "Red Mine",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "TRAP",
+   "effect": "Sets medium damage bomb trap that knocks away opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 36,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "レッドマイン",
+   "effect_jp": "中ダメージ＋吹き飛ばす爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 36
+   },
+   "coefficient_appliv": "2.1",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010039,
+   "name": "Green Mine",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "TRAP",
+   "effect": "Sets medium damage bomb trap that knocks away opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 36,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "グリーンマイン",
+   "effect_jp": "中ダメージ＋吹き飛ばす爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 36
+   },
+   "coefficient_appliv": "2.1",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": null,
+   "discId": 3010040,
+   "name": "Blue Mine",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "TRAP",
+   "effect": "Sets medium damage bomb trap that knocks away opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 36,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ブルーマイン",
+   "effect_jp": "中ダメージ＋吹き飛ばす爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 36
+   },
+   "coefficient_appliv": "2.1",
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "073",
+   "discId": 3010041,
+   "name": "Hedgefish",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets small damage bomb trap that paralyzes opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 25,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ハリマンボー",
+   "effect_jp": "小ダメージ＋シビレさせる爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 29
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 25
+   },
+   "coefficient_appliv": "1.7"
+  },
+  {
+   "screenshot": "discord_3010042",
+   "discId": 3010042,
+   "name": "Killer Billet",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at ultra high speed (15 seconds)",
+   "level": 10,
+   "atk": 723,
+   "hp": 6022,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 284x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "キラービレット",
+   "effect_jp": "範囲内の相手を超高速で攻撃するタレットを15秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 282,
+    "hp": 2347,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 723,
+    "hp": 6022,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "1.0 ×34"
+  },
+  {
+   "screenshot": "060",
+   "discId": 3010043,
+   "name": "Septicopter",
+   "rarity": "SR",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at medium speed (15 seconds)",
+   "level": 10,
+   "atk": 541,
+   "hp": 7723,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "セプタコプター",
+   "effect_jp": "範囲内の相手を中速で攻撃するタレットを15秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 211,
+    "hp": 3010,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 541,
+    "hp": 7723,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "1.0 ×26"
+  },
+  {
+   "screenshot": "065",
+   "discId": 3010044,
+   "name": "Raging Bulldog",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at ultra high speed (15 seconds)",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "レイジブルド",
+   "effect_jp": "範囲内の相手を超高速で攻撃するタレットを15秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 47
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 41
+   },
+   "coefficient_appliv": "1.0 ×37"
+  },
+  {
+   "screenshot": "015",
+   "discId": 3010045,
+   "name": "Scorpius",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals large frontal damage & paralysis to one enemy in front via a continuous low-speed, long-range attack",
+   "level": 10,
+   "atk": 843,
+   "hp": 4517,
+   "coolTime": 22,
+   "matchedBy": "deduction, confirmed by demo video / pet texture",
+   "note": "no thumbnail captured; demo video disc_3010045.usm shows the yellow scorpion pet firing its beam, pet texture sm_tx_0045 matches the card art, timeline = 4-bullet volley",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "フォースティング",
+   "effect_jp": "前方1体に低弾速・長射程の連続攻撃(合計大ダメージ＋シビレ)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 329,
+    "hp": 1761,
+    "coolTime": 26
+   },
+   "lv10": {
+    "atk": 843,
+    "hp": 4517,
+    "coolTime": 22
+   },
+   "coefficient_appliv": "1.0 ×4"
+  },
+  {
+   "screenshot": "discord_3010046",
+   "discId": 3010046,
+   "name": "Robo Turret",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at medium speed (15 seconds)",
+   "level": 10,
+   "atk": 557,
+   "hp": 6960,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "アクトタレット",
+   "effect_jp": "範囲内の相手を中速で攻撃するタレットを15秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 217,
+    "hp": 2713,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 557,
+    "hp": 6960,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "1.0 ×22"
+  },
+  {
+   "screenshot": "036",
+   "discId": 3010047,
+   "name": "Mantallion",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front & paralysis attack",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 28,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "マンタリオン",
+   "effect_jp": "前方1体に中ダメージ攻撃 ＋シビレ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 32
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 28
+   },
+   "coefficient_appliv": "3.9"
+  },
+  {
+   "screenshot": "discord_3010048",
+   "discId": 3010048,
+   "name": "Rosmie",
+   "rarity": "SR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals small damage to surrounding circular area & poison attack (HP max 80% every 10 seconds)",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 285x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ローズミー",
+   "effect_jp": "周囲球状に小ダメージ攻撃 ＋10秒間毒(最大HP80％)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "1.5"
+  },
+  {
+   "screenshot": "discord_3010049",
+   "discId": 3010049,
+   "name": "Aerojammer",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets small damage bomb trap that suppresses for 8 seconds the skills of opponents who approach it",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 31,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 284x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "エアロジャマー",
+   "effect_jp": "小ダメージ＋8秒間スキルを封じる爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 36
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 31
+   },
+   "coefficient_appliv": "1.2"
+  },
+  {
+   "screenshot": "discord_3010050",
+   "discId": 3010050,
+   "name": "Snazzy Snail",
+   "rarity": "SR",
+   "type": "TRAP",
+   "effect": "Creates an area that greatly slows enemies (10 seconds)",
+   "level": 10,
+   "atk": 464,
+   "hp": 8693,
+   "coolTime": 40,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ノロマイマイ",
+   "effect_jp": "相手の移動速度を極大ダウンする空間を10秒間生成",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 180,
+    "hp": 3388,
+    "coolTime": 46
+   },
+   "lv10": {
+    "atk": 464,
+    "hp": 8693,
+    "coolTime": 40
+   }
+  },
+  {
+   "screenshot": "discord_3010051",
+   "discId": 3010051,
+   "name": "Octoverse",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium frontal damage & poison attack (HP max 40% every 10 seconds)",
+   "level": 10,
+   "atk": 557,
+   "hp": 6960,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 287x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "オクトヴァース",
+   "effect_jp": "前方範囲に中ダメージ攻撃 ＋10秒間毒(最大HP40％)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 217,
+    "hp": 2713,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 557,
+    "hp": 6960,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "2.5"
+  },
+  {
+   "screenshot": "090",
+   "discId": 3010052,
+   "name": "Morbeel",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage & attack power down (8 seconds)",
+   "level": 10,
+   "atk": 632,
+   "hp": 6028,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヌタウツボン",
+   "effect_jp": "前方範囲に小ダメージ攻撃 ＋8秒間攻撃力中ダウン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 247,
+    "hp": 2350,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 632,
+    "hp": 6028,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "2.4"
+  },
+  {
+   "screenshot": "discord_3010053",
+   "discId": 3010053,
+   "name": "Antelocity",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Increases movement speed for all teammates (10 seconds)",
+   "level": 10,
+   "atk": 563,
+   "hp": 8024,
+   "coolTime": 56,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 568x694",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "アントレイズ",
+   "effect_jp": "味方全員の移動速度を10秒間中アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 220,
+    "hp": 3128,
+    "coolTime": 65
+   },
+   "lv10": {
+    "atk": 563,
+    "hp": 8024,
+    "coolTime": 56
+   }
+  },
+  {
+   "screenshot": "discord_3010055",
+   "discId": 3010055,
+   "name": "Fierycoon",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Medium increase of attack power for all teammates (15 seconds)",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 64,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 285x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ポンポコヌシ",
+   "effect_jp": "味方全員の攻撃力を15秒間中アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 74
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 64
+   }
+  },
+  {
+   "screenshot": "discord_3010056",
+   "discId": 3010056,
+   "name": "Buffbox",
+   "rarity": "R",
+   "type": "BUFF",
+   "effect": "Small increase of attack power for all teammates (20 seconds)",
+   "level": 10,
+   "atk": 594,
+   "hp": 6501,
+   "coolTime": 66,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 285x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "エンカレッジオ",
+   "effect_jp": "味方全員の攻撃力を20秒間小アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 232,
+    "hp": 2534,
+    "coolTime": 77
+   },
+   "lv10": {
+    "atk": 594,
+    "hp": 6501,
+    "coolTime": 66
+   }
+  },
+  {
+   "screenshot": "discord_3010057",
+   "discId": 3010057,
+   "name": "Galaxy Shield",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Reduce damage taken by 70% (10 seconds)",
+   "level": 10,
+   "atk": 522,
+   "hp": 8536,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ギャラクシールド",
+   "effect_jp": "自身の被ダメージを10秒間70％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 204,
+    "hp": 3327,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 522,
+    "hp": 8536,
+    "coolTime": 30
+   }
+  },
+  {
+   "screenshot": "042",
+   "discId": 3010058,
+   "name": "Tetra Shield",
+   "rarity": "R",
+   "type": "BUFF",
+   "effect": "Reduce damage taken by 30% for teammates (15 seconds)",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 48,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "テトラシールド",
+   "effect_jp": "味方全員の被ダメージを15秒間30％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 56
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 48
+   }
+  },
+  {
+   "screenshot": "020",
+   "discId": 3010059,
+   "name": "Gigaphone",
+   "rarity": "SR",
+   "type": "BUFF",
+   "effect": "Large increase in attack power (15 seconds)",
+   "level": 10,
+   "atk": 657,
+   "hp": 6274,
+   "coolTime": 46,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "チアラウダー",
+   "effect_jp": "自身の攻撃力を15秒間大アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 256,
+    "hp": 2445,
+    "coolTime": 54
+   },
+   "lv10": {
+    "atk": 657,
+    "hp": 6274,
+    "coolTime": 46
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010060,
+   "name": "Fightgaroo",
+   "rarity": "N",
+   "attribute": "Fire",
+   "type": "BUFF",
+   "effect": "Small increase in attack power (30 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 60,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ファイタガルー",
+   "effect_jp": "自身の攻撃力を30秒間小アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 70
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 60
+   },
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "054",
+   "discId": 3010061,
+   "name": "Crabshiedion",
+   "rarity": "R",
+   "type": "BUFF",
+   "effect": "Reduce damage taken by 50% (15 seconds)",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 42,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "マモリガニ",
+   "effect_jp": "自身の被ダメージを15秒間50％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 49
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 42
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010062,
+   "name": "Shell Kabuto",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "BUFF",
+   "effect": "Reduces damage taken by 30% (25 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 51,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "シェルカブト",
+   "effect_jp": "自身の被ダメージを25秒間30％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 59
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 51
+   },
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "049",
+   "discId": 3010063,
+   "name": "Leeta",
+   "rarity": "SR",
+   "type": "MOVE",
+   "effect": "Increase speed and move forward automatically (5 seconds)",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "レイター",
+   "effect_jp": "自動的に5秒間高速前進する",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 47
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 41
+   }
+  },
+  {
+   "screenshot": "029",
+   "discId": 3010064,
+   "name": "Spewdor",
+   "rarity": "R",
+   "type": "BUFF",
+   "effect": "Small increase in movement speed (10 seconds)",
+   "level": 10,
+   "atk": 632,
+   "hp": 6028,
+   "coolTime": 28,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "スピュードル",
+   "effect_jp": "自身の移動速度を10秒間小アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 247,
+    "hp": 2350,
+    "coolTime": 32
+   },
+   "lv10": {
+    "atk": 632,
+    "hp": 6028,
+    "coolTime": 28
+   }
+  },
+  {
+   "screenshot": "010",
+   "discId": 3010065,
+   "name": "Phoenora",
+   "rarity": "UR",
+   "type": "HEAL",
+   "effect": "Heals HP by 50% for all teammates",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 59,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "フェニーロラ",
+   "effect_jp": "味方全員のHPを50％回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 69
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 59
+   }
+  },
+  {
+   "screenshot": "061",
+   "discId": 3010066,
+   "name": "Fairy Frog",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Large boost energy recovery",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 28,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "エネガエル",
+   "effect_jp": "自身のブーストエネルギーを大回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 32
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 28
+   }
+  },
+  {
+   "screenshot": "030",
+   "discId": 3010067,
+   "name": "Cutiemander",
+   "rarity": "R",
+   "type": "HEAL",
+   "effect": "Heals HP by 30% for all teammates",
+   "level": 10,
+   "atk": 594,
+   "hp": 6501,
+   "coolTime": 43,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "キュパルーパー",
+   "effect_jp": "味方全員のHPを30％回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 232,
+    "hp": 2534,
+    "coolTime": 50
+   },
+   "lv10": {
+    "atk": 594,
+    "hp": 6501,
+    "coolTime": 43
+   }
+  },
+  {
+   "screenshot": "discord_3010068",
+   "discId": 3010068,
+   "name": "Neolumi",
+   "rarity": "SR",
+   "type": "WARP",
+   "effect": "Warps to location of an ally with lowest HP & heals HP by 50%",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 48,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 287x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ネオイルミー",
+   "effect_jp": "HPが最も低い味方付近へ瞬間移動し、味方のHPを50％回復",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 56
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 48
+   }
+  },
+  {
+   "screenshot": "021",
+   "discId": 3010069,
+   "name": "Peacocktail",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Heals HP by 60%",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 36,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "キュジャック",
+   "effect_jp": "自身のHPを60％回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 36
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010070,
+   "name": "Pico Leaf",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "HEAL",
+   "effect": "Heals HP by 30%",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 20,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ピコリーフ",
+   "effect_jp": "自身のHPを30％回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 23
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 20
+   },
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "046",
+   "discId": 3010071,
+   "name": "Nurseroid",
+   "rarity": "UR",
+   "type": "HEAL",
+   "effect": "Regenerates own HP (max 100% in 10 seconds)",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 36,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ナースロイド",
+   "effect_jp": "自身のHPを10秒間継続回復 (最大100％)",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 36
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010072,
+   "name": "Medical BOX",
+   "rarity": "N",
+   "attribute": "Water",
+   "type": "HEAL",
+   "effect": "Regenerates own HP (max 50% in 10 seconds)",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 27,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "メディカルBOX",
+   "effect_jp": "自身のHPを10秒間継続回復 (最大50％)",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 27
+   },
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "031",
+   "discId": 3010073,
+   "name": "Start Gate",
+   "rarity": "R",
+   "type": "WARP",
+   "effect": "Warps to start point",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 90,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "スタートゲート",
+   "effect_jp": "スタート地点に瞬間移動",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 105
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 90
+   }
+  },
+  {
+   "screenshot": "011",
+   "discId": 3010074,
+   "name": "Arcolphin",
+   "rarity": "UR",
+   "type": "WARP",
+   "effect": "Warps to start point & heals HP by 100%",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 120,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "アークオルフィン",
+   "effect_jp": "スタート地点に瞬間移動し、HPを100％回復",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 140
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 120
+   }
+  },
+  {
+   "screenshot": "087",
+   "discId": 3010075,
+   "name": "Skybeast",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Large increase in boost energy recovery for all teammates (10 seconds)",
+   "level": 10,
+   "atk": 723,
+   "hp": 6022,
+   "coolTime": 70,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "テンクウテイ",
+   "effect_jp": "味方全員のブーストエネルギー回復量を10秒間大アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 282,
+    "hp": 2347,
+    "coolTime": 82
+   },
+   "lv10": {
+    "atk": 723,
+    "hp": 6022,
+    "coolTime": 70
+   }
+  },
+  {
+   "screenshot": "079",
+   "discId": 3010076,
+   "name": "Bond Gate",
+   "rarity": "SR",
+   "type": "WARP",
+   "effect": "Warps to nearby ally & heals HP by 50%",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 100,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "キズナゲート",
+   "effect_jp": "近くの味方がいる場所へ瞬間移動し、HPを50％回復",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 116
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 100
+   }
+  },
+  {
+   "screenshot": "050",
+   "discId": 3010077,
+   "name": "Assassin Gate",
+   "rarity": "SR",
+   "type": "WARP",
+   "effect": "Warp behind locked on target or closest opponent",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "アサシンゲート",
+   "effect_jp": "ロックオン相手、または最も近い相手の背後へ瞬間移動",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 30
+   }
+  },
+  {
+   "screenshot": null,
+   "discId": 3010078,
+   "name": "Boost Bottle",
+   "rarity": "N",
+   "attribute": "Wind",
+   "type": "HEAL",
+   "effect": "Medium boost energy recovery",
+   "level": 10,
+   "atk": 570,
+   "hp": 6236,
+   "coolTime": 20,
+   "matchedBy": "art (Appliv icon)",
+   "name_jp": "ブーストボトル",
+   "effect_jp": "自身のブーストエネルギーを中回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 222,
+    "hp": 2431,
+    "coolTime": 23
+   },
+   "lv10": {
+    "atk": 570,
+    "hp": 6236,
+    "coolTime": 20
+   },
+   "source": "Appliv disc table https://games.app-liv.jp/archives/450371"
+  },
+  {
+   "screenshot": "discord_3010079",
+   "discId": 3010079,
+   "name": "Spunkle",
+   "rarity": "R",
+   "type": "MOVE",
+   "effect": "Deals medium rear continuous damage while dashing",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 285x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "スカパンクル",
+   "effect_jp": "ダッシュしながら、自身後方に連続攻撃(合計中ダメージ)",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "0.7 ×4"
+  },
+  {
+   "screenshot": "discord_3010080",
+   "discId": 3010080,
+   "name": "Gatling Ultra",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals massive frontal damage using combo attack",
+   "level": 10,
+   "atk": 683,
+   "hp": 6519,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ガトリンウルトラ",
+   "effect_jp": "前方に連射攻撃(合計極大ダメージ)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 267,
+    "hp": 2541,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 683,
+    "hp": 6519,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "0.5 ×20"
+  },
+  {
+   "screenshot": "discord_3010081",
+   "discId": 3010081,
+   "name": "Ga-Ga-Gatling",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals large frontal damage using combo attack",
+   "level": 10,
+   "atk": 557,
+   "hp": 6960,
+   "coolTime": 15,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 284x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ガガガガトリン",
+   "effect_jp": "前方に連射攻撃(合計大ダメージ)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 217,
+    "hp": 2713,
+    "coolTime": 17
+   },
+   "lv10": {
+    "atk": 557,
+    "hp": 6960,
+    "coolTime": 15
+   },
+   "coefficient_appliv": "0.25 ×20"
+  },
+  {
+   "screenshot": "069",
+   "discId": 3010082,
+   "name": "Jack o' Lantern",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets small damage bomb trap that knocks away opponents (20 sec) & poison attack (max 60% over 10 sec)",
+   "level": 10,
+   "atk": 528,
+   "hp": 4399,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヘルパンプキン",
+   "effect_jp": "小ダメージ＋吹き飛ばす爆弾を20秒間設置 ＋10秒間毒(最大60%)",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 244,
+    "hp": 2033,
+    "coolTime": 36
+   },
+   "lv10": {
+    "atk": 528,
+    "hp": 4399,
+    "coolTime": 30
+   },
+   "coefficient_appliv": "1.3"
+  },
+  {
+   "screenshot": "068",
+   "discId": 3010083,
+   "name": "Stray Phantom",
+   "rarity": "UR",
+   "type": "MOVE",
+   "effect": "hyperincrease speed and move forward automatically (5 seconds)",
+   "level": 10,
+   "atk": 352,
+   "hp": 6598,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "マッハオバケ",
+   "effect_jp": "自動的に5秒間超高速前進する",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 163,
+    "hp": 3050,
+    "coolTime": 38
+   },
+   "lv10": {
+    "atk": 352,
+    "hp": 6598,
+    "coolTime": 32
+   }
+  },
+  {
+   "screenshot": "070",
+   "discId": 3010084,
+   "name": "Vampire Bat",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front & recovers 80% of dealt damage",
+   "level": 10,
+   "atk": 367,
+   "hp": 6001,
+   "coolTime": 28,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヴァンプキン",
+   "effect_jp": "前方1体に中ダメージ攻撃 ＋与えたダメージの80%を回復",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 170,
+    "hp": 2774,
+    "coolTime": 32
+   },
+   "lv10": {
+    "atk": 367,
+    "hp": 6001,
+    "coolTime": 28
+   },
+   "coefficient_appliv": "3.9"
+  },
+  {
+   "screenshot": "067",
+   "discId": 3010085,
+   "name": "Fever Candy",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Medium increase in attack power & medium increase in speed (10 seconds)",
+   "level": 10,
+   "atk": 440,
+   "hp": 5499,
+   "coolTime": 29,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ポップキャンディ",
+   "effect_jp": "自身の攻撃力を中アップ ＋移動速度を中アップ(10秒間)",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 203,
+    "hp": 2541,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 440,
+    "hp": 5499,
+    "coolTime": 29
+   }
+  },
+  {
+   "screenshot": "066",
+   "discId": 3010086,
+   "name": "Pranky Pumpkin",
+   "rarity": "SR",
+   "type": "TRAP",
+   "effect": "Creates an area that deals medium damage and Recovers 8% of HP every second over 8 seconds",
+   "level": 10,
+   "atk": 395,
+   "hp": 5641,
+   "coolTime": 55,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ウォーランタン",
+   "effect_jp": "連続ダメージ(合計大ダメージ) ＋味方を継続回復(秒間8%)する空間を8秒生成",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 182,
+    "hp": 2607,
+    "coolTime": 61
+   },
+   "lv10": {
+    "atk": 395,
+    "hp": 5641,
+    "coolTime": 55
+   },
+   "coefficient_appliv": "0.75 ×19"
+  },
+  {
+   "screenshot": "034",
+   "discId": 3010087,
+   "name": "Sea Slugster",
+   "rarity": "UR",
+   "type": "HEAL",
+   "effect": "Heals HP by 80%",
+   "level": 10,
+   "atk": 482,
+   "hp": 9033,
+   "coolTime": 29,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ウミガミ",
+   "effect_jp": "自身のHPを80％回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 188,
+    "hp": 3521,
+    "coolTime": 34
+   },
+   "lv10": {
+    "atk": 482,
+    "hp": 9033,
+    "coolTime": 29
+   }
+  },
+  {
+   "screenshot": "051",
+   "discId": 3010088,
+   "name": "Hippograndus",
+   "rarity": "SR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals high damage to nearby opponents & slam attack",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "カバンドス",
+   "effect_jp": "近くの相手に大ダメージ攻撃 ＋叩きつけ",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "4.6"
+  },
+  {
+   "screenshot": "037",
+   "discId": 3010089,
+   "name": "Assault Lance",
+   "rarity": "SR",
+   "type": "ATK(Rush)",
+   "effect": "Deals medium frontal damage using a dash pierce attack & shield break",
+   "level": 10,
+   "atk": 657,
+   "hp": 6274,
+   "coolTime": 26,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "アサルトランス",
+   "effect_jp": "前方に中ダメージの貫通突進攻撃 ＋シールドブレイク",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 256,
+    "hp": 2445,
+    "coolTime": 30
+   },
+   "lv10": {
+    "atk": 657,
+    "hp": 6274,
+    "coolTime": 26
+   },
+   "coefficient_appliv": "2.7"
+  },
+  {
+   "screenshot": "072",
+   "discId": 3010090,
+   "name": "Slingshooter",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small damage to one enemy in front & reduces their Special Skill gauge 20%",
+   "level": 10,
+   "atk": 557,
+   "hp": 6960,
+   "coolTime": 36,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ボッシューター",
+   "effect_jp": "前方1体に小ダメージ攻撃 ＋スペシャルスキルゲージを20％減らす",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 217,
+    "hp": 2713,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 557,
+    "hp": 6960,
+    "coolTime": 36
+   },
+   "coefficient_appliv": "1.8"
+  },
+  {
+   "screenshot": "043",
+   "discId": 3010091,
+   "name": "Great Glidears",
+   "rarity": "R",
+   "type": "MOVE",
+   "effect": "Increase speed and move forward automatically (4 seconds)",
+   "level": 10,
+   "atk": 446,
+   "hp": 8352,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "モモンドラ",
+   "effect_jp": "自動的に4秒間高速前進する",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 175,
+    "hp": 3256,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 446,
+    "hp": 8352,
+    "coolTime": 35
+   }
+  },
+  {
+   "screenshot": "discord_3010092",
+   "discId": 3010092,
+   "name": "Starion",
+   "rarity": "SR",
+   "type": "BUFF",
+   "effect": "Large increase in boost energy recovery (12 seconds)",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "スターリオン",
+   "effect_jp": "自身のブーストエネルギー回復量を12秒間大アップ",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 35
+   }
+  },
+  {
+   "screenshot": "078",
+   "discId": 3010093,
+   "name": "Seanake",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Long range explosive bomb attack (small damage & knocks enemies away)",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 24,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ボムヘビ",
+   "effect_jp": "前方に小ダメージ ＋吹き飛ばす爆発弾攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 26
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 24
+   },
+   "coefficient_appliv": "2.0"
+  },
+  {
+   "screenshot": "023",
+   "discId": 3010094,
+   "name": "Flash Barrier",
+   "rarity": "SR",
+   "type": "BUFF",
+   "effect": "Reduces damage taken by 50% (3 seconds)",
+   "level": 10,
+   "atk": 348,
+   "hp": 10142,
+   "coolTime": 12,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "フラッシュバリア",
+   "effect_jp": "自身の被ダメージを3秒間50％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 135,
+    "hp": 3954,
+    "coolTime": 18
+   },
+   "lv10": {
+    "atk": 348,
+    "hp": 10142,
+    "coolTime": 12
+   }
+  },
+  {
+   "screenshot": "089",
+   "discId": 3010095,
+   "name": "Sybilidra",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage & paralysis attack using combo attack",
+   "level": 10,
+   "atk": 669,
+   "hp": 5568,
+   "coolTime": 39,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "シビリードラ",
+   "effect_jp": "前方に連射攻撃 （合計小ダメージ+シビレ）",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 261,
+    "hp": 2171,
+    "coolTime": 45
+   },
+   "lv10": {
+    "atk": 669,
+    "hp": 5568,
+    "coolTime": 39
+   },
+   "coefficient_appliv": "0.05 ×20"
+  },
+  {
+   "screenshot": "024",
+   "discId": 3010096,
+   "name": "Combat Turtle",
+   "rarity": "SR",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using high-speed dash pursuit attack & attack down (8 seconds)",
+   "level": 10,
+   "atk": 637,
+   "hp": 6520,
+   "coolTime": 16,
+   "matchedBy": "deduction, confirmed by Appliv (effect + stats)",
+   "note": "no thumbnail captured; summon texture sm_tx_0096 is a green shelled turtle and skill_10096 has the dash (forced-move) timeline",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ファイタガメ",
+   "effect_jp": "前方に小ダメージの高速追撃突進攻撃 ＋8秒間攻撃力中ダウン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 249,
+    "hp": 2542,
+    "coolTime": 18
+   },
+   "lv10": {
+    "atk": 637,
+    "hp": 6520,
+    "coolTime": 16
+   },
+   "coefficient_appliv": "0.5"
+  },
+  {
+   "screenshot": "059",
+   "discId": 3010097,
+   "name": "Starnova",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets small damage bomb trap that stun opponents who approach it (20 seconds)",
+   "level": 10,
+   "atk": 522,
+   "hp": 8536,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "スタンノヴァ",
+   "effect_jp": "小ダメージ＋スタンさせる爆弾を20秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 204,
+    "hp": 3327,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 522,
+    "hp": 8536,
+    "coolTime": 35
+   },
+   "coefficient_appliv": "0.5"
+  },
+  {
+   "screenshot": "077",
+   "discId": 3010098,
+   "name": "Hotrod Launcher",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front via a continuous low-speed, long-range attack",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 25,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "メラキランチャー",
+   "effect_jp": "前方1体に低弾速・長射程の連続攻撃(合計中ダメージ)",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 29
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 25
+   },
+   "coefficient_appliv": "0.9 ×4"
+  },
+  {
+   "screenshot": "086",
+   "discId": 3010101,
+   "name": "Dhaluma",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Cuts enemy damage to all allies by 70% (8 seconds)",
+   "level": 10,
+   "atk": 522,
+   "hp": 8536,
+   "coolTime": 54,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "イルダ・ルマ",
+   "effect_jp": "味方全員の被ダメージを8秒間70％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 204,
+    "hp": 3327,
+    "coolTime": 63
+   },
+   "lv10": {
+    "atk": 522,
+    "hp": 8536,
+    "coolTime": 54
+   }
+  },
+  {
+   "screenshot": "047",
+   "discId": 3010102,
+   "name": "Blox",
+   "rarity": "UR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals massive damage to nearby opponents & knocks them upwards",
+   "level": 10,
+   "atk": 683,
+   "hp": 6519,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ブロックス",
+   "effect_jp": "近くの相手に極大ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 267,
+    "hp": 2541,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 683,
+    "hp": 6519,
+    "coolTime": 30
+   },
+   "coefficient_appliv": "6.5"
+  },
+  {
+   "screenshot": "038",
+   "discId": 3010103,
+   "name": "Bunny Burner",
+   "rarity": "SR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to large circular area & knocks away targets",
+   "level": 10,
+   "atk": 618,
+   "hp": 6766,
+   "coolTime": 26,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "バニーバーン",
+   "effect_jp": "広範囲の周囲球状に中ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 241,
+    "hp": 2637,
+    "coolTime": 28
+   },
+   "lv10": {
+    "atk": 618,
+    "hp": 6766,
+    "coolTime": 26
+   },
+   "coefficient_appliv": "2.5"
+  },
+  {
+   "screenshot": "discord_3010104",
+   "discId": 3010104,
+   "name": "Support-roid",
+   "rarity": "R",
+   "type": "WARP",
+   "effect": "Warps to location of an ally with lowest HP & heals their HP by 30%",
+   "level": 10,
+   "atk": 381,
+   "hp": 7138,
+   "coolTime": 48,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "サポットロイド",
+   "effect_jp": "HPが最も低い味方付近へ瞬間移動し、味方のHPを30％回復",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 175,
+    "hp": 3256,
+    "coolTime": 56
+   },
+   "lv10": {
+    "atk": 381,
+    "hp": 7138,
+    "coolTime": 48
+   }
+  },
+  {
+   "screenshot": "discord_3010105",
+   "discId": 3010105,
+   "name": "Dynaduck",
+   "rarity": "R",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at medium speed (8 seconds, attack down)",
+   "level": 10,
+   "atk": 521,
+   "hp": 7420,
+   "coolTime": 27,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 283x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "カモガンガン",
+   "effect_jp": "範囲内の相手を中速で攻撃するタレットを8秒間設置（攻撃力中ダウン）",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 204,
+    "hp": 2892,
+    "coolTime": 31
+   },
+   "lv10": {
+    "atk": 521,
+    "hp": 7420,
+    "coolTime": 27
+   },
+   "coefficient_appliv": "1.0 ×11"
+  },
+  {
+   "screenshot": "discord_3010106",
+   "discId": 3010106,
+   "name": "Draygon",
+   "rarity": "UR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals high damage to surrounding circular area & recovers 60% of dealt damage",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 287x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "セレスティア",
+   "effect_jp": "周囲球状に大ダメージ攻撃 ＋与えたダメージの60%を回復",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "4.6"
+  },
+  {
+   "screenshot": "062",
+   "discId": 3010107,
+   "name": "Destronsil",
+   "rarity": "SR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals medium damage to nearby opponents & shield break",
+   "level": 10,
+   "atk": 695,
+   "hp": 5796,
+   "coolTime": 18,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ハカイジュウキ",
+   "effect_jp": "近くの相手に中ダメージ攻撃 ＋シールドブレイク",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 271,
+    "hp": 2259,
+    "coolTime": 21
+   },
+   "lv10": {
+    "atk": 695,
+    "hp": 5796,
+    "coolTime": 18
+   },
+   "coefficient_appliv": "3.4"
+  },
+  {
+   "screenshot": "discord_3010108",
+   "discId": 3010108,
+   "name": "Dragarmr",
+   "rarity": "UR",
+   "type": "ATK(Rush)",
+   "effect": "Deals medium damage in front using a high-speed piercing attack & 20% SS Gauge recovery",
+   "level": 10,
+   "atk": 563,
+   "hp": 8024,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ドラガルム",
+   "effect_jp": "前方1体に中ダメージの高速貫通突進攻撃 ＋SSゲージを最大20%吸収する",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 220,
+    "hp": 3128,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 563,
+    "hp": 8024,
+    "coolTime": 35
+   },
+   "coefficient_appliv": "3.0"
+  },
+  {
+   "screenshot": "085",
+   "discId": 3010109,
+   "name": "Magistork",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front via a long-range attack & seals Skills (5 seconds)",
+   "level": 10,
+   "atk": 522,
+   "hp": 8536,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ウィザビロコ",
+   "effect_jp": "前方1体に長射程の中ダメージ攻撃 ＋5秒間スキルを封印する",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 204,
+    "hp": 3327,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 522,
+    "hp": 8536,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.6"
+  },
+  {
+   "screenshot": "039",
+   "discId": 3010110,
+   "name": "Heasel",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Regenerates own HP (max 120% in 15 seconds)",
+   "level": 10,
+   "atk": 502,
+   "hp": 8215,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "キュアウィー",
+   "effect_jp": "自身のHPを15秒間継続回復 (最大120％)",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 196,
+    "hp": 3202,
+    "coolTime": 48
+   },
+   "lv10": {
+    "atk": 502,
+    "hp": 8215,
+    "coolTime": 41
+   }
+  },
+  {
+   "screenshot": "032",
+   "discId": 3010111,
+   "name": "Bloomster",
+   "rarity": "R",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium damage to one enemy in front",
+   "level": 10,
+   "atk": 483,
+   "hp": 7893,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "バブルスター",
+   "effect_jp": "前方1体に中ダメージ攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 189,
+    "hp": 3077,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 483,
+    "hp": 7893,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "3.4"
+  },
+  {
+   "screenshot": "discord_3010112",
+   "discId": 3010112,
+   "name": "Tigre",
+   "rarity": "UR",
+   "type": "MOVE",
+   "effect": "Deals medium continuous rear damage + paralysis attack",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 287x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "タイガルガ",
+   "effect_jp": "ダッシュしながら、自身後方に連続攻撃(合計中ダメージ) ＋シビレ",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "1.1 ×4"
+  },
+  {
+   "screenshot": "discord_3010113",
+   "discId": 3010113,
+   "name": "Killer Locust",
+   "rarity": "UR",
+   "type": "WARP",
+   "effect": "Warps to most-distant enemy + Medium increase of attack power (5 seconds)",
+   "level": 10,
+   "atk": 723,
+   "hp": 6022,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "キラーセクタ",
+   "effect_jp": "ロックオンまたは前方の最も遠い相手の背後へ瞬間移動 ＋5秒間攻撃力中アップ",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 282,
+    "hp": 2347,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 723,
+    "hp": 6022,
+    "coolTime": 30
+   }
+  },
+  {
+   "screenshot": "discord_3010114",
+   "discId": 3010114,
+   "name": "Glass Bomb",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets stealth medium damage bomb trap that knocks away opponents who approach it (30 seconds)",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 31,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 286x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ステルスマイン",
+   "effect_jp": "中ダメージ＋吹き飛ばすステルス爆弾を30秒間設置",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 36
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 31
+   },
+   "coefficient_appliv": "3.2"
+  },
+  {
+   "screenshot": "084",
+   "discId": 3010115,
+   "name": "Fyredramon",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals large frontal damage & knocks enemies away using an explosive attack",
+   "level": 10,
+   "atk": 683,
+   "hp": 6519,
+   "coolTime": 37,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "バクリュー",
+   "effect_jp": "前方に大ダメージ ＋吹き飛ばす爆発弾攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 267,
+    "hp": 2541,
+    "coolTime": 42
+   },
+   "lv10": {
+    "atk": 683,
+    "hp": 6519,
+    "coolTime": 37
+   },
+   "coefficient_appliv": "4.0"
+  },
+  {
+   "screenshot": "063",
+   "discId": 3010116,
+   "name": "Aquamage",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage & knocks away targets",
+   "level": 10,
+   "atk": 695,
+   "hp": 5796,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "マジマジン",
+   "effect_jp": "前方範囲に小ダメージ攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 271,
+    "hp": 2259,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 695,
+    "hp": 5796,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "2.1"
+  },
+  {
+   "screenshot": "076",
+   "discId": 3010117,
+   "name": "Bullheader",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Heals HP by 20% for all teammates + removes status effects",
+   "level": 10,
+   "atk": 464,
+   "hp": 8693,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ガンコブルド",
+   "effect_jp": "味方全員のHPを20％回復 ＋状態異常を解除する",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 180,
+    "hp": 3388,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 464,
+    "hp": 8693,
+    "coolTime": 32
+   }
+  },
+  {
+   "screenshot": "044",
+   "discId": 3010118,
+   "name": "Airy",
+   "rarity": "R",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using a dash pursuit attack",
+   "level": 10,
+   "atk": 594,
+   "hp": 6501,
+   "coolTime": 23,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ジェットタマゴ",
+   "effect_jp": "前方に小ダメージの追撃突進攻撃",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 232,
+    "hp": 2534,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 594,
+    "hp": 6501,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "1.2"
+  },
+  {
+   "screenshot": "083",
+   "discId": 3010119,
+   "name": "Megadeer",
+   "rarity": "UR",
+   "type": "BUFF",
+   "effect": "Reduces damage taken by 100% (5 seconds)",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 33,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ワイルディア",
+   "effect_jp": "自身の被ダメージを5秒間100％カット",
+   "category_appliv": "BUFF",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 38
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 33
+   }
+  },
+  {
+   "screenshot": "discord_3010120",
+   "discId": 3010120,
+   "name": "Foxy",
+   "rarity": "UR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals high damage to large circular area & knocks away targets",
+   "level": 10,
+   "atk": 642,
+   "hp": 7031,
+   "coolTime": 31,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 284x350",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "フォークシー",
+   "effect_jp": "広範囲の周囲球状に大ダメージ攻撃 ＋上吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 250,
+    "hp": 2741,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 642,
+    "hp": 7031,
+    "coolTime": 31
+   },
+   "coefficient_appliv": "4.0"
+  },
+  {
+   "screenshot": "045",
+   "discId": 3010122,
+   "name": "Gusty Glidears",
+   "rarity": "R",
+   "type": "MOVE",
+   "effect": "Increase speed and move forward automatically (4 seconds)",
+   "level": 10,
+   "atk": 669,
+   "hp": 5568,
+   "coolTime": 35,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "モモンボン",
+   "effect_jp": "自動的に4秒間高速前進する",
+   "category_appliv": "MOVE",
+   "lv1": {
+    "atk": 261,
+    "hp": 2171,
+    "coolTime": 41
+   },
+   "lv10": {
+    "atk": 669,
+    "hp": 5568,
+    "coolTime": 35
+   }
+  },
+  {
+   "screenshot": "012",
+   "discId": 3010123,
+   "name": "Hell Saurer",
+   "rarity": "UR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals massive frontal damage using combo attack & max 40% SS Gauge recovery",
+   "level": 10,
+   "atk": 783,
+   "hp": 5269,
+   "coolTime": 43,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヘルザウラー",
+   "effect_jp": "前方に連射攻撃(合計極大ダメージ ＋SSゲージを最大40％吸収する）",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 306,
+    "hp": 2054,
+    "coolTime": 49
+   },
+   "lv10": {
+    "atk": 783,
+    "hp": 5269,
+    "coolTime": 43
+   },
+   "coefficient_appliv": "0.4 ×20"
+  },
+  {
+   "screenshot": "082",
+   "discId": 3010124,
+   "name": "Principatus",
+   "rarity": "UR",
+   "type": "WARP",
+   "effect": "Warps to location of most distant ally & heals HP by 30%",
+   "level": 10,
+   "atk": 241,
+   "hp": 12044,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "プリンシア",
+   "effect_jp": "最も遠くの味方がいる場所へ瞬間移動し、HPを30%回復",
+   "category_appliv": "WARP",
+   "lv1": {
+    "atk": 94,
+    "hp": 4697,
+    "coolTime": 49
+   },
+   "lv10": {
+    "atk": 241,
+    "hp": 12044,
+    "coolTime": 41
+   }
+  },
+  {
+   "screenshot": "discord_3010125",
+   "discId": 3010125,
+   "name": "Avasalama",
+   "rarity": "SR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals small damage to nearby opponents & slam attack (reduces their SS Gauge by 30%)",
+   "level": 10,
+   "atk": 657,
+   "hp": 6274,
+   "coolTime": 39,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 288x350",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "アヴァサラム",
+   "effect_jp": "近くの相手に小ダメージ攻撃 ＋叩きつけ（スペシャルスキルゲージを30%減少）",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 256,
+    "hp": 2445,
+    "coolTime": 45
+   },
+   "lv10": {
+    "atk": 657,
+    "hp": 6274,
+    "coolTime": 39
+   },
+   "coefficient_appliv": "1.5"
+  },
+  {
+   "screenshot": "075",
+   "discId": 3010127,
+   "name": "Ghostopolis",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals small frontal damage using a dash pierce attack & knocks away targets",
+   "level": 10,
+   "atk": 657,
+   "hp": 6274,
+   "coolTime": 19,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "スルゥマジン",
+   "effect_jp": "前方範囲に小ダメージ貫通攻撃 ＋吹き飛ばし",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 256,
+    "hp": 2445,
+    "coolTime": 23
+   },
+   "lv10": {
+    "atk": 657,
+    "hp": 6274,
+    "coolTime": 19
+   },
+   "coefficient_appliv": "1.3"
+  },
+  {
+   "screenshot": "discord_3010128",
+   "discId": 3010128,
+   "name": "Hellfire Crow",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets turret that attacks opponents in range at high speed (15 seconds, seals Skills for 1 second)",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 32,
+   "matchedBy": "art",
+   "source": "Discord #resources preview (cache), 285x350",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "イビルクロウ",
+   "effect_jp": "範囲内の相手を高速で攻撃するタレットを15秒間設置（1秒間スキルを封印する）",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 37
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 32
+   },
+   "coefficient_appliv": "1.0 ×29"
+  },
+  {
+   "screenshot": "074",
+   "discId": 3010129,
+   "name": "Poison Bullet",
+   "rarity": "SR",
+   "type": "ATK(Long Distance)",
+   "effect": "Deals medium continuous damage to one enemy in front & poison attack (HP max 30% over 10 seconds)",
+   "level": 10,
+   "atk": 579,
+   "hp": 7244,
+   "coolTime": 21,
+   "matchedBy": "art",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ドクドクバレット",
+   "effect_jp": "前方1体に連続攻撃(合計中ダメージ) ＋10秒間毒（最大HP30％）",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 225,
+    "hp": 2823,
+    "coolTime": 24
+   },
+   "lv10": {
+    "atk": 579,
+    "hp": 7244,
+    "coolTime": 21
+   },
+   "coefficient_appliv": "0.7 ×4"
+  },
+  {
+   "screenshot": "064",
+   "discId": 3010131,
+   "name": "Puffy Frog",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Large boost energy recovery",
+   "level": 10,
+   "atk": 695,
+   "hp": 5796,
+   "coolTime": 28,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "エアガエル",
+   "effect_jp": "自身のブーストエネルギーを大回復",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 271,
+    "hp": 2259,
+    "coolTime": 32
+   },
+   "lv10": {
+    "atk": 695,
+    "hp": 5796,
+    "coolTime": 28
+   }
+  },
+  {
+   "screenshot": "055",
+   "discId": 3010132,
+   "name": "Hellark",
+   "rarity": "R",
+   "type": "ATK(Rush)",
+   "effect": "Deals small frontal damage using dash pierce attack & recovers 100% of dealt damage",
+   "level": 10,
+   "atk": 534,
+   "hp": 6676,
+   "coolTime": 24,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヘルムック",
+   "effect_jp": "前方に小ダメージの貫通突進攻撃 ＋与えたダメージの100％を回復",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 208,
+    "hp": 2602,
+    "coolTime": 28
+   },
+   "lv10": {
+    "atk": 534,
+    "hp": 6676,
+    "coolTime": 24
+   },
+   "coefficient_appliv": "1.7"
+  },
+  {
+   "screenshot": "016",
+   "discId": 3010133,
+   "name": "Pegasia",
+   "rarity": "UR",
+   "type": "HEAL",
+   "effect": "Heals HP by 25% + removes status effects",
+   "level": 10,
+   "atk": 542,
+   "hp": 8280,
+   "coolTime": 12,
+   "matchedBy": "deduction, confirmed by Appliv (effect + stats)",
+   "note": "no thumbnail captured; summon texture sm_tx_0133 is a winged horse",
+   "attribute": "Water",
+   "attributeBy": "card frame colour",
+   "name_jp": "ペガシア",
+   "effect_jp": "自身のHPを25％回復 ＋状態異常を解除する",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 212,
+    "hp": 3228,
+    "coolTime": 14
+   },
+   "lv10": {
+    "atk": 542,
+    "hp": 8280,
+    "coolTime": 12
+   }
+  },
+  {
+   "screenshot": "013",
+   "discId": 3010134,
+   "name": "Princess Izana",
+   "rarity": "UR",
+   "type": "TRAP",
+   "effect": "Sets turret that does AoE attacks at regular intervals (15 seconds, knocks away targets)",
+   "level": 10,
+   "atk": 602,
+   "hp": 7527,
+   "coolTime": 41,
+   "matchedBy": "art",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "イザナヒメ",
+   "effect_jp": "相手が近づくと超低速で周囲攻撃をするタレットを15秒間設置（吹き飛ばし）",
+   "category_appliv": "TRAP",
+   "lv1": {
+    "atk": 235,
+    "hp": 2934,
+    "coolTime": 47
+   },
+   "lv10": {
+    "atk": 602,
+    "hp": 7527,
+    "coolTime": 41
+   },
+   "coefficient_appliv": "1.0 ×5"
+  },
+  {
+   "screenshot": "014",
+   "discId": 3010135,
+   "name": "Wolfang",
+   "rarity": "UR",
+   "type": "ATK(Short Distance)",
+   "effect": "Deals large damage to nearby opponents & slam attack & recovers 100% of damage dealt as HP",
+   "level": 10,
+   "atk": 843,
+   "hp": 4517,
+   "coolTime": 30,
+   "matchedBy": "art",
+   "attribute": "Wind",
+   "attributeBy": "card frame colour",
+   "name_jp": "ウルファング",
+   "effect_jp": "近くの相手に大ダメージ攻撃 ＋叩きつけ（与えたダメージの100％を回復）",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 329,
+    "hp": 1761,
+    "coolTime": 35
+   },
+   "lv10": {
+    "atk": 843,
+    "hp": 4517,
+    "coolTime": 30
+   },
+   "coefficient_appliv": "4.3"
+  },
+  {
+   "screenshot": "025",
+   "discId": 3010136,
+   "name": "Solar Purr",
+   "rarity": "SR",
+   "type": "HEAL",
+   "effect": "Regenerates HP for all teammates (max 80% in 20 seconds)",
+   "level": 10,
+   "atk": 348,
+   "hp": 10142,
+   "coolTime": 59,
+   "matchedBy": "deduction, confirmed by demo video / pet texture",
+   "note": "no thumbnail captured; pet sm_0136 (black/white cat, red outfit, gold eyes) matches the card art, empty timeline like every heal",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ヒルミャン",
+   "effect_jp": "味方全員のHPを20秒間継続回復 （最大80％）",
+   "category_appliv": "HEAL",
+   "lv1": {
+    "atk": 135,
+    "hp": 3954,
+    "coolTime": 69
+   },
+   "lv10": {
+    "atk": 348,
+    "hp": 10142,
+    "coolTime": 59
+   }
+  },
+  {
+   "screenshot": "017",
+   "discId": 3010138,
+   "name": "Amun-Ra",
+   "rarity": "UR",
+   "type": "ATK(Circumference)",
+   "effect": "Deals medium damage to large circular area & stun attack",
+   "level": 10,
+   "atk": 723,
+   "hp": 6022,
+   "coolTime": 23,
+   "matchedBy": "deduction, confirmed by demo video / pet texture",
+   "note": "no thumbnail captured; pet sm_0138 (red/white/gold winged) matches the card art, timeline skill_10138 = expanding sphere r2->10 (large circular area)",
+   "attribute": "Fire",
+   "attributeBy": "card frame colour",
+   "name_jp": "ラークス",
+   "effect_jp": "広範囲の周囲球状に中ダメージ攻撃 ＋スタン",
+   "category_appliv": "ATK",
+   "lv1": {
+    "atk": 282,
+    "hp": 2347,
+    "coolTime": 27
+   },
+   "lv10": {
+    "atk": 723,
+    "hp": 6022,
+    "coolTime": 23
+   },
+   "coefficient_appliv": "2.0"
+  }
+ ],
+ "attributeType": {
+  "Fire": 1,
+  "Water": 2,
+  "Wind": 3
+ }
+}
