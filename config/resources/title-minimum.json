@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 16,
+  "revision": 19,
   "fromRevisions": [
     0,
     1,
@@ -19,7 +19,10 @@
     13,
     14,
     15,
-    16
+    16,
+    17,
+    18,
+    19
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [
@@ -31371,6 +31374,174 @@
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/417A775A423945_c88ee7fed641b0ec0307c368ffbab01c.bundle",
       "logicalName": "Unity AssetBundle ui/localize/zh/stamp/thumbnail_stamp_6052005.unity3d",
       "description": "Preserved Unity bundle for ui/localize/zh/stamp/thumbnail_stamp_6052005.unity3d"
+    },
+    {
+      "id": "action-asset-aed-002",
+      "kind": "assetBundle",
+      "octoId": 5002,
+      "names": [
+        "actioneditor/aed_002.unity3d"
+      ],
+      "objectName": "aed002",
+      "sourcePath": "content/resources/actioneditor/41616564303032_5f130097644575e8d7387b9417562090.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_002.unity3d",
+      "description": "Disc action timelines for kicker 2: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-003",
+      "kind": "assetBundle",
+      "octoId": 5003,
+      "names": [
+        "actioneditor/aed_003.unity3d"
+      ],
+      "objectName": "aed003",
+      "sourcePath": "content/resources/actioneditor/41616564303033_c468d950429ddd780f15a0f095d127d8.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_003.unity3d",
+      "description": "Disc action timelines for kicker 3: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-006",
+      "kind": "assetBundle",
+      "octoId": 5006,
+      "names": [
+        "actioneditor/aed_006.unity3d"
+      ],
+      "objectName": "aed006",
+      "sourcePath": "content/resources/actioneditor/41616564303036_eca6d96975c1cbe11e383df17838433f.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_006.unity3d",
+      "description": "Disc action timelines for kicker 6: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-007",
+      "kind": "assetBundle",
+      "octoId": 5007,
+      "names": [
+        "actioneditor/aed_007.unity3d"
+      ],
+      "objectName": "aed007",
+      "sourcePath": "content/resources/actioneditor/41616564303037_30b4fcea83eae9f9c0e5dd84f632b878.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_007.unity3d",
+      "description": "Disc action timelines for kicker 7: copy of the captured aed_004 bundle (kicker 4) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-009",
+      "kind": "assetBundle",
+      "octoId": 5009,
+      "names": [
+        "actioneditor/aed_009.unity3d"
+      ],
+      "objectName": "aed009",
+      "sourcePath": "content/resources/actioneditor/41616564303039_bb94258972185ce73e4e3c4b6e0cbe53.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_009.unity3d",
+      "description": "Disc action timelines for kicker 9: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-010",
+      "kind": "assetBundle",
+      "octoId": 5010,
+      "names": [
+        "actioneditor/aed_010.unity3d"
+      ],
+      "objectName": "aed010",
+      "sourcePath": "content/resources/actioneditor/41616564303130_a3c5e308e875158fb2dbc96d3f5576fe.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_010.unity3d",
+      "description": "Disc action timelines for kicker 10: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-012",
+      "kind": "assetBundle",
+      "octoId": 5012,
+      "names": [
+        "actioneditor/aed_012.unity3d"
+      ],
+      "objectName": "aed012",
+      "sourcePath": "content/resources/actioneditor/41616564303132_6bf9bc70e8beb58bb561db34b4f8985e.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_012.unity3d",
+      "description": "Disc action timelines for kicker 12: copy of the captured aed_005 bundle (kicker 5) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-013",
+      "kind": "assetBundle",
+      "octoId": 5013,
+      "names": [
+        "actioneditor/aed_013.unity3d"
+      ],
+      "objectName": "aed013",
+      "sourcePath": "content/resources/actioneditor/41616564303133_1d73c62eb875f05edc108c6d4de5827a.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_013.unity3d",
+      "description": "Disc action timelines for kicker 13: copy of the captured aed_011 bundle (kicker 11) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "action-asset-aed-014",
+      "kind": "assetBundle",
+      "octoId": 5014,
+      "names": [
+        "actioneditor/aed_014.unity3d"
+      ],
+      "objectName": "aed014",
+      "sourcePath": "content/resources/actioneditor/41616564303134_85c960b88ec230d635bce5e87de0a608.bundle",
+      "logicalName": "Unity AssetBundle actioneditor/aed_014.unity3d",
+      "description": "Disc action timelines for kicker 14: copy of the captured aed_011 bundle (kicker 11) with its own serialized-file name; built by scripts/build-action-asset-bundles.py"
+    },
+    {
+      "id": "disc-thumbnail-3010045",
+      "kind": "assetBundle",
+      "octoId": 5245,
+      "names": [
+        "ui/disc/thumbnail_3010045.unity3d"
+      ],
+      "objectName": "thb045",
+      "sourcePath": "content/resources/ui-disc/41746862303435_0ca1a0c847d2f47123f8df86cc780e34.bundle",
+      "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010045.unity3d",
+      "description": "Placeholder disc thumbnail for 3010045 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+    },
+    {
+      "id": "disc-thumbnail-3010096",
+      "kind": "assetBundle",
+      "octoId": 5296,
+      "names": [
+        "ui/disc/thumbnail_3010096.unity3d"
+      ],
+      "objectName": "thb096",
+      "sourcePath": "content/resources/ui-disc/41746862303936_84b3df7710f3798a261469fcc965c72b.bundle",
+      "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010096.unity3d",
+      "description": "Placeholder disc thumbnail for 3010096 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+    },
+    {
+      "id": "disc-thumbnail-3010133",
+      "kind": "assetBundle",
+      "octoId": 5333,
+      "names": [
+        "ui/disc/thumbnail_3010133.unity3d"
+      ],
+      "objectName": "thb133",
+      "sourcePath": "content/resources/ui-disc/41746862313333_e98314007412c97e7b7d9a35164f8cef.bundle",
+      "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010133.unity3d",
+      "description": "Placeholder disc thumbnail for 3010133 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+    },
+    {
+      "id": "disc-thumbnail-3010136",
+      "kind": "assetBundle",
+      "octoId": 5336,
+      "names": [
+        "ui/disc/thumbnail_3010136.unity3d"
+      ],
+      "objectName": "thb136",
+      "sourcePath": "content/resources/ui-disc/41746862313336_12d3166b3bc54cb202003779a5e004b1.bundle",
+      "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010136.unity3d",
+      "description": "Placeholder disc thumbnail for 3010136 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+    },
+    {
+      "id": "disc-thumbnail-3010138",
+      "kind": "assetBundle",
+      "octoId": 5338,
+      "names": [
+        "ui/disc/thumbnail_3010138.unity3d"
+      ],
+      "objectName": "thb138",
+      "sourcePath": "content/resources/ui-disc/41746862313338_56346e5fc5408275ba22bfb240fd7289.bundle",
+      "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010138.unity3d",
+      "description": "Placeholder disc thumbnail for 3010138 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     }
   ]
 }

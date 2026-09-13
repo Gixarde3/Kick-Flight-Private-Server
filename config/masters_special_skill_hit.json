@@ -57,7 +57,7 @@
   "transformType": 0,
   "shakeVolume": 0.3,
   "knockBackFlag": true,
-  "fixedDamage": 0
+  "fixedDamage": 999999
  },
  {
   "id": 5,

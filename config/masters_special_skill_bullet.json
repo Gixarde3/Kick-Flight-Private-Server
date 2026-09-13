@@ -1,1 +1,26 @@
-[]
+[
+ {
+  "id": 4,
+  "specialSkillId": 4,
+  "distance": 60.0,
+  "speed": 25.0,
+  "resourcePath": "",
+  "loopSeId": 0,
+  "homingAngle": 0.0,
+  "endType": 0,
+  "actionType": 0,
+  "removeOnOwnerDeadFlag": true
+ },
+ {
+  "id": 6,
+  "specialSkillId": 6,
+  "distance": 60.0,
+  "speed": 45.0,
+  "resourcePath": "",
+  "loopSeId": 0,
+  "homingAngle": 90.0,
+  "endType": 0,
+  "actionType": 1,
+  "removeOnOwnerDeadFlag": true
+ }
+]

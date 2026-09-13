@@ -80,7 +80,10 @@ def main():
 
         with tarfile.open(tar_path, "w") as tar:
             count = 0
-            for root, _, files in os.walk(assets_dir):
+            # content/resources holds bundles built locally (scripts/build-action-asset-bundles.py) that use the
+            # same <hex('A'+objectName)>_<md5>.bundle naming as the preserved Octo files
+            local_dir = repo_root / "content" / "resources"
+            for root, _, files in list(os.walk(assets_dir)) + (list(os.walk(local_dir)) if local_dir.is_dir() else []):
                 for f in files:
                     m = file_pattern.match(f)
                     if not m:

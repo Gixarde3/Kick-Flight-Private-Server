@@ -1,1 +1,18 @@
-[]
+[
+ {
+  "id": 1,
+  "specialSkillId": 1,
+  "distance": 6.0,
+  "speed": 20.0,
+  "rigorTime": 0.5,
+  "directionType": 1
+ },
+ {
+  "id": 3,
+  "specialSkillId": 3,
+  "distance": 8.0,
+  "speed": 30.0,
+  "rigorTime": 1.0,
+  "directionType": 2
+ }
+]

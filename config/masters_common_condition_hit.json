@@ -73,5 +73,35 @@
   "knockBackFlag": false,
   "fixedDamage": 0,
   "conditionType": 9
+ },
+ {
+  "id": 6,
+  "commonHitEffectType": 1,
+  "hitSeId": 0,
+  "effectPath": "",
+  "parentBone": 9,
+  "offsetX": 0.0,
+  "offsetY": 0.0,
+  "offsetZ": 0.0,
+  "transformType": 0,
+  "shakeVolume": 0.0,
+  "knockBackFlag": false,
+  "fixedDamage": 0,
+  "conditionType": 17
+ },
+ {
+  "id": 7,
+  "commonHitEffectType": 1,
+  "hitSeId": 0,
+  "effectPath": "",
+  "parentBone": 9,
+  "offsetX": 0.0,
+  "offsetY": 0.0,
+  "offsetZ": 0.0,
+  "transformType": 0,
+  "shakeVolume": 0.0,
+  "knockBackFlag": false,
+  "fixedDamage": 0,
+  "conditionType": 10
  }
 ]

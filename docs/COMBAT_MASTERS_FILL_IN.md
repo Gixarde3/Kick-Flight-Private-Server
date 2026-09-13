@@ -84,7 +84,7 @@ row (ranged weapons) and any `WeaponAttackCondition` rows.
 | file | columns |
 | --- | --- |
 | `masters_weapon_attack.json` | `kickerId`, `attackCount`, `coefficient` (× kicker attack → damage), `seId` |
-| `masters_weapon_attack_hit.json` | `kickerId`, `attackCount`, `commonHitEffectType`, `hitSeId`, `effectPath`, `parentBone`, `offsetX/Y/Z`, `transformType` (0 = world), `shakeVolume` (camera shake 0..1), `knockBackFlag`, `fixedDamage` (0 = use coefficient) |
+| `masters_weapon_attack_hit.json` | `kickerId`, `attackCount`, `commonHitEffectType`, `hitSeId`, `effectPath`, `parentBone`, `offsetX/Y/Z`, `transformType` (0 = world), `shakeVolume` (camera shake 0..1), `knockBackFlag`, `fixedDamage` (0 = damage is attack x coefficient; >= 1 = the hit does exactly this much damage to players instead - the one-shot mechanism, e.g. Kite's special 99999. Guardian turrets take the raw attack x coefficient against `GuardianParameter.hp` per crystal; with fixedDamage >= 1 Kite's special drops the APK `_guardianDropCrystalCount` crystals instead) |
 | `masters_weapon_attack_collision.json` | `kickerId`, `attackCount`, `collisionType`, `collisionHitType`, `hitLayer`, `radius`, `length` (capsule/cylinder), `originCenterFlag` (false = box/sphere starts at the kicker's front), `scaleX/Y/Z`, `moveRadius` (sweep radius while the kicker moves during the swing) |
 | `masters_weapon_attack_bullet.json` | `kickerId`, `attackCount`, `distance` (despawn range), `speed`, `resourcePath` (bullet prefab, `""` = default), `loopSeId`, `homingAngle` (deg, 0 = straight), `endType`, `actionType`, `removeOnOwnerDeadFlag` |
 | `masters_weapon_attack_condition.json` | `kickerId`, `attackCount`, `conditionType`, `duration`, `interval`, `effectValue`, `triggerType` — status applied on hit (e.g. Burn for 3 s) |
@@ -111,6 +111,16 @@ not from the server.
 
 * disc skills (`skillType` 1): only **1 ShotAttack, 2 AroundAttack, 3 MoveAttack, 4 FrontAttack, 5 BeamAttack,
   6 Support, 7 Trap, 8 Warp, 21 VerticalLoop, 22 AutoMove**. A Trap action also needs a `masters_skill_trap.json` row.
+  **3 MoveAttack only for skills whose APK timeline has a ForcedMovement clip** (`MoveAttackSkillAction..ctor` dereferences
+  it): 10001, 10010-10014, 10026, 10027, 10063, 10068, 10073, 10074, 10076, 10077, 10079, 10083, 10089, 10091, 10096,
+  10104, 10108, 10112, 10113, 10118, 10122, 10124, 10132 (`DISC_SKILLS_WITH_FORCED_MOVE` in the generator). What each
+  disc's timeline actually contains (bullets, hit boxes, forced move) is tabulated in `DISC_ACTION_TIMELINES.md`;
+  the timelines are per kicker (`actioneditor/aed_NNN`) and only five were captured — the other nine kickers are
+  served a donor bundle (see that document).
+  **A skill whose timeline has a sensor collider (Collider clip, AttachToType 2, no damage flag) must have a
+  `masters_skill_trap.json` row whatever its action type** - `DiscSkillParameter..ctor` reads `SkillTrapMaster` for it
+  unconditionally and a missing row NREs the battle load (Cargando never ends). All TRAP discs have one; the only
+  non-trap case is 10054 Scorpius (`DISC_SKILLS_WITH_SENSOR_COLLIDER` in the generator).
 * kicker skills (`skillType` 2, ids 20001-20014): only the weapon action of that kicker — **`weaponType` + 9**
   (Sword 9 … Nunchaku 20), JapaneseSword 23, Laser 24. The generator sets this from `masters_kicker_parameter.json`.
 | `masters_skill_heal.json` | `skillId`, `skillHealType`, `coefficient` (× attack → HP, or gauge amount) |
@@ -118,6 +128,7 @@ not from the server.
 | `masters_skill_blow_off.json` | `skillId`, `distance`, `speed`, `rigorTime` (stun after landing), `directionType` |
 | `masters_skill_pull_in.json` | `skillId`, `distance`, `speed` |
 | `masters_skill_trap.json` | `skillId`, `trapType`, `duration`, `radius`, `effectValue` (e.g. 0.5 = half speed for Slow), `interval`, `executeSeId`, `effectPath`, `screenEffectPath` (fullscreen effect for whoever steps in) |
+| `masters_skill_collision.json` / `masters_skill_hit.json` | **Guardian turrets only** (Skill rows with `skillType 3`, i.e. `Guardian.skillId`). `NPCSkillParameter..ctor` reads its beam collider/hit from these served masters (`SetCollisionInitInfos` / `SetAttackHitInfos`, keyed by `skillId`); a missing collision row NREs in `NPCGuardianParameter.InitializeBulletInfo` and the battle never leaves the loading screen. Disc/kicker skills take their colliders from the APK ActionMaster and ignore these tables. Same columns as the `WeaponAttackCollision` / `WeaponAttackHit` tables minus `kickerId`/`attackCount`/`moveRadius`. |
 
 Template: one `SkillHeal` row per `skillCategoryType` 1 skill, one `AttackRate ×1.2 for 10 s`
 condition per Buff (2) skill, one `Slow` trap per Trap (3) skill. Attack discs need nothing
@@ -130,12 +141,12 @@ Needed for every `Skill.summonId != 0` (`SummonParameter..ctor`, `PlayerStateSki
 | column | meaning |
 | --- | --- |
 | `id` | = `summonId` = disc number NNN |
-| `modelId` | loads `summon/sm_{modelId:04d}_0`; keep = id |
+| `modelId` | informational; the bundle is `summon/sm_{id:04d}_{n}` with n = `middleModelFlag ? 2 : 0` (`SummonMasterData.LowModelId`) |
 | `summonCharacterType` | 0 pet, 1 the pet is the projectile, 2 one-shot projectile, 3 stationary attack trap |
 | `positionX/Y/Z` | spawn offset from the kicker (u) |
 | `seId` | spawn cue |
 | `gachaPosition*/Rotation*`, `discDetailPosition*/Rotation*` | where the `_1` model sits in the gacha / disc-detail screens |
-| `middleModelFlag` | true = use the mid-size model in UI |
+| `middleModelFlag` | true = the pet's in-game model is the `_2` bundle (ids 82-86, 94, 96, 114-136 only ship `_2`); false = `_0` |
 
 ## 4. Special skills — `masters_special_skill*.json`
 
@@ -147,6 +158,21 @@ Needed for every `Skill.summonId != 0` (`SummonParameter..ctor`, `PlayerStateSki
 | --- | --- |
 | `masters_special_skill.json` | `kickerId`, `duration` (s the skill state lasts), `coefficient`, `range`, `finishTime` (recovery s) |
 | `_hit` / `_collision` / `_bullet` / `_blow_off` / `_trap` / `_condition` | same columns as the weapon / skill tables, keyed by `specialSkillId` |
+
+Which table each weapon's action actually reads (from the `XxxSpecialSkillAction` classes; the cut-scene visuals play
+regardless, so wrong data = "visuals but no effect"):
+
+| weapon (kicker) | mechanism | data it needs |
+| --- | --- | --- |
+| Sword, Nunchaku, JapaneseSword (self) · TwoGuns, Drone, Bowgun, Shield (allies) · Gun, Bat (enemies) | `AcceptCondition` at the end of the cut | `_condition` rows with `triggerType` 3 Execute |
+| Hammer (Coco) | `SendAddTrap` (Inhale trap, `trapType` 5) then a `DamageCollisionData` on the hammer-impact animation event | `_trap` row, `_condition` rows with `triggerType` 5 EnterEnemyTeamTrap (`Inhale` 12; pull speed/min range come from the APK `KickerSpecialSkillMaster.Hammer`, radius from `range`), `_collision` + `_hit`, optional `_blow_off` |
+| Laser (Sid) | `EmptyDamageCollisionData` cylinder (no direct damage); stay callback applies conditions with `triggerType` 4 EnterTrap | `_collision` (cylinder), `_condition` rows trigger 4: `Paralysis` 6 + `Dot` 17 (`interval` = tick, `effectValue` = damage rate) |
+| PunchGlove (Diatrius) | `SendAddTrap` at the end of the cut (Condition trap 8) | `_trap` row + `_condition` rows trigger 5: `Gravity` 21 (enemies pulled to the ground while inside) |
+| ThrowingStar (Kite), RocketLauncher (Pitophy) | `SendAddBullet` | `_bullet`, `_collision`, `_hit` |
+
+A trap special without its `_trap` row throws `NullReferenceException` in `Trap.Initialize` (via `ObjectManager.AddTrap`
+RPC) and does nothing. Trigger types: 1 ReceiveDamage, 2 AddDamage, 3 Execute, 4 EnterTrap, 5 EnterEnemyTeamTrap,
+6 EnterMyTeamTrap, 7 All.
 
 ## 5. Status-effect hit effects — `masters_common_condition_hit.json`
 

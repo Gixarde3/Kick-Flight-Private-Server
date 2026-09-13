@@ -46,11 +46,33 @@ COND_REGENERATION, COND_SLOWISH = 11, 2
 TRIGGER_EXECUTE = 3
 # hitLayer used by the shipped ActionMaster collisions (players + guardians)
 HIT_LAYER_CHARACTERS = 4864
+# fixedDamage (WeaponAttackHit / SpecialSkillHit): when >= 1 the hit does exactly that much damage to PLAYERS instead
+# of attack x coefficient (PlayerCharacter.AcceptDamageInfo), so it is 0 for everything except one-shot hits.
+# Guardian turrets (NPCGuardian.AcceptDamageInfo) take the raw attack x coefficient damage against their HP, which is
+# GuardianParameter.hp per deposited crystal; only when fixedDamage >= 1 does a special case kick in (Kite's special
+# drops KickerSpecialSkillMaster.ThrowingStar._guardianDropCrystalCount crystals instead of one-shotting the turret).
+# Kickers carry 30-45k HP once four lv10 discs (up to 12044 HP each) are added, so 9999 only left them low. This
+# is the value Hitagi's OneShotKiller branch in PlayerCharacter.AcceptDamageInfo hard-codes (0xF423F).
+ONE_SHOT_FIXED_DAMAGE = 999999
 
 DISC_ID_BASE = 3010000     # disc ids are 3010001..; skill id = 10000 + n; summon/model id = n
 DISC_SKILL_BASE = 10000
 BAT_BOMB_SKILL_ID = 40001
 KICKER_SKILL_BASE = 20000  # Skill.id of kicker skills; SpecialSkill ids are the plain kickerId
+
+# Disc skills whose APK action-editor timeline (actioneditor/aed_NNN.unity3d, EventItemGroup._list[ClipType.ForcedMovement])
+# contains a forced-movement event. MoveAttackSkillAction..ctor dereferences that event unconditionally, so
+# skillActionType 3 on any other disc is a guaranteed NullReferenceException that soft-locks the kicker.
+# Identical in all five captured bundles (kickers 1, 4, 5, 8, 11).
+DISC_SKILLS_WITH_FORCED_MOVE = {
+    10001, 10010, 10011, 10012, 10013, 10014, 10026, 10027, 10063, 10068, 10073, 10074, 10076, 10077, 10079,
+    10083, 10089, 10091, 10096, 10104, 10108, 10112, 10113, 10118, 10122, 10124, 10132,
+}
+# Non-trap disc skills whose timeline nevertheless contains a "sensor" collider (Collider clip with
+# AttachToType 2 and no damage flag). DiscSkillParameter..ctor then reads SkillTrapMaster.GetDataFromSkillId
+# unconditionally, so such a skill needs a masters_skill_trap.json row or every battle with it in a deck NREs
+# while loading. 10054 Scorpius: its 14 s continuous cylinder is built as a sensor.
+DISC_SKILLS_WITH_SENSOR_COLLIDER = {10054}
 
 
 def load(name: str):
@@ -80,9 +102,10 @@ def remap_skill_ids(force: bool) -> tuple[list, list]:
             if not row.get("summonId"):
                 row["summonId"] = n
             changed = True
-        elif 1 <= row["id"] <= 14:
+        elif 1 <= row["id"] <= 14 and row.get("skillType") != 3:
             # kicker skills: the APK ActionMaster entries with the kicker-skill effects/collisions are
-            # skill_20001..skill_20014 (skill_1..14 are empty placeholders), so id = 20000 + kickerId
+            # skill_20001..skill_20014 (skill_1..14 are empty placeholders), so id = 20000 + kickerId.
+            # Skill id 1 with skillType 3 is the guardian's eye laser (Guardian.skillId), left alone.
             row["id"] = KICKER_SKILL_BASE + row["id"]
             row["skillType"] = 2  # Kicker
             changed = True
@@ -100,6 +123,10 @@ def remap_skill_ids(force: bool) -> tuple[list, list]:
             changed = True
         if row["skillType"] == 1 and row.get("skillCategoryType") == CAT_TRAP and row.get("skillActionType") != 7:
             row["skillActionType"] = 7
+            changed = True
+        if row["skillType"] == 1 and row.get("skillActionType") == 3 and row["id"] not in DISC_SKILLS_WITH_FORCED_MOVE:
+            print(f"skill {row['id']}: MoveAttack without a forced-move event in the APK timeline -> ShotAttack")
+            row["skillActionType"] = 1
             changed = True
     kicker_rows = load("masters_kicker_parameter.json")
     kp_changed = False
@@ -192,10 +219,37 @@ def skill_tables(skills: list) -> dict[str, list]:
         elif cat == CAT_TRAP or s.get("skillActionType") == 7:  # Trap actions need a TrapInfo or GetSkillAction throws
             trap.append({"id": nid, "skillId": sid, "trapType": 10 if sid == BAT_BOMB_SKILL_ID else 1, "duration": 8.0, "radius": float(s.get("range", 5.0)),
                          "effectValue": 0.5, "interval": 0.0, "executeSeId": 0, "effectPath": "", "screenEffectPath": ""})
+        elif sid in DISC_SKILLS_WITH_SENSOR_COLLIDER:  # sensor collider on a non-trap skill: TrapInfo is still read
+            trap.append({"id": nid, "skillId": sid, "trapType": 9, "duration": 14.0, "radius": 7.0,
+                         "effectValue": 0.0, "interval": 0.5, "executeSeId": 0, "effectPath": "", "screenEffectPath": ""})
         nid += 1
     return {"masters_skill_condition.json": cond, "masters_skill_heal.json": heal,
             "masters_skill_blow_off.json": blow, "masters_skill_pull_in.json": pull,
             "masters_skill_trap.json": trap}
+
+
+def guardian_skill_tables(skills: list) -> dict[str, list]:
+    """SkillCollision / SkillHit rows for the guardian turrets (Skill rows with skillType 3 = Guardian.skillId).
+
+    NPCSkillParameter..ctor -> SetCollisionInitInfos / SetAttackHitInfos read these two served masters by skillId
+    (TMasterBase.Find); disc and kicker skills get their colliders from the APK ActionMaster instead and never
+    look here. Without the collision row NPCGuardianParameter.InitializeBulletInfo dereferences a null
+    CollisionInitInfo and GameManager.CreateGuardian kills the battle-loading coroutine (stuck on "Cargando").
+    The eye laser is a WeaponAttackBulletInfo whose range comes from Guardian.laserLength; the collision row only
+    shapes the bullet's hit sphere."""
+    collision, hit = [], []
+    nid = 1
+    for s in skills:
+        if s.get("skillType") != 3:
+            continue
+        collision.append({"id": nid, "skillId": s["id"], "collisionType": COL_SPHERE, "collisionHitType": COLHIT_ALL,
+                          "hitLayer": HIT_LAYER_CHARACTERS, "radius": 1.5, "length": 0.0, "originCenterFlag": True,
+                          "scaleX": 1.0, "scaleY": 1.0, "scaleZ": 1.0})
+        hit.append({"id": nid, "skillId": s["id"], "commonHitEffectType": HIT_GUN_M, "hitSeId": 0, "effectPath": "",
+                    "parentBone": BONE_COMMON, "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "transformType": 0,
+                    "shakeVolume": 0.2, "knockBackFlag": False, "fixedDamage": 0})
+        nid += 1
+    return {"masters_skill_collision.json": collision, "masters_skill_hit.json": hit}
 
 
 def summon_table(skills: list) -> list:
@@ -213,27 +267,121 @@ def summon_table(skills: list) -> list:
     return rows
 
 
+# Special skills. Each XxxSpecialSkillAction reads a different sub-table (see docs/COMBAT_MASTERS_FILL_IN.md §4),
+# verified against the action classes in libil2cpp:
+#   * Sword/Nunchaku/JapaneseSword (self), TwoGuns/Drone/Bowgun/Shield (allies), Gun/Bat (enemies) call AcceptCondition
+#     with the kicker's SpecialSkillCondition rows -> triggerType 3 Execute.
+#   * Hammer (Coco) drops an Inhale TRAP (SpecialSkillTrap, TrapType 5; the pull itself is InhaleConditionAction driven
+#     by the APK KickerSpecialSkillMaster.Hammer + SpecialSkill.range) that applies the kicker's SpecialSkillCondition
+#     rows to whoever enters (ConditionTrapAction: triggerType 5 EnterEnemyTeamTrap / 6 EnterMyTeamTrap / 7 All), then
+#     the impact is a DamageCollisionData from SpecialSkillCollision+Hit (+ SpecialSkillBlowOff). Without the trap row
+#     Trap.Initialize NREs (TrapInitializeInfo.TrapInfo null) and nothing happens.
+#   * Laser (Sid) is an EmptyDamageCollisionData cylinder from SpecialSkillCollision whose stay callback applies the
+#     SpecialSkillCondition rows with triggerType 4 EnterTrap (ConditionInitializeInfo.Set(..., trigger 4)) - damage
+#     must come from a Dot condition; there is no direct hit.
+#   * PunchGlove (Diatrius) drops a SpecialSkillTrap at the end of the cut (type still unconfirmed by the user).
+#   * ThrowingStar/RocketLauncher fire a SpecialSkillBullet (collision/hit for the impact).
+# Condition tuples: (conditionType, duration, interval, effectValue[, triggerType]).
+# Keyed by weaponType; values from the kickers' special-skill descriptions (masters_kicker_detail.json).
+TRIGGER_ENTER_TRAP, TRIGGER_ENTER_ENEMY_TRAP, TRIGGER_ENTER_ALLY_TRAP = 4, 5, 6
+COND_INHALE, COND_DOT, COND_GRAVITY = 12, 17, 21
+SPECIAL_SKILL_DATA = {
+    # Tsubame: speed +20 % and a tornado around her (BlowoffColliderConditionAction builds a DamageCollisionData
+    # from SpecialSkillCollision + GetSpecialSkillDamageInitInfo; the knock-up itself is the SpecialSkillBlowOff row)
+    WT_SWORD:          {"duration": 10.0, "conditions": [(COND_SPEED_RATE, 10.0, 0.0, 1.2), (13, 10.0, 0.0, 1.0)],
+                        "collision": {"collisionType": COL_SPHERE, "radius": 4.0, "length": 0.0},
+                        "blow_off": {"distance": 6.0, "speed": 20.0, "rigorTime": 0.5, "directionType": 1}},         # 1 = Up
+    WT_TWO_GUNS:       {"duration": 10.0, "conditions": [(COND_REGENERATION, 10.0, 1.0, 0.05)]},                      # allies regen 5 %/s
+    # Coco: tornado trap that sucks enemies in (Inhale condition on enter; speed/min range from the APK HammerMaster,
+    # radius = SpecialSkill.range) then the hammer impact slams them down (collision + blow-off Down)
+    WT_HAMMER:         {"duration": 5.0, "range": 100.0,
+                        "trap": {"trapType": 5, "duration": 3.5, "radius": 100.0, "effectValue": 0.0},   # in-game the pull reached ~1/10 of this
+                        "conditions": [(COND_INHALE, 3.5, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)],
+                        "collision": {"collisionType": COL_SPHERE, "radius": 8.0, "length": 0.0},
+                        "blow_off": {"distance": 8.0, "speed": 30.0, "rigorTime": 1.0, "directionType": 2}},         # 2 = Down
+    # Kite: one giant shuriken that one-shots everything in its path (SpecialSkillHit.fixedDamage - a coefficient
+    # cannot do it, fixedDamage replaces the damage) and flies through walls (a bullet only sphere-casts against the
+    # field when its hitLayer contains the Field layer, so drop bit 8); with fixedDamage >= 1 a guardian instead loses
+    # the APK KickerSpecialSkillMaster.ThrowingStar._guardianDropCrystalCount crystals
+    WT_THROWING_STAR:  {"duration": 5.0, "fixedDamage": ONE_SHOT_FIXED_DAMAGE,
+                        "bullet": {"distance": 60.0, "speed": 25.0, "homingAngle": 0.0, "actionType": 0},
+                        "collision": {"collisionType": COL_SPHERE, "radius": 6.0, "length": 0.0, "hitLayer": HIT_LAYER_CHARACTERS & ~(1 << 8)}},
+    # Owlbert: PlayerSpecialSkilParameter..ctor special-cases special skill id 5 as a trap (TargetFilterType), i.e. the
+    # smog is a Smog TRAP (SmogTrapAction: conditions on allies entering, trigger 6) plus the direct ally buff
+    WT_DRONE:          {"duration": 8.0, "range": 100.0,
+                        "trap": {"trapType": 6, "duration": 8.0, "radius": 100.0, "effectValue": 0.0},
+                        "conditions": [(20, 8.0, 0.0, 1.0), (20, 8.0, 0.0, 1.0, TRIGGER_ENTER_ALLY_TRAP),
+                                       (19, 8.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},                              # 20 SmogProtection allies, 19 SmogDisturb enemies
+    WT_ROCKET:         {"duration": 6.0, "bullet": {"distance": 60.0, "speed": 45.0, "homingAngle": 90.0, "actionType": 1},
+                        "collision": {"collisionType": COL_SPHERE, "radius": 1.5, "length": 0.0}},
+    WT_GUN:            {"duration": 5.0, "conditions": [(16, 5.0, 0.0, 1.0)]},                                        # enemies Prison
+    # Diatrius: Condition trap (8) - enemies inside are pulled to the ground and kept there while airborne
+    # (Gravity 21, GravityConditionAction : IConditionMovePosition); the trap removes it again on exit
+    WT_PUNCH_GLOVE:    {"duration": 6.0, "trap": {"trapType": 8, "duration": 6.0, "radius": 1000.0, "effectValue": 0.0},  # in-game the trap reached ~1/100 of this
+                        "conditions": [(COND_GRAVITY, 6.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},
+    WT_BOWGUN:         {"duration": 12.0, "conditions": [(COND_SPEED_RATE, 12.0, 0.0, 1.2), (28, 12.0, 0.0, 1.3)]},   # allies: move speed +20 %, attack speed +30 % (28 = AttackSpeedRate)
+    WT_SHIELD:         {"duration": 5.0, "conditions": [(27, 5.0, 0.0, 9999999.0)]},                                  # allies: unbreakable shield 5 s
+    WT_BAT:            {"duration": 8.0, "conditions": [(22, 8.0, 0.0, 1.0)]},                                        # enemies Confusion
+    WT_NUNCHAKU:       {"duration": 15.0, "conditions": [(25, 15.0, 0.0, 1.0)]},                                      # self Panda
+    WT_JAPANESE_SWORD: {"duration": 15.0, "conditions": [(34, 15.0, 0.0, 1.0)]},                                      # self OneShotKiller
+    # Sid: giant beam through walls; everyone inside is paralysed and takes tick damage (Dot) while they stay in it
+    WT_LASER:          {"duration": 6.0, "collision": {"collisionType": COL_CYLINDER, "radius": 15.0, "length": 60.0},
+                        # TEST (2026-09-14): paralysis applied but the Dot ticks did no damage even after the
+                        # CommonConditionHit fix. DotConditionAction.ExecuteIntervalAction skips the damage when
+                        # target.IsInvincible(TrapSkill) is true, and PlayerCharacter.IsInvincible is state-based -
+                        # suspect the paralysed state counts. Dot only for this test; Poison as a second candidate.
+                        "conditions": [(COND_DOT, 6.0, 0.5, 0.15, TRIGGER_ENTER_TRAP),
+                                       (COND_POISON, 6.0, 1.0, 0.1, TRIGGER_ENTER_TRAP)]},
+}
+
+
 def special_skill_tables(kickers: list) -> dict[str, list]:
-    ss, hit, col, cond = [], [], [], []
+    ss, hit, col, cond, bullet, trap, blow = [], [], [], [], [], [], []
+    nid = 1
     for k in kickers:
         kid = k["kickerId"]
         sid = kid
-        ss.append({"id": sid, "kickerId": kid, "duration": 5.0, "coefficient": 3.0, "range": 10.0, "finishTime": 1.0})
+        data = SPECIAL_SKILL_DATA.get(k.get("weaponType"), {})
+        ss.append({"id": sid, "kickerId": kid, "duration": float(data.get("duration", 5.0)),
+                   "coefficient": float(data.get("coefficient", 3.0)), "range": float(data.get("range", 10.0)), "finishTime": 1.0})
         hit.append({"id": sid, "specialSkillId": sid, "commonHitEffectType": HIT_COMMON_L, "hitSeId": 0,
                     "effectPath": "", "parentBone": BONE_COMMON, "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0,
-                    "transformType": 0, "shakeVolume": 0.3, "knockBackFlag": True, "fixedDamage": 0})
-        col.append({"id": sid, "specialSkillId": sid, "collisionType": COL_SPHERE, "collisionHitType": COLHIT_ALL,
-                    "hitLayer": HIT_LAYER_CHARACTERS, "radius": 10.0, "length": 0.0, "originCenterFlag": True,
+                    "transformType": 0, "shakeVolume": 0.3, "knockBackFlag": True,
+                    "fixedDamage": int(data.get("fixedDamage", 0))})
+        c = data.get("collision", {"collisionType": COL_SPHERE, "radius": 10.0, "length": 0.0})
+        col.append({"id": sid, "specialSkillId": sid, "collisionType": c["collisionType"], "collisionHitType": COLHIT_ALL,
+                    "hitLayer": c.get("hitLayer", HIT_LAYER_CHARACTERS), "radius": c["radius"], "length": c["length"], "originCenterFlag": True,
                     "scaleX": 1.0, "scaleY": 1.0, "scaleZ": 1.0})
+        for ctype, duration, interval, value, *trigger in data.get("conditions", []):
+            cond.append({"id": nid, "specialSkillId": sid, "conditionType": ctype, "duration": duration,
+                         "interval": interval, "effectValue": value, "triggerType": trigger[0] if trigger else TRIGGER_EXECUTE})
+            nid += 1
+        if "bullet" in data:
+            b = data["bullet"]
+            bullet.append({"id": sid, "specialSkillId": sid, "distance": b["distance"], "speed": b["speed"], "resourcePath": "",
+                           "loopSeId": 0, "homingAngle": b["homingAngle"], "endType": 0, "actionType": b["actionType"],
+                           "removeOnOwnerDeadFlag": True})
+        if "blow_off" in data:
+            bo = data["blow_off"]
+            blow.append({"id": sid, "specialSkillId": sid, "distance": bo["distance"], "speed": bo["speed"],
+                         "rigorTime": bo["rigorTime"], "directionType": bo["directionType"]})
+        if "trap" in data:
+            t = data["trap"]
+            trap.append({"id": sid, "specialSkillId": sid, "trapType": t["trapType"], "duration": t["duration"],
+                         "radius": t["radius"], "effectValue": t["effectValue"], "interval": 0.0, "executeSeId": 0,
+                         "effectPath": "", "screenEffectPath": ""})
     return {"masters_special_skill.json": ss, "masters_special_skill_hit.json": hit,
             "masters_special_skill_collision.json": col, "masters_special_skill_condition.json": cond,
-            "masters_special_skill_bullet.json": [], "masters_special_skill_blow_off.json": [],
-            "masters_special_skill_trap.json": []}
+            "masters_special_skill_bullet.json": bullet, "masters_special_skill_blow_off.json": blow,
+            "masters_special_skill_trap.json": trap}
 
 
 def common_condition_hit_table() -> list:
     rows = []
-    for i, ct in enumerate((COND_POISON, COND_PARALYSIS, COND_BURN, COND_STUN, COND_SILENT), start=1):
+    # Every condition that deals damage needs a row: CharacterBase.UnzipDamageInfo (AttackType Condition) copies
+    # ConditionActionController.GetConditionHitInfo(conditionType) and NREs when the type is missing - Sid's Dot
+    # ticks died that way (158 NREs in logcat 14Mon09 01:28).
+    for i, ct in enumerate((COND_POISON, COND_PARALYSIS, COND_BURN, COND_STUN, COND_SILENT, COND_DOT, 10), start=1):
         rows.append({"id": i, "commonHitEffectType": HIT_COMMON_S, "hitSeId": 0, "effectPath": "",
                      "parentBone": BONE_COMMON, "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0,
                      "transformType": 0, "shakeVolume": 0.0, "knockBackFlag": False, "fixedDamage": 0,
@@ -244,6 +392,7 @@ def common_condition_hit_table() -> list:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--force", action="store_true", help="overwrite existing generated tables")
+    ap.add_argument("--only", help="comma-separated table-name substrings to (re)write, e.g. special_skill (implies --force for them)")
     args = ap.parse_args()
 
     skills, _discs = remap_skill_ids(args.force)
@@ -252,11 +401,15 @@ def main() -> int:
     tables: dict[str, list] = {}
     tables.update(weapon_tables(kickers))
     tables.update(skill_tables(skills))
+    tables.update(guardian_skill_tables(skills))
     tables["masters_summon.json"] = summon_table(skills)
     tables.update(special_skill_tables(kickers))
     tables["masters_common_condition_hit.json"] = common_condition_hit_table()
+    only = [x.strip() for x in args.only.split(",")] if args.only else None
     for name, rows in tables.items():
-        write(name, rows, args.force)
+        if only is not None and not any(o in name for o in only):
+            continue
+        write(name, rows, args.force or only is not None)
     return 0
 
 

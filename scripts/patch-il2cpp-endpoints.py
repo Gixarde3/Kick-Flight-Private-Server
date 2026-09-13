@@ -523,12 +523,18 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("730000b5e0031faaf243e797"),
             "replacement": bytes.fromhex("730000b5e003271e02000014"),
         },
-        {
-            "description": "bypass _isUnloading check in LoadManager.LoadCacheAsync so scene transition models are always queued",
+        # The site is LoadManager.Enqueue (not LoadCacheAsync): the original drops load requests while
+        # LoadManager.UnloadAsync runs (state 0 sets _isUnloading, waits for in-flight loads, clears the caches
+        # and yields ResourceManager.UnloadAssetBundleAllAsync, state 2 clears the flag). An old bypass queued loads
+        # anyway and they raced the async bundle unload: intermittent UnityPreload-thread SIGSEGV ~12 s into
+        # GameScene (Coco/Yuyan/Hitagi could barely get into a battle). Confirmed 2026-09-13: without the bypass every
+        # kicker loads. Off by default; KF_UNLOAD_BYPASS=1 rebuilds the old behaviour for comparison.
+        *([{
+            "description": "bypass _isUnloading check in LoadManager.Enqueue so loads requested during UnloadAsync are still queued (known to crash the preload thread)",
             "offset": 0x16E2AD8,
             "expected": bytes.fromhex("88724039a8000034"),
             "replacement": bytes.fromhex("060000141f2003d5"),
-        },
+        }] if os.environ.get("KF_UNLOAD_BYPASS") == "1" else []),
         {
             "description": "safely fallback to default kicker when MyPlayerBattleInfo is null in LoadInGameKickerEffect",
             "offset": 0x16E7D90,
@@ -554,10 +560,23 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("1f2003d5"),
         },
         {
-            "description": "bypass null BattleRuleInfo check in CallbackBattleStartSuccess and jump to BattleStart",
+            # ArchiveData.BattleRuleInfo is still null here in the offline flow (ApplyBattleProperties stores it later),
+            # so the original IsGuardianAppearance(BattleRuleInfo.BattleRuleType) check is skipped - but the old jump
+            # (b #0x13ea1a0) also skipped the block that sets GuardianRank/GuardianHp/GuardianAttack from the response
+            # + GuardianParameter master, leaving the turrets with 0 HP per crystal and 0 attack (no damage either way).
+            # Jump to 0x13ea0b8 instead: rank from response.guardianParameter, hp/attack from the master row.
+            "description": "CallbackBattleStartSuccess: skip only the null-BattleRuleInfo IsGuardianAppearance check, keep the GuardianRank/Hp/Attack block",
             "offset": 0x13EA054,
             "expected": bytes.fromhex("a88301d0"),
-            "replacement": bytes.fromhex("53000014"),
+            "replacement": bytes.fromhex("19000014"),  # b #0x13ea0b8
+        },
+        {
+            # The GuardianParameter row predicate compares rank AND ArchiveData.BattleRuleInfo.MatchType, which is null
+            # at that point; we serve a single row, so accept the first one.
+            "description": "NormalMatchingController.<CallbackBattleStartSuccess>b__46_0 (GuardianParameter predicate) -> true",
+            "offset": 0x13ED894,
+            "expected": bytes.fromhex("f50f1df8f44f01a9"),
+            "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
         },
         {
             "description": "bypass null button crash in TitleView.SetAllButtonActive",
@@ -759,10 +778,16 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
         },
         {
-            "description": "force GameManager.<BeginAsync>b__6 to return false (0) to bypass room property wait",
-            "offset": 0x01579C1C,
-            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
-            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+            # b__6 is the WaitWhile right before GameManager.InitializeUI. Its original condition
+            # !IsCreatedCommonObject(true) also covers crystals/gimmicks (never "created" in the offline room, so it
+            # was stubbed to false), but skipping it entirely made InitializeUI run before the guardians finished
+            # ObjectManager.AddObjectAsync: GuardianHpGaugePresenter.Initialize only builds gauges for the NPCs
+            # present at that moment, so the turrets had no HP bar. Wait for IsCreatedGuardian(this) instead
+            # (true when ObjectManager.GetNpcs().Count >= the field's guardian points, or the field has none).
+            "description": "GameManager.<BeginAsync>b__6: wait for IsCreatedGuardian instead of IsCreatedCommonObject (guardian HP gauges need the NPCs registered before InitializeUI)",
+            "offset": 0x01579C68,
+            "expected": bytes.fromhex("53d6ff97"),  # bl IsCreatedCommonObject
+            "replacement": bytes.fromhex("39ab1294"),  # bl GameManagerBase<GameManager>.IsCreatedGuardian
         },
         {
             "description": "bypass GameResultFade and ReplayManager in GameManager.<BeginAsync>d__71.MoveNext by jumping State 10 directly to 0x157a44c",

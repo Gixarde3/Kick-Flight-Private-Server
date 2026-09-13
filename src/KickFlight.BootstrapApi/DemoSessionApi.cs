@@ -116,15 +116,22 @@ public sealed class DemoSessionApi
         _encryptedMasters["Translation"] = EncryptMaster(translationJson);
 
         _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
-        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":10000,"attack":1000}]""");
+        // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
+        // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
+        // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
+        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot).
+        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        // guardianAmount is per team: GameManager.CreateGuardian spawns it for both teams and indexes
+        // FieldManager.GetGuardianInitialPosition, and FLD00101_1 (the crystal-rule variant) has exactly two
+        // guardian points; the flag/ball variants have none, so only battleRuleType 1 gets turrets.
         _encryptedMasters["BattleRule"] = EncryptMaster("""
             [
-              {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":3,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
-              {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
+              {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
+              {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
             ]
             """);
         _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":100},{"id":2,"battleRuleId":2,"fieldId":101,"ratio":100},{"id":3,"battleRuleId":3,"fieldId":101,"ratio":100},{"id":4,"battleRuleId":4,"fieldId":101,"ratio":100},{"id":5,"battleRuleId":5,"fieldId":101,"ratio":100},{"id":6,"battleRuleId":6,"fieldId":101,"ratio":100}]""");
@@ -238,11 +245,22 @@ public sealed class DemoSessionApi
                             // Owlbert/Jay/Yuyan/Hitagi without a model in Home and character select.
                             weaponTypes.TryGetValue(k, out var kwt);
                             string bone;
+                            var attach = 1;                                               // PropAttachType.Child
                             if (p == 1) bone = kwt == 4 ? "Prop_Common" : "Prop_R";      // a Drone hovers from the body
                             else if (p == 2) bone = "Prop_L";
                             else if (p == 201 && kwt == 11) bone = "wp_010_001_Grip_L";  // Nunchaku free stick hangs off the handle's Grip_L locator
+                            else if (p == 201 && (kwt == 4 || (kwt == 10 && m >= 100)))
+                            {
+                                // Bat (Jay): only the high (cut-in) model gets the row - with a prop-201 row on the battle model
+                                // (wp_009_001_201) the client SIGSEGVs ~7 s into GameScene (logcat 14Mon09 01:28, 17:18:31).
+                                // Drone (Owlbert) and Bat (Jay) special-skill cut-ins call HighPlayerCharacter.GetWeapon(201)
+                                // and dereference its ModelCtr (DroneSpecialSkillCutAction/BatSpecialSkillCutAction.Initialize):
+                                // without a 201 row the NRE kills PlayerCharacter.ResetPlayer and the battle never loads.
+                                // Attached as a Child of the base bone like prop 1 (the cut-in shows/hides it itself); the old
+                                // breakage with 101/201 rows came from serving them as PropAttachType.Replace rows.
+                                bone = kwt == 4 ? "Prop_Common" : "Prop_R";
+                            }
                             else continue;
-                            var attach = 1;
                             weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = "", attachType = attach });
                         }
                         loadedFromCatalog = true;
@@ -398,6 +416,8 @@ public sealed class DemoSessionApi
             ("SkillBlowOff", "masters_skill_blow_off.json"),
             ("SkillPullIn", "masters_skill_pull_in.json"),
             ("SkillTrap", "masters_skill_trap.json"),
+            ("SkillCollision", "masters_skill_collision.json"),   // guardian turret beam (NPCSkillParameter.SetCollisionInitInfos)
+            ("SkillHit", "masters_skill_hit.json"),               // guardian turret beam (NPCSkillParameter.SetAttackHitInfos)
             ("Summon", "masters_summon.json"),
             ("CommonConditionHit", "masters_common_condition_hit.json"),
             ("SpecialSkill", "masters_special_skill.json"),
@@ -502,6 +522,19 @@ public sealed class DemoSessionApi
                         if (!loaded.Discs.ContainsKey(discId))
                         {
                             loaded.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
+                        }
+                    }
+                    // a deck slot pointing at a disc that no longer exists in masters_disc.json makes the
+                    // client throw in PlayerDeckParameter..ctor and the battle never loads: swap it for a valid disc
+                    foreach (var (deckNumber, deck) in loaded.Decks)
+                    {
+                        for (var slot = 0; slot < deck.Count; slot++)
+                        {
+                            if (_discIdList.Contains(deck[slot])) continue;
+                            var replacement = _discIdList.FirstOrDefault(id => !deck.Contains(id), _discIdList[0]);
+                            _logger.LogWarning("User {UserId} deck {Deck} slot {Slot}: disc {DiscId} is not in the masters, replaced with {Replacement}",
+                                userId, deckNumber, slot + 1, deck[slot], replacement);
+                            deck[slot] = replacement;
                         }
                     }
                     return loaded;
