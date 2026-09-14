@@ -40,6 +40,8 @@ public sealed class BattleMatchmakingService
         public MatchingBattleInfo MatchingInfo { get; set; } = new();
     }
 
+    private const string MatchmakingNeverExpires = "2030-01-01 00:00:00";
+
     public sealed class MatchingBattleInfo
     {
         public string matchmakingExpirationDatetime { get; set; } = "2030-01-01 00:00:00";
@@ -222,7 +224,10 @@ public sealed class BattleMatchmakingService
         var discs = player.DeckDiscs.Count >= 4 ? player.DeckDiscs : [3010001, 3010002, 3010003, 3010004];
         return new MatchingBattleInfo
         {
-            matchmakingExpirationDatetime = DateTime.UtcNow.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"),
+            // Bare wall-clock string: the client reads it in its own time base, so a UTC "now + 30 min" is already
+            // hours in the past on a phone in UTC+8 and the very first roster update fails with "Timeout" (2026-09-14);
+            // the emulator only worked because its clock runs on UTC. Use the far-future default instead.
+            matchmakingExpirationDatetime = MatchmakingNeverExpires,
             photonCloudRegionId = 1,
             battlePlayerList =
             [
@@ -415,7 +420,10 @@ public sealed class BattleMatchmakingService
     {
         var info = new MatchingBattleInfo
         {
-            matchmakingExpirationDatetime = DateTime.UtcNow.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"),
+            // Bare wall-clock string: the client reads it in its own time base, so a UTC "now + 30 min" is already
+            // hours in the past on a phone in UTC+8 and the very first roster update fails with "Timeout" (2026-09-14);
+            // the emulator only worked because its clock runs on UTC. Use the far-future default instead.
+            matchmakingExpirationDatetime = MatchmakingNeverExpires,
             photonCloudRegionId = 1,
             battlePlayerList = []
         };

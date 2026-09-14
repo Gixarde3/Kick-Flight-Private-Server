@@ -111,9 +111,76 @@ app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HE
             "request -> fixture -> response: {Method} {Host}{Path} -> {FixtureId} -> {StatusCode}",
             context.Request.Method, host, context.Request.Path, fixture.Id, fixture.StatusCode);
 
-        return new LocalFixtureResult(fixture.GetBodyBytes(), fixture.ContentType, fixture.StatusCode);
+        var body = fixture.GetBodyBytes();
+        if (directClient && (context.Request.Path.Value ?? "").StartsWith("/v1/list/", StringComparison.Ordinal))
+        {
+            // The Octo database carries the CDN url format (field 5). It is baked with the LAN address at build time,
+            // but a client reaching us through another name (kickflightsg.ddns.net from outside) must download from
+            // that same name, so rewrite the format to the host the request actually came through - or to the
+            // configured external CDN when the bundles are hosted elsewhere.
+            var urlFormat = string.IsNullOrWhiteSpace(options.Value.OctoCdnUrlFormat)
+                ? $"{context.Request.Scheme}://{context.Request.Host}/cdn/{{o}}"
+                : options.Value.OctoCdnUrlFormat;
+            body = OctoDatabaseUrl.Rewrite(body, urlFormat);
+        }
+        return new LocalFixtureResult(body, fixture.ContentType, fixture.StatusCode);
     });
 
 app.Run();
 
 public partial class Program;
+
+/// <summary>Replaces the top-level string field 5 (urlFormat) of an Octo.Proto.Database message.</summary>
+public static class OctoDatabaseUrl
+{
+    public static byte[] Rewrite(byte[] message, string urlFormat)
+    {
+        var output = new List<byte>(message.Length + 64);
+        var i = 0;
+        while (i < message.Length)
+        {
+            var start = i;
+            if (!TryReadVarint(message, ref i, out var key)) return message;
+            var field = (int)(key >> 3);
+            var wireType = (int)(key & 7);
+            switch (wireType)
+            {
+                case 0: if (!TryReadVarint(message, ref i, out _)) return message; break;
+                case 1: i += 8; break;
+                case 5: i += 4; break;
+                case 2:
+                    if (!TryReadVarint(message, ref i, out var length)) return message;
+                    i += (int)length;
+                    break;
+                default: return message; // unknown wire type: leave the message untouched
+            }
+            if (i > message.Length) return message;
+            if (field != 5) output.AddRange(message[start..i]);
+        }
+        var text = System.Text.Encoding.UTF8.GetBytes(urlFormat);
+        output.Add((5 << 3) | 2);
+        WriteVarint(output, (ulong)text.Length);
+        output.AddRange(text);
+        return output.ToArray();
+    }
+
+    private static bool TryReadVarint(byte[] data, ref int index, out ulong value)
+    {
+        value = 0;
+        var shift = 0;
+        while (index < data.Length && shift < 64)
+        {
+            var b = data[index++];
+            value |= (ulong)(b & 0x7F) << shift;
+            if ((b & 0x80) == 0) return true;
+            shift += 7;
+        }
+        return false;
+    }
+
+    private static void WriteVarint(List<byte> output, ulong value)
+    {
+        while (value >= 0x80) { output.Add((byte)(value | 0x80)); value >>= 7; }
+        output.Add((byte)value);
+    }
+}

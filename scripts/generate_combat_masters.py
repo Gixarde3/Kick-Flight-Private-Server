@@ -206,11 +206,34 @@ def weapon_tables(kickers: list) -> dict[str, list]:
             "masters_weapon_attack_condition.json": []}
 
 
+# Kicker skills whose effect lives in the SkillCondition / SkillTrap tables rather than the ActionMaster.
+# Owlbert (kicker 5, skill 20005 "Dron Centinela", actionType 13): NPCDrone.InitializeAsync reads
+# owner.Param.KickerSkillParameter.Conditions[0] (ArgumentOutOfRange with no row, logcat 14Mon09 02:53) - the
+# silence the dropped drone applies - and the drone is left behind as a Silent trap.
+KICKER_SKILL_EXTRAS = {
+    20005: {"conditions": [(COND_SILENT, 8.0, 0.0, 1.0, 5), (COND_SILENT, 8.0, 0.0, 1.0, 4)],
+            "trap": {"trapType": 2, "duration": 8.0, "radius": 8.0, "effectValue": 0.0}},
+}
+
+
 def skill_tables(skills: list) -> dict[str, list]:
     cond, heal, blow, pull, trap = [], [], [], [], []
     nid = 1
     for s in skills:
         sid, cat = s["id"], s.get("skillCategoryType", CAT_ATTACK)
+        if sid in KICKER_SKILL_EXTRAS:
+            x = KICKER_SKILL_EXTRAS[sid]
+            for ctype, duration, interval, value, trigger in x.get("conditions", []):
+                cond.append({"id": nid, "skillId": sid, "conditionType": ctype, "duration": duration,
+                             "interval": interval, "effectValue": value, "triggerType": trigger})
+                nid += 1
+            if "trap" in x:
+                t = x["trap"]
+                trap.append({"id": nid, "skillId": sid, "trapType": t["trapType"], "duration": t["duration"],
+                             "radius": t["radius"], "effectValue": t["effectValue"], "interval": 0.0, "executeSeId": 0,
+                             "effectPath": "", "screenEffectPath": ""})
+                nid += 1
+            continue
         if cat == CAT_HEAL:
             heal.append({"id": nid, "skillId": sid, "skillHealType": 1, "coefficient": float(s.get("coefficient", 1.0))})
         elif cat == CAT_BUFF:

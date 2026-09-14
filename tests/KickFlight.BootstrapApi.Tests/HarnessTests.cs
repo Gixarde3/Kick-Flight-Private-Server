@@ -80,7 +80,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
+        Assert.Equal(new byte[] { 0x08, 0x19 }, body[..2]); // Octo revision 25
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -100,7 +100,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
+        Assert.Equal(new byte[] { 0x08, 0x19 }, body[..2]); // Octo revision 25
     }
 
     [Fact]

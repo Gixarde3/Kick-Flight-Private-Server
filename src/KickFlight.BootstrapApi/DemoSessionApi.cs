@@ -249,10 +249,13 @@ public sealed class DemoSessionApi
                             if (p == 1) bone = kwt == 4 ? "Prop_Common" : "Prop_R";      // a Drone hovers from the body
                             else if (p == 2) bone = "Prop_L";
                             else if (p == 201 && kwt == 11) bone = "wp_010_001_Grip_L";  // Nunchaku free stick hangs off the handle's Grip_L locator
-                            else if (p == 201 && (kwt == 4 || (kwt == 10 && m >= 100)))
+                            else if ((p == 201 && (kwt == 4 || kwt == 10)) || (p == 101 && kwt == 4))
                             {
-                                // Bat (Jay): only the high (cut-in) model gets the row - with a prop-201 row on the battle model
-                                // (wp_009_001_201) the client SIGSEGVs ~7 s into GameScene (logcat 14Mon09 01:28, 17:18:31).
+                                // Drone prop 101 is the drone unit itself: NPCDrone.InitializeAsync instantiates weapon prop 101
+                                // and reads owner.GetWeapon(101).ModelCtr, so Owlbert's kicker skill (silence drone trap) and
+                                // special (smog drones for the team) spawn nothing without this row.
+                                // HighPlayerCharacter builds its weapons from the modelId-1 rows too (ObjectUtil.
+                                // GetHighWeaponAttachData(id, 1)), so the cut-in rows must exist for modelId 1, not only 101.
                                 // Drone (Owlbert) and Bat (Jay) special-skill cut-ins call HighPlayerCharacter.GetWeapon(201)
                                 // and dereference its ModelCtr (DroneSpecialSkillCutAction/BatSpecialSkillCutAction.Initialize):
                                 // without a 201 row the NRE kills PlayerCharacter.ResetPlayer and the battle never loads.

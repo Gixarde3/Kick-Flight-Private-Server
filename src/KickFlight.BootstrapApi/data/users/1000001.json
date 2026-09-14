@@ -1,8 +1,8 @@
 {
   "UserId": "1000001",
   "UserName": "Gixarde3",
-  "KickerId": 14,
-  "KickerCostumeId": 115,
+  "KickerId": 1,
+  "KickerCostumeId": 1,
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
@@ -257,6 +257,11 @@
       "Level": 10,
       "Amount": 99
     },
+    "3010045": {
+      "DiscId": 3010045,
+      "Level": 10,
+      "Amount": 99
+    },
     "3010046": {
       "DiscId": 3010046,
       "Level": 10,
@@ -502,6 +507,11 @@
       "Level": 10,
       "Amount": 99
     },
+    "3010096": {
+      "DiscId": 3010096,
+      "Level": 10,
+      "Amount": 99
+    },
     "3010097": {
       "DiscId": 3010097,
       "Level": 10,
@@ -657,6 +667,11 @@
       "Level": 10,
       "Amount": 99
     },
+    "3010133": {
+      "DiscId": 3010133,
+      "Level": 10,
+      "Amount": 99
+    },
     "3010134": {
       "DiscId": 3010134,
       "Level": 10,
@@ -664,21 +679,6 @@
     },
     "3010135": {
       "DiscId": 3010135,
-      "Level": 10,
-      "Amount": 99
-    },
-    "3010045": {
-      "DiscId": 3010045,
-      "Level": 10,
-      "Amount": 99
-    },
-    "3010096": {
-      "DiscId": 3010096,
-      "Level": 10,
-      "Amount": 99
-    },
-    "3010133": {
-      "DiscId": 3010133,
       "Level": 10,
       "Amount": 99
     },

@@ -374,6 +374,27 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("e8030aaa"),  # mov x8, x10 (always HTTP)
         },
         {
+            # Octo.OctoFullSettings..ctor copies OctoSettings.maxParallelDownload (a ScriptableObject value we cannot
+            # edit in data.unity3d). ~10 parallel transfers over a slow remote link starve each other and trip the
+            # downloader's read timeout; 4 keeps the per-file throughput up (scripts/patch-octo-http-timeout.py
+            # raises the timeout itself).
+            "description": "OctoFullSettings..ctor: MaxParallelDownload = 4 instead of the OctoSettings asset value",
+            "offset": 0x2746F30,
+            "expected": bytes.fromhex("884640b9"),  # ldr w8, [x20, #0x44]
+            "replacement": bytes.fromhex("88008052"),  # mov w8, #4
+        },
+        {
+            # Octo.BaseDownloadRequest<T>..cctor: StallTimeout = 10.0f. The TimeoutWatcher coroutine aborts a file
+            # download (Error 2, "octo.network.timeout") when _receivedLength has not grown for that long, and the
+            # DownloadScene then shows "communication error". On a slow mobile link with 4 parallel transfers a
+            # single TCP stall easily exceeds 10 s (server log 2026-09-14 04:01: every cycle died on the first file
+            # that took >10 s), so give the stream 120 s before declaring it dead.
+            "description": "BaseDownloadRequest..cctor: StallTimeout = 120 s instead of 10 s",
+            "offset": 0x222DCEC,
+            "expected": bytes.fromhex("0924a852"),  # mov w9, #0x41200000 (10.0f)
+            "replacement": bytes.fromhex("095ea852"),  # mov w9, #0x42f00000 (120.0f)
+        },
+        {
             "description": "bypass dead Firebase chat setup in HomeChatNotificationView.OnCompleteChatSetup",
             "offset": 0x17331C0,
             "expected": bytes.fromhex("f50f1df8"),  # str x21, [sp, #-0x30]!
