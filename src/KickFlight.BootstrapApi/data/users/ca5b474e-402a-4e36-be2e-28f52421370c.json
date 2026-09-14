@@ -1,15 +1,15 @@
 {
-  "UserId": "1000001",
+  "UserId": "ca5b474e-402a-4e36-be2e-28f52421370c",
   "UserName": "Gixarde3",
-  "KickerId": 6,
-  "KickerCostumeId": 46,
+  "KickerId": 1,
+  "KickerCostumeId": 1,
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
       3010001,
-      3010102,
-      3010013,
-      3010113
+      3010002,
+      3010003,
+      3010004
     ],
     "2": [
       3010005,
@@ -693,8 +693,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 212754,
+  "ItemJetCoins": 208754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50800
+  "ItemKickPoints": 50000
 }
