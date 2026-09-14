@@ -10,6 +10,7 @@ import argparse
 import os
 import json
 import struct
+import sys
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -20,11 +21,13 @@ ORIGINAL_LITERALS = {
     "https://colorful-api-octo-sb.grenge.jp": "base_url",
     "https://kickflight-resource-api.grenge.jp": "base_url",
     "kickflight-api.grenge.jp/": "authority",
+    "ns.exitgames.com": "photon_host",
 }
 LITERAL_INDEXES = {
     "https://colorful-api-octo-sb.grenge.jp": 2294,
     "https://kickflight-resource-api.grenge.jp": 2304,
     "kickflight-api.grenge.jp/": 9244,
+    "ns.exitgames.com": 2039,
 }
 
 # Battle-start / AI diagnostics. Off by default; enable with KF_DIAG=1 when building. Each hook logs an
@@ -460,12 +463,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f85fbca9f65701a9"),  # stp x24, x23, [sp, #-0x40]!; stp x22, x21, [sp, #0x10]
             "replacement": bytes.fromhex("e00301aa22c31814"),  # mov x0, x1; b #0x1bd3874 (ActionExtensions.Call(onFinished))
         },
-        {
-            "description": "bridge matchmaking completion to offline battle room and launch GameScene",
-            "offset": 0x13EF4C0,
-            "expected": bytes.fromhex("687e019008a141f9000140f947c554948002003657820190f78243f9e00240f9d4c45494f40300aa540000b5"),
-            "replacement": bytes.fromhex("e0031f2a01a68e52e2031faadca01394fd7b43a9f44f42a9f65741a9f70744f8c0035fd61f2003d51f2003d5"),
-        },
+
         {
             "description": "bypass ObjectDisposedException in GetAssignmentsDestroy on scene exit",
             "offset": 0x13EAFB4,
@@ -485,16 +483,10 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("540200b41f2003d5e00314aae1031faaf2cafb97f40300aa940100b41f2003d5e00314aae1031faad1cbfb97f40300aad40000b41f2003d5"),
         },
         {
-            "description": "force MatchingManager.IsRoomLocalPlayerMaster to true",
-            "offset": 0x14E16AC,
-            "expected": bytes.fromhex("e0031faa75d50f14"),  # mov x0, xzr; b #0x18d6c84
-            "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
-        },
-        {
-            "description": "store battleRuleInfo and battleInfo into ArchiveData and launch ChangeGameSceneSync in ApplyBattleProperties",
-            "offset": 0x17A2148,
-            "expected": bytes.fromhex("ffc301d1fc6f01a9fa6702a9f85f03a9f65704a9f44f05a9fd7b06a9fd830191557901b0a87a5d39f40302aaf30301aa"),
-            "replacement": bytes.fromhex("f44fbea9fd7b01a9f30301aaf40302aae00314aa94a90394aee96894131801f9141c01f9fd7b41a9f44fc2a8be03f517"),
+            "description": "transition to GameScene via ChangeGameSceneSync at end of ApplyBattleProperties",
+            "offset": 0x17A2430,
+            "expected": bytes.fromhex("c0035fd6"),  # ret
+            "replacement": bytes.fromhex("0f03f517"),  # b #0x14e306c (ChangeGameSceneSync)
         },
         {
             "description": "bypass _isChangeScene check in SceneManager.ChangeScene",
@@ -515,16 +507,34 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("f6031faa09000014"),
         },
         {
-            "description": "bypass DiscSkill InvalidCastException in SkillRangeValidator.CreateValidator",
+            "description": "instantiate DiscSkillValidator in SkillRangeValidator.CreateValidator instead of returning null",
             "offset": 0x18436D0,
             "expected": bytes.fromhex("002140f9"),
-            "replacement": bytes.fromhex("2b000014"),
+            "replacement": bytes.fromhex("0b000014"),  # b #0x18436fc
         },
         {
-            "description": "bypass KickerSkill InvalidCastException in SkillRangeValidator.CreateValidator",
+            "description": "instantiate KickerSkillValidator in SkillRangeValidator.CreateValidator instead of returning null",
             "offset": 0x1843740,
             "expected": bytes.fromhex("002140f9"),
-            "replacement": bytes.fromhex("0f000014"),
+            "replacement": bytes.fromhex("0b000014"),  # b #0x184376c
+        },
+        {
+            "description": "apply condition locally in SpecialSkillActionBase.AcceptCondition without waiting for RPC",
+            "offset": 0x1503B8C,
+            "expected": bytes.fromhex("a0000036"),  # tbz w0, #0, #0x1503ba0
+            "replacement": bytes.fromhex("05000014"),  # b #0x1503ba0
+        },
+        {
+            "description": "remove condition locally in SpecialSkillActionBase.AcceptRemoveCondition without waiting for RPC",
+            "offset": 0x1503C04,
+            "expected": bytes.fromhex("a0000036"),  # tbz w0, #0, #0x1503c18
+            "replacement": bytes.fromhex("05000014"),  # b #0x1503c18
+        },
+        {
+            "description": "prevent dropping RPCs in ReplayManager.SendRPC when Photon is not connected or in offline mode",
+            "offset": 0x177581C,
+            "expected": bytes.fromhex("e00a0036"),  # tbz w0, #0, #0x1775978
+            "replacement": bytes.fromhex("1f2003d5"),  # nop
         },
         {
             "description": "safely bypass null Player in KickerSkillParameter.GetRange for bots",
@@ -544,14 +554,32 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("730000b5e0031faaf243e797"),
             "replacement": bytes.fromhex("730000b5e003271e02000014"),
         },
-        # The site is LoadManager.Enqueue (not LoadCacheAsync): the original drops load requests while
-        # LoadManager.UnloadAsync runs (state 0 sets _isUnloading, waits for in-flight loads, clears the caches
-        # and yields ResourceManager.UnloadAssetBundleAllAsync, state 2 clears the flag). An old bypass queued loads
-        # anyway and they raced the async bundle unload: intermittent UnityPreload-thread SIGSEGV ~12 s into
-        # GameScene (Coco/Yuyan/Hitagi could barely get into a battle). Confirmed 2026-09-13: without the bypass every
-        # kicker loads. Off by default; KF_UNLOAD_BYPASS=1 rebuilds the old behaviour for comparison.
-        *([{
-            "description": "bypass _isUnloading check in LoadManager.Enqueue so loads requested during UnloadAsync are still queued (known to crash the preload thread)",
+        {
+            "description": "safely return when lock-on controller is null for remote player in PlayerCharacter.ApplySetLockOnTarget",
+            "offset": 0x13df9e0,
+            "expected": bytes.fromhex("b80000b4"),
+            "replacement": bytes.fromhex("182400b4"),
+        },
+        {
+            "description": "safely return when SkillActionDataManager is null in DiscSkillMasterData..ctor",
+            "offset": 0x148b904,
+            "expected": bytes.fromhex("550000b53922f697"),
+            "replacement": bytes.fromhex("150600b41f2003d5"),
+        },
+        {
+            "description": "safely return when ActionMasterData is null in DiscSkillMasterData..ctor",
+            "offset": 0x148b958,
+            "expected": bytes.fromhex("140100b4"),
+            "replacement": bytes.fromhex("740300b4"),
+        },
+        {
+            "description": "safely return null when action master list is null in SkillActionDataManager.GetActionMasterData",
+            "offset": 0x1833440,
+            "expected": bytes.fromhex("760000b5e0031faa6983e797"),
+            "replacement": bytes.fromhex("160400b41f2003d51f2003d5"),
+        },
+        {
+            "description": "bypass _isUnloading check in LoadManager.LoadCacheAsync so scene transition models are always queued",
             "offset": 0x16E2AD8,
             "expected": bytes.fromhex("88724039a8000034"),
             "replacement": bytes.fromhex("060000141f2003d5"),
@@ -563,30 +591,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("37008052230080520a000014"),
         },
         {
-            "description": "bypass IsMatched check in NormalMatchingController.BattleStart to allow local battle setup",
-            "offset": 0x13EB238,
-            "expected": bytes.fromhex("00080037"),
-            "replacement": bytes.fromhex("1f2003d5"),
-        },
-        {
-            "description": "bypass IsRoomLocalPlayerMaster check in NormalMatchingController.BattleStart to allow local battle setup",
-            "offset": 0x13EB25C,
-            "expected": bytes.fromhex("e0060036"),
-            "replacement": bytes.fromhex("1f2003d5"),
-        },
-        {
-            "description": "bypass premature scene change in CallbackRoomPropertiesUpdate on status 3",
-            "offset": 0x13EB720,
-            "expected": bytes.fromhex("400a0054"),
-            "replacement": bytes.fromhex("1f2003d5"),
-        },
-        {
-            # ArchiveData.BattleRuleInfo is still null here in the offline flow (ApplyBattleProperties stores it later),
-            # so the original IsGuardianAppearance(BattleRuleInfo.BattleRuleType) check is skipped - but the old jump
-            # (b #0x13ea1a0) also skipped the block that sets GuardianRank/GuardianHp/GuardianAttack from the response
-            # + GuardianParameter master, leaving the turrets with 0 HP per crystal and 0 attack (no damage either way).
-            # Jump to 0x13ea0b8 instead: rank from response.guardianParameter, hp/attack from the master row.
-            "description": "CallbackBattleStartSuccess: skip only the null-BattleRuleInfo IsGuardianAppearance check, keep the GuardianRank/Hp/Attack block",
+            "description": "bypass null BattleRuleInfo check in CallbackBattleStartSuccess and jump to BattleStart",
             "offset": 0x13EA054,
             "expected": bytes.fromhex("a88301d0"),
             "replacement": bytes.fromhex("19000014"),  # b #0x13ea0b8
@@ -616,6 +621,18 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x31C7970,
             "expected": bytes.fromhex("740000b5e0031faa1d328197"),  # cbnz x20, #0x31c797c; bl #0x12141ec
             "replacement": bytes.fromhex("f40000b4020000141f2003d5"),  # cbz x20, #0x31c797c; nop
+        },
+        {
+            "description": "bypass null field crash at 0x31c79b4 in TitleView.Initialize",
+            "offset": 0x31C79B4,
+            "expected": bytes.fromhex("750000b5e0031faa0c328197b44200f9"),
+            "replacement": bytes.fromhex("950000b4b44200f91f2003d51f2003d5"),
+        },
+        {
+            "description": "clean stack epilogue and return in TitleView.Initialize before null field crash (0x31c79c4)",
+            "offset": 0x31C79C4,
+            "expected": bytes.fromhex("733640f9e0031faa666fdf97e89100b008fd44f9"),
+            "replacement": bytes.fromhex("fd7b43a9f44f42a9f65741a9f70744f8c0035fd6"),
         },
 
         {
@@ -1125,149 +1142,108 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("07dff597e1031faae2031faa6adbf597"),
             "replacement": bytes.fromhex("601240f9040000141f2003d51f2003d5"),
         },
-        # Offline battle start: the ponytail patches skip the GameReadyScene timeline, so its end event
-        # (OnEndCutScene -> OnCompleted -> _onCompleted -> WaitReadiedAsync -> PlayerState=Readied) never fires
-        # and GameManager.UpdateState can never move RoomState CreatedObject(5) -> Playing(6); RoomStartTime is
-        # then never written, IsGameStarted stays false, the clock sits at 3:00 and the AI never runs.
-        # Re-emit that completion at countdown start (GameStartAnimation.PlayGoAnimation). In this patched flow
-        # OnEndReadyGoAnimation publishes Playing(4) ~0.2 s BEFORE the async WaitReadiedAsync lands Readied(3), so
-        # the final gate in UpdateState (PlayerState == Playing) is relaxed to >= Readied below. calls GameManager.CompleteGameReady(), which is GetSubScene<GameReadyScene>()
-        # -> Complete() -> OnCompleted() (idempotent; its teardown also restores the in-game camera/HUD). Readied then lands before OnEndReadyGoAnimation publishes
-        # Playing, which is the original ordering. Cave lives in the dead body of GameManager.GetMenuType.
         {
-            "description": "cave: fetch SingletonMonoBehaviour<GameManager>.Instance and call GameManager.CompleteGameReady (-> GameReadyScene.Complete -> OnCompleted: publishes PlayerState Readied AND restores camera state/DOF/canvas), then run displaced `ldr w8,[x19,#0xb0]`",
-            "offset": 0x01570EF8,
-            "expected": bytes.fromhex("e0031faa5717fc9760000036e0031f3264000014487801d008e142f9000140f9089c4439"),
-            "replacement": bytes.fromhex("fd7bbfa9687301b0087941f9000140f94abe4e94fb060094fd7bc1a868b240b9c0035fd6"),
-        },
-        {
-            "description": "GameStartAnimation.PlayGoAnimation: emit GameReadyScene completion (PlayerState Readied) at countdown start",
-            "offset": 0x017630EC,
-            "expected": bytes.fromhex("68b240b9"),  # ldr w8, [x19, #0xb0]
-            "replacement": bytes.fromhex("8337f897"),  # bl #0x1570ef8
-        },
-        {
-            "description": "GameManager.UpdateState case Playing: write RoomStartTime when local PlayerState >= Readied (was == Playing); offline the async Readied can overwrite Playing",
-            "offset": 0x0156EB14,
-            "expected": bytes.fromhex("1f10007121050054"),  # cmp w0, #4; b.ne #0x156ebbc
-            "replacement": bytes.fromhex("1f0c00712b050054"),  # cmp w0, #3; b.lt #0x156ebbc
-        },
-        # AI kickers in this offline flow have a PlayerAnimator whose Unity Animator is null/dead; every
-        # PlayerStateNormal.UpdateAction then dies in Animator.SetFloat (NRE raised by libunity, ~40/s) and the
-        # exception aborts ObjectManager.ManagedUpdate for the frame, starving every later manager (GameManager
-        # never ticks -> no RoomStartTime). Guard the one direct Animator call on that path.
-        {
-            "description": "cave: PlayerAnimator.SetParamVelocity entry guard — return if Animator is null or its native m_CachedPtr is 0, else run displaced prologue insn and continue",
-            "offset": 0x1570ff0,
-            "expected": bytes.fromhex("60000036e0031e3228000014800240f9089c44398800083608d840b9"),
-            "replacement": bytes.fromhex("080840f9a80000b4080940f9680000b4e80f1dfce90af917c0035fd6"),
-        },
-        {
-            "description": "PlayerAnimator.SetParamVelocity: b guard cave (entry hook uses b, cave returns to caller or jumps back to +4)",
-            "offset": 0x013B3BA4,
-            "expected": bytes.fromhex("e80f1dfc"),  # str d8, [sp, #-0x30]!
-            "replacement": bytes.fromhex("13f50614"),
-        },
-        # Offline ownership: CharacterBase.IsMine is photonView.IsMine, false for the AI kickers (their PhotonViews
-        # belong to actors that do not exist). Online the master client owns AI players; offline the single client
-        # must own everything, otherwise e.g. AcceptCancelWarp (`if (!IsMine) return`) never ends the bots' warp-in
-        # and AIPlayerEngine.ManagedUpdate parks in WaitForWarpOut forever. Cave lives in the dead body of the stubbed
-        # ReplayManager.get_ReplayMode.
-        {
-            "description": "cave: CharacterBase.IsMine -> return true when PhotonManager.IsOffline(), else run displaced prologue insn and continue",
-            "offset": 0x1773678,
-            "expected": bytes.fromhex("fd430091d37a019068325639e8000037286901d008f546f9000140b9dfd9e997e803003268321639336801f073e242f9"),
-            "replacement": bytes.fromhex("fd7bbea9e00b00f9e0031faac68e0594e10b40f9fd7bc2a8600000b420008052c0035fd6e00301aaf44fbea9c70cfd17"),
-        },
-        {
-            "description": "CharacterBase.IsMine entry -> b offline-ownership cave",
-            "offset": 0x016B69BC,
+            "description": "prevent GameManager.BeginReconnectFailed from disconnecting Photon",
+            "offset": 0x1577F94,
             "expected": bytes.fromhex("f44fbea9"),  # stp x20, x19, [sp, #-0x20]!
-            "replacement": bytes.fromhex("2ff30214"),
-        },
-        # AI locomotion offline. Two gates in PlayerStateNormal assume a human finger:
-        #  1. CanTakeOff(): on the ground a kicker only lifts off when MoveInfo.IsMove && pitch <= -20 deg, i.e. after
-        #     a swipe; the AI never produces that, so the bots stayed on the start pad. For EnableAI kickers return true.
-        #  2. Acceleration(): while _dashRemainTime > 0 it takes the "dash" branch (acceleration 0 / brake) and relies on
-        #     UpdateDash() to drive velocity, but UpdateDash only runs under InputManager.IsCurrentState(3) (touch) and
-        #     only while IsMove — the bots ended a dash with velocity 0 and _dashRemainTime stuck > 0, so acceleration
-        #     stayed 0 forever. For EnableAI kickers always take the normal branch (accelerate to CalcMaxSpeed).
-        # Both caves live in the dead body of the stubbed HomeChatNotificationView.OnCompleteChatSetup (0x17331C4..0x17332F8,
-        # nothing branches into it). Generated with scripts/re/mkcave.py; x19 == this in both hooked methods.
-        {
-            "description": "cave: PlayerStateNormal.CanTakeOff ground branch -> return Player.EnableAI instead of false",
-            "offset": 0x17331D0,
-            "expected": bytes.fromhex("d47c0190883e4d39f30300aae8000037e86601f008c942f9000140b909dbea97"),
-            "replacement": bytes.fromhex("fd7bbfa9e00313aae1031faacf360694e1031faa8b2cf297fd7bc1a8c0035fd6"),
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
         },
         {
-            "description": "PlayerStateNormal.CanTakeOff `mov w0, wzr` (ground, not moving/pitched) -> bl EnableAI cave",
-            "offset": 0x17E6FFC,
-            "expected": bytes.fromhex("e0031f2a"),
-            "replacement": bytes.fromhex("7530fd97"),
+            "description": "prevent GameManager.BeginReconnectRoomFailed from disconnecting Photon",
+            "offset": 0x1578060,
+            "expected": bytes.fromhex("f44fbea9"),  # stp x20, x19, [sp, #-0x20]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
         },
         {
-            "description": "cave: PlayerStateNormal.Acceleration -> if Player.EnableAI skip the dash branch, else redo `fcmp _dashRemainTime, #0; b.le`",
-            "offset": 0x17331F0,
-            "expected": bytes.fromhex("e8030032883e0d39686901b008e144f9000140f9089c44398800083608d840b948000035d30feb97e0031faa7fa56a94f40300aa540000b5"),
-            "replacement": bytes.fromhex("fd7bbfa9e00313aae1031faac7360694e1031faa832cf297fd7bc1a8e803002ae00313aac83f5a35617a40bd2820201e6d3f5a54dcd10214"),  # x0 must be `this` again on both exits (get_Player derefs x0+0x10)
+            "description": "force PhotonPropertyManagerBase.CheckInitializeError to return false",
+            "offset": 0x1A2AB5C,
+            "expected": bytes.fromhex("f85fbca9"),  # stp x24, x23, [sp, #-0x40]!
+            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
         },
         {
-            "description": "PlayerStateNormal.Acceleration `b.le normal-branch` -> b EnableAI cave",
-            "offset": 0x17E7990,
-            "expected": bytes.fromhex("ed030054"),
-            "replacement": bytes.fromhex("182efd17"),
-        },
-        # Offline RPC transport. Every gameplay RPC (ReceiveDamage, ReceiveHit, effects...) goes through
-        # CharacterRPCControllerBase.SendRPC -> ReplayManager.SendRPC -> PhotonView.RPC. GRE.Singleton<ReplayManager>
-        # is null in this offline flow (see the BeginSession/EndSession bypasses above), so SendRPC threw
-        # NullReferenceException and no attack ever dealt damage. When the instance is null, call the
-        # controller's own photonView.RPC(name, target, parameters) directly (PUN executes it locally offline).
-        {
-            "description": "cave: CharacterRPCControllerBase.SendRPC with null ReplayManager -> photonView.RPC(methodName, target, parameters)",
-            "offset": 0x1733230,
-            "expected": bytes.fromhex("e1031faa81066b94604200b9486a0190083940f9000140f94db64794f40300aae0031faa71a56a94f50300aa550000b5"),
-            "replacement": bytes.fromhex("e00316aae1031faa4cd13094e10315aae203142ae30313aae4031faafd7b43a9f44f42a9f65741a9f70744f81d3d6814"),
+            "description": "prevent PhotonPropertyManagerBase.StartDisconnectTime from starting disconnect timer",
+            "offset": 0x1A2AC50,
+            "expected": bytes.fromhex("f70f1cf8"),  # str x23, [sp, #-0x40]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
         },
         {
-            "description": "CharacterRPCControllerBase.SendRPC: NullReferenceException raise for null ReplayManager -> b direct-RPC cave",
-            "offset": 0x31DA530,
-            "expected": bytes.fromhex("2fe78097"),
-            "replacement": bytes.fromhex("40639517"),
-        },
-        # Skill state watchdog. PlayerStateSkill.UpdateSubStateTime(time, next) waits forever when time < 0 until the
-        # SkillAction reports IsNextState; SwordSkillAction (and friends) only do that once the kicker is within 3 u / 90
-        # deg of MainTarget, so a cast at a fleeing or missing target leaves the kicker frozen in the pose with no
-        # cooldown. Only for the Execute->Finish (next == 4) and Finish->End (next == 0) transitions, advance after 4 s.
-        {
-            "description": "cave: PlayerStateSkill.UpdateSubStateTime negative-time wait -> advance after 4 s for Execute/Finish",
-            "offset": 0x17332B0,
-            "expected": bytes.fromhex("69690190082d42f9296147f9e10313aaf50300aa020140f9230140f948144294740000b5"),
-            "replacement": bytes.fromhex("05cc60549f12007160000054540000345e0603140110221e0020211ea5cd60545a060314"),
+            "description": "safely bypass fieldOfView read when camera is null in SpecialSkillCut.Initialize",
+            "offset": 0x1504AD4,
+            "expected": bytes.fromhex("580000b5c53df497"),  # cbnz x24, #0x1504adc; bl #0x12141ec
+            "replacement": bytes.fromhex("d80000b41f2003d5"),  # cbz x24, #0x1504aec; nop
         },
         {
-            "description": "PlayerStateSkill.UpdateSubStateTime `b.mi wait` -> b watchdog cave",
-            "offset": 0x17F4C2C,
-            "expected": bytes.fromhex("64000054"),
-            "replacement": bytes.fromhex("a1f9fc17"),
-        },
-        # Skill exit pose. After a kicker/disc skill the state machine returns to PlayerStateNormal but the animator
-        # keeps the last skill clip until some other action plays (dodge, attack...). On PlayerStateSkill.End() play
-        # PlayerAnimator.PlayIdle(isGround=false, 0.1 s) explicitly. Cave in the dead body of the stubbed
-        # HomeSummonModelController.UnloadModel (0x159DF60..0x159E0A8, nothing branches into it).
-        {
-            "description": "cave: PlayerStateSkill.End tail -> ClearSynchronizedProperty(); Player.PlayerAnimator.PlayIdle(false, 0.1, 0)",
-            "offset": 0x159DF70,
-            "expected": bytes.fromhex("a8325c39f403012af30300aae8000037e87201f0084d44f9000140b9a12ff197e8030032a8321c39e87001f0081940f9000140f9f60a4e94f50300aa550000b58fd8f197e00315aae1031faa7fef0794f50300aa550000b5"),
-            "replacement": bytes.fromhex("fd7bbea9f30b00f9f30300aae1031faae24e0994e00313aae1031faa638b0c94600100b4e1031faa58a0f897000100b4e1031f2aa899995288b9a7720001271ee103271ee2031faa7d42f897f30b40f9fd7bc2a8c0035fd6"),
+            "description": "safely bypass CinemachineBrain lookup when camera is null in SpecialSkillCut.Initialize",
+            "offset": 0x1504C60,
+            "expected": bytes.fromhex("760000b5e0031faa613df497"),  # cbnz x22, #0x1504c6c; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("160100b41f2003d51f2003d5"),  # cbz x22, #0x1504c80; nop; nop
         },
         {
-            "description": "PlayerStateSkill.End tail call `b ClearSynchronizedProperty` -> b idle cave",
-            "offset": 0x17F8F1C,
-            "expected": bytes.fromhex("fbe2ff17"),
-            "replacement": bytes.fromhex("1594f617"),
+            "description": "bypass null _fovFitter exception in SpecialSkillCut.LateUpdate",
+            "offset": 0x150539C,
+            "expected": bytes.fromhex("740000b5e0031faa923bf497"),  # cbnz x20, #0x15053a8; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("740b00b41f2003d51f2003d5"),  # cbz x20, #0x1505508; nop; nop
         },
-        *DIAG_PATCHES_ARM64,
+        {
+            "description": "bypass null _rollFitter exception in SpecialSkillCut.LateUpdate",
+            "offset": 0x15053B8,
+            "expected": bytes.fromhex("740000b5e0031faa8b3bf497"),  # cbnz x20, #0x15053c4; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("940a00b41f2003d51f2003d5"),  # cbz x20, #0x1505508; nop; nop
+        },
+        {
+            "description": "bypass null _windRoot exception in SpecialSkillCut.LateUpdate",
+            "offset": 0x15053D8,
+            "expected": bytes.fromhex("740000b5e0031faa833bf497"),  # cbnz x20, #0x15053e4; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("940900b41f2003d51f2003d5"),  # cbz x20, #0x1505508; nop; nop
+        },
+        {
+            "description": "bypass null _wind exception in SpecialSkillCut.LateUpdate",
+            "offset": 0x15053F4,
+            "expected": bytes.fromhex("750000b5e0031faa7c3bf497"),  # cbnz x21, #0x1505400; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("b50800b41f2003d51f2003d5"),  # cbz x21, #0x1505508; nop; nop
+        },
+        {
+            "description": "safely bypass null camera fieldOfView in SpecialSkillCut.Play",
+            "offset": 0x1506018,
+            "expected": bytes.fromhex("750000b5e0031faa7338f497"),  # cbnz x21, #0x1506024; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("f50000b41f2003d51f2003d5"),  # cbz x21, #0x1506034; nop; nop
+        },
+        {
+            "description": "safely bypass null CinemachineBrain in SpecialSkillCut.Play",
+            "offset": 0x1506038,
+            "expected": bytes.fromhex("750000b5e0031faa6b38f497"),  # cbnz x21, #0x1506044; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("150100b41f2003d51f2003d5"),  # cbz x21, #0x1506058; nop; nop
+        },
+        {
+            "description": "set NormalMatchingJoinBattleRoomState.GetDelayTime to 0.0s to eliminate lobby join stagger",
+            "offset": 0x13EFE74,
+            "expected": bytes.fromhex("ff4302d1e82300fd"),  # sub sp, sp, #0x90; str d8, [sp, #0x40]
+            "replacement": bytes.fromhex("e003271ec0035fd6"),  # fmov s0, wzr; ret
+        },
+        {
+            "description": "safely bypass ReconnectInfo null dereference in GameManager.InitializeReconnect",
+            "offset": 0x1570164,
+            "expected": bytes.fromhex("f70f1cf8"),  # str x23, [sp, #-0x40]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            "description": "prevent native SIGSEGV in List<LocalClient.InternalMsg>.Contains on uninitialized memory",
+            "offset": 0x2F277B8,
+            "expected": bytes.fromhex("f90f1bf8f85f01a9"),  # str x25, [sp, #-0x50]!; stp x24, x23, [sp, #0x10]
+            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
+        },
+        {
+            "description": "safely bypass null _goRoot in GameStartAnimation.PlayGoAnimation",
+            "offset": 0x17630FC,
+            "expected": bytes.fromhex("740000b5e0031faa3ac4ea97"),  # cbnz x20, #0x1763108; mov x0, xzr; bl #0x12141ec
+            "replacement": bytes.fromhex("b40800b41f2003d51f2003d5"),  # cbz x20, #0x1763210; nop; nop
+        },
+        {
+            "description": "dispatch CallbackGetAssignments: Case 0 when connection is empty, Case 1 when connection is populated",
+            "offset": 0x13EE484,
+            "expected": bytes.fromhex("df120071280b0054c9f100b0e803162a298104912879a8b80801098b00011fd6"),
+            "replacement": bytes.fromhex("880e40f9480200b4091140b909020034190000141f2003d51f2003d51f2003d5"),
+        },
     ],
     "armeabi-v7a": [
         {
@@ -1400,7 +1376,15 @@ def patch_metadata(path: Path, base_url: str, authority: str) -> list[dict[str, 
     replacement_blob = bytearray()
     report: list[dict[str, object]] = []
     for original, kind in ORIGINAL_LITERALS.items():
-        replacement = base_url if kind == "base_url" else f"{authority}/"
+        if kind == "base_url":
+            replacement = base_url
+        elif kind == "authority":
+            replacement = f"{authority}/"
+        elif kind == "photon_host":
+            parsed_host = urlsplit(base_url).hostname
+            replacement = parsed_host if parsed_host else "10.0.2.2"
+        else:
+            replacement = base_url
         encoded = replacement.encode("utf-8")
         index = LITERAL_INDEXES[original]
         current = active_literals[index]
@@ -1412,6 +1396,10 @@ def patch_metadata(path: Path, base_url: str, authority: str) -> list[dict[str, 
                 and parsed_current.path in ("", "/")
                 and not parsed_current.query
                 and not parsed_current.fragment
+            )
+        elif kind == "photon_host":
+            accepted = current == original or current == "10.0.2.2" or (
+                len(current.split(".")) == 4
             )
         else:
             accepted = current == original or (
