@@ -35,13 +35,52 @@ def field_string(number: int, value: str) -> bytes:
     return field_bytes(number, value.encode("utf-8"))
 
 
+def read_varint(payload: bytes, offset: int) -> tuple[int, int]:
+    value = 0
+    shift = 0
+    while offset < len(payload):
+        byte = payload[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        if byte < 0x80:
+            return value, offset
+        shift += 7
+        if shift > 63:
+            break
+    raise ValueError("Invalid protobuf varint")
+
+
+def validate_data_message(payload: bytes) -> None:
+    """Guard the recovered Octo.Proto.Data field/wire contract."""
+    fields: list[tuple[int, int]] = []
+    offset = 0
+    while offset < len(payload):
+        tag, offset = read_varint(payload, offset)
+        number, wire_type = tag >> 3, tag & 7
+        fields.append((number, wire_type))
+        if wire_type == 0:
+            _, offset = read_varint(payload, offset)
+        elif wire_type == 2:
+            length, offset = read_varint(payload, offset)
+            offset += length
+        else:
+            raise ValueError(f"Unexpected wire type {wire_type} for Data field {number}")
+    expected = [(1, 0), (2, 2), (3, 2), (4, 0), (5, 0), (9, 0),
+                (10, 2), (11, 2), (12, 0), (13, 0)]
+    if fields != expected:
+        raise ValueError(f"Unexpected Octo.Proto.Data layout: {fields!r}")
+
+
 def resolve_path(repo: Path, configured_path: str) -> Path:
     candidate = Path(configured_path)
     return candidate.resolve() if candidate.is_absolute() else (repo / candidate).resolve()
 
 
 def encode_data(*, octo_id: int, name: str, object_name: str, source: bytes) -> bytes:
-    # Octo.Proto.Data field numbers recovered from the IL2CPP protobuf model.
+    # Tags recovered from the native IL2CPP custom-attribute generators. They
+    # deliberately differ from property declaration order: priority=6,
+    # tagid=7, dependencie=8, state=9, md5=10, objectName=11,
+    # generation=12, uploadVersionId=13.
     return b"".join(
         (
             field_varint(1, octo_id),
@@ -49,7 +88,7 @@ def encode_data(*, octo_id: int, name: str, object_name: str, source: bytes) -> 
             field_string(3, name),
             field_varint(4, len(source)),
             field_varint(5, binascii.crc32(source) & 0xFFFFFFFF),
-            field_varint(9, 1),  # ADD
+            field_varint(9, 1),  # state = ADD
             field_string(10, hashlib.md5(source).hexdigest()),
             field_string(11, object_name),
             field_varint(12, 1),
@@ -104,6 +143,7 @@ def main() -> None:
                 object_name=entry["objectName"],
                 source=source,
             )
+            validate_data_message(message)
             (asset_messages if entry["kind"] == "assetBundle" else resource_messages).append(message)
 
         req_path = definition["urlPathFormat"].replace("{o}", entry["objectName"])

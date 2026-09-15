@@ -225,8 +225,8 @@ def main() -> None:
     catalog_data = {
         "schemaVersion": 1,
         "assetVersion": 12345,
-        "revision": 16,
-        "fromRevisions": list(range(17)),
+        "revision": 19,
+        "fromRevisions": list(range(20)),
         "urlPathFormat": "/cdn/{o}",
         "entries": entries
     }

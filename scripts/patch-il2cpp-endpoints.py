@@ -461,12 +461,12 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("540000b50a41e597e00314aae1031faaf2cafb97f40300aa540000b50441e597e00314aae1031faad1cbfb97f40300aa540000b5fe40e597"),
             "replacement": bytes.fromhex("540200b41f2003d5e00314aae1031faaf2cafb97f40300aa940100b41f2003d5e00314aae1031faad1cbfb97f40300aad40000b41f2003d5"),
         },
-        {
-            "description": "transition to GameScene via ChangeGameSceneSync at end of ApplyBattleProperties",
+        *([{
+            "description": "diagnostic: transition to GameScene via ChangeGameSceneSync at end of ApplyBattleProperties",
             "offset": 0x17A2430,
             "expected": bytes.fromhex("c0035fd6"),  # ret
             "replacement": bytes.fromhex("0f03f517"),  # b #0x14e306c (ChangeGameSceneSync)
-        },
+        }] if os.environ.get("KF_FORCE_GAME_SCENE") == "1" else []),
         {
             "description": "bypass _isChangeScene check in SceneManager.ChangeScene",
             "offset": 0x1CAC918,
@@ -557,7 +557,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("760000b5e0031faa6983e797"),
             "replacement": bytes.fromhex("160400b41f2003d51f2003d5"),
         },
-        {
+        *([{
             "description": "bypass _isUnloading check in LoadManager.LoadCacheAsync so scene transition models are always queued",
             "offset": 0x16E2AD8,
             "expected": bytes.fromhex("88724039a8000034"),
@@ -1121,6 +1121,29 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("07dff597e1031faae2031faa6adbf597"),
             "replacement": bytes.fromhex("601240f9040000141f2003d51f2003d5"),
         },
+        # Offline battle start: the ponytail patches skip the GameReadyScene
+        # timeline, so its completion event never publishes PlayerState Readied.
+        # Re-emit that completion at countdown start. In this patched flow the
+        # asynchronous Readied update can land after Playing, so accept either
+        # state when GameManager writes RoomStartTime.
+        {
+            "description": "cave: call GameManager.CompleteGameReady, then run displaced PlayGoAnimation state load",
+            "offset": 0x01570EF8,
+            "expected": bytes.fromhex("e0031faa5717fc9760000036e0031f3264000014487801d008e142f9000140f9089c4439"),
+            "replacement": bytes.fromhex("fd7bbfa9687301b0087941f9000140f94abe4e94fb060094fd7bc1a868b240b9c0035fd6"),
+        },
+        {
+            "description": "GameStartAnimation.PlayGoAnimation: complete GameReadyScene at countdown start",
+            "offset": 0x017630EC,
+            "expected": bytes.fromhex("68b240b9"),  # ldr w8, [x19, #0xb0]
+            "replacement": bytes.fromhex("8337f897"),  # bl #0x1570ef8
+        },
+        {
+            "description": "GameManager.UpdateState: write RoomStartTime when local PlayerState is at least Readied",
+            "offset": 0x0156EB14,
+            "expected": bytes.fromhex("1f10007121050054"),  # cmp w0, #4; b.ne #0x156ebbc
+            "replacement": bytes.fromhex("1f0c00712b050054"),  # cmp w0, #3; b.lt #0x156ebbc
+        },
         {
             "description": "prevent GameManager.BeginReconnectFailed from disconnecting Photon",
             "offset": 0x1577F94,
@@ -1206,6 +1229,27 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("c0035fd6"),  # ret
         },
         {
+            # InitializeReconnect is intentionally disabled above because the
+            # preserved demo response has no ReconnectInfo.  Leaving its frame
+            # update enabled makes it invoke the null state delegate at +0xa0
+            # every frame, flooding logcat and eventually entering the forced
+            # disconnect path before gameplay can begin.
+            "description": "disable GameManager.UpdateReconnect when reconnect initialization is bypassed",
+            "offset": 0x156E89C,
+            "expected": bytes.fromhex("f44fbea9"),  # stp x20, x19, [sp, #-0x20]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
+            # The original client force-disconnects after only 20 seconds of
+            # unrecognised flight input. Emulator swipes made during the long
+            # translated team presentation do not reset this counter, so the
+            # modal can appear as the first playable frame is reached.
+            "description": "disable PlayerCharacter.UpdateNoInputTime force-disconnect watchdog",
+            "offset": 0x13CE888,
+            "expected": bytes.fromhex("e80f1dfc"),  # str d8, [sp, #-0x30]!
+            "replacement": bytes.fromhex("c0035fd6"),  # ret
+        },
+        {
             "description": "prevent native SIGSEGV in List<LocalClient.InternalMsg>.Contains on uninitialized memory",
             "offset": 0x2F277B8,
             "expected": bytes.fromhex("f90f1bf8f85f01a9"),  # str x25, [sp, #-0x50]!; stp x24, x23, [sp, #0x10]
@@ -1218,11 +1262,58 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("b40800b41f2003d51f2003d5"),  # cbz x20, #0x1763210; nop; nop
         },
         {
-            "description": "dispatch CallbackGetAssignments: Case 0 when connection is empty, Case 1 when connection is populated",
+            "description": "dispatch CallbackGetAssignments: Case 0 when Assignment.connection_ is empty, Case 1 when populated",
             "offset": 0x13EE484,
             "expected": bytes.fromhex("df120071280b0054c9f100b0e803162a298104912879a8b80801098b00011fd6"),
-            "replacement": bytes.fromhex("880e40f9480200b4091140b909020034190000141f2003d51f2003d51f2003d5"),
+            # GetAssignmentsResponse.assignment_ is at +0x18 and Assignment.connection_
+            # is also at +0x18. The latter is an Il2CppString whose length is at +0x10;
+            # protobuf uses a non-null empty-string object for Stages 1/2, so testing only
+            # the connection_ pointer incorrectly classifies those updates as Success.
+            "replacement": bytes.fromhex("880e40f9480200b4090d40f9090200b4291140b9c9010034170000141f2003d5"),
         },
+        {
+            "description": "commit Stage 3 through the captured NormalMatchingController instead of the racy MatchingManager singleton",
+            "offset": 0x13EE548,
+            # The original success tail restores the callback frame and calls
+            # MatchingManager.SetState(4). That static helper first checks
+            # SingletonMonoBehaviour.HasInstance and silently returns while
+            # MatchingScene is replacing the singleton, losing Stage 3 after
+            # GetAssignments has already been cancelled. The display-class
+            # callback still holds the authoritative NormalMatchingController
+            # in x19 here, so dispatch its virtual SetState(4) directly before
+            # restoring the frame. The overwritten Error case is unreachable:
+            # the guarded dispatch above only selects Update or Success.
+            "expected": bytes.fromhex("fd7b43a9f44f42a9f65741a9e0031e32e1031faaf70744f80dd40314740a40f9740000b5e0031faa"),
+            "replacement": bytes.fromhex("680240f9e00313aa8100805203895aa960003fd6fd7b43a9f44f42a9f65741a9f70744f8c0035fd6"),
+        },
+        {
+            # LoadDeckSummonModel successfully enqueues the eight distinct summon
+            # bundles used by the two human/bot decks.  Its completion callback
+            # only pre-instantiates throwaway copies into ModelManager's cache;
+            # on the x86_64 AVD through ndk_translation that callback never
+            # returns, so LoadManager remains at 8 even though the bundles are
+            # present in the Octo cache.  Keep the bundle loads and their normal
+            # queue accounting, but skip this optional pre-instantiation.  The
+            # actual deck/SkillMaster data and runtime disc instantiation paths
+            # are untouched.
+            "description": "skip summon-model cache warmup callback so completed deck bundle loads can drain LoadManager.Remaincount",
+            "offset": 0x016EA480,
+            "expected": bytes.fromhex("f85fbca9f65701a9"),
+            "replacement": bytes.fromhex("c0035fd61f2003d5"),  # ret; nop
+        },
+        # Keep the expensive runtime probes out of production builds, but make
+        # KF_DIAG=1 actually append the diagnostic caves and hooks declared
+        # above.  The list used to be defined but never consumed, yielding a
+        # byte-for-byte production libil2cpp.so and therefore no KFDIAG output.
+        # The first seven entries are the currently compatible handshake
+        # probes (room/player state, BeginAsync, UpdateState and GameScene).
+        # Later historical AI probes reuse caves whose production bodies have
+        # since changed and retain independent, stale guards.
+        *DIAG_PATCHES_ARM64[:7],
+        # The shared logger used by those probes lives in region E. Since that
+        # region occupies LoadDeckSummonModel's body, stub that method in the
+        # diagnostic build exactly as the original tracing design requires.
+        *([DIAG_PATCHES_ARM64[39], DIAG_PATCHES_ARM64[50]] if DIAG_PATCHES_ARM64 else []),
     ],
     "armeabi-v7a": [
         {
@@ -1260,7 +1351,7 @@ UNITY_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("882e00b0"),  # adrp x8, #0xfd5000
             "replacement": bytes.fromhex("60000014"),  # b #0xa049b4 (epilogue)
         },
-        {
+        *([{
             "description": "bind libunity internal operator new to Unity MemoryManager",
             "offset": 0xDA630,
             "expected": bytes.fromhex("509100f0"),  # adrp x16, #0x1305000
@@ -1313,7 +1404,7 @@ UNITY_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x50AEF0,
             "expected": bytes.fromhex("c8068352886a6838a8000034e00313aaf37b41a9f40742f8023def17"),
             "replacement": bytes.fromhex("600000b4080040f9e2ffff171f0300f168fe61d30213889ae3ffff17"),
-        },
+        }] if os.environ.get("KF_UNITY_EXPERIMENTAL_ALLOCATORS") == "1" else []),
     ],
 }
 

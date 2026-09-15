@@ -47,7 +47,10 @@ public sealed class DemoSessionApi
     private readonly ConcurrentDictionary<string, byte[]> _keysByAccessToken = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, SessionState> _sessionStateByToken = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, string> _userIdByUuid = new(StringComparer.Ordinal);
-    private int _userCounter = 1000000;
+    // The known-good two-client trace used the neutral Kicker 1 fixtures for
+    // users 1000003 and 1000004. User 1000001 is intentionally customized for
+    // the later Tsubame probe, so keep clean entry runs isolated from it.
+    private int _userCounter = 1000002;
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
     private readonly List<KickerInfo> _kickerList = [];
     private readonly Dictionary<int, List<int>> _costumesByKicker = [];

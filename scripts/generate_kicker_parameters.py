@@ -44,33 +44,22 @@ for kid in range(1, 15):
     role = kickers_roles[kid]
     weapon = kickers_weapons[kid]
     
-    # Speed calibration:
-    # 0 = Speed (fastest, high dash boost, nimble turning)
-    # 2 = Attack (balanced fast, good dash)
-    # 1 = Support (medium speed, good turning)
-    # 3 = Tank (heavy, steady speed)
+    # Empirical private-server flight baseline. Keep role-specific turning and
+    # dash-attack reach, but do not throttle traversal by role: the recovered
+    # lower values made non-Speed kickers feel nearly stationary in battle.
+    base_speed = 24.0
+    dash_coeff = 3.2
+    accel = 36.0
     if role == 0:
-        base_speed = 24.0
-        dash_coeff = 3.2
-        accel = 36.0
         turn_coeff = 1.35
         dash_range = 18.0
     elif role == 2:
-        base_speed = 21.0
-        dash_coeff = 2.9
-        accel = 32.0
         turn_coeff = 1.15
         dash_range = 15.0
     elif role == 1:
-        base_speed = 20.0
-        dash_coeff = 2.8
-        accel = 30.0
         turn_coeff = 1.2
         dash_range = 13.0
     else: # Tank (3)
-        base_speed = 18.0
-        dash_coeff = 2.6
-        accel = 28.0
         turn_coeff = 1.0
         dash_range = 12.0
 

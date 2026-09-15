@@ -90,6 +90,14 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("originalshader.unity3d", protobufText);
         Assert.Contains("shader/preloadgameshadervariants.unity3d", protobufText);
         Assert.Contains("/cdn/{o}", protobufText);
+
+        var offset = 2; // Database.revision = 19 (08 13)
+        Assert.Equal(0x12UL, ReadVarint(body, ref offset)); // first Database.asset
+        var assetLength = checked((int)ReadVarint(body, ref offset));
+        var firstAsset = body[offset..(offset + assetLength)];
+        Assert.Equal(
+            new[] { (1, 0), (2, 2), (3, 2), (4, 0), (5, 0), (9, 0), (10, 2), (11, 2), (12, 0), (13, 0) },
+            ReadProtobufLayout(firstAsset));
     }
 
     [Fact]
@@ -545,6 +553,45 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "KickFlight.PrivateServer.sln")))
             directory = directory.Parent;
         return directory?.FullName ?? throw new DirectoryNotFoundException("Repository root not found.");
+    }
+
+    private static (int Field, int WireType)[] ReadProtobufLayout(ReadOnlySpan<byte> payload)
+    {
+        var result = new List<(int, int)>();
+        var offset = 0;
+        while (offset < payload.Length)
+        {
+            var tag = ReadVarint(payload, ref offset);
+            var wireType = checked((int)(tag & 7));
+            result.Add((checked((int)(tag >> 3)), wireType));
+            switch (wireType)
+            {
+                case 0:
+                    ReadVarint(payload, ref offset);
+                    break;
+                case 2:
+                    var length = checked((int)ReadVarint(payload, ref offset));
+                    offset += length;
+                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"Unsupported protobuf wire type {wireType} at offset {offset - 1}; " +
+                        $"payload={Convert.ToHexString(payload)}");
+            }
+        }
+        return result.ToArray();
+    }
+
+    private static ulong ReadVarint(ReadOnlySpan<byte> payload, ref int offset)
+    {
+        ulong result = 0;
+        for (var shift = 0; shift < 64 && offset < payload.Length; shift += 7)
+        {
+            var value = payload[offset++];
+            result |= (ulong)(value & 0x7F) << shift;
+            if ((value & 0x80) == 0) return result;
+        }
+        throw new InvalidDataException("Invalid protobuf varint.");
     }
 
     private static void WriteReloadFixture(string path, string body)

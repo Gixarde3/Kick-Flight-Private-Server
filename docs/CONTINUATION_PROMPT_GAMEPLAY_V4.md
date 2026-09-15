@@ -230,7 +230,7 @@ Completed critical milestones:
 
 **What remains to be done**:
 1. **Restore the original Photon flow** in the `ApplyBattleProperties` patch: instead of jumping directly to `ChangeGameSceneSync`, allow the client to connect to LuxonServer via the Photon handshake.
-2. **Redirect Photon endpoint strings** in `libil2cpp.so`: overwrite `app.realtime.photonengine.cn` / `ns.exitgames.com` to `10.0.2.2` in `scripts/patch-il2cpp-endpoints.py`.
+2. **Redirect Photon endpoint strings** in `libil2cpp.so`: overwrite `app.realtime.photonengine.cn` / `ns.exitgames.com` to `{current server address}` in `scripts/patch-il2cpp-endpoints.py`.
 3. **Alternatively**: Use Frida to force `SetState(4)` on `NormalMatchingController` on both emulators to trigger Photon room connection.
 4. Verify that `Colorful.PlayerRPCController` and `OnPhotonSerializeView` actually transmit position/rotation between clients.
 
@@ -244,61 +244,6 @@ Completed critical milestones:
 | `NormalMatchingController.SendBattleStart` | `0x13E9C64` | POST `/v1/battle/start` |
 | `PhotonManager.CreateOfflineRoom` | `0x18D783C` | Isolated fallback (current problem) |
 | `MatchingManager.Connect` | find callers of `0x13EF3EC` | Handshake with NameServer |
-
----
-
-### Issue 2: EXTREMELY SLOW FLIGHT SPEED
-
-**Symptom**: The kicker (Tsubame) moves very slowly, even when dragging the virtual joystick to maximum displacement.
-
-**Root cause**:
-1. Base values in `config/masters_kicker_parameter.json` are too low (`speed: 1.2`).
-2. Null-safety patches in `PlayerStateNormal.UpdateAction` (`0x017E1858` → `0x017E19D4`) may be skipping the Dash impulse calculation.
-
-**Proposed solution** (documented, not yet implemented/verified):
-- Raise `speed` to `24.0`, `moveDashSpeedCoefficient` to `3.2`, `acceleration` to `36.0` in `config/masters_kicker_parameter.json`.
-- Audit with Frida/Capstone that `PlayerStateNormal.UpdateFly` (RVA `0x017E136C`..`0x017E1800`) does not jump prematurely to the epilogue before applying velocity.
-
----
-
-### Issue 3: DISC ACTIVATION VIA SWIPE-UP (LOW PRIORITY)
-
-**Symptom**: Swiping/flicking upward on disc skill cards does not activate them.
-
-**Potential cause**: The patch at `SkillRangeValidator` (RVA `0x18436D0`) uses `b #0x184377c` which may be bypassing target/range assignment entirely, causing the disc to always fail validation.
-
-**Proposed fix**: Change the bypass so `SkillRangeValidator.CreateValidator` returns `true` (range always valid) rather than skipping the validator setup block.
-
----
-
-### Issue 4: ULTIMATE (SP SKILL) FREEZES POST-CINEMATIC
-
-**Symptom**: Pressing the central SP button triggers Tsubame's ultimate activation pose and cinematic animation correctly. But upon completion, the character remains frozen without executing the tornado/attack effect. After several seconds, normal flight control resumes.
-
-**Root cause**: The special skill has 3 lifecycle phases:
-1. ✅ Cinematic/Pose → `PlayerStateSpecialSkill.PlayAnim` → WORKS
-2. ❌ Hitbox/Effect spawn → `ObjectManager.InstantiateSkillEffect` or `KickerSkillAction.Execute` → FAILS (likely NRE on effect prefab, or waiting for a Photon RPC confirmation that never arrives in offline mode)
-3. ✅ Recovery timeout → Safety timer returns to `PlayerStateNormal`
-
-**Proposed fix**:
-- Hook `PlayerStateSpecialSkill.Update` or `TsubameSpecialSkillAction` with Frida.
-- Ensure effect instantiation does not throw NRE and does not depend on Photon RPC.
-- **NOTE**: If Issue 1 (Photon online) is resolved, this issue may self-resolve because the RPC confirmation would arrive.
-
----
-
-### Issue 5: BACKGROUND MUSIC (BGM) STOPS AFTER 1-2 MINUTES
-
-**Symptom**: Battle music plays at start but stops completely after 1-2 minutes.
-
-**Root cause (CRIWARE audio engine)**:
-1. Missing `.awb` streaming file. Only `bgm_battle01.acb` (metadata) is cataloged, not `bgm_battle01.awb` (streaming audio data).
-2. Missing "hurry" last-minute track: `bgm_battle01_hurry.acb/.awb`.
-
-**Proposed fix**:
-- Search for `bgm_battle01.awb` in `octo_cache.tar` or extracted assets.
-- Add corresponding entries to `config/resources/catalog.json`.
-- Rebuild catalog: `python3 scripts/build_complete_catalog.py`
 
 ---
 
@@ -486,20 +431,3 @@ docker compose logs -f luxon-server       # View LuxonServer logs
 adb -s emulator-5554 shell "/data/local/tmp/frida-server &"
 .local/frida-venv/bin/python .local/live_trace_battle.py
 ```
-
----
-
-## 10. PRIOR SESSION ITERATION HISTORY (SUMMARY)
-
-The prior session went through 29+ iterations documented in `.local/adb-loop-notes.md` (if available from prior setup). Key milestones:
-
-| Iteration | Achievement |
-|-----------|-------------|
-| 1-20 | Title → Home → Kickers/Discs screens fully operational |
-| 21-26 | Battle entry, asset loading, SIGSEGV crash resolution |
-| 27 | Automated test runner (`test-battle-loop.sh`) created and validated |
-| 28 | "3, 2, 1, FLY!" presentation sequence fully working (green run with Frida tracer) |
-| 29 | Spectator mode → real HUD fix, 2-emulator matchmaking, active 3D flight on both devices |
-| 30+ | Photon port binding fix (LuxonServer), submodule registration, C# PhotonServerManager, UDP accessibility verification |
-
-The 5 gameplay issues in Section 2 were identified during Iteration 29's dual-emulator validation and remain the final blockers before declaring full battle functionality.

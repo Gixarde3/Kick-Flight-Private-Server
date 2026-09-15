@@ -45,4 +45,4 @@ config/apk-direct-server.local.json
 octo_cache.tar
 
 # Ignore submodules
-submodules/
+submodules

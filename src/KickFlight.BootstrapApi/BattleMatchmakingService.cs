@@ -12,7 +12,10 @@ public sealed class BattleMatchmakingService
     private readonly IPhotonServerManager _photonManager;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
-    private int _battleCounter = 1000;
+    // Luxon can outlive this API process. Seed the compact numeric suffix from
+    // the current UTC second so an API restart cannot accidentally reuse a
+    // still-cached Photon room from the previous process.
+    private int _battleCounter = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() % 1_000_000_000);
 
     public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger, IPhotonServerManager photonManager)
     {
@@ -152,6 +155,7 @@ public sealed class BattleMatchmakingService
             {
                 targetRoom = _pendingRoom;
                 targetRoom.HumanPlayers.Add(playerSession);
+                CanonicalizeHumanOrder(targetRoom);
                 _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
 
                 var roster = BuildRoster(targetRoom);
@@ -272,6 +276,27 @@ public sealed class BattleMatchmakingService
             };
         }
 
+        // A reconnect/retry for a completed ticket must replay the same final
+        // assignment. Creating a second room here leaves the client and Photon
+        // with different room identities and makes recovery impossible.
+        ActiveBattleRoom? completedRoom;
+        lock (_matchLock)
+        {
+            completedRoom = _roomsByBattleId.Values.FirstOrDefault(room =>
+                room.MatchingInfo.battlePlayerList.Count > 0 &&
+                room.HumanPlayers.Any(player => player.TicketId == ticketId));
+        }
+        if (completedRoom is not null)
+        {
+            _logger.LogInformation(
+                "Replaying completed Stage 3 assignment {BattleId} for ticket {TicketId}",
+                completedRoom.BattleId,
+                ticketId);
+            await SendAssignmentUpdateAsync(responseStream, completedRoom.BattleId, completedRoom.MatchingInfo);
+            await HoldFinalAssignmentAsync(playerSession.UserId, cancellationToken);
+            return;
+        }
+
         ActiveBattleRoom targetRoom;
         Task<MatchingBattleInfo>? waitTask = null;
         bool isSecondPlayer = false;
@@ -286,6 +311,7 @@ public sealed class BattleMatchmakingService
             {
                 targetRoom = _pendingRoom;
                 targetRoom.HumanPlayers.Add(playerSession);
+                CanonicalizeHumanOrder(targetRoom);
                 isSecondPlayer = true;
                 _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
 
@@ -360,12 +386,44 @@ public sealed class BattleMatchmakingService
         await SendAssignmentUpdateAsync(responseStream, "", fullRoster);
         _logger.LogInformation("Streamed Stage 2 (full roster / Iniciar combate) for user {UserId}", playerSession.UserId);
 
-        // Hold room on 'Iniciar combate' for 2 seconds so user sees the complete roster
-        await Task.Delay(2000, cancellationToken);
+        // Keep this close to the successful client trace: the runner primes the
+        // start control before Stage 1, and Stage 3 must arrive while that local
+        // ready state is still active. A longer (12 s) hold was consumed and
+        // acknowledged by both clients but neither opened Photon afterwards.
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
 
         // --- STAGE 3: Final assignment with non-empty Connection -> triggers Success (Result 1) and enters battle! ---
         await SendAssignmentUpdateAsync(responseStream, targetRoom.BattleId, fullRoster);
         _logger.LogInformation("Streamed Stage 3 (battle start assignment: {BattleId}) for user {UserId}", targetRoom.BattleId, playerSession.UserId);
+
+        // Keep the server-streaming call alive until the client consumes Stage 3 and
+        // cancels GetAssignments while changing state.  Completing the RPC here can
+        // enqueue the terminal callback beside the Stage 3 callback on Unity's
+        // SynchronizationContext; on slower emulators that race leaves the client in
+        // MatchingScene even though the final assignment was delivered successfully.
+        // The upper bound only protects abandoned clients; healthy clients cancel
+        // this delay as soon as they enter JoinBattleRoom.
+        await HoldFinalAssignmentAsync(playerSession.UserId, cancellationToken);
+    }
+
+    private async Task HoldFinalAssignmentAsync(string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Holding GetAssignments open for Stage 3 acknowledgement from user {UserId}", userId);
+        await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+    }
+
+    private static void CanonicalizeHumanOrder(ActiveBattleRoom room)
+    {
+        // The original client derives team/room ownership from roster position.
+        // Arrival order varies with emulator load, so never let it alter the
+        // authoritative player ordering sent to either client.
+        room.HumanPlayers.Sort((left, right) =>
+        {
+            var userComparison = string.CompareOrdinal(left.UserId, right.UserId);
+            return userComparison != 0
+                ? userComparison
+                : string.CompareOrdinal(left.BattleEntryId, right.BattleEntryId);
+        });
     }
 
     private static async Task SendAssignmentUpdateAsync(

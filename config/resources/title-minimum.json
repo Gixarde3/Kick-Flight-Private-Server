@@ -31458,9 +31458,9 @@
         "ui/disc/thumbnail_3010045.unity3d"
       ],
       "objectName": "thb045",
-      "sourcePath": "content/resources/ui-disc/41746862303435_0ca1a0c847d2f47123f8df86cc780e34.bundle",
+      "sourcePath": "content/resources/ui-disc/41746862303435_9f460b2f03aae42c43addcb5becf8e88.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010045.unity3d",
-      "description": "Placeholder disc thumbnail for 3010045 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+      "description": "Placeholder disc thumbnail for 3010045 built from generated neutral art (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     },
     {
       "id": "disc-thumbnail-3010096",
@@ -31470,9 +31470,9 @@
         "ui/disc/thumbnail_3010096.unity3d"
       ],
       "objectName": "thb096",
-      "sourcePath": "content/resources/ui-disc/41746862303936_84b3df7710f3798a261469fcc965c72b.bundle",
+      "sourcePath": "content/resources/ui-disc/41746862303936_ccbd49e4ff62e96253ea7e58a42b8854.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010096.unity3d",
-      "description": "Placeholder disc thumbnail for 3010096 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+      "description": "Placeholder disc thumbnail for 3010096 built from generated neutral art (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     },
     {
       "id": "disc-thumbnail-3010133",
@@ -31482,9 +31482,9 @@
         "ui/disc/thumbnail_3010133.unity3d"
       ],
       "objectName": "thb133",
-      "sourcePath": "content/resources/ui-disc/41746862313333_e98314007412c97e7b7d9a35164f8cef.bundle",
+      "sourcePath": "content/resources/ui-disc/41746862313333_1aab02d38b9dbc1f785a70e9e4b7008c.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010133.unity3d",
-      "description": "Placeholder disc thumbnail for 3010133 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+      "description": "Placeholder disc thumbnail for 3010133 built from generated neutral art (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     },
     {
       "id": "disc-thumbnail-3010136",
@@ -31494,9 +31494,9 @@
         "ui/disc/thumbnail_3010136.unity3d"
       ],
       "objectName": "thb136",
-      "sourcePath": "content/resources/ui-disc/41746862313336_12d3166b3bc54cb202003779a5e004b1.bundle",
+      "sourcePath": "content/resources/ui-disc/41746862313336_601c906099595dee711fc4a3caed75bd.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010136.unity3d",
-      "description": "Placeholder disc thumbnail for 3010136 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+      "description": "Placeholder disc thumbnail for 3010136 built from generated neutral art (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     },
     {
       "id": "disc-thumbnail-3010138",
@@ -31506,9 +31506,9 @@
         "ui/disc/thumbnail_3010138.unity3d"
       ],
       "objectName": "thb138",
-      "sourcePath": "content/resources/ui-disc/41746862313338_56346e5fc5408275ba22bfb240fd7289.bundle",
+      "sourcePath": "content/resources/ui-disc/41746862313338_f11dc3aa7e02b25e6c655b9931f13510.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010138.unity3d",
-      "description": "Placeholder disc thumbnail for 3010138 built from a card screenshot (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
+      "description": "Placeholder disc thumbnail for 3010138 built from generated neutral art (scripts/build-disc-thumbnail-bundles.py); the original was never captured"
     }
   ]
 }
