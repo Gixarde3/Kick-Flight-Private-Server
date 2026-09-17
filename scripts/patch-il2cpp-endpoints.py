@@ -30,8 +30,10 @@ LITERAL_INDEXES = {
     "ns.exitgames.com": 2039,
 }
 
-# Battle-start / AI diagnostics. Off by default; enable with KF_DIAG=1 when building. Each hook logs an
-# integer through __android_log_print (logcat tag KFDIAG). See docs/CONTINUATION_PROMPT_BATTLE_CRASH_FIX_V2.md §7.
+# Battle-start / AI diagnostics. Off by default; enable the historical full
+# trace with KF_DIAG=1, or only the isolated ResultManager trace with
+# KF_RESULT_DIAG=1. Each hook logs an integer through __android_log_print
+# (logcat tag KFDIAG). See docs/CONTINUATION_PROMPT_BATTLE_CRASH_FIX_V2.md §7.
 DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     # ---- DIAGNOSTIC (temporary): trace the battle start handshake via logcat tag KFDIAG ----
     # Logging goes straight to __android_log_print (PLT 0x10D6270); UnityEngine.Debug.Log* must NOT be
@@ -365,8 +367,29 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     {"description": "DIAG hook: Weapon.Initialize: after attach (parent or not) -> 6421", "offset": 0x1818e84, "expected": bytes.fromhex("7c2a00f9"), "replacement": bytes.fromhex("f782f597")},
     {"description": "DIAG hook: NunchakuAction.Initialize -> 6410", "offset": 0x13f8dfc, "expected": bytes.fromhex("fd430191"), "replacement": bytes.fromhex("21030694")},
     {"description": "DIAG hook: NunchakuAction.OnManagedLateUpdate -> 6411", "offset": 0x13f9268, "expected": bytes.fromhex("f30300aa"), "replacement": bytes.fromhex("0e020694")},
+    {
+        "description": "DIAG: ResultManager Begin/Collect/predicate state logger caves (8000/8100/8200)",
+        "offset": 0x1571000,
+        "expected": bytes.fromhex("089c44398800083608d840b9480000355418f297e0031faa00ae7194f30300aa530000b5728cf297e00313aae1031faa660f7294f30300aa530000b56c8cf297e00313aae1031faa142d07941f04007121020054487301f0086d44f9000140f9089c44398800083608d840b9480000353c18f297e0031faaab1f0194e1031faabc670294"),
+        "replacement": bytes.fromhex("fd7bbfa900e883520000080bcf2cf997681240b9fd7bc1a8c0035fd61f2003d5fd7bbfa980f483520000080bc72cf997881240b9fd7bc1a8c0035fd61f2003d5f37bbfa9f30300aa687640b9090184522001080bbd2cf99768264e291f01096be0079f1af37bc1a8c0035fd61f2003d51f2003d51f2003d51f2003d51f2003d51f2003d5"),
+    },
+    {"description": "DIAG ResultManager.BeginAsync state -> 8000+state", "offset": 0x18A66F4, "expected": bytes.fromhex("681240b9"), "replacement": bytes.fromhex("432af397")},
+    {"description": "DIAG ResultManager.CollectResultInfoAsync state -> 8100+state", "offset": 0x18A6B60, "expected": bytes.fromhex("881240b9"), "replacement": bytes.fromhex("3029f397")},
+    {"description": "DIAG ResultScene asset predicate -> 8200+loadedCount", "offset": 0x18A4924, "expected": bytes.fromhex("08244e29"), "replacement": bytes.fromhex("c731f317")},
+    {
+        "description": "DIAG: ResultScene.PreBeginAsync state logger cave (8300+state)",
+        "offset": 0x1571080,
+        "expected": bytes.fromhex("1f2003d51f000072a80080520005881a02000014e0031f2afd7b41a9"),
+        "replacement": bytes.fromhex("fd7bbfa9800d84520000080baf2cf997681240b9fd7bc1a8c0035fd6"),
+    },
+    {
+        "description": "DIAG ResultScene.PreBeginAsync state -> 8300+state",
+        "offset": 0x18B1714,
+        "expected": bytes.fromhex("681240b9"),
+        "replacement": bytes.fromhex("5bfef297"),
+    },
     # ---- END DIAGNOSTIC ----
-] if os.environ.get("KF_DIAG") == "1" else []
+] if os.environ.get("KF_DIAG") == "1" or os.environ.get("KF_RESULT_DIAG") == "1" else []
 
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
     "arm64-v8a": [
@@ -843,6 +866,130 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("050000141f2003d5"),  # b #0x1762654; nop
         },
         {
+            # EndAsync clears the reconnect state after the Photon room has
+            # already been reset.  Offline/private-server rooms never create
+            # GameManager._reconnectInfo, so SetReconnectState(0) throws and
+            # aborts the coroutine before ResultScene can request
+            # /battle/result.  This call is cleanup-only; skip it at this one
+            # call site and let the rest of EndAsync continue normally.
+            "description": "skip EndAsync reconnect-state cleanup when offline rooms have no ReconnectInfo",
+            "offset": 0x0157AC0C,
+            "expected": bytes.fromhex("a9e5ff97"),  # bl GameManager.SetReconnectState
+            "replacement": bytes.fromhex("1f2003d5"),  # nop
+        },
+        {
+            # ResultManager.BeginAsync waits for a Photon-instantiated
+            # ResultActionManagerRPCController before it can finish loading
+            # ResultScene. Luxon does not reproduce Photon scene-object
+            # instantiation, so that optional social-action controller never
+            # appears and the result screen remains behind Cargando forever.
+            # The controller is not needed to render winners, losers or stats;
+            # make only this wait predicate complete immediately.
+            "description": "skip ResultScene wait for optional Photon result-action RPC object",
+            "offset": 0x018A48F4,
+            "expected": bytes.fromhex("08104139e8000035"),
+            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
+        },
+        {
+            # ResultScene normally wraps ResultManager in
+            # SystemManager.RegisterManagerAsync. That helper treats an
+            # already-present singleton as a completed no-op, so a stale
+            # ManagerInfo can leave the scene on Cargando without ever
+            # resuming ResultManager.BeginAsync. ResultManager's three managed
+            # tick methods are empty; start its initialization coroutine
+            # directly at this scene-specific call site. ResultUIManager still
+            # follows the normal registration path immediately afterwards.
+            "description": "start ResultManager.BeginAsync directly instead of skipping it when SystemManager already contains the singleton",
+            "offset": 0x018B18C4,
+            "expected": bytes.fromhex("88111094"),  # bl SystemManager.RegisterManagerAsync
+            "replacement": bytes.fromhex("d1b7ff97"),  # bl ResultManager.BeginAsync
+        },
+        {
+            # BeginAsync snapshots PhotonUtil.IsJoinedRoom into
+            # _isChangedResult immediately after ResultScene is entered.  Room
+            # teardown races the scene transition: whichever peer observes the
+            # room as already left stores false, skips CollectResultInfoAsync's
+            # HTTP result request, and remains on Cargando while the other peer
+            # renders normally.  Result collection itself is HTTP/local and is
+            # valid after Photon teardown, so keep this per-scene gate true on
+            # both clients.  This avoids depending on peer teardown ordering.
+            "description": "collect ResultScene data even when Photon room teardown wins the transition race",
+            "offset": 0x018A69F0,
+            "expected": bytes.fromhex("a8020012"),  # and w8,w21,#1 (IsJoinedRoom)
+            "replacement": bytes.fromhex("28008052"),  # mov w8,#1
+        },
+        {
+            # CallbackDisconnected/CallbackLeftRoom may clear the same flag
+            # while CollectResultInfoAsync is running.  Aborting BeginAsync at
+            # this point leaves the loading overlay up even when result data
+            # and assets are otherwise ready. Photon is no longer required by
+            # the local/HTTP result presentation path.
+            "description": "do not abort ResultManager.BeginAsync when Photon disconnects during result collection",
+            "offset": 0x018A682C,
+            "expected": bytes.fromhex("a8030034"),  # cbz w8, completion
+            "replacement": bytes.fromhex("1f2003d5"),  # nop
+        },
+        {
+            # The collection coroutine checks the flag a second time directly
+            # before SendFollowSearch/SendResult. Let the HTTP request run even
+            # if room teardown has already delivered its callback.
+            "description": "send battle result after Photon teardown instead of silently ending collection",
+            "offset": 0x018A7B8C,
+            "expected": bytes.fromhex("28110034"),  # cbz w8, coroutine completion
+            "replacement": bytes.fromhex("1f2003d5"),  # nop
+        },
+        {
+            # BeginActionTargeting already tolerates a missing _skillAction,
+            # but its update used to dereference it unconditionally. The v18
+            # whole-method return also removed UpdateTargeting and the Ready /
+            # Cancel transitions for valid human discs. Keep the original body
+            # and skip only the absent reference, using its existing epilogue.
+            # x20 is null here, so GetPlayerActionInfo receives the normal
+            # no-action value. No cave or virtual method is replaced.
+            "description": "guard missing skill action while preserving disc targeting and Ready transitions",
+            "offset": 0x017F3214,
+            "expected": bytes.fromhex("740000b5e0031faaf483e897"),
+            "replacement": bytes.fromhex("940500b41f2003d51f2003d5"),  # cbz x20, #0x17f32c4; nop; nop
+        },
+        {
+            "description": "guard missing skill action after targeting callback using existing epilogue",
+            "offset": 0x017F3260,
+            "expected": bytes.fromhex("750000b5e0031faae183e897"),
+            "replacement": bytes.fromhex("350300b41f2003d51f2003d5"),  # cbz x21, #0x17f32c4; nop; nop
+        },
+        {
+            "description": "guard missing skill parameter after targeting without disabling valid disc actions",
+            "offset": 0x017F327C,
+            "expected": bytes.fromhex("550000b5db83e897"),
+            "replacement": bytes.fromhex("550200b41f2003d5"),  # cbz x21, #0x17f32c4; nop
+        },
+        {
+            # Runtime auto64: the private master manifest omits
+            # BattleRuleFlagFlightScore. GetScore throws every update and in
+            # BattleEnd/CreateBattleResult. Missing optional personal-score
+            # data must not abort those callers. Return neutral personal score
+            # only for an absent table/row; preserve every valid coefficient
+            # and the independent team-goal/pickup/respawn paths. Do not invent
+            # original bonus weights to fill an unavailable master.
+            "description": "return neutral personal flag score when its master table is absent",
+            "offset": 0x015F24D8,
+            "expected": bytes.fromhex("e0031faa4487f097"),
+            "replacement": bytes.fromhex("e0031f2aa2000014"),  # mov w0,wzr; b existing epilogue 0x15f2764
+        },
+        {
+            "description": "return neutral personal flag score when both selected and fallback master rows are absent",
+            "offset": 0x015F2518,
+            "expected": bytes.fromhex("e0031faa3487f097"),
+            "replacement": bytes.fromhex("e0031f2a92000014"),
+        },
+        {
+            # x0 is the null getter result on this exception-only branch.
+            "description": "guard flag score fallback table disappearing during result collection",
+            "offset": 0x015F27B0,
+            "expected": bytes.fromhex("8f86f097"),
+            "replacement": bytes.fromhex("edffff17"),  # b existing epilogue, w0 already zero
+        },
+        {
             "description": "cave: CharacterAnimatorBase.IsCurrentState -> false only when the Animator is null/destroyed, else run the original (the old unconditional stub broke dash attacks, attack motions and state transitions for every kicker)",
             "offset": 0x1733284,
             "expected": bytes.fromhex("e00314aae103152ae3031faadb1e0294f40300aa741e00f968650190083940f9000140f9"),
@@ -1302,18 +1449,19 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("c0035fd61f2003d5"),  # ret; nop
         },
         # Keep the expensive runtime probes out of production builds, but make
-        # KF_DIAG=1 actually append the diagnostic caves and hooks declared
-        # above.  The list used to be defined but never consumed, yielding a
-        # byte-for-byte production libil2cpp.so and therefore no KFDIAG output.
-        # The first seven entries are the currently compatible handshake
-        # probes (room/player state, BeginAsync, UpdateState and GameScene).
-        # Later historical AI probes reuse caves whose production bodies have
-        # since changed and retain independent, stale guards.
-        *DIAG_PATCHES_ARM64[:7],
+        # KF_DIAG=1 appends the compatible handshake probes. The isolated
+        # KF_RESULT_DIAG=1 mode installs only their shared logger cave, so it
+        # cannot perturb Stage3/Photon while tracing ResultManager.
+        *(DIAG_PATCHES_ARM64[:7] if os.environ.get("KF_DIAG") == "1"
+          else DIAG_PATCHES_ARM64[:1]),
         # The shared logger used by those probes lives in region E. Since that
         # region occupies LoadDeckSummonModel's body, stub that method in the
         # diagnostic build exactly as the original tracing design requires.
         *([DIAG_PATCHES_ARM64[39], DIAG_PATCHES_ARM64[50]] if DIAG_PATCHES_ARM64 else []),
+        # ResultScene-specific state probes appended at the end of the
+        # diagnostic list. They reuse the same native logger and are present
+        # in either diagnostic mode.
+        *DIAG_PATCHES_ARM64[-6:],
     ],
     "armeabi-v7a": [
         {
@@ -1350,6 +1498,18 @@ UNITY_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0xA04834,
             "expected": bytes.fromhex("882e00b0"),  # adrp x8, #0xfd5000
             "replacement": bytes.fromhex("60000014"),  # b #0xa049b4 (epilogue)
+        },
+        {
+            # Under Android's ARM64 native bridge this container destructor
+            # reaches native_bridge_free with a buffer owned by Unity's other
+            # allocator. Scudo consistently aborts at the return address
+            # 0x614C04 with "corrupted chunk header" while entering Matching.
+            # The next instruction clears the sole pointer, so skip only the
+            # incompatible free instead of globally rebinding Unity allocators.
+            "description": "skip native-bridge invalid free in scene-load container destructor",
+            "offset": 0x614C00,
+            "expected": bytes.fromhex("fbcffb97"),  # bl 0x508bec
+            "replacement": bytes.fromhex("1f2003d5"),  # nop
         },
         *([{
             "description": "bind libunity internal operator new to Unity MemoryManager",

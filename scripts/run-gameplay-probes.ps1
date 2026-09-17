@@ -13,6 +13,9 @@ param(
     [bool]$ResetAppData = $true,
     [bool]$SeedAssetCache = $true,
     [bool]$InstallApk = $false,
+    [switch]$FlightDiagnostic,
+    [switch]$DiscImpactDiagnostic,
+    [int]$ExpectedBattleRuleId = 0,
     [switch]$SkipUltimate,
     [switch]$ValidateOnly
 )
@@ -114,6 +117,33 @@ function Save-Screenshot([string]$Serial, [string]$Name) {
 function Save-Pair([string]$Name) {
     foreach ($serial in $Serials) {
         Save-Screenshot -Serial $serial -Name $Name | Out-Null
+    }
+}
+
+function Wait-AndCapture-ResultScene([int]$TimeoutSeconds = 30) {
+    $seen = @{}
+    foreach ($serial in $Serials) { $seen[$serial] = $false }
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    $sample = 0
+    while ((Get-Date) -lt $deadline -and ($seen.Values -contains $false)) {
+        foreach ($serial in $Serials) {
+            if ($seen[$serial]) { continue }
+            $lines = @(& $adb -s $serial logcat -d -v threadtime 2>&1)
+            if ($lines -match '\bResultScene\b') {
+                $seen[$serial] = $true
+                $phase = 'result-scene'
+                Save-Screenshot -Serial $serial -Name ("result-scene-{0:D2}-{1}" -f $sample, $serial) | Out-Null
+                Write-JsonLine @{ kind = 'checkpoint'; serial = $serial; phase = $phase; marker = 'ResultScene'; sample = $sample }
+            }
+        }
+        if ($seen.Values -contains $false) {
+            $sample++
+            Start-Sleep -Seconds 2
+        }
+    }
+    if ($seen.Values -contains $true) { $milestones.Add('result-scene') }
+    if ($seen.Values -contains $false) {
+        Write-JsonLine @{ kind = 'checkpoint'; phase = 'result-scene'; marker = 'ResultScene-timeout'; seen = $seen }
     }
 }
 
@@ -273,6 +303,28 @@ if ($ActorSerial -notin $Serials -or $ObserverSerial -notin $Serials -or $ActorS
     throw 'ActorSerial and ObserverSerial must be distinct members of Serials.'
 }
 if ($ObserveSeconds -lt 30) { throw 'ObserveSeconds must be at least 30.' }
+if ($ExpectedBattleRuleId -lt 0) { throw 'ExpectedBattleRuleId must be nonnegative (0 disables the check).' }
+
+function Assert-ExpectedBattleRule {
+    if ($ExpectedBattleRuleId -eq 0) { return }
+    $logPath = Join-Path $entryDirectory 'server-stdout.txt'
+    if (-not (Test-Path -LiteralPath $logPath -PathType Leaf)) {
+        throw 'Cannot verify battle rule: entry backend log is missing.'
+    }
+    $entries = @(foreach ($line in [IO.File]::ReadLines($logPath)) {
+        try { $record = $line | ConvertFrom-Json -ErrorAction Stop } catch { continue }
+        if ($record.Category -eq 'KickFlight.BootstrapApi.BattleMatchmakingService' -and
+            $record.State.UserId -and $null -ne $record.State.RuleId -and
+            $record.Message -like 'Registered battle entry:*') {
+            $record.State
+        }
+    })
+    $users = @($entries | ForEach-Object { $_.UserId } | Select-Object -Unique)
+    if ($users.Count -ne $Serials.Count -or @($entries | Where-Object { $_.RuleId -ne $ExpectedBattleRuleId }).Count) {
+        throw "Battle rule is unverified or differs from required rule $ExpectedBattleRuleId; no gameplay inputs will run. Inspect $logPath"
+    }
+    Write-JsonLine @{ kind = 'battle-rule-confirmed'; ruleId = $ExpectedBattleRuleId; users = $users }
+}
 
 if ($ValidateOnly) {
     Write-JsonLine @{
@@ -313,6 +365,8 @@ try {
         throw "Battle-entry runner failed. Inspect $entryDirectory"
     }
     $milestones.Add('battle-entry')
+    $phase = 'verify-battle-rule'
+    Assert-ExpectedBattleRule
     Assert-AppsAlive 'post-entry preflight'
 
     $phase = 'wait-battle-hud'
@@ -324,6 +378,43 @@ try {
     Save-AudioSnapshot '000s'
     Write-SpeedProbeMarker
     $milestones.Add('baseline')
+
+    if ($FlightDiagnostic) {
+        # User-confirmed control: tap an empty screen point to advance.
+        $phase = 'flight-start-tap'
+        foreach ($serial in $Serials) {
+            Invoke-Adb -Serial $serial -Arguments @('shell', 'input', 'tap', '540', '1200') | Out-Null
+        }
+        Start-Sleep -Seconds 1
+        Save-Pair 'flight-01-after-tap'
+        Start-Sleep -Seconds 5
+        Assert-AppsAlive 'flight diagnostic'
+        Save-Pair 'flight-02-after-tap'
+        $milestones.Add('flight-inputs-attempted')
+        $result = 'passed'
+        return
+    }
+
+    if ($DiscImpactDiagnostic) {
+        # auto70's synchronized positions show the two players within 40 units
+        # about 3-4 seconds after the tap. Activate verified Geckosaurus slot2
+        # during that crossing, before paired screenshots consume the window.
+        $phase = 'disc-impact-approach'
+        foreach ($serial in $Serials) {
+            Invoke-Adb -Serial $serial -Arguments @('shell', 'input', 'tap', '540', '1200') | Out-Null
+        }
+        Start-Sleep -Milliseconds 2700
+        foreach ($serial in $Serials) {
+            Invoke-Swipe -Serial $serial -X1 310 -Y1 1740 -X2 310 -Y2 1380 -DurationMs 400 -Action 'disc-impact-slot-2'
+        }
+        Save-Pair 'disc-impact-01-after-slot-2'
+        Start-Sleep -Seconds 2
+        Assert-AppsAlive 'disc impact diagnostic'
+        Save-Pair 'disc-impact-02-observed'
+        $milestones.Add('disc-impact-inputs-attempted')
+        $result = 'passed'
+        return
+    }
 
     # A slow, short drag keeps steering input active long enough to distinguish
     # ordinary flight from the quick flick used for dash.
@@ -412,6 +503,7 @@ try {
     }
     Save-Pair '99-final'
     $milestones.Add('full-observation')
+    Wait-AndCapture-ResultScene -TimeoutSeconds 30
     $result = 'passed'
 } catch {
     $failure = $_.Exception.Message
@@ -439,6 +531,9 @@ try {
         actor = $ActorSerial
         observer = $ObserverSerial
         observeSeconds = $ObserveSeconds
+        flightDiagnostic = [bool]$FlightDiagnostic
+        discImpactDiagnostic = [bool]$DiscImpactDiagnostic
+        expectedBattleRuleId = $ExpectedBattleRuleId
         milestones = $milestones
         devices = $devices
         evidenceDirectory = $runDirectory

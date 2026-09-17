@@ -1,6 +1,6 @@
 {
-  "UserId": "1000003",
-  "UserName": "Player 0003",
+  "UserId": "d1a14442-01f1-46d8-9448-2decc3349884",
+  "UserName": "Gixarde3",
   "KickerId": 1,
   "KickerCostumeId": 1,
   "ActiveDeckNumber": 1,
@@ -693,8 +693,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 210754,
+  "ItemJetCoins": 208754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50400
+  "ItemKickPoints": 50000
 }
