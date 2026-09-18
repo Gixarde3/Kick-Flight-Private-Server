@@ -1,5 +1,5 @@
 {
-  "UserId": "1000001",
+  "UserId": "0db6dc14-8de7-41bd-b481-14b2e1fc4889",
   "UserName": "Gixarde3",
   "KickerId": 1,
   "KickerCostumeId": 1,
@@ -693,8 +693,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 210754,
+  "ItemJetCoins": 208754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50400
+  "ItemKickPoints": 50000
 }
