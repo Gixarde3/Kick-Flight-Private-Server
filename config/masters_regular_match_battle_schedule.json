@@ -1,0 +1,8 @@
+[
+  {"id": 1, "seasonMatchBattleRuleType": 3, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 1, "sortOrder": 1},
+  {"id": 2, "seasonMatchBattleRuleType": 3, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 2, "sortOrder": 2},
+  {"id": 3, "seasonMatchBattleRuleType": 3, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 3, "sortOrder": 3},
+  {"id": 4, "seasonMatchBattleRuleType": -1, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 1, "sortOrder": 1},
+  {"id": 5, "seasonMatchBattleRuleType": -1, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 2, "sortOrder": 2},
+  {"id": 6, "seasonMatchBattleRuleType": -1, "groupId": 1, "startTime": "00:00:00", "endTime": "23:59:59", "battleRuleId": 3, "sortOrder": 3}
+]

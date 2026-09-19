@@ -49,6 +49,7 @@ public sealed class DemoSessionApi
     private readonly ConcurrentDictionary<string, string> _userIdByUuid = new(StringComparer.Ordinal);
     private int _userCounter = 1000000;
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
+    private readonly Dictionary<int, int> _battleRuleTypeById = [];
     private readonly List<KickerInfo> _kickerList = [];
     private readonly Dictionary<int, List<int>> _costumesByKicker = [];
     private readonly List<int> _discIdList = [];
@@ -119,23 +120,47 @@ public sealed class DemoSessionApi
         // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
         // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
         // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
-        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot).
-        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot). Row 2 is the ball-rule goal
+        // guardian: NPCRevivalableGuardian.SetMaxHP is MAX_HP_STEP_AMOUNT (6) x hp, so 6 x 3000 = 18000 = ~7 hits.
+        // The file is the source; the literal is only the fallback for a checkout without config/.
+        var guardianParameterJson = LoadJson(contentRoot, "config/masters_guardian_parameter.json", """[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        _encryptedMasters["GuardianParameter"] = EncryptMaster(guardianParameterJson);
         // guardianAmount is per team: GameManager.CreateGuardian spawns it for both teams and indexes
         // FieldManager.GetGuardianInitialPosition, and FLD00101_1 (the crystal-rule variant) has exactly two
-        // guardian points; the flag/ball variants have none, so only battleRuleType 1 gets turrets.
-        _encryptedMasters["BattleRule"] = EncryptMaster("""
+        // guardian points; the ball variants (rules 3/4) also spawn one guard per goal, which must be destroyed
+        // before the team can score. The file is the source; the literal is only the fallback.
+        var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", """
             [
               {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":3,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
               {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
             ]
             """);
+        _encryptedMasters["BattleRule"] = EncryptMaster(battleRuleJson);
+        // id -> battleRuleType, read by /battle/start to pick the guardian for the requested rule. Parsed once here
+        // because the request handler only sees the rule id, not its type.
+        try
+        {
+            using var brDoc = JsonDocument.Parse(battleRuleJson);
+            foreach (var el in brDoc.RootElement.EnumerateArray())
+            {
+                if (el.TryGetProperty("id", out var idProp) && el.TryGetProperty("battleRuleType", out var typeProp))
+                {
+                    _battleRuleTypeById[idProp.GetInt32()] = typeProp.GetInt32();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Error parsing battle rule json: {Error}", ex.Message);
+        }
+
         _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":100},{"id":2,"battleRuleId":2,"fieldId":101,"ratio":100},{"id":3,"battleRuleId":3,"fieldId":101,"ratio":100},{"id":4,"battleRuleId":4,"fieldId":101,"ratio":100},{"id":5,"battleRuleId":5,"fieldId":101,"ratio":100},{"id":6,"battleRuleId":6,"fieldId":101,"ratio":100}]""");
-        _encryptedMasters["RegularMatchBattleSchedule"] = EncryptMaster("""
+        // The file is the source; the literal is only the fallback.
+        var regularMatchScheduleJson = LoadJson(contentRoot, "config/masters_regular_match_battle_schedule.json", """
             [
               {"id":1,"seasonMatchBattleRuleType":3,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":1,"sortOrder":1},
               {"id":2,"seasonMatchBattleRuleType":3,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":2,"sortOrder":2},
@@ -145,6 +170,7 @@ public sealed class DemoSessionApi
               {"id":6,"seasonMatchBattleRuleType":-1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":3,"sortOrder":3}
             ]
             """);
+        _encryptedMasters["RegularMatchBattleSchedule"] = EncryptMaster(regularMatchScheduleJson);
         _encryptedMasters["RankerMatchBattleSchedule"] = EncryptMaster("""
             [
               {"id":1,"seasonMatchBattleRuleType":1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1},
@@ -475,6 +501,13 @@ public sealed class DemoSessionApi
               }
             ]
             """);
+
+        // BallShootRuleController.GetScore / FlagFlightRuleController.GetScore read these every frame and at match end
+        // (RuleControllerBase.CalcScore); a missing row NREs and the client never leaves "Cargando". The lookup is
+        // TMasterBase.get_Item(battleRuleId) - by row *id*, with a hard-coded fallback to id 3 - so each row's id must
+        // equal its battleRuleId (verified 2026-09-19: ids 1/2 kept the NRE, ids 3/4 fixed it).
+        _encryptedMasters["BattleRuleRapidBallScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_rapid_ball_score.json", "[]"));
+        _encryptedMasters["BattleRuleFlagFlightScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_flag_flight_score.json", "[]"));
 
         _encryptedMasters["Guardian"] = EncryptMaster("""
             [
@@ -1175,14 +1208,41 @@ public sealed class DemoSessionApi
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
-    private Task<IResult?> HandleBattleStartAsync(HttpContext context, SessionState state, byte[] key)
+    private async Task<IResult?> HandleBattleStartAsync(HttpContext context, SessionState state, byte[] key)
     {
+        var body = await ReadBodyAsync(context.Request);
+        var battleRuleId = 1;
+        var battleRuleType = 1;
+        try
+        {
+            if (body.Length > 16)
+            {
+                var plaintext = D2CCodec.Decode(body, key);
+                using var document = JsonDocument.Parse(plaintext);
+                if (document.RootElement.TryGetProperty("battleRuleId", out var ruleProp))
+                {
+                    battleRuleId = ruleProp.GetInt32();
+                }
+            }
+            // the request also carries battleId, which nothing here needs
+            if (!_battleRuleTypeById.TryGetValue(battleRuleId, out battleRuleType)) battleRuleType = 1;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to parse battle start body: {Error}, using rule 1", ex.Message);
+            battleRuleId = 1;
+            battleRuleType = 1;
+        }
+
+        // GuardianParameterMaster is looked up by the id returned here (CallbackBattleStartSuccess), so a rule
+        // whose guardian is the revivable ball-goal variant (battleRuleType 3) gets the weaker row 2.
+        var guardianId = battleRuleType == 3 ? 2 : 1;
         var resp = new
         {
             fieldId = 101, // Arena 1 (FLD00101 Cristalmanía)
             guardianParameter = new
             {
-                id = 1,
+                id = guardianId,
                 rank = 1
             },
             lotteryFestivalPointId = 0
@@ -1190,8 +1250,9 @@ public sealed class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-start";
-        _logger.LogInformation("Handled /battle/start for {UserId}", state.UserId);
-        return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
+        _logger.LogInformation("Handled /battle/start for {UserId}: rule={RuleId} type={RuleType} guardianParameter={GuardianId}",
+            state.UserId, battleRuleId, battleRuleType, guardianId);
+        return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
     // Colorful.Networking.BattleResultResponseData: every list must be present (empty is fine); the client

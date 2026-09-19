@@ -539,6 +539,93 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(3010050, updatedDeck2.GetProperty("discIdList")[0].GetInt32());
     }
 
+    [Fact]
+    public async Task Rapid_ball_masters_are_served_with_goal_guardians()
+    {
+        var client = _factory.CreateClient();
+        var host = "kickflight-api.grenge.jp";
+        var sessionKey = "0123456789abcdef0123456789abcdef";
+        var sessionKeyBytes = Encoding.ASCII.GetBytes(sessionKey);
+        var commonCode = "1a837b9ee2ae11a07a0f529a4cd4b61c";
+        var commonCodeBytes = Encoding.ASCII.GetBytes(commonCode);
+
+        // 1. Authenticate to establish demo session
+        var testUuid = Guid.NewGuid().ToString("N");
+        var authPayload = JsonSerializer.Serialize(new { hash = sessionKey, uuid = testUuid });
+        var encodedAuth = D2CCodec.Encode(Encoding.UTF8.GetBytes(authPayload), commonCodeBytes, new byte[16]);
+        using var authRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/index")
+        {
+            Content = new ByteArrayContent(encodedAuth)
+        };
+        authRequest.Headers.Host = host;
+        using var authResponse = await client.SendAsync(authRequest);
+        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
+        var accessToken = authResponse.Headers.GetValues("x-app-access-token").Single();
+
+        // 2. The rule controllers read both score tables every frame and at match end; an unlisted table makes the
+        //    client NRE in GetScore and loop on the loading screen instead of sending /battle/end.
+        using var masterRequest = new HttpRequestMessage(HttpMethod.Post, "/download/master")
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>())
+        };
+        masterRequest.Headers.Host = host;
+        masterRequest.Headers.Add("x-app-access-token", accessToken);
+        using var masterResponse = await client.SendAsync(masterRequest);
+        var masterDecrypted = D2CCodec.Decode(await masterResponse.Content.ReadAsByteArrayAsync(), sessionKeyBytes);
+        using var masterDoc = JsonDocument.Parse(masterDecrypted);
+        var masterNames = masterDoc.RootElement.GetProperty("masterDownloadList").EnumerateArray()
+            .Select(e => e.GetProperty("name").GetString()).ToList();
+        Assert.Contains("BattleRuleRapidBallScore", masterNames);
+        Assert.Contains("BattleRuleFlagFlightScore", masterNames);
+
+        // 3. Ball goals hold a guardian (guardianAmount 1 for the ball rules 3/4), and the crystal rule is untouched.
+        using var getRuleRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRule");
+        getRuleRequest.Headers.Host = host;
+        using var getRuleResponse = await client.SendAsync(getRuleRequest);
+        Assert.Equal(HttpStatusCode.OK, getRuleResponse.StatusCode);
+        var ruleBytes = await getRuleResponse.Content.ReadAsByteArrayAsync();
+        using var ruleDoc = JsonDocument.Parse(D2CCodec.Decode(ruleBytes, commonCodeBytes));
+        var rules = ruleDoc.RootElement.EnumerateArray().ToDictionary(r => r.GetProperty("id").GetInt32());
+        Assert.Equal(1, rules[3].GetProperty("guardianAmount").GetInt32());
+        Assert.Equal(1, rules[4].GetProperty("guardianAmount").GetInt32());
+        Assert.Equal(1, rules[1].GetProperty("guardianAmount").GetInt32());
+        Assert.Equal(50, rules[1].GetProperty("crystalAmount").GetInt32());
+
+        // 4. Row 2 is the weaker goal guardian /battle/start returns for the ball rules.
+        using var getGuardianRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/GuardianParameter");
+        getGuardianRequest.Headers.Host = host;
+        using var getGuardianResponse = await client.SendAsync(getGuardianRequest);
+        Assert.Equal(HttpStatusCode.OK, getGuardianResponse.StatusCode);
+        var guardianBytes = await getGuardianResponse.Content.ReadAsByteArrayAsync();
+        using var guardianDoc = JsonDocument.Parse(D2CCodec.Decode(guardianBytes, commonCodeBytes));
+        var guardians = guardianDoc.RootElement.EnumerateArray().ToDictionary(g => g.GetProperty("id").GetInt32());
+        Assert.Equal(3000, guardians[2].GetProperty("hp").GetInt32());
+
+        // 5. Both ball rules (3 and 4) need a score row keyed by battleRuleId.
+        using var getScoreRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRuleRapidBallScore");
+        getScoreRequest.Headers.Host = host;
+        using var getScoreResponse = await client.SendAsync(getScoreRequest);
+        Assert.Equal(HttpStatusCode.OK, getScoreResponse.StatusCode);
+        var scoreBytes = await getScoreResponse.Content.ReadAsByteArrayAsync();
+        using var scoreDoc = JsonDocument.Parse(D2CCodec.Decode(scoreBytes, commonCodeBytes));
+        Assert.Contains(scoreDoc.RootElement.EnumerateArray(), r => r.GetProperty("battleRuleId").GetInt32() == 3);
+
+        // 6. /battle/start hands the ball rule (battleRuleType 3) the goal-guardian row 2, everything else row 1.
+        using var startRequest = new HttpRequestMessage(HttpMethod.Post, "/battle/start")
+        {
+            Content = new ByteArrayContent(D2CCodec.Encode(
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { battleId = "battle-1", battleRuleId = 3 })),
+                sessionKeyBytes, new byte[16]))
+        };
+        startRequest.Headers.Host = host;
+        startRequest.Headers.Add("x-app-access-token", accessToken);
+        using var startResponse = await client.SendAsync(startRequest);
+        Assert.Equal(HttpStatusCode.OK, startResponse.StatusCode);
+        using var startDoc = JsonDocument.Parse(D2CCodec.Decode(await startResponse.Content.ReadAsByteArrayAsync(), sessionKeyBytes));
+        Assert.Equal(2, startDoc.RootElement.GetProperty("guardianParameter").GetProperty("id").GetInt32());
+        Assert.Equal(101, startDoc.RootElement.GetProperty("fieldId").GetInt32());
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
