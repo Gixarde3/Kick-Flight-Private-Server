@@ -28,7 +28,7 @@ import sys
 from pathlib import Path
 
 import UnityPy
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
@@ -42,6 +42,26 @@ CARD_SIZE = (551, 292)
 ART_RECT = (29, 37, 137, 159)      # inside the card's arch frame, on a 551x292 card
 ARCH = (24, 0, 462, 512)           # where the arch sits inside the 512x512 thumbnail texture (x, y, w, h)
 OCTO_ID_BASE = 5200
+PLACEHOLDER_DISC_IDS = (3010045, 3010096, 3010133, 3010136, 3010138)
+
+
+def make_generic_card(disc_id: int) -> Image.Image:
+    """Create deterministic neutral art when the original card screenshot is unavailable."""
+    hue = disc_id % 360
+    # Keep the generated art deliberately abstract so it cannot be mistaken for captured game art.
+    base = Image.new("RGB", CARD_SIZE, (22 + hue % 28, 38 + hue % 42, 64 + hue % 52))
+    draw = ImageDraw.Draw(base)
+    colors = (
+        (70 + hue % 90, 115 + (hue * 3) % 100, 155 + (hue * 7) % 90),
+        (180 + hue % 70, 120 + (hue * 5) % 90, 55 + (hue * 11) % 100),
+    )
+    for radius in range(150, 10, -14):
+        color = colors[(radius // 14) % 2]
+        cx, cy = 82 + (disc_id % 17), 98 + (disc_id % 13)
+        draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=color)
+    draw.polygon(((30, 150), (82, 38), (136, 150)), fill=(235, 242, 248))
+    draw.ellipse((58, 73, 106, 121), fill=(45, 61, 82))
+    return base
 
 
 def make_bundle(donor_octo: bytes, card: Image.Image, disc_id: int) -> bytes:
@@ -107,20 +127,23 @@ def main() -> int:
     if not args.dry_run:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    for src in sorted(SOURCE_DIR.glob("3010*.png")):
-        disc_id = int(src.stem)
+    source_by_id = {int(src.stem): src for src in SOURCE_DIR.glob("3010*.png")}
+    for disc_id in sorted(set(source_by_id) | set(PLACEHOLDER_DISC_IDS)):
+        src = source_by_id.get(disc_id)
         name = f"ui/disc/thumbnail_{disc_id}.unity3d"
         entry_id = f"disc-thumbnail-{disc_id}"
         if name in by_name and by_name[name]["id"] != entry_id:
             print(f"{name}: a captured bundle exists ({by_name[name]['id']}), skipping")
             continue
-        bundle = make_bundle(donor_octo, Image.open(src), disc_id)
+        card = Image.open(src) if src else make_generic_card(disc_id)
+        bundle = make_bundle(donor_octo, card, disc_id)
         verify(bundle, disc_id)
         object_name = f"thb{disc_id - 3010000:03d}"
         prefix = ("A" + object_name).encode("ascii").hex().upper()
         file_name = f"{prefix}_{hashlib.md5(bundle).hexdigest()}.bundle"
         rel = Path("content/resources/ui-disc") / file_name
-        print(f"{name}: {src.name} -> {rel.as_posix()} ({len(bundle)} bytes)")
+        source_label = src.name if src else "generated neutral art"
+        print(f"{name}: {source_label} -> {rel.as_posix()} ({len(bundle)} bytes)")
         if args.dry_run:
             continue
         for stale in OUTPUT_DIR.glob(f"{prefix}_*.bundle"):
@@ -129,7 +152,8 @@ def main() -> int:
         (REPO_ROOT / rel).write_bytes(bundle)
         entry = {"id": entry_id, "kind": "assetBundle", "octoId": OCTO_ID_BASE + disc_id - 3010000, "names": [name],
                  "objectName": object_name, "sourcePath": rel.as_posix(), "logicalName": f"Unity AssetBundle {name}",
-                 "description": f"Placeholder disc thumbnail for {disc_id} built from a card screenshot "
+                 "description": f"Placeholder disc thumbnail for {disc_id} built from "
+                                f"{'a card screenshot' if src else 'generated neutral art'} "
                                 f"(scripts/build-disc-thumbnail-bundles.py); the original was never captured"}
         if entry_id in by_id:
             by_id[entry_id].update(entry)

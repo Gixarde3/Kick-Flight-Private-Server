@@ -12,7 +12,10 @@ public sealed class BattleMatchmakingService
     private readonly IPhotonServerManager _photonManager;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
-    private int _battleCounter = 1000;
+    // Luxon can outlive this API process. Seed the compact numeric suffix from
+    // the current UTC second so an API restart cannot accidentally reuse a
+    // still-cached Photon room from the previous process.
+    private int _battleCounter = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() % 1_000_000_000);
 
     public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger, IPhotonServerManager photonManager)
     {
@@ -41,8 +44,6 @@ public sealed class BattleMatchmakingService
         public List<BattleEntrySession> HumanPlayers { get; set; } = [];
         public MatchingBattleInfo MatchingInfo { get; set; } = new();
     }
-
-    private const string MatchmakingNeverExpires = "2030-01-01 00:00:00";
 
     public sealed class MatchingBattleInfo
     {
@@ -104,31 +105,6 @@ public sealed class BattleMatchmakingService
         return (entryId, ticketId);
     }
 
-    // Arenas that ship complete in the capture: field/fld{id:05}, fielddata/fld{id:05}_{1,2,3} (crystal / flag / ball
-    // variants), itemdata/ite{id:05}_{1,2,3} and minimap/mim{id:05}_0. 102/302/402/602/702/902 have a model but no
-    // fielddata, 11/0 are tutorial, 801 is the Trial arena, 9000x are the home stages. Every room draws one at random;
-    // /battle/start answers it (the client only reads the field from that response). Set KF_FIELDS=101 to pin one.
-    public static readonly int[] FieldPool = ParseFieldPool(Environment.GetEnvironmentVariable("KF_FIELDS"));
-    private static readonly Random _fieldRandom = new();
-
-    private static int[] ParseFieldPool(string? value)
-    {
-        var ids = (value ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(v => int.TryParse(v, out var id) ? id : 0).Where(id => id > 0).ToArray();
-        return ids.Length > 0 ? ids : [101, 301, 401, 601, 701, 901];
-    }
-
-    public static int PickRandomField()
-    {
-        lock (_fieldRandom) return FieldPool[_fieldRandom.Next(FieldPool.Length)];
-    }
-
-    /// <summary>Field of an existing room (both humans of a room must load the same arena), else null.</summary>
-    public int? GetRoomFieldId(string battleId)
-    {
-        return _roomsByBattleId.TryGetValue(battleId, out var room) ? room.FieldId : null;
-    }
-
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;
     private TaskCompletionSource<MatchingBattleInfo>? _pendingRoomTcs;
@@ -179,6 +155,7 @@ public sealed class BattleMatchmakingService
             {
                 targetRoom = _pendingRoom;
                 targetRoom.HumanPlayers.Add(playerSession);
+                CanonicalizeHumanOrder(targetRoom);
                 _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
 
                 var roster = BuildRoster(targetRoom);
@@ -200,7 +177,7 @@ public sealed class BattleMatchmakingService
             {
                 BattleId = battleId,
                 BattleRuleId = playerSession.BattleRuleId,
-                FieldId = PickRandomField(),
+                FieldId = 101,
                 HumanPlayers = [playerSession]
             };
             _roomsByBattleId[battleId] = targetRoom;
@@ -251,10 +228,7 @@ public sealed class BattleMatchmakingService
         var discs = player.DeckDiscs.Count >= 4 ? player.DeckDiscs : [3010001, 3010002, 3010003, 3010004];
         return new MatchingBattleInfo
         {
-            // Bare wall-clock string: the client reads it in its own time base, so a UTC "now + 30 min" is already
-            // hours in the past on a phone in UTC+8 and the very first roster update fails with "Timeout" (2026-09-14);
-            // the emulator only worked because its clock runs on UTC. Use the far-future default instead.
-            matchmakingExpirationDatetime = MatchmakingNeverExpires,
+            matchmakingExpirationDatetime = DateTime.UtcNow.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"),
             photonCloudRegionId = 1,
             battlePlayerList =
             [
@@ -302,6 +276,27 @@ public sealed class BattleMatchmakingService
             };
         }
 
+        // A reconnect/retry for a completed ticket must replay the same final
+        // assignment. Creating a second room here leaves the client and Photon
+        // with different room identities and makes recovery impossible.
+        ActiveBattleRoom? completedRoom;
+        lock (_matchLock)
+        {
+            completedRoom = _roomsByBattleId.Values.FirstOrDefault(room =>
+                room.MatchingInfo.battlePlayerList.Count > 0 &&
+                room.HumanPlayers.Any(player => player.TicketId == ticketId));
+        }
+        if (completedRoom is not null)
+        {
+            _logger.LogInformation(
+                "Replaying completed Stage 3 assignment {BattleId} for ticket {TicketId}",
+                completedRoom.BattleId,
+                ticketId);
+            await SendAssignmentUpdateAsync(responseStream, completedRoom.BattleId, completedRoom.MatchingInfo);
+            await HoldFinalAssignmentAsync(playerSession.UserId, cancellationToken);
+            return;
+        }
+
         ActiveBattleRoom targetRoom;
         Task<MatchingBattleInfo>? waitTask = null;
         bool isSecondPlayer = false;
@@ -316,6 +311,7 @@ public sealed class BattleMatchmakingService
             {
                 targetRoom = _pendingRoom;
                 targetRoom.HumanPlayers.Add(playerSession);
+                CanonicalizeHumanOrder(targetRoom);
                 isSecondPlayer = true;
                 _logger.LogInformation("Matched second human player {UserId} into room {BattleId}", playerSession.UserId, targetRoom.BattleId);
 
@@ -335,7 +331,7 @@ public sealed class BattleMatchmakingService
                 {
                     BattleId = battleId,
                     BattleRuleId = playerSession.BattleRuleId,
-                    FieldId = PickRandomField(),
+                    FieldId = 101,
                     HumanPlayers = [playerSession]
                 };
                 _roomsByBattleId[battleId] = targetRoom;
@@ -390,12 +386,44 @@ public sealed class BattleMatchmakingService
         await SendAssignmentUpdateAsync(responseStream, "", fullRoster);
         _logger.LogInformation("Streamed Stage 2 (full roster / Iniciar combate) for user {UserId}", playerSession.UserId);
 
-        // Hold room on 'Iniciar combate' for 2 seconds so user sees the complete roster
-        await Task.Delay(2000, cancellationToken);
+        // Keep this close to the successful client trace: the runner primes the
+        // start control before Stage 1, and Stage 3 must arrive while that local
+        // ready state is still active. A longer (12 s) hold was consumed and
+        // acknowledged by both clients but neither opened Photon afterwards.
+        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
 
         // --- STAGE 3: Final assignment with non-empty Connection -> triggers Success (Result 1) and enters battle! ---
         await SendAssignmentUpdateAsync(responseStream, targetRoom.BattleId, fullRoster);
         _logger.LogInformation("Streamed Stage 3 (battle start assignment: {BattleId}) for user {UserId}", targetRoom.BattleId, playerSession.UserId);
+
+        // Keep the server-streaming call alive until the client consumes Stage 3 and
+        // cancels GetAssignments while changing state.  Completing the RPC here can
+        // enqueue the terminal callback beside the Stage 3 callback on Unity's
+        // SynchronizationContext; on slower emulators that race leaves the client in
+        // MatchingScene even though the final assignment was delivered successfully.
+        // The upper bound only protects abandoned clients; healthy clients cancel
+        // this delay as soon as they enter JoinBattleRoom.
+        await HoldFinalAssignmentAsync(playerSession.UserId, cancellationToken);
+    }
+
+    private async Task HoldFinalAssignmentAsync(string userId, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Holding GetAssignments open for Stage 3 acknowledgement from user {UserId}", userId);
+        await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+    }
+
+    private static void CanonicalizeHumanOrder(ActiveBattleRoom room)
+    {
+        // The original client derives team/room ownership from roster position.
+        // Arrival order varies with emulator load, so never let it alter the
+        // authoritative player ordering sent to either client.
+        room.HumanPlayers.Sort((left, right) =>
+        {
+            var userComparison = string.CompareOrdinal(left.UserId, right.UserId);
+            return userComparison != 0
+                ? userComparison
+                : string.CompareOrdinal(left.BattleEntryId, right.BattleEntryId);
+        });
     }
 
     private static async Task SendAssignmentUpdateAsync(
@@ -424,44 +452,29 @@ public sealed class BattleMatchmakingService
 
     public sealed record BotProfile(int KickerId, string Name);
 
-    // Gym mode (toggled at runtime with GET /gym/on | /gym/off | /gym): the next match is the human(s) on Blue against
-    // exactly GymBotCount mannequin bots on Red, and /battle/start hands out the harmless guardian row. Mannequin =
-    // kickerAiParameterId 100 + kickerId: the client patch (scripts/re/bot_special_skill_cave.py) sets
-    // PlayerCharacter.AIOption = Mannequin (63) for any id >= 100, and DemoSessionApi serves those ids as copies of
-    // the real AI rows with zero motivation so an unpatched client gets a mostly idle bot too.
-    public static volatile bool GymEnabled;
-    public const int GymAiParameterBase = 100;
-    public const int GymBotCount = 3;
-
-    // Names from config/masters_kicker.json. Bots are taken in this order (skipping the human's kicker), so the
-    // kickers whose weapons/skills were reworked on 2026-09-19 (Owlbert drone + smog, Buzzy Big shields + front
-    // barrier, Yuyan nunchaku + panda, Sid wrist lasers) come first and show up in every solo match for testing.
     private static readonly BotProfile[] BotProfiles =
     [
-        new(5, "Owlbert Bot"),
-        new(12, "Buzzy Big Bot"),
-        new(10, "Yuyan Bot"),
-        new(14, "Sid Bot"),
         new(1, "Tsubame Bot"),
-        new(2, "Ruriha Bot"),
-        new(3, "Coco Bot"),
-        new(4, "Kite Bot"),
-        new(6, "Pitophy Bot"),
-        new(7, "Grenhawk Bot"),
+        new(2, "Kaito Bot"),
+        new(3, "Ruriha Bot"),
+        new(4, "Coco Bot"),
+        new(6, "Grenhawk Bot"),
+        new(7, "Pit Bot"),
         new(8, "Anna Bot"),
-        new(9, "Jay Bot"),
-        new(11, "Diatrius Bot"),
-        new(13, "Hitagi Bot")
+        new(9, "Diatrius Bot"),
+        new(10, "Jay Bot"),
+        new(12, "Yukari Bot"),
+        new(13, "Yui Bot"),
+        new(14, "Hitagi Bot"),
+        new(11, "Eleonora Bot"),
+        new(5, "Owlbert Bot")
     ];
 
     private static MatchingBattleInfo BuildRoster(ActiveBattleRoom room)
     {
         var info = new MatchingBattleInfo
         {
-            // Bare wall-clock string: the client reads it in its own time base, so a UTC "now + 30 min" is already
-            // hours in the past on a phone in UTC+8 and the very first roster update fails with "Timeout" (2026-09-14);
-            // the emulator only worked because its clock runs on UTC. Use the far-future default instead.
-            matchmakingExpirationDatetime = MatchmakingNeverExpires,
+            matchmakingExpirationDatetime = DateTime.UtcNow.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"),
             photonCloudRegionId = 1,
             battlePlayerList = []
         };
@@ -512,12 +525,11 @@ public sealed class BattleMatchmakingService
         var botIdx = 0;
 
         const int maxPerTeam = 4;
-        var gym = GymEnabled;
-        var totalPlayers = gym ? room.HumanPlayers.Count + GymBotCount : maxPerTeam * 2;
+        const int totalPlayers = maxPerTeam * 2;
 
         while (info.battlePlayerList.Count < totalPlayers)
         {
-            int team = gym ? 1 : (team0Count < maxPerTeam) ? 0 : 1;
+            int team = (team0Count < maxPerTeam) ? 0 : 1;
             if (team == 0) team0Count++; else team1Count++;
 
             var profile = (botIdx < availableBots.Count) ? availableBots[botIdx++] : new BotProfile(botIdx + 1, $"Bot {botIdx + 1}");
@@ -528,7 +540,7 @@ public sealed class BattleMatchmakingService
                 userId = $"bot-{1000 + info.battlePlayerList.Count}",
                 matchmakingTeamId = $"team-{(team == 0 ? 1 : 2)}",
                 battleEntryId = $"be-bot-{info.battlePlayerList.Count}",
-                name = gym ? $"{profile.Name} (gym)" : profile.Name,
+                name = profile.Name,
                 // Must be >= the `rank` of the kicker's rows in masters_kicker_ai_parameter.json (all 13):
                 // PlayerCharacter.GetKickerAIParameterMaster picks the closest row with row.rank <= player rank,
                 // so a lower rank leaves the bot without AI parameters and it never acts.
@@ -537,8 +549,7 @@ public sealed class BattleMatchmakingService
                 kickerCostumeId = 1,
                 honorId = 6010000,
                 teamType = team,
-                // KickerAiParameterMaster row *id* (PlayerCharacter.GetKickerAIParameterMaster = get_Item(_kickerAiParameterId))
-                kickerAiParameterId = gym ? GymAiParameterBase + profile.KickerId : profile.KickerId,
+                kickerAiParameterId = profile.KickerId, // Valid AI parameter
                 kickerAiDiscDeckId = 1,                 // Valid AI deck
                 languageCode = "es",
                 frameId = 1,

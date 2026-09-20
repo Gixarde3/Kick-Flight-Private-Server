@@ -30,8 +30,6 @@ set HttpPort=18080
 set GrpcPort=18081
 set Harness__PersistCaptures=true
 set Harness__DirectClientHosts__0=192.168.68.55
-rem the remote-play APK reaches us through this name (router forwards TCP 18080/18081 to this PC)
-set Harness__DirectClientHosts__1=kickflightsg.ddns.net
 if not exist "%~dp0.local\session-logs" mkdir "%~dp0.local\session-logs"
 echo.
 echo Server starting on port 18080 - leave this window open, Ctrl+C stops it.

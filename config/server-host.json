@@ -1,0 +1,6 @@
+{
+  "host": "10.0.2.2",
+  "port": 18080,
+  "scheme": "http",
+  "description": "Host/IP used for client connections and resource catalog. Use '10.0.2.2' for Android Emulator, or your local LAN IP (e.g. '192.168.1.50') for physical Android devices."
+}

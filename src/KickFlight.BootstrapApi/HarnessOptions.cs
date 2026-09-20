@@ -15,11 +15,4 @@ public sealed class HarnessOptions
         "kickflight-resource-api.grenge.jp"
     ];
     public string[] DirectClientHosts { get; set; } = [];
-
-    /// <summary>
-    /// Optional Octo CDN url format (e.g. "https://pub-xxxx.r2.dev/{o}") handed to direct clients instead of
-    /// "{scheme}://{request host}/cdn/{o}". Lets the asset bundles live on an external static host so the initial
-    /// 700 MB download does not have to squeeze through this machine's uplink.
-    /// </summary>
-    public string? OctoCdnUrlFormat { get; set; }
 }

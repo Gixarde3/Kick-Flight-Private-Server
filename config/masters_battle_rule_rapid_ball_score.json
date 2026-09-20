@@ -1,4 +1,0 @@
-[
-  {"id": 3, "battleRuleId": 3, "baseScore": 100, "pointScore": 100, "getBallScore": 10, "getHighBallScore": 30, "dropBallScore": 5, "dropHighBallScore": 15, "goalOpenContributionScore": 50, "goalPointContributionScore": 50, "killCountScore": 50, "killAssistCountScore": 25, "assistCountScore": 25, "specialSkillCountScore": 30, "winScoreCorrection": 1.5},
-  {"id": 4, "battleRuleId": 4, "baseScore": 100, "pointScore": 100, "getBallScore": 10, "getHighBallScore": 30, "dropBallScore": 5, "dropHighBallScore": 15, "goalOpenContributionScore": 50, "goalPointContributionScore": 50, "killCountScore": 50, "killAssistCountScore": 25, "assistCountScore": 25, "specialSkillCountScore": 30, "winScoreCorrection": 1.5}
-]

@@ -1,3 +1,0 @@
-[
-  {"id": 2, "battleRuleId": 2, "baseScore": 100, "goalCountScore": 100, "flagMoveScore": 10, "dropCountScore": 5, "flagMoveBackScore": 10, "killCountScore": 50, "killAssistCountScore": 25, "assistCountScore": 25, "specialSkillCountScore": 30, "winScoreCorrection": 1.5}
-]
