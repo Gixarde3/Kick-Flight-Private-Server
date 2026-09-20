@@ -4,7 +4,7 @@
     {
       "id": "master-kicker-skill-bundle",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/VsckeT",
       "logicalName": "Kicker skill master",
       "description": "Parámetros de habilidades de kickers usados por Home.",
@@ -15,7 +15,7 @@
     {
       "id": "master-kicker-special-skill-bundle",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/o75vfb",
       "logicalName": "Kicker special skill master",
       "description": "Parámetros de habilidad especial de kickers usados por Home.",
@@ -26,7 +26,7 @@
     {
       "id": "title-common-voice-acb",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/tq7f77",
       "logicalName": "Voces comunes del juego (ACB)",
       "description": "Banco de voces compartidas precargado por el flujo de inicio.",
@@ -37,7 +37,7 @@
     {
       "id": "title-bgm-home-awb",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/qFk7lX",
       "logicalName": "Música de Home (AWB)",
       "description": "Stream de audio para la música de la pantalla principal.",
@@ -48,7 +48,7 @@
     {
       "id": "home-system-voice-acb",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/E8mY3s",
       "logicalName": "Voz de sistema en Home (ACB)",
       "description": "Banco de voz de anunciador y sistema para la interfaz principal.",
@@ -59,7 +59,7 @@
     {
       "id": "home-system-voice-awb",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/p0y1hG",
       "logicalName": "Voz de sistema en Home (AWB)",
       "description": "Stream de voz de anunciador y sistema para la interfaz principal.",
@@ -70,13 +70,24 @@
     {
       "id": "home-effect-ui-001",
       "enabled": true,
-      "host": "192.168.1.141",
+      "host": "10.0.2.2",
       "requestPath": "/cdn/AfCXxU",
       "logicalName": "Home UI effect 001",
       "description": "Efecto de interfaz precargado por HomeScene.",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41416643577855_904d8d5b1f5662ef9da5956021f7d221.bundle",
       "contentType": "application/octet-stream",
       "sha256": "c0973c1afaeff3a715c724bebf333eb8f70cca099bb90f8e858bb19a570ce77b"
+    },
+    {
+      "id": "apk-remote-kickflightsg",
+      "enabled": true,
+      "host": "10.0.2.2",
+      "requestPath": "/apk/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "logicalName": "Remote-play APK download",
+      "description": "Patched client for kickflightsg.ddns.net",
+      "sourcePath": ".local/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "contentType": "application/vnd.android.package-archive",
+      "sha256": "2ef84f3eabe2589adbadd06ea2feeeadf1c7a0d5adb1f71e2df7f7e1b3631021"
     },
     {
       "id": "cri-config-acf",

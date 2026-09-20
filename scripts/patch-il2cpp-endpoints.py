@@ -1448,6 +1448,61 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f85fbca9f65701a9"),
             "replacement": bytes.fromhex("c0035fd61f2003d5"),  # ret; nop
         },
+        {
+            "description": "PlayerStateNormal.Acceleration `b.le normal-branch` -> b EnableAI cave",
+            "offset": 0x17E7990,
+            "expected": bytes.fromhex("ed030054"),
+            "replacement": bytes.fromhex("182efd17"),
+        },
+        # Offline RPC transport. Every gameplay RPC (ReceiveDamage, ReceiveHit, effects...) goes through
+        # CharacterRPCControllerBase.SendRPC -> ReplayManager.SendRPC -> PhotonView.RPC. GRE.Singleton<ReplayManager>
+        # is null in this offline flow (see the BeginSession/EndSession bypasses above), so SendRPC threw
+        # NullReferenceException and no attack ever dealt damage. When the instance is null, call the
+        # controller's own photonView.RPC(name, target, parameters) directly (PUN executes it locally offline).
+        {
+            "description": "cave: CharacterRPCControllerBase.SendRPC with null ReplayManager -> photonView.RPC(methodName, target, parameters)",
+            "offset": 0x1733230,
+            "expected": bytes.fromhex("e1031faa81066b94604200b9486a0190083940f9000140f94db64794f40300aae0031faa71a56a94f50300aa550000b5"),
+            "replacement": bytes.fromhex("e00316aae1031faa4cd13094e10315aae203142ae30313aae4031faafd7b43a9f44f42a9f65741a9f70744f81d3d6814"),
+        },
+        {
+            "description": "CharacterRPCControllerBase.SendRPC: NullReferenceException raise for null ReplayManager -> b direct-RPC cave",
+            "offset": 0x31DA530,
+            "expected": bytes.fromhex("2fe78097"),
+            "replacement": bytes.fromhex("40639517"),
+        },
+        # Skill state watchdog. PlayerStateSkill.UpdateSubStateTime(time, next) waits forever when time < 0 until the
+        # SkillAction reports IsNextState; SwordSkillAction (and friends) only do that once the kicker is within 3 u / 90
+        # deg of MainTarget, so a cast at a fleeing or missing target leaves the kicker frozen in the pose with no
+        # cooldown. Only for the Execute->Finish (next == 4) and Finish->End (next == 0) transitions, advance after 4 s.
+        {
+            "description": "cave: PlayerStateSkill.UpdateSubStateTime negative-time wait -> advance after 4 s for Execute/Finish",
+            "offset": 0x17332B0,
+            "expected": bytes.fromhex("69690190082d42f9296147f9e10313aaf50300aa020140f9230140f948144294740000b5"),
+            "replacement": bytes.fromhex("05cc60549f12007160000054540000345e0603140110221e0020211ea5cd60545a060314"),
+        },
+        {
+            "description": "PlayerStateSkill.UpdateSubStateTime `b.mi wait` -> b watchdog cave",
+            "offset": 0x17F4C2C,
+            "expected": bytes.fromhex("64000054"),
+            "replacement": bytes.fromhex("a1f9fc17"),
+        },
+        # Skill exit pose. After a kicker/disc skill the state machine returns to PlayerStateNormal but the animator
+        # keeps the last skill clip until some other action plays (dodge, attack...). On PlayerStateSkill.End() play
+        # PlayerAnimator.PlayIdle(isGround=false, 0.1 s) explicitly. Cave in the dead body of the stubbed
+        # HomeSummonModelController.UnloadModel (0x159DF60..0x159E0A8, nothing branches into it).
+        {
+            "description": "cave: PlayerStateSkill.End tail -> ClearSynchronizedProperty(); Player.PlayerAnimator.PlayIdle(false, 0.1, 0)",
+            "offset": 0x159DF70,
+            "expected": bytes.fromhex("a8325c39f403012af30300aae8000037e87201f0084d44f9000140b9a12ff197e8030032a8321c39e87001f0081940f9000140f9f60a4e94f50300aa550000b58fd8f197e00315aae1031faa7fef0794f50300aa550000b5"),
+            "replacement": bytes.fromhex("fd7bbea9f30b00f9f30300aae1031faae24e0994e00313aae1031faa638b0c94600100b4e1031faa58a0f897000100b4e1031f2aa899995288b9a7720001271ee103271ee2031faa7d42f897f30b40f9fd7bc2a8c0035fd6"),
+        },
+        {
+            "description": "PlayerStateSkill.End tail call `b ClearSynchronizedProperty` -> b idle cave",
+            "offset": 0x17F8F1C,
+            "expected": bytes.fromhex("fbe2ff17"),
+            "replacement": bytes.fromhex("1594f617"),
+        },
         # Keep the expensive runtime probes out of production builds, but make
         # KF_DIAG=1 appends the compatible handshake probes. The isolated
         # KF_RESULT_DIAG=1 mode installs only their shared logger cave, so it

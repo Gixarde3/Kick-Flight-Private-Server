@@ -65,10 +65,70 @@ def validate_data_message(payload: bytes) -> None:
             offset += length
         else:
             raise ValueError(f"Unexpected wire type {wire_type} for Data field {number}")
-    expected = [(1, 0), (2, 2), (3, 2), (4, 0), (5, 0), (9, 0),
-                (10, 2), (11, 2), (12, 0), (13, 0)]
+    expected = [
+        (1, 0),
+        (2, 2),
+        (3, 2),
+        (4, 0),
+        (5, 0),
+        (7, 0),
+        (9, 0),
+        (10, 2),
+        (11, 2),
+        (12, 0),
+        (13, 0),
+    ]
     if fields != expected:
         raise ValueError(f"Unexpected Octo.Proto.Data layout: {fields!r}")
+
+
+# The client's initial download (DownloadScene -> ColorfulManager.GetUpdateResourceNames) only fetches the rows
+# tagged "common", "title" (+ "tutorial", "localize"); everything else is loaded on demand from the cache and a
+# miss is a native crash. Tag every row "common" so a fresh install downloads the whole catalogue up front and
+# no scripts/seed-device-cache.py is needed. tagid is 1-based into Database.tagname (Octo.Data.Item.SetData:
+# tags[tagid - 1]) and the names must be unique: Octo keys them in a dictionary and a duplicate throws
+# ArgumentException in DataManager.SerializeDatabase, leaving the client database half-applied.
+DOWNLOAD_TAG_NAMES = ["common"]
+DOWNLOAD_TAG_ID = 1
+
+
+# The Octo client rejects the Chinese-localised bundles on a non-zh device: each `ui/localize/zh/*` file is
+# re-requested and the start-up download then aborts with "communication error".
+# Neither leaving them untagged nor publishing them with State DELETE kept the
+# DownloadScene from queueing them, so they are simply not part of the served database any more (the files stay in
+# catalog.json for direct /cdn requests). The es/en client never asks for zh assets anyway.
+def is_removed(name: str) -> bool:
+    return name.startswith("ui/localize/zh/")
+
+
+# Octo names a cache file after the item's MD5 (Octo.GetAssetBundleFileName / GetResourceFileName ->
+# Item.md5.ToString()), so the alias rows of an entry (same bytes under another name) share one storage file with
+# the primary row. The client walks the database rows in list order, 4 downloads at a time (patched
+# MaxParallelDownload); a row whose storage file is already complete is skipped instantly, but a row whose twin is
+# still in flight (or completed milliseconds ago and not yet registered) is downloaded again, collides with it
+# (LockStorage), is retried once and then fails the whole DownloadScene with "communication error".
+# Distance in rows means nothing because cache-skips take no time, so the layout separates twins by real
+# downloads instead:
+#   1. primaries of entries that have aliases, largest first (they are certain to be complete long before the tail),
+#   2. primaries of alias-free entries, in definition order (a buffer of genuine downloads),
+#   3. all alias rows (round-robin over the entries) - by now every one of them is a cache hit and is skipped.
+# The first surviving name of an entry is its primary (zh names are removed, see is_removed).
+def order_rows(rows: list[tuple[int, int, str, int, bytes]]) -> list[bytes]:
+    """rows = (entry index, alias index among the emitted names, md5, size, message)."""
+    entries_with_aliases = {entry_index for entry_index, alias_index, _, _, _ in rows if alias_index > 0}
+    primaries = [row for row in rows if row[1] == 0]
+    aliased_primaries = sorted(
+        (row for row in primaries if row[0] in entries_with_aliases), key=lambda row: (-row[3], row[0])
+    )
+    plain_primaries = [row for row in primaries if row[0] not in entries_with_aliases]
+    aliases = sorted((row for row in rows if row[1] > 0), key=lambda row: (row[1], row[0]))
+    ordered = aliased_primaries + plain_primaries + aliases
+    first_seen: dict[str, int] = {}
+    for index, (_, alias_index, md5, _, _) in enumerate(ordered):
+        if alias_index == 0 and md5 in first_seen:
+            raise ValueError(f"two primary entries share content {md5}; make one an alias of the other")
+        first_seen.setdefault(md5, index)
+    return [message for _, _, _, _, message in ordered]
 
 
 def resolve_path(repo: Path, configured_path: str) -> Path:
@@ -88,6 +148,7 @@ def encode_data(*, octo_id: int, name: str, object_name: str, source: bytes) -> 
             field_string(3, name),
             field_varint(4, len(source)),
             field_varint(5, binascii.crc32(source) & 0xFFFFFFFF),
+            field_varint(7, DOWNLOAD_TAG_ID),  # tagid -> Database.tagname ("common")
             field_varint(9, 1),  # state = ADD
             field_string(10, hashlib.md5(source).hexdigest()),
             field_string(11, object_name),
@@ -101,6 +162,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--definition", default="config/resources/title-minimum.json")
     parser.add_argument("--direct-config", default="config/apk-direct-server.local.json")
+    parser.add_argument("--server-host-config", default="config/server-host.json")
     parser.add_argument(
         "--server-base-url",
         help="Override serverBaseUrl (useful for the first-party proxy mode)",
@@ -112,31 +174,48 @@ def main() -> None:
     repo = Path(__file__).resolve().parent.parent
     definition_path = resolve_path(repo, args.definition)
     direct_config_path = resolve_path(repo, args.direct_config)
+    server_host_path = resolve_path(repo, args.server_host_config)
     catalog_path = resolve_path(repo, args.catalog)
     fixtures_path = resolve_path(repo, args.fixtures)
     definition = json.loads(definition_path.read_text(encoding="utf-8-sig"))
+
     if args.server_base_url:
         server_base_url = args.server_base_url.rstrip("/")
+    elif server_host_path.exists():
+        host_cfg = json.loads(server_host_path.read_text(encoding="utf-8-sig"))
+        scheme = host_cfg.get("scheme", "http")
+        host = host_cfg.get("host", "10.0.2.2")
+        port = host_cfg.get("port", 18080)
+        server_base_url = f"{scheme}://{host}:{port}".rstrip("/")
     else:
         direct_config = json.loads(direct_config_path.read_text(encoding="utf-8-sig"))
         server_base_url = direct_config["serverBaseUrl"].rstrip("/")
+
     parsed_url = urlparse(server_base_url)
     if parsed_url.scheme not in ("http", "https") or not parsed_url.netloc:
         raise ValueError(f"Invalid serverBaseUrl: {server_base_url}")
     url_format = server_base_url + definition["urlPathFormat"]
 
-    asset_messages: list[bytes] = []
-    resource_messages: list[bytes] = []
+    asset_rows: list[tuple[int, int, str, int, bytes]] = []
+    resource_rows: list[tuple[int, int, str, int, bytes]] = []
+    seen_names: set[str] = set()
     managed_catalog_entries: list[dict[str, object]] = []
     next_alias_id = 1000
 
-    for entry in definition["entries"]:
+    for entry_index, entry in enumerate(definition["entries"]):
         source_path = resolve_path(repo, entry["sourcePath"])
         source = source_path.read_bytes()
         sha256 = hashlib.sha256(source).hexdigest()
+        md5 = hashlib.md5(source).hexdigest()
+        emitted = 0
         for alias_index, name in enumerate(entry["names"]):
             octo_id = entry["octoId"] if alias_index == 0 else next_alias_id
             next_alias_id += alias_index > 0
+            if is_removed(name):
+                continue
+            if name in seen_names:  # e.g. common_se.awb is listed twice on the placeholder wave bank
+                continue
+            seen_names.add(name)
             message = encode_data(
                 octo_id=octo_id,
                 name=name,
@@ -144,7 +223,10 @@ def main() -> None:
                 source=source,
             )
             validate_data_message(message)
-            (asset_messages if entry["kind"] == "assetBundle" else resource_messages).append(message)
+            (asset_rows if entry["kind"] == "assetBundle" else resource_rows).append(
+                (entry_index, emitted, md5, len(source), message)
+            )
+            emitted += 1
 
         req_path = definition["urlPathFormat"].replace("{o}", entry["objectName"])
         if not any(m["requestPath"] == req_path for m in managed_catalog_entries):
@@ -162,12 +244,16 @@ def main() -> None:
                 }
             )
 
+    asset_messages = order_rows(asset_rows)
+    resource_messages = order_rows(resource_rows)
+
     fixtures_path.mkdir(parents=True, exist_ok=True)
     fixture_paths = []
     for from_revision in definition.get("fromRevisions", [0]):
         database = field_varint(1, definition["revision"])
         if from_revision < definition["revision"]:
             database += b"".join(field_bytes(2, item) for item in asset_messages)
+            database += b"".join(field_string(3, tag) for tag in DOWNLOAD_TAG_NAMES)
             database += b"".join(field_bytes(4, item) for item in resource_messages)
         # Octo calls SetUrls for every successfully decoded database, including
         # an up-to-date response with no asset delta. Omitting this field makes
