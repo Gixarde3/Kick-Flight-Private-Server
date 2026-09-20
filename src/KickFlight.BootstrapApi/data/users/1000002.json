@@ -1,15 +1,15 @@
 {
   "UserId": "1000002",
   "UserName": "Player 0002",
-  "KickerId": 4,
-  "KickerCostumeId": 30,
+  "KickerId": 13,
+  "KickerCostumeId": 110,
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
-      3010001,
-      3010002,
-      3010003,
-      3010004
+      3010083,
+      3010027,
+      3010037,
+      3010042
     ],
     "2": [
       3010005,

@@ -44,6 +44,10 @@ app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
 
 app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
+// Gym mode: open these in any browser (phone too) while the server runs; applies to the next match you start.
+app.MapGet("/gym", () => Results.Json(new { gym = BattleMatchmakingService.GymEnabled, bots = BattleMatchmakingService.GymBotCount, usage = "/gym/on | /gym/off" }));
+app.MapGet("/gym/on", () => { BattleMatchmakingService.GymEnabled = true; return Results.Text("gym ON: next match = you vs 3 mannequin bots + harmless guardian"); });
+app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; return Results.Text("gym OFF: normal 4v4 bot matches"); });
 app.MapGet("/health/photon", async (IPhotonServerManager photonManager, CancellationToken ct) =>
 {
     var status = await photonManager.CheckHealthAsync(ct);

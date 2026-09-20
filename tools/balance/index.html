@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kick-Flight Balance</title>
+<style>
+  :root {
+    --bg: #14161c;
+    --bg2: #1b1e26;
+    --bg3: #22262f;
+    --line: #2e3340;
+    --fg: #e6e8ee;
+    --fg2: #9aa2b4;
+    --accent: #4da3ff;
+    --dirty: #ffb347;
+    --ok: #58d68d;
+    --err: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 13px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  header#top {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 10px 16px; background: var(--bg2); border-bottom: 1px solid var(--line);
+  }
+  header#top h1 { margin: 0; font-size: 15px; font-weight: 600; }
+  header#top .hint { color: var(--fg2); font-size: 12px; }
+  #layout {
+    display: flex; align-items: stretch;
+    height: calc(100vh - 41px - 6.5rem);
+  }
+  #sidebar {
+    width: 320px; min-width: 320px; display: flex; flex-direction: column;
+    border-right: 1px solid var(--line); background: var(--bg2);
+  }
+  #tabs { display: flex; gap: 6px; padding: 10px; }
+  #tabs button {
+    flex: 1; padding: 7px 10px; border: 1px solid var(--line); background: var(--bg3);
+    color: var(--fg2); border-radius: 6px; cursor: pointer; font: inherit;
+  }
+  #tabs button.on { background: var(--accent); border-color: var(--accent); color: #06131f; font-weight: 600; }
+  #filters { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+  input[type=text], select {
+    width: 100%; padding: 6px 8px; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 5px; font: inherit;
+  }
+  #list { list-style: none; margin: 0; padding: 0 10px 16px; overflow-y: auto; flex: 1; }
+  #list li.item {
+    display: flex; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 6px;
+    cursor: pointer; border: 1px solid transparent;
+  }
+  #list li.item:hover { background: var(--bg3); }
+  #list li.item.sel { background: #1f3550; border-color: var(--accent); }
+  #list img.icon, #list .icon.ph {
+    width: 48px; height: 48px; flex: 0 0 48px; border-radius: 5px; background: var(--bg3);
+    object-fit: cover;
+  }
+  #list .meta { min-width: 0; }
+  #list .nm { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #list .sub { color: var(--fg2); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #list .count { color: var(--fg2); font-size: 11px; padding: 4px 8px; }
+  #panel { flex: 1; overflow-y: auto; padding: 14px 18px 24px; }
+  #panel > .empty { color: var(--fg2); }
+  .phead { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+  .phead img, .phead .icon.ph {
+    width: 72px; height: 72px; flex: 0 0 72px; border-radius: 7px; background: var(--bg3);
+    object-fit: cover;
+  }
+  .phead h1 { margin: 0; font-size: 19px; }
+  .phead .meta { color: var(--fg2); font-size: 12px; }
+  section.sec {
+    background: var(--bg2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 12px;
+  }
+  section.sec.nested { background: var(--bg3); margin-bottom: 10px; }
+  section.sec h2 {
+    margin: 0 0 8px; font-size: 13px; font-weight: 600;
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  }
+  section.sec h2 code {
+    font-size: 11px; color: var(--fg2); background: var(--bg); padding: 1px 6px;
+    border-radius: 4px; border: 1px solid var(--line);
+  }
+  .note { color: var(--fg2); margin: 4px 0; }
+  .row { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
+  .row:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+  .rowhead { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 7px; }
+  .chip {
+    font-size: 11px; color: var(--fg2); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 10px; padding: 1px 8px;
+  }
+  .chip b { color: var(--fg); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 10px; }
+  label.field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  label.field > .k { font-size: 11px; color: var(--fg2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  label.field input[type=number] {
+    width: 100%; padding: 4px 6px; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 4px; font: 12px/1.4 ui-monospace, Consolas, monospace;
+  }
+  label.field input[type=number]:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+  label.field input[type=number].dirty { border-color: var(--dirty); background: #2b2415; color: #ffd79a; }
+  label.field input[type=number].invalid { border-color: var(--err); }
+  label.field input[type=checkbox] { width: 15px; height: 15px; margin: 2px 0; accent-color: var(--accent); }
+  label.field input[type=checkbox].dirty { outline: 2px solid var(--dirty); }
+  label.field.readonly .ro {
+    font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--fg2);
+    padding: 4px 6px; background: #191c23; border: 1px dashed var(--line); border-radius: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  label.field.readonly .ro.wrap { white-space: normal; }
+  footer#foot {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg2);
+    border-top: 1px solid var(--line); padding: 8px 16px; z-index: 5;
+  }
+  footer#foot .bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  footer#foot #dirtyCount { font-weight: 600; }
+  footer#foot #dirtyCount.has { color: var(--dirty); }
+  footer#foot button {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--line);
+    background: var(--bg3); color: var(--fg); font: inherit; cursor: pointer;
+  }
+  footer#foot button#save { background: var(--accent); border-color: var(--accent); color: #06131f; font-weight: 600; }
+  footer#foot button:disabled { opacity: .45; cursor: default; }
+  footer#foot .note { font-size: 11px; }
+  #saveStatus { max-height: 6rem; overflow-y: auto; margin-top: 6px; }
+  #saveStatus:empty { display: none; }
+  #saveStatus .line { font: 11px/1.5 ui-monospace, Consolas, monospace; }
+  #saveStatus .line.ok { color: var(--ok); }
+  #saveStatus .line.err { color: var(--err); }
+  #saveStatus .line.info { color: var(--fg2); }
+  code { font-family: ui-monospace, Consolas, monospace; }
+</style>
+</head>
+<body>
+<header id="top">
+  <h1>Kick-Flight Balance</h1>
+  <span class="hint">edits <code>config/masters_*.json</code> &mdash; backups go to <code>tools/balance/backups/</code></span>
+</header>
+
+<div id="layout">
+  <aside id="sidebar">
+    <div id="tabs">
+      <button type="button" data-tab="kickers" class="on">Kickers</button>
+      <button type="button" data-tab="discs">Discs</button>
+    </div>
+    <div id="filters">
+      <input type="text" id="filterText" placeholder="Filter by name or id" autocomplete="off">
+      <div id="discFilters" style="display:none">
+        <select id="filterRarity" style="margin-bottom:6px"></select>
+        <select id="filterType"></select>
+      </div>
+    </div>
+    <ul id="list"></ul>
+  </aside>
+  <main id="panel"><p class="empty">Loading&hellip;</p></main>
+</div>
+
+<footer id="foot">
+  <div class="bar">
+    <span id="dirtyCount">Unsaved changes: 0</span>
+    <button type="button" id="save" disabled>Save</button>
+    <button type="button" id="revert">Revert</button>
+    <span class="note">restart the game server (<code>start-server.bat</code>) to apply</span>
+  </div>
+  <div id="saveStatus"></div>
+</footer>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ config */
+
+const CORE_TABLES = [
+  "kicker", "kicker_parameter", "kicker_ability", "kicker_ability_condition",
+  "skill", "special_skill", "disc", "weapon_attack"
+];
+/* Only files that exist under config/ are listed, so the tool never requests a
+   404: masters_skill_blow_off / _pull_in exist but are empty arrays today. */
+const KS_EXTRA_TABLES = [
+  "skill_condition", "skill_trap", "skill_heal", "skill_blow_off",
+  "skill_pull_in", "skill_collision", "skill_hit"
+];
+const SS_EXTRA_TABLES = [
+  "special_skill_condition", "special_skill_trap", "special_skill_hit",
+  "special_skill_collision", "special_skill_bullet", "special_skill_blow_off"
+];
+const WEAPON_EXTRA_TABLES = [
+  "weapon_attack_hit", "weapon_attack_collision", "weapon_attack_bullet",
+  "weapon_attack_condition"
+];
+const ALL_TABLES = CORE_TABLES.concat(KS_EXTRA_TABLES, SS_EXTRA_TABLES, WEAPON_EXTRA_TABLES);
+
+/* Row-link columns: they say which kicker/skill/attack a row belongs to, so the
+   UI shows them as read-only chips instead of editing them. */
+const LINK_FIELDS = new Set([
+  "id", "kickerId", "attackCount", "skillId", "specialSkillId",
+  "kickerAbilityId", "discId", "battleRuleId"
+]);
+
+/* Extra read-only columns per table (everything else numeric is editable). */
+const READONLY_FIELDS = {
+  skill: new Set([
+    "description", "skillType", "skillActionType", "skillCategoryType",
+    "targetAreaType", "summonId", "attributeType", "seId"
+  ]),
+  kicker_parameter: new Set(["roleType", "weaponType", "skillId"]),
+  disc: new Set([
+    "name", "rarityType", "discType", "sortOrder", "rank", "hpGrowGroupId",
+    "attackGrowGroupId", "coefficientGrowGroupId", "coolTimeGrowGroupId",
+    "releaseDatetime"
+  ])
+};
+
+const RARITY_LABELS = { "0": "N", "1": "R", "2": "SR", "3": "UR" };
+
+/* ------------------------------------------------------------------- state */
+
+const state = {
+  tab: "kickers",
+  selection: { kickers: null, discs: null },
+  kickers: [],
+  discs: [],
+  data: {},       /* table name -> rows (working copy) or null when unreadable */
+  pristine: {},   /* table name -> deep copy as loaded, for dirty detection */
+  inputs: new Map(),   /* "table|rowId|field" -> input element */
+  dirtyFields: new Set(),
+  dirtyTables: new Set(),
+  saving: false
+};
+
+/* ------------------------------------------------------------------- utils */
+
+function el(tag, attrs, text) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const key of Object.keys(attrs)) {
+      if (key === "class") node.className = attrs[key];
+      else if (key === "style") node.setAttribute("style", attrs[key]);
+      else node.setAttribute(key, attrs[key]);
+    }
+  }
+  if (text !== undefined && text !== null) node.textContent = text;
+  return node;
+}
+
+function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+function fieldKey(table, rowId, field) {
+  return table + "|" + rowId + "|" + field;
+}
+
+function sameValue(a, b) {
+  if (typeof a !== typeof b) return false;
+  if (typeof a === "number") return a === b || (Number.isNaN(a) && Number.isNaN(b));
+  if (a === null || typeof a !== "object") return a === b;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function formatValue(value) {
+  if (value === null) return "null";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  return String(value);
+}
+
+function rowsOf(table) {
+  const rows = state.data[table];
+  return Array.isArray(rows) ? rows : [];
+}
+
+/* Editable when it is a number/bool column that is not a link or a documented
+   read-only column; strings and any structured value stay read-only. */
+function fieldMode(table, key, value) {
+  if (LINK_FIELDS.has(key)) return "readonly";
+  const readonly = READONLY_FIELDS[table];
+  if (readonly && readonly.has(key)) return "readonly";
+  if (typeof value === "boolean") return /^special_skill_/.test(table) ? "bool" : "readonly";
+  if (typeof value === "number") return "number";
+  return "readonly";
+}
+
+async function fetchJSON(url, options) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  let body = null;
+  if (text) {
+    try { body = JSON.parse(text); } catch (error) { body = null; }
+  }
+  if (!response.ok) {
+    const message = (body && body.error) || ("HTTP " + response.status);
+    const failure = new Error(message);
+    failure.status = response.status;
+    throw failure;
+  }
+  return body;
+}
+
+/* --------------------------------------------------------------- data load */
+
+async function loadTable(name, force) {
+  if (!force && name in state.data) return;
+  try {
+    const rows = await fetchJSON("/api/table/" + name, { cache: "no-store" });
+    if (!Array.isArray(rows)) throw new Error("not an array");
+    state.data[name] = rows;
+    state.pristine[name] = JSON.parse(JSON.stringify(rows));
+  } catch (error) {
+    state.data[name] = null;
+    state.pristine[name] = null;
+  }
+}
+
+async function loadEverything(force) {
+  const names = Array.from(new Set(ALL_TABLES));
+  await Promise.all(names.map(function (name) { return loadTable(name, force); }));
+}
+
+/* ----------------------------------------------------------------- sidebar */
+
+function buildDiscFilters() {
+  const rarity = document.getElementById("filterRarity");
+  clear(rarity);
+  rarity.appendChild(el("option", { value: "" }, "All rarities"));
+  const rarities = Array.from(new Set(state.discs.map(function (d) { return d.rarityType; })))
+    .filter(function (r) { return r !== null && r !== undefined; })
+    .sort(function (a, b) { return b - a; });
+  for (const value of rarities) {
+    const label = RARITY_LABELS[String(value)] || String(value);
+    rarity.appendChild(el("option", { value: String(value) }, label + " (" + value + ")"));
+  }
+
+  const type = document.getElementById("filterType");
+  clear(type);
+  type.appendChild(el("option", { value: "" }, "All types"));
+  const types = Array.from(new Set(state.discs.map(function (d) { return d.type; })))
+    .filter(Boolean).sort();
+  for (const value of types) type.appendChild(el("option", { value: value }, value));
+}
+
+function filteredItems() {
+  const text = document.getElementById("filterText").value.trim().toLowerCase();
+  if (state.tab === "kickers") {
+    return state.kickers.filter(function (kicker) {
+      if (!text) return true;
+      return String(kicker.id).indexOf(text) !== -1 ||
+        String(kicker.name).toLowerCase().indexOf(text) !== -1;
+    });
+  }
+  const rarity = document.getElementById("filterRarity").value;
+  const type = document.getElementById("filterType").value;
+  return state.discs.filter(function (disc) {
+    if (rarity && String(disc.rarityType) !== rarity) return false;
+    if (type && disc.type !== type) return false;
+    if (!text) return true;
+    return String(disc.id).indexOf(text) !== -1 ||
+      String(disc.name).toLowerCase().indexOf(text) !== -1 ||
+      (disc.effect || "").toLowerCase().indexOf(text) !== -1;
+  });
+}
+
+function iconFor(kind, id, size) {
+  const img = el("img", { class: "icon", src: "icons/" + kind + "_" + id + ".png", alt: "" });
+  img.addEventListener("error", function () {
+    const placeholder = el("span", { class: "icon ph" }, "?");
+    placeholder.style.display = "inline-flex";
+    placeholder.style.alignItems = "center";
+    placeholder.style.justifyContent = "center";
+    placeholder.style.color = "#9aa2b4";
+    if (img.parentNode) img.parentNode.replaceChild(placeholder, img);
+  });
+  if (size) { img.style.width = size + "px"; img.style.height = size + "px"; img.style.flex = "0 0 " + size + "px"; }
+  return img;
+}
+
+function renderList() {
+  const list = document.getElementById("list");
+  clear(list);
+  const items = filteredItems();
+  list.appendChild(el("li", { class: "count" },
+    items.length + " of " + (state.tab === "kickers" ? state.kickers.length : state.discs.length) + " shown"));
+
+  const selected = state.selection[state.tab];
+  for (const item of items) {
+    const li = el("li", { class: "item", "data-id": String(item.id) });
+    li.appendChild(iconFor(state.tab === "kickers" ? "kicker" : "disc", item.id, 48));
+    const meta = el("div", { class: "meta" });
+    meta.appendChild(el("div", { class: "nm" }, item.name));
+    let sub;
+    if (state.tab === "kickers") {
+      sub = "id " + item.id + " · KS " + (item.skillId === null ? "-" : item.skillId);
+    } else {
+      sub = "id " + item.id + " · " + (item.rarity || (RARITY_LABELS[String(item.rarityType)] || "?")) +
+        (item.type ? " · " + item.type : "");
+    }
+    meta.appendChild(el("div", { class: "sub" }, sub));
+    li.appendChild(meta);
+    if (selected === item.id) li.className += " sel";
+    li.addEventListener("click", function () { select(state.tab, item.id); });
+    list.appendChild(li);
+  }
+}
+
+function select(tab, id) {
+  state.tab = tab;
+  state.selection[tab] = id;
+  renderList();
+  renderPanel();
+}
+
+/* ------------------------------------------------------------------- panel */
+
+function makeSection(title, table, rows, options) {
+  const opts = options || {};
+  const section = el("section", { class: "sec" + (opts.nested ? " nested" : "") });
+  const head = el("h2");
+  head.appendChild(el("span", { class: "t" }, title));
+  head.appendChild(el("code", { class: "src" }, "config/masters_" + table + ".json"));
+  section.appendChild(head);
+
+  if (!Array.isArray(rows)) {
+    section.appendChild(el("p", { class: "note" }, "could not load this table"));
+    return section;
+  }
+  if (!rows.length) {
+    section.appendChild(el("p", { class: "note" }, opts.empty || "no rows for this selection"));
+    return section;
+  }
+  for (const row of rows) section.appendChild(renderRow(table, row));
+  return section;
+}
+
+function renderRow(table, row) {
+  const wrap = el("div", { class: "row" });
+  const head = el("div", { class: "rowhead" });
+  for (const key of Object.keys(row)) {
+    if (!LINK_FIELDS.has(key)) continue;
+    const chip = el("span", { class: "chip" });
+    chip.appendChild(document.createTextNode(key + " "));
+    chip.appendChild(el("b", null, formatValue(row[key])));
+    head.appendChild(chip);
+  }
+  if (head.childNodes.length) wrap.appendChild(head);
+
+  const grid = el("div", { class: "grid" });
+  for (const key of Object.keys(row)) {
+    if (LINK_FIELDS.has(key)) continue;
+    grid.appendChild(renderField(table, row, key, row[key]));
+  }
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+function renderField(table, row, key, value) {
+  const mode = fieldMode(table, key, value);
+  const label = el("label", { class: "field " + mode });
+  label.appendChild(el("span", { class: "k" }, key));
+
+  if (mode === "number") {
+    const input = el("input", { type: "number", step: "any", value: formatValue(value) });
+    input.dataset.table = table;
+    input.dataset.rowId = String(row.id);
+    input.dataset.field = key;
+    if (typeof value === "number" && Number.isInteger(value)) input.dataset.int = "1";
+    input.addEventListener("input", onFieldInput);
+    state.inputs.set(fieldKey(table, row.id, key), input);
+    label.appendChild(input);
+    return label;
+  }
+  if (mode === "bool") {
+    const input = el("input", { type: "checkbox" });
+    input.checked = value === true;
+    input.dataset.table = table;
+    input.dataset.rowId = String(row.id);
+    input.dataset.field = key;
+    input.addEventListener("change", onFieldInput);
+    state.inputs.set(fieldKey(table, row.id, key), input);
+    label.appendChild(input);
+    return label;
+  }
+  const isText = typeof value === "string" && value.length > 24;
+  label.appendChild(el("span", { class: "ro" + (isText ? " wrap" : "") }, formatValue(value)));
+  return label;
+}
+
+function findRow(table, rowId) {
+  const rows = rowsOf(table);
+  for (const row of rows) {
+    if (String(row.id) === String(rowId)) return row;
+  }
+  return null;
+}
+
+function onFieldInput(event) {
+  const input = event.target;
+  const table = input.dataset.table;
+  const key = input.dataset.field;
+  const row = findRow(table, input.dataset.rowId);
+  if (!row) return;
+
+  if (input.type === "checkbox") {
+    row[key] = input.checked;
+    delete input.dataset.invalid;
+  } else if (input.value === "") {
+    /* Kept as NaN so the field counts as changed; JSON.stringify turns it into
+       null and the server rejects it with a readable message. */
+    row[key] = NaN;
+    input.dataset.invalid = "1";
+  } else {
+    const number = Number(input.value);
+    row[key] = number;
+    const wantsInt = input.dataset.int === "1";
+    if (!Number.isFinite(number) || (wantsInt && !Number.isInteger(number))) {
+      input.dataset.invalid = "1";
+    } else {
+      delete input.dataset.invalid;
+    }
+  }
+  refreshDirty();
+}
+
+function renderPanel() {
+  const panel = document.getElementById("panel");
+  state.inputs.clear();
+  clear(panel);
+  if (state.tab === "kickers") {
+    const id = state.selection.kickers;
+    if (id === null) {
+      panel.appendChild(el("p", { class: "empty" }, "Select a kicker from the list."));
+      return;
+    }
+    const kicker = state.kickers.filter(function (k) { return k.id === id; })[0];
+    if (kicker) renderKickerPanel(panel, kicker);
+    return;
+  }
+  const id = state.selection.discs;
+  if (id === null) {
+    panel.appendChild(el("p", { class: "empty" }, "Select a disc from the list."));
+    return;
+  }
+  const disc = state.discs.filter(function (d) { return d.id === id; })[0];
+  if (disc) renderDiscPanel(panel, disc);
+}
+
+function panelHeader(iconKind, id, title, meta) {
+  const head = el("div", { class: "phead" });
+  head.appendChild(iconFor(iconKind, id, 72));
+  const box = el("div");
+  box.appendChild(el("h1", null, title));
+  box.appendChild(el("div", { class: "meta" }, meta));
+  head.appendChild(box);
+  return head;
+}
+
+function renderKickerPanel(panel, kicker) {
+  const parameter = rowsOf("kicker_parameter").filter(function (r) { return r.kickerId === kicker.id; })[0];
+  const role = parameter ? parameter.roleType : null;
+  const weapon = parameter ? parameter.weaponType : null;
+  const skillId = parameter ? parameter.skillId : null;
+  panel.appendChild(panelHeader("kicker", kicker.id,
+    kicker.name,
+    "id " + kicker.id + " · roleType " + role + " · weaponType " + weapon + " · KS skillId " + skillId));
+
+  /* Stats */
+  panel.appendChild(makeSection("Stats", "kicker_parameter",
+    rowsOf("kicker_parameter").filter(function (r) { return r.kickerId === kicker.id; }),
+    { empty: "no kicker_parameter row for this kicker" }));
+
+  /* Passive */
+  const abilities = rowsOf("kicker_ability").filter(function (r) { return r.kickerId === kicker.id; });
+  panel.appendChild(makeSection("Passive", "kicker_ability", abilities,
+    { empty: "no kicker_ability row for this kicker" }));
+  const abilityIds = abilities.map(function (r) { return r.id; });
+  const abilityConditions = rowsOf("kicker_ability_condition").filter(function (r) {
+    return abilityIds.indexOf(r.kickerAbilityId) !== -1;
+  });
+  if (abilityConditions.length) {
+    panel.appendChild(makeSection("Passive condition", "kicker_ability_condition", abilityConditions));
+  }
+
+  /* Kicker skill + its extra rows */
+  const skillRows = skillId === null ? [] :
+    rowsOf("skill").filter(function (r) { return r.id === skillId; });
+  panel.appendChild(makeSection("Kicker Skill", "skill", skillRows,
+    { empty: "no masters_skill row for skillId " + skillId }));
+  for (const table of KS_EXTRA_TABLES) {
+    const rows = rowsOf(table).filter(function (r) { return r.skillId === skillId; });
+    if (rows.length) panel.appendChild(makeSection("Kicker Skill extra · " + table, table, rows));
+  }
+
+  /* Special skill + extras */
+  const specials = rowsOf("special_skill").filter(function (r) { return r.kickerId === kicker.id; });
+  panel.appendChild(makeSection("Special Skill", "special_skill", specials,
+    { empty: "no special_skill row for this kicker" }));
+  for (const table of SS_EXTRA_TABLES) {
+    const rows = rowsOf(table).filter(function (r) { return r.specialSkillId === kicker.id; });
+    if (rows.length) panel.appendChild(makeSection("Special Skill extra · " + table, table, rows));
+  }
+
+  /* Basic attack, grouped by attackCount */
+  const attacks = rowsOf("weapon_attack")
+    .filter(function (r) { return r.kickerId === kicker.id; })
+    .sort(function (a, b) { return a.attackCount - b.attackCount; });
+  const attackSection = el("section", { class: "sec" });
+  const attackHead = el("h2");
+  attackHead.appendChild(el("span", { class: "t" }, "Basic Attack"));
+  attackHead.appendChild(el("code", { class: "src" }, "config/masters_weapon_attack.json"));
+  attackSection.appendChild(attackHead);
+  if (!attacks.length) {
+    attackSection.appendChild(el("p", { class: "note" }, "no weapon_attack rows for this kicker"));
+  }
+  for (const attack of attacks) {
+    const group = el("div", { class: "row" });
+    group.appendChild(makeSection("attackCount " + attack.attackCount, "weapon_attack", [attack], { nested: true }));
+    for (const table of WEAPON_EXTRA_TABLES) {
+      const rows = rowsOf(table).filter(function (r) {
+        return r.kickerId === kicker.id && r.attackCount === attack.attackCount;
+      });
+      if (rows.length) {
+        group.appendChild(makeSection(table, table, rows, { nested: true }));
+      }
+    }
+    attackSection.appendChild(group);
+  }
+  panel.appendChild(attackSection);
+}
+
+function renderDiscPanel(panel, disc) {
+  panel.appendChild(panelHeader("disc", disc.id,
+    disc.name,
+    "id " + disc.id + " · " + (disc.rarity || RARITY_LABELS[String(disc.rarityType)] || "?") +
+    " (rarityType " + disc.rarityType + ") · discType " + disc.discType +
+    " · " + (disc.type || "type ?") + " · " + (disc.attribute || "attribute ?") +
+    " · skillId " + disc.skillId));
+
+  const effect = el("section", { class: "sec" });
+  const effectHead = el("h2");
+  effectHead.appendChild(el("span", { class: "t" }, "Card text"));
+  effectHead.appendChild(el("code", { class: "src" }, "docs/disc_cards.json"));
+  effect.appendChild(effectHead);
+  effect.appendChild(el("p", { class: "note" }, disc.effect || "no card entry in docs/disc_cards.json"));
+  panel.appendChild(effect);
+
+  panel.appendChild(makeSection("Disc", "disc",
+    rowsOf("disc").filter(function (r) { return r.id === disc.id; }),
+    { empty: "no masters_disc row for this disc" }));
+
+  const skillRows = rowsOf("skill").filter(function (r) { return r.id === disc.skillId; });
+  panel.appendChild(makeSection("Skill", "skill", skillRows,
+    { empty: "no masters_skill row for skillId " + disc.skillId }));
+  for (const table of KS_EXTRA_TABLES) {
+    const rows = rowsOf(table).filter(function (r) { return r.skillId === disc.skillId; });
+    if (rows.length) panel.appendChild(makeSection("Skill extra · " + table, table, rows));
+  }
+}
+
+/* ------------------------------------------------------------ dirty + save */
+
+function refreshDirty() {
+  state.dirtyFields.clear();
+  state.dirtyTables.clear();
+  for (const table of Object.keys(state.data)) {
+    const rows = state.data[table];
+    const pristine = state.pristine[table];
+    if (!Array.isArray(rows) || !Array.isArray(pristine)) continue;
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
+      const original = pristine[index];
+      if (!original || String(row.id) !== String(original.id)) {
+        state.dirtyTables.add(table);
+        continue;
+      }
+      for (const key of Object.keys(original)) {
+        if (!(key in row)) continue;
+        if (sameValue(row[key], original[key])) continue;
+        state.dirtyFields.add(fieldKey(table, row.id, key));
+        state.dirtyTables.add(table);
+      }
+    }
+  }
+  for (const pair of state.inputs) {
+    const input = pair[1];
+    input.classList.toggle("dirty", state.dirtyFields.has(pair[0]));
+    input.classList.toggle("invalid", input.dataset.invalid === "1");
+  }
+  const counter = document.getElementById("dirtyCount");
+  counter.textContent = "Unsaved changes: " + state.dirtyFields.size;
+  counter.classList.toggle("has", state.dirtyFields.size > 0);
+  document.getElementById("save").disabled = state.saving || state.dirtyFields.size === 0;
+  document.getElementById("revert").disabled = state.saving;
+}
+
+function setStatus(lines) {
+  const box = document.getElementById("saveStatus");
+  clear(box);
+  for (const line of lines) {
+    box.appendChild(el("div", { class: "line " + line[0] }, line[1]));
+  }
+}
+
+async function save() {
+  if (state.saving) return;
+  const tables = Array.from(state.dirtyTables).sort();
+  if (!tables.length) {
+    setStatus([["info", "nothing to save"]]);
+    return;
+  }
+  state.saving = true;
+  refreshDirty();
+  const results = [];
+  for (const table of tables) {
+    setStatus(results.concat([["info", "saving config/masters_" + table + ".json ..."]]));
+    try {
+      const body = await fetchJSON("/api/table/" + table, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: state.data[table] })
+      });
+      if (!body || body.ok !== true) throw new Error("unexpected response");
+      state.pristine[table] = JSON.parse(JSON.stringify(state.data[table]));
+      results.push(["ok", "ok   config/masters_" + table + ".json (" + body.written + " rows written)"]);
+    } catch (error) {
+      results.push(["err", "fail config/masters_" + table + ".json: " + error.message]);
+    }
+    setStatus(results);
+  }
+  state.saving = false;
+  refreshDirty();
+  if (!results.some(function (line) { return line[0] === "err"; })) {
+    results.push(["info", "remember to restart the game server (start-server.bat)"]);
+  }
+  setStatus(results);
+}
+
+async function revert() {
+  if (state.saving) return;
+  state.saving = true;
+  setStatus([["info", "reloading from config/ ..."]]);
+  try {
+    await loadEverything(true);
+    state.inputs.clear();
+    renderPanel();
+    setStatus([["info", "reloaded from config/"]]);
+  } catch (error) {
+    setStatus([["err", "reload failed: " + error.message]]);
+  }
+  state.saving = false;
+  refreshDirty();
+}
+
+/* -------------------------------------------------------------------- boot */
+
+function wireEvents() {
+  const tabs = document.querySelectorAll("#tabs button");
+  for (const button of tabs) {
+    button.addEventListener("click", function () {
+      state.tab = button.dataset.tab;
+      for (const other of tabs) other.classList.toggle("on", other === button);
+      document.getElementById("discFilters").style.display =
+        state.tab === "discs" ? "block" : "none";
+      renderList();
+      renderPanel();
+      refreshDirty();
+    });
+  }
+  document.getElementById("filterText").addEventListener("input", renderList);
+  document.getElementById("filterRarity").addEventListener("change", renderList);
+  document.getElementById("filterType").addEventListener("change", renderList);
+  document.getElementById("save").addEventListener("click", save);
+  document.getElementById("revert").addEventListener("click", revert);
+  window.addEventListener("keydown", function (event) {
+    if ((event.ctrlKey || event.metaKey) && String(event.key).toLowerCase() === "s") {
+      event.preventDefault();
+      save();
+    }
+  });
+}
+
+async function boot() {
+  wireEvents();
+  try {
+    const loaded = await Promise.all([
+      fetchJSON("/api/kickers", { cache: "no-store" }),
+      fetchJSON("/api/discs", { cache: "no-store" })
+    ]);
+    state.kickers = loaded[0];
+    state.discs = loaded[1];
+    await loadEverything(false);
+    buildDiscFilters();
+    renderList();
+    renderPanel();
+    refreshDirty();
+  } catch (error) {
+    clear(document.getElementById("panel"));
+    document.getElementById("panel").appendChild(el("p", { class: "empty" },
+      "could not reach the balance server: " + error.message +
+      " — start it with: python tools/balance/server.py"));
+    setStatus([["err", "startup failed: " + error.message]]);
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

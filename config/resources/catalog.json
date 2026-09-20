@@ -28600,6 +28600,17 @@
       "sourcePath": "content/resources/ui-disc/41746862313338_56346e5fc5408275ba22bfb240fd7289.bundle",
       "contentType": "application/octet-stream",
       "sha256": "8d6303739c9f8569f1ef0bc81b2ab680227dac871445117a5a8715345c151394"
+    },
+    {
+      "id": "apk-remote-kickflightsg",
+      "enabled": true,
+      "host": "kickflightsg.ddns.net",
+      "requestPath": "/apk/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "logicalName": "Remote-play APK download",
+      "description": "Patched client for kickflightsg.ddns.net",
+      "sourcePath": ".local/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "contentType": "application/vnd.android.package-archive",
+      "sha256": "baf87d9a8b5c6de051c17d371a569f130f2c3b35cf88842b4a0a2da99b730c8b"
     }
   ]
 }

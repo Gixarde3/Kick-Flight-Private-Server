@@ -399,22 +399,34 @@ public sealed class BattleMatchmakingService
 
     public sealed record BotProfile(int KickerId, string Name);
 
+    // Gym mode (toggled at runtime with GET /gym/on | /gym/off | /gym): the next match is the human(s) on Blue against
+    // exactly GymBotCount mannequin bots on Red, and /battle/start hands out the harmless guardian row. Mannequin =
+    // kickerAiParameterId 100 + kickerId: the client patch (scripts/re/bot_special_skill_cave.py) sets
+    // PlayerCharacter.AIOption = Mannequin (63) for any id >= 100, and DemoSessionApi serves those ids as copies of
+    // the real AI rows with zero motivation so an unpatched client gets a mostly idle bot too.
+    public static volatile bool GymEnabled;
+    public const int GymAiParameterBase = 100;
+    public const int GymBotCount = 3;
+
+    // Names from config/masters_kicker.json. Bots are taken in this order (skipping the human's kicker), so the
+    // kickers whose weapons/skills were reworked on 2026-09-19 (Owlbert drone + smog, Buzzy Big shields + front
+    // barrier, Yuyan nunchaku + panda, Sid wrist lasers) come first and show up in every solo match for testing.
     private static readonly BotProfile[] BotProfiles =
     [
+        new(5, "Owlbert Bot"),
+        new(12, "Buzzy Big Bot"),
+        new(10, "Yuyan Bot"),
+        new(14, "Sid Bot"),
         new(1, "Tsubame Bot"),
-        new(2, "Kaito Bot"),
-        new(3, "Ruriha Bot"),
-        new(4, "Coco Bot"),
-        new(6, "Grenhawk Bot"),
-        new(7, "Pit Bot"),
+        new(2, "Ruriha Bot"),
+        new(3, "Coco Bot"),
+        new(4, "Kite Bot"),
+        new(6, "Pitophy Bot"),
+        new(7, "Grenhawk Bot"),
         new(8, "Anna Bot"),
-        new(9, "Diatrius Bot"),
-        new(10, "Jay Bot"),
-        new(12, "Yukari Bot"),
-        new(13, "Yui Bot"),
-        new(14, "Hitagi Bot"),
-        new(11, "Eleonora Bot"),
-        new(5, "Owlbert Bot")
+        new(9, "Jay Bot"),
+        new(11, "Diatrius Bot"),
+        new(13, "Hitagi Bot")
     ];
 
     private static MatchingBattleInfo BuildRoster(ActiveBattleRoom room)
@@ -475,11 +487,12 @@ public sealed class BattleMatchmakingService
         var botIdx = 0;
 
         const int maxPerTeam = 4;
-        const int totalPlayers = maxPerTeam * 2;
+        var gym = GymEnabled;
+        var totalPlayers = gym ? room.HumanPlayers.Count + GymBotCount : maxPerTeam * 2;
 
         while (info.battlePlayerList.Count < totalPlayers)
         {
-            int team = (team0Count < maxPerTeam) ? 0 : 1;
+            int team = gym ? 1 : (team0Count < maxPerTeam) ? 0 : 1;
             if (team == 0) team0Count++; else team1Count++;
 
             var profile = (botIdx < availableBots.Count) ? availableBots[botIdx++] : new BotProfile(botIdx + 1, $"Bot {botIdx + 1}");
@@ -490,7 +503,7 @@ public sealed class BattleMatchmakingService
                 userId = $"bot-{1000 + info.battlePlayerList.Count}",
                 matchmakingTeamId = $"team-{(team == 0 ? 1 : 2)}",
                 battleEntryId = $"be-bot-{info.battlePlayerList.Count}",
-                name = profile.Name,
+                name = gym ? $"{profile.Name} (gym)" : profile.Name,
                 // Must be >= the `rank` of the kicker's rows in masters_kicker_ai_parameter.json (all 13):
                 // PlayerCharacter.GetKickerAIParameterMaster picks the closest row with row.rank <= player rank,
                 // so a lower rank leaves the bot without AI parameters and it never acts.
@@ -499,7 +512,8 @@ public sealed class BattleMatchmakingService
                 kickerCostumeId = 1,
                 honorId = 6010000,
                 teamType = team,
-                kickerAiParameterId = profile.KickerId, // Valid AI parameter
+                // KickerAiParameterMaster row *id* (PlayerCharacter.GetKickerAIParameterMaster = get_Item(_kickerAiParameterId))
+                kickerAiParameterId = gym ? GymAiParameterBase + profile.KickerId : profile.KickerId,
                 kickerAiDiscDeckId = 1,                 // Valid AI deck
                 languageCode = "es",
                 frameId = 1,

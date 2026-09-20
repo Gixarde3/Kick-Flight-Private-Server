@@ -51,7 +51,11 @@ public sealed class DemoSessionApi
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
     private readonly Dictionary<int, int> _battleRuleTypeById = [];
     private readonly List<KickerInfo> _kickerList = [];
+    // kickerId -> KickerCostume master ROW ids. The client keys everything by row id (KickerCostumeMaster is a plain
+    // TMasterBase: UserKickerInfo.kickerCostumeId, /kicker/change, BattleInfo all carry the row id; it saves e.g. 110
+    // for Hitagi's standard colour, 64 for Owlbert's), not by the per-kicker costumeId column (1, 2, 3...).
     private readonly Dictionary<int, List<int>> _costumesByKicker = [];
+    private readonly Dictionary<int, int> _costumeKicker = [];   // row id -> kickerId
     private readonly List<int> _discIdList = [];
     private readonly ILogger<DemoSessionApi> _logger;
     private readonly BattleMatchmakingService _matchmaking;
@@ -88,13 +92,14 @@ public sealed class DemoSessionApi
             foreach (var el in cDoc.RootElement.EnumerateArray())
             {
                 var kickerId = el.GetProperty("kickerId").GetInt32();
-                var costumeId = el.TryGetProperty("costumeId", out var cProp) ? cProp.GetInt32() : el.GetProperty("id").GetInt32();
+                var costumeRowId = el.GetProperty("id").GetInt32();
                 if (!_costumesByKicker.TryGetValue(kickerId, out var cList))
                 {
                     cList = [];
                     _costumesByKicker[kickerId] = cList;
                 }
-                cList.Add(costumeId);
+                cList.Add(costumeRowId);
+                _costumeKicker[costumeRowId] = kickerId;
             }
         }
         catch (Exception ex)
@@ -106,6 +111,7 @@ public sealed class DemoSessionApi
         {
             _kickerList.Add(new KickerInfo(1, "Tsubame"));
             _costumesByKicker[1] = [1];
+            _costumeKicker[1] = 1;
         }
 
         _encryptedMasters["Kicker"] = EncryptMaster(kickerJson);
@@ -116,7 +122,10 @@ public sealed class DemoSessionApi
         _encryptedMasters["KickerAbilityCondition"] = EncryptMaster(abilityConditionJson);
         _encryptedMasters["Translation"] = EncryptMaster(translationJson);
 
-        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
+        // FieldManager.InitializeAsync does FieldMaster[fieldId] and silently gives up (FieldInfo stays null, every
+        // PlayerCharacter.Initialize then NREs and the loading screen never ends) when the row is missing. 801 is the
+        // flat Trial arena BattleUtil.CreateTrialBattleInfo hard-codes (fld00801 / fielddata/fld00801_100 / mim00801_0).
+        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":801,"name":"FLD00801","minimapId":801,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
         // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
         // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
         // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
@@ -132,7 +141,7 @@ public sealed class DemoSessionApi
         var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", """
             [
               {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":3,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
@@ -272,9 +281,21 @@ public sealed class DemoSessionApi
                             weaponTypes.TryGetValue(k, out var kwt);
                             string bone;
                             var attach = 1;                                               // PropAttachType.Child
-                            if (p == 1) bone = kwt == 4 ? "Prop_Common" : "Prop_R";      // a Drone hovers from the body
-                            else if (p == 2) bone = "Prop_L";
-                            else if (p == 201 && kwt == 11) bone = "wp_010_001_Grip_L";  // Nunchaku free stick hangs off the handle's Grip_L locator
+                            // Bone names come from the client: ShieldPropTypeExtensions/LaserPropTypeTypeExtensions.AttachBoneName
+                            // resolve the wrist props by "Prop_R2"/"Prop_L2" (Buzzy's shields, Sid's lasers - the *2 bones sit on
+                            // the forearm with the opposite orientation, which is why Prop_L put the left shield on the wrong side of
+                            // the arm and the lasers pointed sideways); everything hand-held uses "Prop_R"/"Prop_L".
+                            // Drone (Owlbert) and Nunchaku (Yuyan) weapons are animated by the body clips: the clips bind
+                            // "Root/wp_005_001_Root/wp_005_001_Hip/..." (the drone hover, and the SS mini drones under
+                            // wp_005_101_Root / wp_005_201_Root), ".../Hand_R/Prop_R/wp_010_001_Root/wp_010_001_Grip_L" (the
+                            // nunchaku swing / dangling panda head) and "Root/wp_010_201_Root" (the SS panda mount), so those rows
+                            // need the exact bone and the model root renamed to "wp_<kicker>_<prop>_Root" (Weapon.Initialize sets
+                            // the instantiated model's name from rootName). Verified with scripts/re/anim_paths.py (CRC32 path
+                            // hashes of every clip vs. the body + weapon prefab hierarchies).
+                            var wristProps = kwt == 9 || kwt == 13;                       // Shield, Laser
+                            if (p == 1) bone = kwt == 4 ? "Root" : wristProps ? "Prop_R2" : "Prop_R";
+                            else if (p == 2) bone = wristProps ? "Prop_L2" : "Prop_L";
+                            else if (p == 201 && kwt == 11) bone = "Root";               // Nunchaku panda mount (NunchakuPandaAction)
                             else if ((p == 201 && (kwt == 4 || kwt == 10)) || (p == 101 && kwt == 4))
                             {
                                 // Drone prop 101 is the drone unit itself: NPCDrone.InitializeAsync instantiates weapon prop 101
@@ -285,12 +306,13 @@ public sealed class DemoSessionApi
                                 // Drone (Owlbert) and Bat (Jay) special-skill cut-ins call HighPlayerCharacter.GetWeapon(201)
                                 // and dereference its ModelCtr (DroneSpecialSkillCutAction/BatSpecialSkillCutAction.Initialize):
                                 // without a 201 row the NRE kills PlayerCharacter.ResetPlayer and the battle never loads.
-                                // Attached as a Child of the base bone like prop 1 (the cut-in shows/hides it itself); the old
-                                // breakage with 101/201 rows came from serving them as PropAttachType.Replace rows.
-                                bone = kwt == 4 ? "Prop_Common" : "Prop_R";
+                                // Attached as a Child like prop 1 (props >= 100 are hidden by Weapon.Initialize and shown by the
+                                // skill code itself); the old breakage with 101/201 rows came from serving them as
+                                // PropAttachType.Replace rows.
+                                bone = kwt == 4 ? "Root" : "Prop_R";
                             }
                             else continue;
-                            weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = "", attachType = attach });
+                            weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = $"wp_{k:000}_{p:000}_Root", attachType = attach });
                         }
                         loadedFromCatalog = true;
                         _logger.LogInformation("Loaded {Count} authentic weapon master entries from catalog.json", weaponList.Count);
@@ -424,7 +446,7 @@ public sealed class DemoSessionApi
         var aiDeckJson = LoadJson(contentRoot, "config/masters_kicker_ai_disc_deck.json", "[]");
         var pingThresholdJson = LoadJson(contentRoot, "config/masters_matchmaking_ping_threshold.json", "[]");
 
-        _encryptedMasters["KickerAiParameter"] = EncryptMaster(aiParamJson);
+        _encryptedMasters["KickerAiParameter"] = EncryptMaster(AppendGymAiRows(aiParamJson));
         _encryptedMasters["KickerAiDisc"] = EncryptMaster(aiDiscJson);
         _encryptedMasters["KickerAiDiscDeck"] = EncryptMaster(aiDeckJson);
         _encryptedMasters["MatchmakingPingThreshold"] = EncryptMaster(pingThresholdJson);
@@ -604,6 +626,57 @@ public sealed class DemoSessionApi
         catch (Exception ex)
         {
             _logger.LogWarning("Error saving user state for {UserId}: {Error}", state.UserId, ex.Message);
+        }
+    }
+
+    // Gym-mode bots use KickerAiParameter row id 100 + kickerId (BattleMatchmakingService.GymAiParameterBase): a copy
+    // of the kicker's real row with every motivation at 0, no lock-on and very long skill/dash intervals, so even a
+    // client without the Mannequin patch mostly stands still. The row must exist or the bot never gets an AI engine.
+    private static string AppendGymAiRows(string aiParamJson)
+    {
+        try
+        {
+            var rows = System.Text.Json.Nodes.JsonNode.Parse(aiParamJson) as System.Text.Json.Nodes.JsonArray;
+            if (rows is null) return aiParamJson;
+            var extra = new List<System.Text.Json.Nodes.JsonNode>();
+            foreach (var row in rows)
+            {
+                if (row is not System.Text.Json.Nodes.JsonObject obj) continue;
+                var copy = (System.Text.Json.Nodes.JsonObject)obj.DeepClone();
+                copy["id"] = BattleMatchmakingService.GymAiParameterBase + (obj["id"]?.GetValue<int>() ?? 0);
+                copy["attackMotivation"] = 0;
+                copy["defenseMotivation"] = 0;
+                copy["scoreMotivation"] = 0;
+                copy["canLockon"] = false;
+                foreach (var col in new[] { "attackDashInterval", "defenseDashInterval", "scoreDashInterval", "attackSkillInterval",
+                                            "healSkillInterval", "buffSkillInterval", "trapSkillInterval", "warpSkillInterval" })
+                {
+                    copy[col] = 9999.0;
+                }
+                extra.Add(copy);
+            }
+            foreach (var e in extra) rows.Add(e);
+            return rows.ToJsonString();
+        }
+        catch (Exception)
+        {
+            return aiParamJson;
+        }
+    }
+
+    // A costume row that belongs to another kicker (hand-edited user file, or a file saved before costume ids were
+    // row ids) makes KickerDisplayPresenter.UpdateView work on the wrong kicker's costume; fall back to the kicker's
+    // first row (its standard colour).
+    private void NormalizeCostume(SessionState state)
+    {
+        if (_costumeKicker.TryGetValue(state.KickerCostumeId, out var owner) && owner == state.KickerId)
+        {
+            return;
+        }
+        if (_costumesByKicker.TryGetValue(state.KickerId, out var rows) && rows.Count > 0)
+        {
+            _logger.LogInformation("Costume {Costume} does not belong to kicker {Kicker}; using row {Row}", state.KickerCostumeId, state.KickerId, rows[0]);
+            state.KickerCostumeId = rows[0];
         }
     }
 
@@ -816,10 +889,7 @@ public sealed class DemoSessionApi
             {
                 state.KickerCostumeId = costumeProp.GetInt32();
             }
-            else if (_costumesByKicker.TryGetValue(state.KickerId, out var defaultCostumes) && defaultCostumes.Count > 0)
-            {
-                state.KickerCostumeId = defaultCostumes[0];
-            }
+            NormalizeCostume(state);
 
             SaveUserState(state);
             _logger.LogInformation("Session updated: KickerId={KickerId}, CostumeId={CostumeId}", state.KickerId, state.KickerCostumeId);
@@ -934,6 +1004,7 @@ public sealed class DemoSessionApi
 
     private string BuildStartupJson(SessionState state, HttpRequest request)
     {
+        NormalizeCostume(state);
         var userKickerList = _kickerList.Select(k =>
         {
             var costumes = _costumesByKicker.GetValueOrDefault(k.Id, [1]);
@@ -1019,10 +1090,7 @@ public sealed class DemoSessionApi
 
     private string BuildHomeJson(SessionState state)
     {
-        if (state.KickerCostumeId == 0 && _costumesByKicker.TryGetValue(state.KickerId, out var homeCostumes) && homeCostumes.Count > 0)
-        {
-            state.KickerCostumeId = homeCostumes[0];
-        }
+        NormalizeCostume(state);
 
         var userPlayer = new
         {
@@ -1191,6 +1259,7 @@ public sealed class DemoSessionApi
         }
 
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
+        NormalizeCostume(state);
         var (battleEntryId, ticketId) = _matchmaking.RegisterEntry(
             state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck);
 
@@ -1236,7 +1305,8 @@ public sealed class DemoSessionApi
 
         // GuardianParameterMaster is looked up by the id returned here (CallbackBattleStartSuccess), so a rule
         // whose guardian is the revivable ball-goal variant (battleRuleType 3) gets the weaker row 2.
-        var guardianId = battleRuleType == 3 ? 2 : 1;
+        // Gym: row 3 = same HP, attack 0, so the guardian's eye laser cannot hurt anyone.
+        var guardianId = BattleMatchmakingService.GymEnabled ? 3 : battleRuleType == 3 ? 2 : 1;
         var resp = new
         {
             fieldId = 101, // Arena 1 (FLD00101 Cristalmanía)

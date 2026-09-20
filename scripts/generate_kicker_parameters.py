@@ -40,6 +40,11 @@ kickers_weapons = {
 }
 
 param_list = []
+# kickerId -> (footHeight = hips height, height = head top) measured on the pc_<k>_001 body prefabs (2026-09-19)
+BODY_HEIGHTS = {1: (0.79, 1.64), 2: (0.89, 1.58), 3: (0.81, 1.56), 4: (0.83, 1.67), 5: (0.78, 1.62), 6: (0.52, 1.3),
+                7: (0.99, 1.91), 8: (1.02, 1.82), 9: (0.93, 1.83), 10: (0.81, 1.6), 11: (1.16, 2.23), 12: (0.65, 1.66),
+                13: (0.84, 1.63), 14: (1.0, 1.89)}
+
 for kid in range(1, 15):
     role = kickers_roles[kid]
     weapon = kickers_weapons[kid]
@@ -96,8 +101,12 @@ for kid in range(1, 15):
         "dashAttackSpeedWeight": 1.0,
         "dashAttackTime": 0.5,
         "dashAttackFollowThroughTime": 0.3,
-        "footHeight": 0.0,
-        "height": 1.6,
+        # PlayerModelControllerBase.SetHeight puts the model at localPosition.y = -footHeight, i.e. the character root
+        # (colliders, condition effects such as the Crew Protection sphere, lock-on) sits footHeight above the feet.
+        # 0.0 stood every kicker on top of its own effects. Values = hips height / head top of the body prefab
+        # (scripts/re/bundle_tree.py on player/pc_<k>/pc_<k>_001, rest pose), see BODY_HEIGHTS.
+        "footHeight": BODY_HEIGHTS[kid][0],
+        "height": BODY_HEIGHTS[kid][1],
         "recoveryBoostPoint": 10.0,
         "recoveryBoostPointGround": 15.0,
         "addMoveSpecialSkillPoint": 1.0,
