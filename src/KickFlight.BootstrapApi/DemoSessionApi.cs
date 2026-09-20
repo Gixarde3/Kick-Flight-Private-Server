@@ -125,7 +125,8 @@ public sealed class DemoSessionApi
         // FieldManager.InitializeAsync does FieldMaster[fieldId] and silently gives up (FieldInfo stays null, every
         // PlayerCharacter.Initialize then NREs and the loading screen never ends) when the row is missing. 801 is the
         // flat Trial arena BattleUtil.CreateTrialBattleInfo hard-codes (fld00801 / fielddata/fld00801_100 / mim00801_0).
-        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":801,"name":"FLD00801","minimapId":801,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
+        // One row per arena of BattleMatchmakingService.FieldPool (+ the home stage 99999 and the Trial arena 801).
+        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":801,"name":"FLD00801","minimapId":801,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":301,"name":"FLD00301","minimapId":301,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":401,"name":"FLD00401","minimapId":401,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":601,"name":"FLD00601","minimapId":601,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":701,"name":"FLD00701","minimapId":701,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":901,"name":"FLD00901","minimapId":901,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
         // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
         // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
         // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
@@ -167,7 +168,8 @@ public sealed class DemoSessionApi
             _logger.LogWarning("Error parsing battle rule json: {Error}", ex.Message);
         }
 
-        _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":100},{"id":2,"battleRuleId":2,"fieldId":101,"ratio":100},{"id":3,"battleRuleId":3,"fieldId":101,"ratio":100},{"id":4,"battleRuleId":4,"fieldId":101,"ratio":100},{"id":5,"battleRuleId":5,"fieldId":101,"ratio":100},{"id":6,"battleRuleId":6,"fieldId":101,"ratio":100}]""");
+        // every rule can be played on every arena of the pool (equal ratio); the server, not the client, draws the field
+        _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":16},{"id":2,"battleRuleId":1,"fieldId":301,"ratio":16},{"id":3,"battleRuleId":1,"fieldId":401,"ratio":16},{"id":4,"battleRuleId":1,"fieldId":601,"ratio":16},{"id":5,"battleRuleId":1,"fieldId":701,"ratio":16},{"id":6,"battleRuleId":1,"fieldId":901,"ratio":16},{"id":7,"battleRuleId":2,"fieldId":101,"ratio":16},{"id":8,"battleRuleId":2,"fieldId":301,"ratio":16},{"id":9,"battleRuleId":2,"fieldId":401,"ratio":16},{"id":10,"battleRuleId":2,"fieldId":601,"ratio":16},{"id":11,"battleRuleId":2,"fieldId":701,"ratio":16},{"id":12,"battleRuleId":2,"fieldId":901,"ratio":16},{"id":13,"battleRuleId":3,"fieldId":101,"ratio":16},{"id":14,"battleRuleId":3,"fieldId":301,"ratio":16},{"id":15,"battleRuleId":3,"fieldId":401,"ratio":16},{"id":16,"battleRuleId":3,"fieldId":601,"ratio":16},{"id":17,"battleRuleId":3,"fieldId":701,"ratio":16},{"id":18,"battleRuleId":3,"fieldId":901,"ratio":16},{"id":19,"battleRuleId":4,"fieldId":101,"ratio":16},{"id":20,"battleRuleId":4,"fieldId":301,"ratio":16},{"id":21,"battleRuleId":4,"fieldId":401,"ratio":16},{"id":22,"battleRuleId":4,"fieldId":601,"ratio":16},{"id":23,"battleRuleId":4,"fieldId":701,"ratio":16},{"id":24,"battleRuleId":4,"fieldId":901,"ratio":16},{"id":25,"battleRuleId":5,"fieldId":101,"ratio":16},{"id":26,"battleRuleId":5,"fieldId":301,"ratio":16},{"id":27,"battleRuleId":5,"fieldId":401,"ratio":16},{"id":28,"battleRuleId":5,"fieldId":601,"ratio":16},{"id":29,"battleRuleId":5,"fieldId":701,"ratio":16},{"id":30,"battleRuleId":5,"fieldId":901,"ratio":16},{"id":31,"battleRuleId":6,"fieldId":101,"ratio":16},{"id":32,"battleRuleId":6,"fieldId":301,"ratio":16},{"id":33,"battleRuleId":6,"fieldId":401,"ratio":16},{"id":34,"battleRuleId":6,"fieldId":601,"ratio":16},{"id":35,"battleRuleId":6,"fieldId":701,"ratio":16},{"id":36,"battleRuleId":6,"fieldId":901,"ratio":16}]""");
         // The file is the source; the literal is only the fallback.
         var regularMatchScheduleJson = LoadJson(contentRoot, "config/masters_regular_match_battle_schedule.json", """
             [
@@ -296,6 +298,14 @@ public sealed class DemoSessionApi
                             if (p == 1) bone = kwt == 4 ? "Root" : wristProps ? "Prop_R2" : "Prop_R";
                             else if (p == 2) bone = wristProps ? "Prop_L2" : "Prop_L";
                             else if (p == 201 && kwt == 11) bone = "Root";               // Nunchaku panda mount (NunchakuPandaAction)
+                            else if (p == 101 && kwt == 13) bone = "Root";               // Laser prop 101 = Sid's decoy statue (LaserPropType.KickerSkillStatue):
+                                                                                        // StatueTrapAction..ctor does ModelManager.InstantiateWeaponModel(kicker,
+                                                                                        // model, 101, parent: trap) and LoadManager only preloads the weapon
+                                                                                        // bundles that have a Weapon row (LoadWeaponModelAsync ->
+                                                                                        // GetWeaponAttachData), so without this row the cache misses and the
+                                                                                        // kicker skill NREs in the ctor (logcat 2026-09-21). Hidden on the
+                                                                                        // player like every prop >= 100; "Root" so LaserAttackAction's
+                                                                                        // GetWeapon("Prop_R2") never resolves to the statue.
                             else if ((p == 201 && (kwt == 4 || kwt == 10)) || (p == 101 && kwt == 4))
                             {
                                 // Drone prop 101 is the drone unit itself: NPCDrone.InitializeAsync instantiates weapon prop 101
@@ -486,11 +496,14 @@ public sealed class DemoSessionApi
             _encryptedMasters[masterName] = EncryptMaster(ApplyObscuredOffsets(masterName, json));
         }
 
+        // PlayerStateDeposit.get_DepositTime = powf(depositCount, crystalDepositSpeedCoefficient) - 0.2, depositCount
+        // starting at 1 and +1 per crystal of the same deposit. 1.0 made every consecutive crystal slower (0.8, 1.8,
+        // 2.8 s ...); a negative exponent makes them faster: -0.5 -> 0.8, 0.51, 0.38, 0.30, 0.25 s.
         _encryptedMasters["BattleRuleScramble"] = EncryptMaster("""
             [
-              {"id":1,"battleRuleId":1,"crystalDepositSpeedCoefficient":1.0},
-              {"id":2,"battleRuleId":5,"crystalDepositSpeedCoefficient":1.0},
-              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":1.0}
+              {"id":1,"battleRuleId":1,"crystalDepositSpeedCoefficient":-0.1},
+              {"id":2,"battleRuleId":5,"crystalDepositSpeedCoefficient":-0.1},
+              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":-0.1}
             ]
             """);
 
@@ -1282,6 +1295,7 @@ public sealed class DemoSessionApi
         var body = await ReadBodyAsync(context.Request);
         var battleRuleId = 1;
         var battleRuleType = 1;
+        var battleId = "";
         try
         {
             if (body.Length > 16)
@@ -1292,8 +1306,11 @@ public sealed class DemoSessionApi
                 {
                     battleRuleId = ruleProp.GetInt32();
                 }
+                if (document.RootElement.TryGetProperty("battleId", out var battleProp) && battleProp.ValueKind == JsonValueKind.String)
+                {
+                    battleId = battleProp.GetString() ?? "";
+                }
             }
-            // the request also carries battleId, which nothing here needs
             if (!_battleRuleTypeById.TryGetValue(battleRuleId, out battleRuleType)) battleRuleType = 1;
         }
         catch (Exception ex)
@@ -1307,9 +1324,11 @@ public sealed class DemoSessionApi
         // whose guardian is the revivable ball-goal variant (battleRuleType 3) gets the weaker row 2.
         // Gym: row 3 = same HP, attack 0, so the guardian's eye laser cannot hurt anyone.
         var guardianId = BattleMatchmakingService.GymEnabled ? 3 : battleRuleType == 3 ? 2 : 1;
+        // The arena: the room's draw (same for every human in it) or a fresh draw when the room is unknown.
+        var fieldId = _matchmaking.GetRoomFieldId(battleId) ?? BattleMatchmakingService.PickRandomField();
         var resp = new
         {
-            fieldId = 101, // Arena 1 (FLD00101 Cristalmanía)
+            fieldId,
             guardianParameter = new
             {
                 id = guardianId,
@@ -1320,8 +1339,8 @@ public sealed class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-start";
-        _logger.LogInformation("Handled /battle/start for {UserId}: rule={RuleId} type={RuleType} guardianParameter={GuardianId}",
-            state.UserId, battleRuleId, battleRuleType, guardianId);
+        _logger.LogInformation("Handled /battle/start for {UserId}: rule={RuleId} type={RuleType} guardianParameter={GuardianId} field={FieldId}",
+            state.UserId, battleRuleId, battleRuleType, guardianId, fieldId);
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 

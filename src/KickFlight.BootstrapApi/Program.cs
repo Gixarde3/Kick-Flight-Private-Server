@@ -48,6 +48,33 @@ app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
 app.MapGet("/gym", () => Results.Json(new { gym = BattleMatchmakingService.GymEnabled, bots = BattleMatchmakingService.GymBotCount, usage = "/gym/on | /gym/off" }));
 app.MapGet("/gym/on", () => { BattleMatchmakingService.GymEnabled = true; return Results.Text("gym ON: next match = you vs 3 mannequin bots + harmless guardian"); });
 app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; return Results.Text("gym OFF: normal 4v4 bot matches"); });
+// APK download for phones: http://<server>:18080/apk (LAN build) and /apk/remote (kickflightsg.ddns.net build).
+// Files live in .local/ (git-ignored, produced by .local/build.sh); 404 with the expected path when missing.
+var repoRoot = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
+IResult ServeApk(string fileName)
+{
+    var path = Path.Combine(repoRoot, ".local", fileName);
+    return File.Exists(path)
+        ? Results.File(path, "application/vnd.android.package-archive", fileName, enableRangeProcessing: true)
+        : Results.Json(new { error = "apk-not-built", expected = path }, statusCode: 404);
+}
+app.MapGet("/apk", () => ServeApk("KickFlight-2.11.0-current-patches.apk"));
+app.MapGet("/apk/remote", () => ServeApk("KickFlight-2.11.0-remote-kickflightsg.apk"));
+app.MapGet("/apk/diag", () => ServeApk("KickFlight-2.11.0-DIAG.apk"));
+app.MapGet("/apk/diag-remote", () => ServeApk("KickFlight-2.11.0-DIAG-remote.apk"));
+// Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
+// from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
+app.MapPost("/diag/upload", async (HttpContext context) =>
+{
+    var dir = Path.Combine(repoRoot, ".local", "run");
+    Directory.CreateDirectory(dir);
+    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt";
+    using var ms = new MemoryStream();
+    await context.Request.Body.CopyToAsync(ms, context.RequestAborted);
+    if (ms.Length > 4 * 1024 * 1024) return Results.Json(new { error = "too-large", max = 4 * 1024 * 1024 }, statusCode: 413);
+    await File.WriteAllBytesAsync(Path.Combine(dir, name), ms.ToArray(), context.RequestAborted);
+    return Results.Json(new { saved = name, bytes = ms.Length });
+});
 app.MapGet("/health/photon", async (IPhotonServerManager photonManager, CancellationToken ct) =>
 {
     var status = await photonManager.CheckHealthAsync(ct);

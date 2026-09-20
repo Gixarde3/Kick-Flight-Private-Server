@@ -1,8 +1,8 @@
 [
  {
   "id": 1,
-  "name": "Cristalmanía",
-  "seasonName": "Temporada 1",
+  "name": "Crystal Scramble",
+  "seasonName": "Season 1",
   "festivalName": "",
   "matchType": 1,
   "battleRuleType": 1,
@@ -18,8 +18,8 @@
  },
  {
   "id": 2,
-  "name": "Vuelo de banderas",
-  "seasonName": "Temporada 1",
+  "name": "Flag Flight",
+  "seasonName": "Season 1",
   "festivalName": "",
   "matchType": 1,
   "battleRuleType": 2,
@@ -35,8 +35,8 @@
  },
  {
   "id": 3,
-  "name": "Bola rápida",
-  "seasonName": "Temporada 1",
+  "name": "Rapid Ball",
+  "seasonName": "Season 1",
   "festivalName": "",
   "matchType": 1,
   "battleRuleType": 3,
@@ -52,7 +52,7 @@
  },
  {
   "id": 4,
-  "name": "Bola rápida",
+  "name": "Rapid Ball",
   "seasonName": "",
   "festivalName": "",
   "matchType": 2,
@@ -69,8 +69,8 @@
  },
  {
   "id": 5,
-  "name": "Cristalmanía",
-  "seasonName": "Temporada 1",
+  "name": "Crystal Scramble",
+  "seasonName": "Season 1",
   "festivalName": "",
   "matchType": 3,
   "battleRuleType": 1,
@@ -86,9 +86,9 @@
  },
  {
   "id": 6,
-  "name": "Festival Kick-Flight",
+  "name": "Kick-Flight Festival",
   "seasonName": "",
-  "festivalName": "Festival Kick-Flight",
+  "festivalName": "Kick-Flight Festival",
   "matchType": 4,
   "battleRuleType": 1,
   "regularMatchFlag": false,

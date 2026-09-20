@@ -51,7 +51,7 @@ def asm_block(text: str, base: int) -> bytes:
 
 LIB = os.path.join(os.path.dirname(__file__), "..", "..", ".local", "re", "lib", "arm64-v8a", "libil2cpp.so")
 REGIONS = [(0x13BA660, 0x13BA8F4), (0x13BA8F8, 0x13BAA7C), (0x13BA090, 0x13BA194),
-           (0x13CE3E0, 0x13CE7C8)]   # PlayerCharacter.UpdateIdleTypeRate (entry-stubbed in production)
+           (0x13CE3E0, 0x13CE500)]   # PlayerCharacter.UpdateIdleTypeRate up to the production bat-bomb cave (0x13CE500)
 
 # Only the human's action is interesting (the gym mannequins run the same code every frame): a probe body may start
 # with one of these guards, which jump to the cave's epilogue for AI-driven players (PlayerCharacter._enableAi +0xE0).

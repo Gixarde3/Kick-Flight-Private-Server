@@ -103,3 +103,47 @@ master `Field` (string inline en `DemoSessionApi.cs`), no era el cliente.
   del hilo. `UnityPreload` + fault 0 ~6-12 s después de `D/Unity: GameScene` es la carrera intermitente del loader.
 - Los masters `Field`, `BattleRule` (fallback) y otros son strings inline en `DemoSessionApi.InitializeMasters`;
   `python scripts/re/served_master.py <Tabla>` enseña lo que realmente recibe el cliente.
+
+### Aprendizajes del 2026-09-20 (ronda 8: pasivas, KS y efectos de discos)
+
+- Todos los efectos de discos y KS van ahora en `DISC_EFFECTS` / `KICKER_SKILL_EXTRAS` de
+  `scripts/generate_combat_masters.py` (curas, condiciones, blow-off, pull-in) y se regeneran con
+  `python scripts/generate_combat_masters.py --only masters_skill_condition,masters_skill_heal,masters_skill_blow_off,masters_skill_pull_in,masters_skill_trap`
+  (ojo: `--only skill_condition` a secas también reescribe `masters_special_skill_*`). Semántica verificada de cada
+  columna en `docs/COMBAT_MASTERS_FILL_IN.md` §2 (curas = fracción de MaxHP, HpDrain/SpDrain se leen en
+  `ApplyHealOnDamage`, DamageRate = daño recibido, Poison = MaxHP del objetivo por tick, Dot = ataque del emisor…).
+- Blow-off: sin fila `SkillBlowOff` un `FrontAttack` golpea hacia **abajo** (`FrontAttackSkillAction.get_BlowOffDirectionType`
+  → 2); por eso Blox y compañía "slammeaban" en vez de lanzar. En un `MoveAttack` la fila convierte la embestida en
+  "pursuit" (arrastra al golpeado, `MoveAttackSkillAction.HitCallback`) y sin fila es "pierce" + shield break
+  (`DiscSkillParameter..ctor` solo marca `IsShieldBreak` si no hay blow-off ni cura). Dirección 4 = víctima − atacante,
+  así que en bombas/torretas (atacante = quien la puso) se usa Up.
+- Pull-in (KS de Yuyan/Anna): fila `SkillPullIn` → `PlayerStatePullIn`; una fila de blow-off en el mismo skill la anula.
+- Bomba de Jay: `DiscSkillParameter..ctor` solo rellena `TrapInfo.CollisionMasterId/Radius/LifeTime/EffectPath` desde un
+  clip sensor del timeline `aed_NNN`, y ningún bundle tiene grupo 40001 → la explosión pedía la colisión 0 (null) y nunca
+  estallaba. Cave de producción en la cola de `BatAbilityParameter..ctor` (cuerpo de `UpdateIdleTypeRate`, 0x13CE500):
+  colisión 198 de `skill_40001`, radio 2 → `SkillTrap.radius`, vida `interval`, efecto `effectPath` con trigger 1 (sin
+  trigger `SyncEffect.PlayStartEffect` no arranca los `effect/cm`); `duration` = 2 s hasta estallar; daño = ataque ×
+  `Skill.coefficient` (10). Segunda cave (`SetModel` 0x159DA48): `DiscSkillParameter.HitInfo` solo lo asigna
+  `SetSkillActionHitData` desde un clip de colisión con daño del timeline → para 40001 era null y cada impacto de la
+  explosión moría con NRE en `PlayerCharacter.AcceptDamageInfo`; la cave toma `_hitInfos[207]`. Verificado en emulador
+  (KFDIAG 9001-9041 + 8811 = 1 impacto, 0 excepciones). Regla nueva: una cave que hace `bl` tiene que guardar/restaurar
+  x30 antes de su `ret` (la primera versión se colgaba en bucle = "Cargando" eterno con Jay).
+- Carga de la Special Skill: `PlayerCharacter.CalcChargeSP` caso 2 suma `distancia volada × addMoveSpecialSkillPoint`
+  (MaxSP = 100), caso 3 `addWeaponAttackSpecialSkillPoint` por golpe. `masters_kicker_parameter.json` lleva ahora
+  `100 / distancia` con las distancias por kicker de Appliv 431798 (Jay 550 … Anna 1500 unidades); antes era 1.0 (la barra
+  se llenaba en 100 unidades).
+- El `effectPath` de una trampa/explosión tiene que ser un bundle cargado en la partida: `EffectManager.InstantiateEffect`
+  devuelve null sin error para lo que `LoadManager` no cacheó (los `effect/ds/` solo se cargan para los discos equipados);
+  `effect/cm/ef_cm_001..036` (orden del enum `EffectManager.Effect`, 006 = Dead) siempre están.
+- Textos de la UI: `masters_translation.json` es el master `Translation`; cada `LocalizeText` de los prefabs y
+  `LocalizeManager.GetText(enum)` (`skillCategoryType.attack` → "ATK", etc.) buscan su clave ahí y una clave ausente se
+  pinta vacía. `scripts/generate_translations.py` genera todas las claves (prefabs `docs/localize_keys.json` + enums +
+  literales); `scripts/extract_localize_layout.py` saca la posición de cada texto (`docs/localize_layout.json`) para la
+  pestaña **Text** del WebUI de balance (wireframe por pantalla + edición).
+- Velocidad de ataque básico: constantes en el cliente (`XxxAttackAction..cctor`), no es dato de master;
+  `RANGED_ATTACK_INTERVALS` en `patch-il2cpp-endpoints.py` (rebuild con `build-all-apks.bat`).
+- Tiempos de casteo por kicker y categoría (Appliv 431798) → `CAST_TIMES` en `scripts/build-action-asset-bundles.py`,
+  que desplaza `_compatibilityTime` y los `_startTime` de cada disco en los nueve bundles generados (revisión Octo 26).
+  Rehacer bundles = `python scripts/build-action-asset-bundles.py`, subir `revision` en `title-minimum.json` **y añadir
+  el nuevo número a `fromRevisions`** (el cliente al día pide `/v1/list/12345/<revision>` y sin ese fixture recibe 404 =
+  "error de comunicación"), `python scripts/build-title-resource-catalog.py`.

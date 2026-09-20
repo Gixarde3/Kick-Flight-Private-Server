@@ -135,6 +135,30 @@
   #saveStatus .line.err { color: var(--err); }
   #saveStatus .line.info { color: var(--fg2); }
   code { font-family: ui-monospace, Consolas, monospace; }
+  /* Text tab: wireframe of a UI prefab (1080x1920 canvas at 1/3) */
+  .wire { position: relative; width: 360px; height: 640px; background: #0b1017; border: 1px solid var(--line);
+    border-radius: 8px; overflow: hidden; margin: 8px 0 14px; flex: 0 0 auto; }
+  .wire .box { position: absolute; box-sizing: border-box; border: 1px solid rgba(96,165,250,.55);
+    background: rgba(96,165,250,.10); color: #e8edf5; overflow: hidden; white-space: nowrap; line-height: 1.1;
+    padding: 0 2px; cursor: pointer; text-overflow: ellipsis; }
+  .wire .box.off { border-style: dashed; opacity: .55; }
+  .wire .box.hot { border-color: var(--dirty); background: rgba(250,204,21,.18); }
+  .wire .box.empty { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.12); }
+  .wire .box.cur { outline: 2px solid var(--accent); z-index: 2; }
+  .textwrap { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .textrows { flex: 1 1 420px; min-width: 320px; }
+  .trow { display: grid; grid-template-columns: minmax(180px, 1fr) 2fr; gap: 8px; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .trow .kk { font: 12px ui-monospace, Consolas, monospace; color: var(--fg2); word-break: break-all; }
+  .trow .pp { font-size: 10px; color: var(--fg2); opacity: .7; word-break: break-all; }
+  .trow input[type=text] { width: 100%; box-sizing: border-box; padding: 5px 8px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--bg3); color: var(--fg); font: inherit; }
+  .trow input[type=text].dirty { border-color: var(--dirty); }
+  .trow .missing { color: var(--err); font-size: 12px; }
+  .legend { font-size: 11px; color: var(--fg2); margin-bottom: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border: 1px solid rgba(96,165,250,.55); background: rgba(96,165,250,.10); margin: 0 4px 0 8px; vertical-align: middle; }
+  .legend i.empty { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.12); }
+  .legend i.off { border-style: dashed; }
 </style>
 </head>
 <body>
@@ -148,6 +172,7 @@
     <div id="tabs">
       <button type="button" data-tab="kickers" class="on">Kickers</button>
       <button type="button" data-tab="discs">Discs</button>
+      <button type="button" data-tab="text">Text</button>
     </div>
     <div id="filters">
       <input type="text" id="filterText" placeholder="Filter by name or id" autocomplete="off">
@@ -194,7 +219,10 @@ const WEAPON_EXTRA_TABLES = [
   "weapon_attack_hit", "weapon_attack_collision", "weapon_attack_bullet",
   "weapon_attack_condition"
 ];
-const ALL_TABLES = CORE_TABLES.concat(KS_EXTRA_TABLES, SS_EXTRA_TABLES, WEAPON_EXTRA_TABLES);
+const TEXT_TABLES = ["translation"];   /* masters_translation.json: key -> UI text (Text tab) */
+const ALL_TABLES = CORE_TABLES.concat(KS_EXTRA_TABLES, SS_EXTRA_TABLES, WEAPON_EXTRA_TABLES, TEXT_TABLES);
+const OTHER_SCREEN = "(keys used from code / enums)";
+const WIRE_SCALE = 1 / 3;   /* 1080x1920 canvas -> 360x640 wireframe */
 
 /* Row-link columns: they say which kicker/skill/attack a row belongs to, so the
    UI shows them as read-only chips instead of editing them. */
@@ -223,7 +251,9 @@ const RARITY_LABELS = { "0": "N", "1": "R", "2": "SR", "3": "UR" };
 
 const state = {
   tab: "kickers",
-  selection: { kickers: null, discs: null },
+  selection: { kickers: null, discs: null, text: null },
+  layout: [],     /* docs/localize_layout.json rows: {key, screen, path, x, y, w, h, font} */
+  screens: [],    /* [{name, rows, keys}] built from layout + translation keys not placed in any prefab */
   kickers: [],
   discs: [],
   data: {},       /* table name -> rows (working copy) or null when unreadable */
@@ -278,6 +308,7 @@ function rowsOf(table) {
 /* Editable when it is a number/bool column that is not a link or a documented
    read-only column; strings and any structured value stay read-only. */
 function fieldMode(table, key, value) {
+  if (table === "translation") return key === "text" ? "text" : "readonly";
   if (LINK_FIELDS.has(key)) return "readonly";
   const readonly = READONLY_FIELDS[table];
   if (readonly && readonly.has(key)) return "readonly";
@@ -346,6 +377,17 @@ function buildDiscFilters() {
 
 function filteredItems() {
   const text = document.getElementById("filterText").value.trim().toLowerCase();
+  if (state.tab === "text") {
+    return state.screens.filter(function (screen) {
+      if (!text) return true;
+      if (screen.name.toLowerCase().indexOf(text) !== -1) return true;
+      return screen.keys.some(function (key) {
+        if (key.toLowerCase().indexOf(text) !== -1) return true;
+        const row = translationRow(key);
+        return row && String(row.text).toLowerCase().indexOf(text) !== -1;
+      });
+    });
+  }
   if (state.tab === "kickers") {
     return state.kickers.filter(function (kicker) {
       if (!text) return true;
@@ -383,6 +425,22 @@ function renderList() {
   const list = document.getElementById("list");
   clear(list);
   const items = filteredItems();
+  if (state.tab === "text") {
+    list.appendChild(el("li", { class: "count" }, items.length + " of " + state.screens.length + " screens"));
+    const current = state.selection.text;
+    for (const screen of items) {
+      const li = el("li", { class: "item", "data-id": screen.name });
+      const meta = el("div", { class: "meta" });
+      meta.appendChild(el("div", { class: "nm" }, screen.name));
+      const missing = screen.keys.filter(function (key) { return !translationRow(key); }).length;
+      meta.appendChild(el("div", { class: "sub" }, screen.keys.length + " texts" + (missing ? " · " + missing + " without a row" : "")));
+      li.appendChild(meta);
+      if (current === screen.name) li.className += " sel";
+      li.addEventListener("click", function () { select("text", screen.name); });
+      list.appendChild(li);
+    }
+    return;
+  }
   list.appendChild(el("li", { class: "count" },
     items.length + " of " + (state.tab === "kickers" ? state.kickers.length : state.discs.length) + " shown"));
 
@@ -529,6 +587,17 @@ function renderPanel() {
   const panel = document.getElementById("panel");
   state.inputs.clear();
   clear(panel);
+  if (state.tab === "text") {
+    const name = state.selection.text;
+    const screen = state.screens.filter(function (sc) { return sc.name === name; })[0];
+    if (!screen) {
+      panel.appendChild(el("p", { class: "empty" }, "Select a screen from the list. Boxes are the LocalizeText elements of that " +
+        "UI prefab (approximate: layout groups and scroll lists are not simulated); edit the text on the right and it updates live."));
+      return;
+    }
+    renderTextPanel(panel, screen);
+    return;
+  }
   if (state.tab === "kickers") {
     const id = state.selection.kickers;
     if (id === null) {
@@ -582,6 +651,20 @@ function renderKickerPanel(panel, kicker) {
   });
   if (abilityConditions.length) {
     panel.appendChild(makeSection("Passive condition", "kicker_ability_condition", abilityConditions));
+  }
+  /* A passive whose `value` is a skill id (Jay's bat bomb: BatAbilityParameter reads value as the trap skill,
+     40001) gets that skill and its extra rows too - that is where the blast radius / fuse / lifetime / effect
+     (skill_trap: radius, duration, interval, effectPath) and the damage coefficient (skill.coefficient) live. */
+  for (const ability of abilities) {
+    const passiveSkillId = Number.isInteger(ability.value) && ability.value >= 10000 ? ability.value : null;
+    const passiveSkill = passiveSkillId === null ? [] :
+      rowsOf("skill").filter(function (r) { return r.id === passiveSkillId; });
+    if (!passiveSkill.length) continue;
+    panel.appendChild(makeSection("Passive skill · " + passiveSkillId, "skill", passiveSkill));
+    for (const table of KS_EXTRA_TABLES) {
+      const rows = rowsOf(table).filter(function (r) { return r.skillId === passiveSkillId; });
+      if (rows.length) panel.appendChild(makeSection("Passive skill extra · " + table, table, rows));
+    }
   }
 
   /* Kicker skill + its extra rows */
@@ -658,6 +741,124 @@ function renderDiscPanel(panel, disc) {
     const rows = rowsOf(table).filter(function (r) { return r.skillId === disc.skillId; });
     if (rows.length) panel.appendChild(makeSection("Skill extra · " + table, table, rows));
   }
+}
+
+/* -------------------------------------------------------------- text tab */
+
+function translationRow(key) {
+  const rows = rowsOf("translation");
+  for (const row of rows) if (row.key === key) return row;
+  return null;
+}
+
+function buildScreens() {
+  const byScreen = new Map();
+  for (const item of state.layout) {
+    if (!byScreen.has(item.screen)) byScreen.set(item.screen, []);
+    byScreen.get(item.screen).push(item);
+  }
+  const placed = new Set(state.layout.map(function (item) { return item.key; }));
+  const screens = [];
+  for (const pair of byScreen) {
+    const keys = Array.from(new Set(pair[1].map(function (item) { return item.key; })));
+    screens.push({ name: pair[0], rows: pair[1], keys: keys });
+  }
+  screens.sort(function (a, b) { return b.keys.length - a.keys.length || a.name.localeCompare(b.name); });
+  const other = rowsOf("translation").map(function (row) { return row.key; })
+    .filter(function (key) { return !placed.has(key); }).sort();
+  screens.push({ name: OTHER_SCREEN, rows: [], keys: other });
+  state.screens = screens;
+}
+
+function textFor(key) {
+  const row = translationRow(key);
+  return row ? String(row.text) : "";
+}
+
+function renderTextPanel(panel, screen) {
+  const head = el("div", { class: "phead" });
+  const box = el("div");
+  box.appendChild(el("h1", null, screen.name));
+  box.appendChild(el("div", { class: "meta" }, screen.name === OTHER_SCREEN
+    ? "translation rows that no UI prefab references directly: enum names (skillCategoryType.*, conditionType.* ...) and texts the code looks up by key"
+    : screen.keys.length + " localized texts · config/masters_translation.json · wireframe from docs/localize_layout.json (1/3 scale, 1080x1920 canvas)"));
+  head.appendChild(box);
+  panel.appendChild(head);
+
+  const wrap = el("div", { class: "textwrap" });
+  const boxesByKey = new Map();
+  if (screen.rows.length) {
+    const side = el("div");
+    side.appendChild(el("div", { class: "legend" }, "boxes: text element" ));
+    const legend = side.lastChild;
+    legend.appendChild(el("i", { class: "empty" })); legend.appendChild(document.createTextNode("no translation (blank in game)"));
+    legend.appendChild(el("i", { class: "off" })); legend.appendChild(document.createTextNode("outside the canvas (scroll content / layout group)"));
+    const wire = el("div", { class: "wire" });
+    for (const item of screen.rows) {
+      const b = el("div", { class: "box", title: item.path + "\n" + item.key });
+      let x = item.x * WIRE_SCALE, y = item.y * WIRE_SCALE;
+      const w = Math.max(item.w * WIRE_SCALE, 6), h = Math.max(item.h * WIRE_SCALE, 6);
+      let off = false;
+      if (x < 0 || y < 0 || x + w > 360 || y + h > 640) {
+        off = true;
+        x = Math.min(Math.max(x, 0), 360 - Math.min(w, 360));
+        y = Math.min(Math.max(y, 0), 640 - Math.min(h, 640));
+      }
+      b.style.left = x + "px"; b.style.top = y + "px"; b.style.width = w + "px"; b.style.height = h + "px";
+      b.style.fontSize = Math.max(6, Math.min(item.font * WIRE_SCALE, 24)) + "px";
+      const text = textFor(item.key);
+      b.textContent = text || item.key;
+      if (!translationRow(item.key)) b.classList.add("empty");
+      if (off) b.classList.add("off");
+      b.addEventListener("click", function () {
+        const input = state.inputs.get(fieldKey("translation", (translationRow(item.key) || {}).id, "text"));
+        if (input) { input.focus(); input.select(); input.scrollIntoView({ block: "center" }); }
+      });
+      wire.appendChild(b);
+      if (!boxesByKey.has(item.key)) boxesByKey.set(item.key, []);
+      boxesByKey.get(item.key).push(b);
+    }
+    side.appendChild(wire);
+    wrap.appendChild(side);
+  }
+
+  const rowsBox = el("div", { class: "textrows" });
+  const seen = new Set();
+  const ordered = screen.rows.length ? screen.rows.map(function (r) { return r.key; }) : screen.keys;
+  for (const key of ordered) {
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const trow = el("div", { class: "trow" });
+    const left = el("div");
+    left.appendChild(el("div", { class: "kk" }, key));
+    const item = screen.rows.filter(function (r) { return r.key === key; })[0];
+    if (item) left.appendChild(el("div", { class: "pp" }, item.path.replace(screen.name + "/", "")));
+    trow.appendChild(left);
+    const row = translationRow(key);
+    if (!row) {
+      trow.appendChild(el("span", { class: "missing" }, "no row in masters_translation.json (blank in game) - run scripts/generate_translations.py"));
+      rowsBox.appendChild(trow);
+      continue;
+    }
+    const input = el("input", { type: "text", value: String(row.text) });
+    input.dataset.table = "translation";
+    input.dataset.rowId = String(row.id);
+    input.dataset.field = "text";
+    input.addEventListener("input", function () {
+      row.text = input.value;
+      const boxes = boxesByKey.get(key) || [];
+      for (const b of boxes) { b.textContent = input.value || key; b.classList.toggle("hot", input.value !== state.pristine.translation.filter(function (r) { return r.id === row.id; })[0].text); }
+      refreshDirty();
+    });
+    input.addEventListener("focus", function () {
+      for (const pair of boxesByKey) for (const b of pair[1]) b.classList.toggle("cur", pair[0] === key);
+    });
+    state.inputs.set(fieldKey("translation", row.id, "text"), input);
+    trow.appendChild(input);
+    rowsBox.appendChild(trow);
+  }
+  wrap.appendChild(rowsBox);
+  panel.appendChild(wrap);
 }
 
 /* ------------------------------------------------------------ dirty + save */
@@ -744,6 +945,7 @@ async function revert() {
   setStatus([["info", "reloading from config/ ..."]]);
   try {
     await loadEverything(true);
+    buildScreens();
     state.inputs.clear();
     renderPanel();
     setStatus([["info", "reloaded from config/"]]);
@@ -792,6 +994,8 @@ async function boot() {
     state.kickers = loaded[0];
     state.discs = loaded[1];
     await loadEverything(false);
+    try { state.layout = await fetchJSON("/api/layout", { cache: "no-store" }); } catch (error) { state.layout = []; }
+    buildScreens();
     buildDiscFilters();
     renderList();
     renderPanel();

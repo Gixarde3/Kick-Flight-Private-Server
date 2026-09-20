@@ -1,5 +1,10 @@
 import json
 
+# Units flown to fill the special-skill gauge (games.app-liv.jp/archives/431798); PlayerCharacter.CalcChargeSP
+# adds distance x addMoveSpecialSkillPoint per frame and GetMaxSP is 100.
+SP_FULL_DISTANCE = {1: 740, 2: 800, 3: 800, 4: 845, 5: 650, 6: 650, 7: 760, 8: 1500, 9: 550, 10: 1180, 11: 900,
+                    12: 630, 13: 960, 14: 1350}
+
 # Canonical RoleType enum: Speed = 0, Support = 1, Attack = 2, Tank = 3
 kickers_roles = {
     1: 0,  # Tsubame (Speed)
@@ -109,7 +114,7 @@ for kid in range(1, 15):
         "height": BODY_HEIGHTS[kid][1],
         "recoveryBoostPoint": 10.0,
         "recoveryBoostPointGround": 15.0,
-        "addMoveSpecialSkillPoint": 1.0,
+        "addMoveSpecialSkillPoint": round(100.0 / SP_FULL_DISTANCE[kid], 4),  # SP per unit flown (MaxSP 100)
         "addWeaponAttackSpecialSkillPoint": 1.0,
         "hpCorrection": 1.0,
         "attackCorrection": 1.0

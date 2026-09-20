@@ -414,8 +414,74 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     {"description": "DIAG hook: WeaponAttackActionBase.PlayGroundMoveAttackIn -> 8600 + comboCount", "offset": 0x181e648, "expected": bytes.fromhex("f60300aa"), "replacement": bytes.fromhex("75bfee97")},
     {"description": "DIAG cave: CollisionBase.OnDestroy -> 8800 + destroy type, 8810 + hit count (capped at 9)", "offset": 0x13ce458, "expected": bytes.fromhex("e003271e0e102e1ec91d201e740000b5e0031faa6017f997e00314aaa796ff97d6810190d6c645f9081ca04ec00240f9089c44398800083608d840b94800003532a3f897f58401b0b57642f92939281ea00240f9089c4439"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d014c84526002010bb5b7ff97a81a40b9290180521f01096b08b1891a414d84520001010baeb7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8940a40f9c0035fd6")},
     {"description": "DIAG hook: CollisionBase.OnDestroy -> 8800 + destroy type, 8810 + hit count (capped at 9)", "offset": 0x31e2928, "expected": bytes.fromhex("940a40f9"), "replacement": bytes.fromhex("ccae8797")},
+    # ---- bomb probes (scripts/re/bomb_diag_caves.py, 9001-9041) ----
+    {"description": "DIAG cave: BatBombTrapAction.AcceptAction -> 9001", "offset": 0x13ce540, "expected": bytes.fromhex("001da84e5296ff9760ca40f9a00b00b4e1031faa3d2f1194e1031faafa4b1194000b003674ca40f9740000b5e0031faa1f17f997e00314aa"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d206584527cb7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8e8030032c0035fd6")},
+    {"description": "DIAG hook: BatBombTrapAction.AcceptAction -> 9001", "offset": 0x143bcb0, "expected": bytes.fromhex("e8030032"), "replacement": bytes.fromhex("244afe97")},
+    {"description": "DIAG cave: BatBombTrapAction.OnApplyAction entered -> 9002", "offset": 0x13ce578, "expected": bytes.fromhex("e1031faa332f11941f30007160010054e903271ee0020035e00313aae1031faaf9a00b94f40300aa540000b51217f997a101805208000014"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d406584526eb7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8e00313aac0035fd6")},
+    {"description": "DIAG hook: BatBombTrapAction.OnApplyAction entered -> 9002", "offset": 0x143bf44, "expected": bytes.fromhex("e00313aa"), "replacement": bytes.fromhex("8d49fe97")},
+    {"description": "DIAG cave: BatBombTrapAction.OnApplyAction: explosion action -> 9003", "offset": 0x13ce5b0, "expected": bytes.fromhex("e00313aae1031faaf1a00b94f40300aa540000b50a17f99741048052e2030032e00314aae3031faa7bbc0f941f000072e003271ec91d201e"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d6065845260b7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8e00313aac0035fd6")},
+    {"description": "DIAG hook: BatBombTrapAction.OnApplyAction: explosion action -> 9003", "offset": 0x143bf80, "expected": bytes.fromhex("e00313aa"), "replacement": bytes.fromhex("8c49fe97")},
+    {"description": "DIAG cave: BatBombTrapAction.OnApplyAction -> ApplyExplosion -> 9004", "offset": 0x13ce5e8, "expected": bytes.fromhex("74a640f9740000b5e0031faafe16f997e00314aa8396ff97c00240f9081ca04e089c44398800083608d840b948000035d2a2f897a00240f9"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d8065845252b7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8e00313aac0035fd6")},
+    {"description": "DIAG hook: BatBombTrapAction.OnApplyAction -> ApplyExplosion -> 9004", "offset": 0x143bff8, "expected": bytes.fromhex("e00313aa"), "replacement": bytes.fromhex("7c49fe97")},
+    {"description": "DIAG cave: CreateExplosionCollision: GetCollisionInitInfo -> 9010 + non-null", "offset": 0x13ce620, "expected": bytes.fromhex("2939281e089c4439a800083608d840b968000035cba2f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd48af0094f40300aa540000b5e316f997"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d1f0000f1e0079f1a416684520000010b41b7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8753240f9c0035fd6")},
+    {"description": "DIAG hook: CreateExplosionCollision: GetCollisionInitInfo -> 9010 + non-null", "offset": 0x143c244, "expected": bytes.fromhex("753240f9"), "replacement": bytes.fromhex("f748fe97")},
+    {"description": "DIAG cave: CreateExplosionCollision: GetDamageInitInfo -> 9012 + non-null", "offset": 0x13ce664, "expected": bytes.fromhex("e00314aae1031faa68ff1d94041ca04ea01dad4e411daa4e621dab4e831dac4ee0031faa4ab01a940a1ca04e201da94ee0031faaf365409474a640f94009201e0829201e"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d1f0000f1e0079f1a816684520000010b30b7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8f60300aac0035fd6")},
+    {"description": "DIAG hook: CreateExplosionCollision: GetDamageInitInfo -> 9012 + non-null", "offset": 0x143c274, "expected": bytes.fromhex("f60300aa"), "replacement": bytes.fromhex("fc48fe97")},
+    {"description": "DIAG cave: CreateExplosionCollision: AddCollision -> 9014 + non-null", "offset": 0x13ce6a8, "expected": bytes.fromhex("740000b5e0031faacf16f997e00314aa001da84e3296ff97e00313aabac3ff9774a640f91f000072e003271ec91d201e740000b5e0031faac316f997e00314aacc95ff97"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d1f0000f1e0079f1ac16684520000010b1fb7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8603a00f9c0035fd6")},
+    {"description": "DIAG hook: CreateExplosionCollision: AddCollision -> 9014 + non-null", "offset": 0x143c394, "expected": bytes.fromhex("603a00f9"), "replacement": bytes.fromhex("c548fe97")},
+    {"description": "DIAG cave: CreateExplosionEffect: IsMine, SyncEffect being built -> 9022", "offset": 0x13ce6ec, "expected": bytes.fromhex("c00240f9081ca04e089c44398800083608d840b94800003597a2f897a00240f92939281e089c4439a800083608d840b96800003590a2f897"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803dc067845211b7ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8e00314aac0035fd6")},
+    {"description": "DIAG hook: CreateExplosionEffect: IsMine, SyncEffect being built -> 9022", "offset": 0x143c440, "expected": bytes.fromhex("e00314aa"), "replacement": bytes.fromhex("ab48fe97")},
+    {"description": "DIAG cave: OnManagedUpdate (_isAction): _damageCollision -> 9030 + non-null", "offset": 0x13ce724, "expected": bytes.fromhex("a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd0daf0094f40300aa540000b5a816f997e00314aae1031faa2dff1d94041ca04ea01dad4e411daa4e621dab4e"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d683a40f91f0100f1e0079f1ac16884520000010bffb6ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8683a40f9c0035fd6")},
+    {"description": "DIAG hook: OnManagedUpdate (_isAction): _damageCollision -> 9030 + non-null", "offset": 0x143b750, "expected": bytes.fromhex("683a40f9"), "replacement": bytes.fromhex("f54bfe97")},
+    {"description": "DIAG cave: SyncEffect.CreateEffect: InstantiateEffect -> 9040 + non-null", "offset": 0x13ce76c, "expected": bytes.fromhex("831dac4ee0031faa0fb01a940a1ca04e201da94ee0031faab865409473a640f94009201e0829201e730000b5e0031faa9416f997e00313aa001da84efd7b46a9f44f45a9"), "replacement": bytes.fromhex("fd7bbba9e00701a9e82702a9ea1b00f9f013803d1f0000f1e0079f1a016a84520000010beeb6ff97f013c03dea1b40f9e82742a9e00741a9fd7bc5a8f40300aac0035fd6")},
+    {"description": "DIAG hook: SyncEffect.CreateEffect: InstantiateEffect -> 9040 + non-null", "offset": 0x160c268, "expected": bytes.fromhex("f40300aa"), "replacement": bytes.fromhex("4109f797")},
     # ---- END DIAGNOSTIC ----
 ] if os.environ.get("KF_DIAG") == "1" else []
+
+# Basic-attack fire rate. The interval between two shots/swings is NOT master data: every XxxAttackAction..cctor builds
+# its static float[] ATTACK_INTERVAL from immediates (WeaponAttackActionBase.SetAttackInterval then divides it by the
+# ConditionActionParameter.AttackSpeedRate of any active condition 28 and by PlayerParameter._overrideAttackSpeed).
+# The ranged weapons have a single value, written by a `movz w8`/`movk w8` pair (or one `movz ... lsl #16` for
+# Drone / RocketLauncher, whose value must then be exactly representable with a zero low half: 0.5, 0.625, 0.75,
+# 0.875, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0 ...). Edit the seconds below and rebuild the APK. Melee combos keep
+# their per-hit arrays (RuntimeHelpers.InitializeArray blobs, not patched here).
+RANGED_ATTACK_INTERVALS = {
+    # weapon: (seconds, address of the movz, address of the movk or None)   -- original values shown
+    "TwoGuns":        (0.4, 0x147DBA8, 0x147DBAC),  # Ruriha
+    "Gun":            (0.3, 0x168FF14, 0x168FF18),  # Anna
+    "Bowgun":         (0.7, 0x15CB508, 0x15CB50C),  # Grenhawk
+    "ThrowingStar":   (0.7, 0x1617E6C, 0x1617E70),  # Kite
+    "Drone":          (1.0, 0x149EA74, None),       # Owlbert (single-instruction form, original `orr w8, wzr, #0x40000000`)
+    "RocketLauncher": (0.75, 0x16F3BEC, None),       # Pitophy (single-instruction form, original `orr w8, wzr, #0x3fc00000`)
+    "Laser":          (0.7, 0x16D8AF8, 0x16D8AFC),  # Sid
+}
+_ORIGINAL_RANGED_ATTACK_INTERVALS = {"TwoGuns": 0.8, "Gun": 0.6, "Bowgun": 1.4, "ThrowingStar": 1.4, "Drone": 2.0,
+                                     "RocketLauncher": 1.5, "Laser": 1.4}
+_ORIGINAL_SINGLE_INSN = {"Drone": bytes.fromhex("e8030232"), "RocketLauncher": bytes.fromhex("e81f0a32")}  # orr w8, wzr, #imm
+
+
+def _attack_interval_patches() -> list[dict[str, object]]:
+    import struct as _struct
+    out = []
+    for weapon, (seconds, movz_at, movk_at) in RANGED_ATTACK_INTERVALS.items():
+        new_bits = _struct.unpack("<I", _struct.pack("<f", float(seconds)))[0]
+        old_bits = _struct.unpack("<I", _struct.pack("<f", _ORIGINAL_RANGED_ATTACK_INTERVALS[weapon]))[0]
+        if new_bits == old_bits:
+            continue
+        lo, hi = new_bits & 0xFFFF, new_bits >> 16
+        olo, ohi = old_bits & 0xFFFF, old_bits >> 16
+        if movk_at is None:
+            if lo != 0:
+                raise SystemExit(f"{weapon}: {seconds} s needs a low half; only *.0/.25/.5/.75-style floats fit the single movz")
+            out.append({"description": f"{weapon} basic-attack interval {seconds} s (movz lsl #16)", "offset": movz_at,
+                        "expected": _ORIGINAL_SINGLE_INSN[weapon], "replacement": _struct.pack("<I", 0x52A00008 | (hi << 5))})
+        else:
+            out.append({"description": f"{weapon} basic-attack interval {seconds} s (movz)", "offset": movz_at,
+                        "expected": _struct.pack("<I", 0x52800008 | (olo << 5)), "replacement": _struct.pack("<I", 0x52800008 | (lo << 5))})
+            out.append({"description": f"{weapon} basic-attack interval {seconds} s (movk)", "offset": movk_at,
+                        "expected": _struct.pack("<I", 0x72A00008 | (ohi << 5)), "replacement": _struct.pack("<I", 0x72A00008 | (hi << 5))})
+    return out
+
 
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
     "arm64-v8a": [
@@ -1376,6 +1442,68 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("fbe2ff17"),
             "replacement": bytes.fromhex("1594f617"),
         },
+        # Jay's passive bomb (BatAbilityParameter -> Trap type 10 BatBomb). The explosion needs the TrapInfo fields that
+        # DiscSkillParameter..ctor only fills from a sensor Collider clip of the skill's aed_NNN timeline (CollisionMasterId,
+        # CollisionStart/EndRadius, CollisionEaseType, CollisionLifeTime, CollisionEffectPath, CollisionType). No captured
+        # bundle has a skill_40001 group, so BatBombTrapAction.CreateExplosionCollision asked the ability for collision
+        # master 0 (null -> DamageCollisionData with no shape) and the bomb never blew up. Fill them at the end of
+        # BatAbilityParameter..ctor (x0 = TrapInfo there, the function tail-calls TrapInfo.set_IsTimeExecute(true)):
+        # CollisionMasterId 198 (skill_40001's explosion collider in aed_master), Sphere, start radius 2 -> end radius =
+        # served SkillTrap.radius, Linear ease, lifetime = served SkillTrap.interval, effect = served SkillTrap.effectPath,
+        # CollisionStartTrigger 1 (SyncEffect.PlayStartEffect only kicks a trigger > 0; the common effects such as
+        # ef_cm_006 Dead only play when kicked - 1 = team-0 colour, GetTeamTrigger(team, 1) = 1 + 16 * team).
+        # Cave in the dead body of the entry-stubbed PlayerCharacter.UpdateIdleTypeRate, past the DIAG probes (< 0x13CE4B0).
+        {
+            "description": "cave: BatAbilityParameter..ctor tail -> fill TrapInfo explosion collision fields from skill_40001 / served SkillTrap row, then TrapInfo.set_IsTimeExecute(true)",
+            "offset": 0x13CE500,
+            "expected": bytes.fromhex("411daa4e621dab4e831dac4ee0031faaa8b01a940a1ca04e201da94ee0031faa5166409474a640f94009201e0829201e740000b5e0031faa2d17f997e00314aa"),
+            "replacement": bytes.fromhex("c8188052082400b92800805208b000b9082000b9083000b90010201e001800bd083c40b9081c00b9084840b9083800b9082840f9081400f9210080526c217814"),
+        },
+        {
+            "description": "BatAbilityParameter..ctor tail `b TrapInfo.set_IsTimeExecute` -> b bat-bomb TrapInfo cave",
+            "offset": 0x1439B60,
+            "expected": bytes.fromhex("e3737614"),
+            "replacement": bytes.fromhex("6852fe17"),
+        },
+        # Second half of the same bug: DiscSkillParameter.HitInfo is only assigned by SetSkillActionHitData from a damage
+        # Collider clip of the aed timeline, so for 40001 it is null, BatAbilityParameter.HitInfo = null and every
+        # explosion hit died with NullReferenceException in PlayerCharacter.AcceptDamageInfo (DamageCollisionData.OnEnter,
+        # emulator logcat 2026-09-20 11:19:43 after KFDIAG 9001..9041 proved the collider itself was created). When the
+        # ctor's `HitInfo = discSkillParameter.HitInfo` comes back null, take skill_40001's hit 207 (SlashL + SE 53, the
+        # explosion hit) from DiscSkillParameter._hitInfos (Dictionary<int, AttackHitInfo>, +0xA8). Cave in the free
+        # tail of the entry-stubbed HomeSummonModelController.SetModel (0x159DA48-0x159DAB0).
+        {
+            "description": "cave: BatAbilityParameter..ctor HitInfo fallback -> _hitInfos[207] of skill_40001 when the timeline gave none",
+            "offset": 0x159DA48,
+            "expected": bytes.fromhex("60010036732640f9730000b5e0031faae5d9f19768750190083947f9e00313aa010140f953d50d94f50300aa740000b5"),
+            "replacement": bytes.fromhex("400100b5fe0f1ff8805640f9c00000b4e1198052e87001f0084547f9020140f9b7695a94fe0741f8e10300aac0035fd6"),
+        },
+        {
+            "description": "BatAbilityParameter..ctor `mov x1, x0` after get_HitInfo -> bl HitInfo fallback cave",
+            "offset": 0x1439AEC,
+            "expected": bytes.fromhex("e10300aa"),
+            "replacement": bytes.fromhex("d78f0594"),
+        },
+        # Third piece: the explosion SPFX. EffectManager.InstantiateEffect only knows what LoadManager cached for the
+        # match (common effects, kicker effects, the summon effects of the discs in the decks), so a disc explosion such
+        # as Hyper Bomb's effect/ds/ef_ds_0037 is only there when someone equips that disc. Preload the bat bomb's served
+        # SkillTrap.effectPath (row 40001) together with the common effects: hook LoadManager.LoadInGameCommonEffect
+        # before its loop (`mov w21, wzr`) and call LoadEffect(path, null, DestroyFlagExtensions.Flag(1)) exactly like
+        # the loop does. Cave in the dead body of the entry-stubbed NormalMatchingController.<CallbackBattleStartSuccess>
+        # b__46_0 (stub = first 8 bytes, body free to 0x13ED998, nothing branches in).
+        {
+            "description": "cave: LoadInGameCommonEffect -> also LoadEffect(SkillTrapMaster[40001].effectPath) (bat-bomb explosion SPFX)",
+            "offset": 0x13ed89c,
+            "expected": bytes.fromhex("fd7b02a9fd830091f5960190a8ce6139f30301aaf40300aae8000037e88401b0084541f9000140b953f1f797e8030032a8ce2139730000b5e0031faa459af897e00313aae1031faa83830a94f503002ae00314aae1031faae0c90e94bf02006b"),
+            "replacement": bytes.fromhex("fd7bbea9687e01f0081940f9000140f9b4cc5494e1031faa35b10e9421889352e2031faafd551194600100b4001840f9200100b4e00b00f920008052e1031faa7fe00894e203002ae00b40f9e1031faa9dd90b94fd7bc2a8f5031f2ac0035fd6"),
+        },
+        {
+            "description": "LoadManager.LoadInGameCommonEffect `mov w21, wzr` -> bl effect-preload cave",
+            "offset": 0x16e7a4c,
+            "expected": bytes.fromhex("f5031f2a"),
+            "replacement": bytes.fromhex("9417f497"),
+        },
+        *_attack_interval_patches(),
         *DIAG_PATCHES_ARM64,
     ],
     "armeabi-v7a": [

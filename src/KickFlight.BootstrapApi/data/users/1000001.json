@@ -1,8 +1,8 @@
 {
   "UserId": "1000001",
   "UserName": "Gixarde3",
-  "KickerId": 1,
-  "KickerCostumeId": 1,
+  "KickerId": 14,
+  "KickerCostumeId": 115,
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [

@@ -1,0 +1,122 @@
+[
+ {
+  "id": 1,
+  "kickerId": 1,
+  "triggerType": 1,
+  "time": 5.0,
+  "value": 0.5,
+  "overlapCount": 1
+ },
+ {
+  "id": 2,
+  "kickerId": 2,
+  "triggerType": 1,
+  "time": 3.0,
+  "value": 0.6,
+  "overlapCount": 1
+ },
+ {
+  "id": 3,
+  "kickerId": 3,
+  "triggerType": 2,
+  "time": 5.0,
+  "value": 1.2,
+  "overlapCount": 1
+ },
+ {
+  "id": 4,
+  "kickerId": 4,
+  "triggerType": 3,
+  "time": 5.0,
+  "value": 1.0,
+  "overlapCount": 1
+ },
+ {
+  "id": 5,
+  "kickerId": 5,
+  "triggerType": 5,
+  "time": 5.0,
+  "value": 0.075,
+  "overlapCount": 10
+ },
+ {
+  "id": 15,
+  "kickerId": 5,
+  "triggerType": 5,
+  "time": 5.0,
+  "value": 0.025,
+  "overlapCount": 20
+ },
+ {
+  "id": 6,
+  "kickerId": 6,
+  "triggerType": 1,
+  "time": 5.0,
+  "value": 0.15,
+  "overlapCount": 10
+ },
+ {
+  "id": 7,
+  "kickerId": 7,
+  "triggerType": 1,
+  "time": 5.0,
+  "value": 0.5,
+  "overlapCount": 1
+ },
+ {
+  "id": 8,
+  "kickerId": 8,
+  "triggerType": 1,
+  "time": 5.0,
+  "value": 1.2,
+  "overlapCount": 1
+ },
+ {
+  "id": 9,
+  "kickerId": 9,
+  "triggerType": 4,
+  "time": 5.0,
+  "value": 40001,
+  "overlapCount": 1
+ },
+ {
+  "id": 10,
+  "kickerId": 10,
+  "triggerType": 2,
+  "time": 1.0,
+  "value": 0.1,
+  "overlapCount": 5
+ },
+ {
+  "id": 11,
+  "kickerId": 11,
+  "triggerType": 1,
+  "time": 5.0,
+  "value": 0.05,
+  "overlapCount": 1
+ },
+ {
+  "id": 12,
+  "kickerId": 12,
+  "triggerType": 4,
+  "time": 5.0,
+  "value": 1.2,
+  "overlapCount": 1
+ },
+ {
+  "id": 13,
+  "kickerId": 13,
+  "triggerType": 6,
+  "time": 5.0,
+  "value": 1.0,
+  "overlapCount": 1
+ },
+ {
+  "id": 14,
+  "kickerId": 14,
+  "triggerType": 2,
+  "time": 0.5,
+  "value": 1.2,
+  "overlapCount": 1
+ }
+]

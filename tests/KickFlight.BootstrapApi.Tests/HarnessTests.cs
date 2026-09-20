@@ -80,7 +80,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x19 }, body[..2]); // Octo revision 25
+        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -100,7 +100,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x19 }, body[..2]); // Octo revision 25
+        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
     }
 
     [Fact]
@@ -451,8 +451,8 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var ruleBytes = await getRuleResponse.Content.ReadAsByteArrayAsync();
         var decryptedRule = D2CCodec.Decode(ruleBytes, Encoding.ASCII.GetBytes("1a837b9ee2ae11a07a0f529a4cd4b61c"));
         using var ruleDoc = JsonDocument.Parse(decryptedRule);
-        Assert.Equal("Cristalmanía", ruleDoc.RootElement[0].GetProperty("name").GetString());
-        Assert.Equal("Bola rápida", ruleDoc.RootElement[2].GetProperty("name").GetString());
+        Assert.Equal("Crystal Scramble", ruleDoc.RootElement[0].GetProperty("name").GetString());
+        Assert.Equal("Rapid Ball", ruleDoc.RootElement[2].GetProperty("name").GetString());
 
         // 6. Request POST /startup/index (verify 14 kickers unlocked)
         using var startupRequest = new HttpRequestMessage(HttpMethod.Post, "/startup/index")
@@ -520,7 +520,8 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.OK, discChangeResponse.StatusCode);
         Assert.Equal("0", discChangeResponse.Headers.GetValues("x-app-status-code").Single());
 
-        // 10. Request POST /home/index again (persisted kickerId = 8, kickerCostumeId = 2, activeDeck = 2)
+        // 10. Request POST /home/index again (persisted kickerId = 8, activeDeck = 2; kickerCostumeId is a KickerCostume row id,
+        //     and row 2 is not one of kicker 8's costumes, so NormalizeCostume swaps it for Owlbert's default row 64)
         using var homeRequest2 = new HttpRequestMessage(HttpMethod.Post, "/home/index")
         {
             Content = new ByteArrayContent(Array.Empty<byte>())
@@ -533,7 +534,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var homeDecrypted2 = D2CCodec.Decode(homeBytes2, sessionKeyBytes);
         using var homeDoc2 = JsonDocument.Parse(homeDecrypted2);
         Assert.Equal(8, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerId").GetInt32());
-        Assert.Equal(2, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
+        Assert.Equal(64, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
         Assert.Equal(2, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("discDeckNumber").GetInt32());
         var updatedDeck2 = homeDoc2.RootElement.GetProperty("userDiscDeckList").EnumerateArray().First(d => d.GetProperty("number").GetInt32() == 2);
         Assert.Equal(3010050, updatedDeck2.GetProperty("discIdList")[0].GetInt32());
@@ -623,7 +624,8 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.OK, startResponse.StatusCode);
         using var startDoc = JsonDocument.Parse(D2CCodec.Decode(await startResponse.Content.ReadAsByteArrayAsync(), sessionKeyBytes));
         Assert.Equal(2, startDoc.RootElement.GetProperty("guardianParameter").GetProperty("id").GetInt32());
-        Assert.Equal(101, startDoc.RootElement.GetProperty("fieldId").GetInt32());
+        // The arena is drawn at random from BattleMatchmakingService.FieldPool (KF_FIELDS) for every battle.
+        Assert.Contains(startDoc.RootElement.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
     }
 
     private static string FindRepositoryRoot()

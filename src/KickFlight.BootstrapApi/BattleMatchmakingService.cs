@@ -104,6 +104,31 @@ public sealed class BattleMatchmakingService
         return (entryId, ticketId);
     }
 
+    // Arenas that ship complete in the capture: field/fld{id:05}, fielddata/fld{id:05}_{1,2,3} (crystal / flag / ball
+    // variants), itemdata/ite{id:05}_{1,2,3} and minimap/mim{id:05}_0. 102/302/402/602/702/902 have a model but no
+    // fielddata, 11/0 are tutorial, 801 is the Trial arena, 9000x are the home stages. Every room draws one at random;
+    // /battle/start answers it (the client only reads the field from that response). Set KF_FIELDS=101 to pin one.
+    public static readonly int[] FieldPool = ParseFieldPool(Environment.GetEnvironmentVariable("KF_FIELDS"));
+    private static readonly Random _fieldRandom = new();
+
+    private static int[] ParseFieldPool(string? value)
+    {
+        var ids = (value ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(v => int.TryParse(v, out var id) ? id : 0).Where(id => id > 0).ToArray();
+        return ids.Length > 0 ? ids : [101, 301, 401, 601, 701, 901];
+    }
+
+    public static int PickRandomField()
+    {
+        lock (_fieldRandom) return FieldPool[_fieldRandom.Next(FieldPool.Length)];
+    }
+
+    /// <summary>Field of an existing room (both humans of a room must load the same arena), else null.</summary>
+    public int? GetRoomFieldId(string battleId)
+    {
+        return _roomsByBattleId.TryGetValue(battleId, out var room) ? room.FieldId : null;
+    }
+
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;
     private TaskCompletionSource<MatchingBattleInfo>? _pendingRoomTcs;
@@ -175,7 +200,7 @@ public sealed class BattleMatchmakingService
             {
                 BattleId = battleId,
                 BattleRuleId = playerSession.BattleRuleId,
-                FieldId = 101,
+                FieldId = PickRandomField(),
                 HumanPlayers = [playerSession]
             };
             _roomsByBattleId[battleId] = targetRoom;
@@ -310,7 +335,7 @@ public sealed class BattleMatchmakingService
                 {
                     BattleId = battleId,
                     BattleRuleId = playerSession.BattleRuleId,
-                    FieldId = 101,
+                    FieldId = PickRandomField(),
                     HumanPlayers = [playerSession]
                 };
                 _roomsByBattleId[battleId] = targetRoom;

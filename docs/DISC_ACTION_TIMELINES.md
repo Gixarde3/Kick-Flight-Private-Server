@@ -71,6 +71,21 @@ ForcedMovement event, which froze **every** kicker: 10002, 10008, 10019, 10020, 
 4. `scripts/generate_combat_masters.py` now enforces the rule *`skillActionType 3` ⇒ skill in
    `DISC_SKILLS_WITH_FORCED_MOVE`* (falls back to 1 and prints the id).
 
+## Per-kicker cast times (2026-09-20)
+
+The real game had a different disc activation time per kicker *and* disc category (games.app-liv.jp/archives/431798,
+seconds "from flick to effect", e.g. close-range: Yuyan 0.6 … Owlbert/Sid 1.25; rush: Diatrius/Hitagi 1.0 … Kite 1.8).
+Those numbers line up with the captured bundles: the first Effect/Collider clip `_startTime` of a category's discs is
+the Appliv time minus a per-category constant (close-range −0.05, rush −0.15, trap −0.9, warp −0.6, heal/buff
+`_compatibilityTime` −0.65) and kickers differ by the same delta in `_compatibilityTime` and every clip start.
+`build-action-asset-bundles.py` therefore shifts, per disc skill, the group's `_compatibilityTime` and all clip
+`_startTime`s of the nine generated bundles by `CAST_TIMES[kicker][cat] − CAST_TIMES[donor][cat]` (floats patched in
+place in the serialized `ActionEvent`, category from `docs/disc_cards.json`; never below 0; `--no-retime` keeps the
+donor timing). Bundles built this way are described so in `title-minimum.json`; changing `CAST_TIMES` or a donor
+still needs a revision bump + `build-title-resource-catalog.py` (revision 26 = first retimed set). A bump = raise `revision`
+AND append the new number to `fromRevisions` (an up-to-date client asks `/v1/list/12345/<current>` and needs the empty
+delta fixture; without it the game shows a communication error).
+
 ## Octo bundle container
 
 Every captured bundle is a standard UnityFS 6 file with two deterministic tweaks (`build-action-asset-bundles.py`
@@ -83,6 +98,9 @@ implements both directions; the assets-repo `reconstruct_unity_bundles.py` accep
 (`Kick-Flight-Assets/reconstruct_unity_bundles.py` undoes this; its "repairs" are all that single flipped byte.)
 
 ## Timeline index (from `aed_001`; identical structure in the other bundles)
+
+Disc names in this table are the pre-`disc_cards.json` guesses and several are wrong (10038 is Red Mine, not Blox;
+10001 is Leorex; 10013 Boarush; 10108 Dragarmr; 10102 Blox …) — trust the skill id column and `masters_disc.json`.
 
 Legend: *effects* = Effect clips; *colliders* = Collider clips with their `ActionMaster` collision (bullet id when the
 collider rides a bullet, shape, radius start->end, cylinder length, lifetime); *forced move* = ForcedMovement clip

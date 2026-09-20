@@ -478,6 +478,14 @@ class BalanceHandler(BaseHTTPRequestHandler):
         if path == "/api/discs":
             self.handle_discs()
             return
+        if path == "/api/layout":
+            # docs/localize_layout.json: where every LocalizeText of the UI prefabs sits (scripts/extract_localize_layout.py)
+            layout = DOCS_DIR / "localize_layout.json"
+            if not layout.is_file():
+                self.send_json(200, [])
+                return
+            self.send_file(layout, "application/json; charset=utf-8")
+            return
         match = TABLE_URL_RE.match(path)
         if match:
             self.handle_get_table(match.group(1))

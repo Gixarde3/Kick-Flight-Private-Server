@@ -70,4 +70,9 @@ Rules learned the hard way:
   `PlayerCharacter.UpdateLookTarget` (0x13CD990-0x13CDFE0: regions D + E incl. the safe LOG helper, moved there by
   `scripts/re/relocate_diag_region.py` on 2026-09-20 — they used to sit in `LoadManager.LoadDeckSummonModel`, which
   forced the DIAG build to stub it and so no summon model ever loaded: Leorex/MOVE/TRAP froze the kicker in the
-  skill state and it never respawned). `UpdateIdleTypeRate` (0x13CE3E0-0x13CE7C8, ~1 KB) is still free.
+  skill state and it never respawned). `UpdateIdleTypeRate` (0x13CE3E0-0x13CE7C8): DIAG attack probes at
+  0x13CE3E0-0x13CE4B0, the **production** bat-bomb TrapInfo cave (`BatAbilityParameter..ctor` tail, 60 bytes) at
+  0x13CE500-0x13CE540 (64 bytes); DIAG bomb probes (`bomb_diag_caves.py`, 9001-9041) at 0x13CE540-0x13CE7B0.
+  `HomeSummonModelController.SetModel` tail 0x159DA48-0x159DA78 holds the production bat-bomb HitInfo fallback cave
+  (0x159DA78-0x159DAB0 free).
+* `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).
