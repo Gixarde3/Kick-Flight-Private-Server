@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 seed-device-cache.py
-Seeds all 3,200+ preserved Kick-Flight Octo assets directly into the Android app's
+Seeds the preserved Kick-Flight Octo assets directly into the Android app's
 local cache directory (/data/data/jp.grenge.kickflight/files/octo/v1/1/) via ADB.
 This completely eliminates initial bundle download times over LAN.
 """
@@ -62,15 +62,19 @@ def main():
 
     # Get app uid and gid
     try:
-        id_out = subprocess.check_output(adb_base + ["shell", "stat -c '%u %g' /data/data/jp.grenge.kickflight/files 2>/dev/null || echo ''"]).decode("utf-8").strip()
+        # `pm clear` may remove files/ but recreates the package directory with
+        # the correct per-emulator app UID.  Read that stable parent so a clean
+        # reset never falls back to ownership from a different AVD image.
+        id_out = subprocess.check_output(adb_base + ["shell", "stat -c '%u %g' /data/data/jp.grenge.kickflight 2>/dev/null || echo ''"]).decode("utf-8").strip()
         if id_out:
             uid, gid = id_out.split()
             print(f"Detected app ownership: uid={uid}, gid={gid}")
         else:
-            uid, gid = "10207", "10207"
-            print(f"Defaulting app ownership: uid={uid}, gid={gid}")
+            print("Error: could not determine app ownership after package reset")
+            sys.exit(1)
     except Exception:
-        uid, gid = "10207", "10207"
+        print("Error: could not determine app ownership after package reset")
+        sys.exit(1)
 
     tar_path = repo_root / "octo_cache.tar"
     if not (args.skip_tar and tar_path.exists()):

@@ -18,12 +18,6 @@ scripts/seed-device-cache.py) and matching entries in config/resources/title-min
     python scripts/build-title-resource-catalog.py
 to regenerate config/fixtures/resource-list-*.json and config/resources/catalog.json.
 
-Cast times: the timeline timings are the donor's, but the real game had per-kicker activation times per disc
-category (games.app-liv.jp/archives/431798, "flick -> effect", CAST_TIMES below; they line up with the captured
-bundles' clip _startTime / _compatibilityTime to within ~0.1 s). retime() shifts every clip start and the group's
-_compatibilityTime of each disc skill by (kicker time - donor time) of the disc's category, in place (floats only,
-the serialized size never changes). --no-retime keeps the donor's timings.
-
 Octo bundle container (verified on all captured bundles): standard UnityFS 6 where the 8-byte "UnityFS\\0"
 signature is replaced by XOR("UnityFS", 6F 0F FA 46 D3 28 3A) + the tail "tyFS\\0" (file is 4 bytes longer, the size
 field is the standard one) and byte 5 of the LZ4-compressed blocks-info is XOR 0xFF.
@@ -47,28 +41,6 @@ OUTPUT_DIR = REPO_ROOT / "content" / "resources" / "actioneditor"
 # pc_NNN_001 animator controllers (docs/DISC_ACTION_TIMELINES.md). Edit and rerun to try another donor.
 DONORS = {2: 5, 3: 5, 6: 5, 7: 4, 9: 5, 10: 5, 12: 5, 13: 11, 14: 11}
 OCTO_ID_BASE = 5000  # octoId 5000 + kickerId (unused range; the client keys its database by name anyway)
-
-# Disc activation time per kicker and disc category, seconds from flick to effect (games.app-liv.jp/archives/431798).
-# Columns: ATK(Short Distance), ATK(Long Distance), ATK(Circumference), ATK(Rush), TRAP, MOVE, WARP, HEAL, BUFF.
-CAST_CATEGORIES = ("ATK(Short Distance)", "ATK(Long Distance)", "ATK(Circumference)", "ATK(Rush)", "TRAP", "MOVE",
-                   "WARP", "HEAL", "BUFF")
-CAST_TIMES = {
-    1:  (0.85, 1.4, 1.7, 1.2, 2.1, 1.0, 1.1, 1.2, 1.0),   # Tsubame
-    2:  (1.15, 1.0, 2.0, 1.4, 1.4, 1.7, 1.2, 0.7, 0.9),   # Ruriha
-    3:  (1.1, 1.8, 1.2, 1.7, 1.4, 1.4, 1.1, 0.9, 0.9),    # Coco
-    4:  (1.0, 1.4, 1.1, 1.8, 1.6, 1.4, 0.9, 1.2, 1.0),    # Kite
-    5:  (1.25, 1.4, 1.3, 1.7, 1.2, 1.7, 1.2, 0.8, 0.8),   # Owlbert
-    6:  (1.15, 1.0, 1.3, 1.4, 1.4, 1.0, 1.2, 1.3, 1.2),   # Pitophy
-    7:  (1.15, 1.0, 1.7, 1.7, 1.8, 1.4, 1.1, 1.0, 0.7),   # Grenhawk
-    8:  (1.15, 1.2, 1.5, 1.7, 1.8, 0.9, 1.0, 1.0, 1.0),   # Anna
-    9:  (1.0, 1.6, 1.5, 1.4, 1.4, 1.0, 0.8, 1.2, 1.3),    # Jay
-    10: (0.6, 1.4, 1.5, 1.2, 2.3, 1.2, 1.1, 1.0, 1.2),    # Yuyan
-    11: (0.85, 1.4, 1.5, 1.0, 1.6, 1.8, 1.0, 1.0, 0.8),   # Diatrius
-    12: (0.8, 1.6, 1.5, 1.2, 2.1, 1.0, 1.3, 1.0, 0.8),    # Buzzy Big
-    13: (0.85, 1.5, 1.5, 1.0, 1.6, 1.7, 0.8, 1.3, 1.0),   # Hitagi
-    14: (1.25, 1.0, 1.2, 1.7, 1.4, 0.9, 1.3, 0.9, 0.9),   # Sid
-}
-DISC_CARDS = REPO_ROOT / "docs" / "disc_cards.json"  # card "type" -> CAST_CATEGORIES ("MOVE(vertical loop)" counts as MOVE)
 
 XOR_KEY = bytes((0x6F, 0x0F, 0xFA, 0x46, 0xD3, 0x28, 0x3A))
 HEADER_SIZE = 50  # standard UnityFS 6 header: "UnityFS\0" + version + 2 version strings + size + 2 sizes + flags
@@ -147,81 +119,7 @@ def build_unityfs(header_prefix: bytes, info_hash: bytes, node_path, serialized)
     return header + cinfo + body
 
 
-def skill_categories() -> dict[int, str]:
-    """disc skill id -> CAST_CATEGORIES entry, from the disc cards (docs/disc_cards.json)."""
-    cards = json.loads(DISC_CARDS.read_text(encoding="utf-8"))["cards"]
-    out = {}
-    for c in cards:
-        t = c["type"]
-        if t.startswith("MOVE"):
-            t = "MOVE"
-        if t in CAST_CATEGORIES:
-            out[c["discId"] - 3000000] = t
-    return out
-
-
-def parse_action_event(serialized: bytes, name: bytes):
-    """Walk the ActionEvent MonoBehaviour (m_GameObject, m_Enabled, m_Script, m_Name, _events[]) in the serialized
-    file and return [(skillId, compatibilityTime offset, [clip _startTime offsets])] - the floats retime() shifts.
-    Layout = the EventItemGroup/EventItem fields of the Il2Cpp dump, serialized with 4-byte alignment after strings
-    and byte arrays (validated against the pipeline JSON dumps of aed_001/005/011: 133 groups, 327 clips each)."""
-    p = serialized.index(struct.pack("<I", len(name)) + name) + 4 + len(name)
-    p = (p + 3) & ~3
-
-    def rd(fmt):
-        nonlocal p
-        v = struct.unpack_from("<" + fmt, serialized, p)
-        p += struct.calcsize("<" + fmt)
-        return v[0]
-
-    groups = []
-    for _ in range(rd("i")):                       # _events
-        skill_id, starts = rd("i"), []
-        for _list in range(rd("i")):               # _list[7] (one per ClipType)
-            for _item in range(rd("i")):           # _items
-                p += 12                            # _eventId, _eventType, _index
-                starts.append(p)
-                p += 16                            # _startTime, _time, _state, _speed
-                n = rd("i")                        # _intParameters
-                p += 4 * n
-                n = rd("i")                        # _floatParameters
-                p += 4 * n
-                for _s in range(rd("i")):          # _stringParameters
-                    n = rd("i")
-                    p = (p + n + 3) & ~3
-                n = rd("i")                        # _boolParameters
-                p = (p + n + 3) & ~3
-                n = rd("i")                        # _vector3Parameters
-                p += 12 * n
-        groups.append((skill_id, p, starts))
-        p += 12 + 36 + 8                           # _compatibilityTime, _directionUpdateSpeed, _finishTime, 3 x Vector3, _cameraType, _targetRange
-    return groups
-
-
-def retime(serialized: bytes, donor_kicker: int, kicker: int, categories: dict[int, str]) -> tuple[bytes, dict[str, float]]:
-    """Shift every disc skill's clip starts and _compatibilityTime by the kicker/donor cast-time difference of its
-    category (never below 0). Returns the patched bytes and the applied delta per category."""
-    out = bytearray(serialized)
-    deltas = {}
-    for skill_id, compat_off, starts in parse_action_event(serialized, f"aed_{kicker:03d}".encode()):
-        cat = categories.get(skill_id)
-        if cat is None:
-            continue
-        col = CAST_CATEGORIES.index(cat)
-        delta = round(CAST_TIMES[kicker][col] - CAST_TIMES[donor_kicker][col], 3)
-        deltas[cat] = delta
-        if delta == 0.0:
-            continue
-        compat = struct.unpack_from("<f", out, compat_off)[0]
-        delta = max(delta, -compat)                # a negative shift cannot start the effect before the flick
-        struct.pack_into("<f", out, compat_off, compat + delta)
-        for off in starts:
-            start = struct.unpack_from("<f", out, off)[0]
-            struct.pack_into("<f", out, off, max(0.0, start + delta))
-    return bytes(out), deltas
-
-
-def make_bundle(donor_octo: bytes, donor_kicker: int, kicker: int, categories: dict[int, str] | None = None) -> bytes:
+def make_bundle(donor_octo: bytes, donor_kicker: int, kicker: int) -> bytes:
     (header_prefix, info_hash), _blocks, nodes, serialized = parse_unityfs(octo_to_unityfs(donor_octo))
     if len(nodes) != 1:
         raise ValueError(f"expected one serialized file in the donor bundle, found {len(nodes)}")
@@ -229,10 +127,6 @@ def make_bundle(donor_octo: bytes, donor_kicker: int, kicker: int, categories: d
     patched = serialized.replace(old, new)
     if patched.count(new) != serialized.count(old) or len(patched) != len(serialized):
         raise AssertionError("name patch changed the serialized size")
-    if categories:
-        patched, deltas = retime(patched, donor_kicker, kicker, categories)
-        print(f"  aed_{kicker:03d}: cast-time shifts vs donor aed_{donor_kicker:03d}: "
-              + ", ".join(f"{k} {v:+.2f}" for k, v in sorted(deltas.items())))
     cab = "CAB-" + hashlib.md5(f"kickflight actioneditor/aed_{kicker:03d} from aed_{donor_kicker:03d}".encode()).hexdigest()
     return unityfs_to_octo(build_unityfs(header_prefix, info_hash, cab, patched))
 
@@ -253,9 +147,7 @@ def verify(octo: bytes, kicker: int) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[1])
     ap.add_argument("--dry-run", action="store_true", help="build and verify, write nothing")
-    ap.add_argument("--no-retime", action="store_true", help="keep the donor's clip timings (skip CAST_TIMES)")
     args = ap.parse_args()
-    categories = None if args.no_retime else skill_categories()
 
     definition = json.loads(TITLE_MINIMUM.read_text(encoding="utf-8-sig"))
     entries = definition["entries"]
@@ -273,7 +165,7 @@ def main() -> int:
             continue
         donor_entry = by_name[f"actioneditor/aed_{donor:03d}.unity3d"]
         donor_path = (REPO_ROOT / donor_entry["sourcePath"]).resolve()
-        octo = make_bundle(donor_path.read_bytes(), donor, kicker, categories)
+        octo = make_bundle(donor_path.read_bytes(), donor, kicker)
         verify(octo, kicker)
         object_name = f"aed0{kicker:02d}"  # Octo objectName: exactly six characters, must be unique
         if object_name in used_objects and by_id.get(entry_id, {}).get("objectName") != object_name:
@@ -297,9 +189,7 @@ def main() -> int:
             "sourcePath": rel.as_posix(),
             "logicalName": f"Unity AssetBundle {name}",
             "description": f"Disc action timelines for kicker {kicker}: copy of the captured aed_{donor:03d} bundle "
-                           f"(kicker {donor}) with its own serialized-file name"
-                           + ("" if args.no_retime else " and the kicker's own per-category cast times (CAST_TIMES)")
-                           + "; built by scripts/build-action-asset-bundles.py",
+                           f"(kicker {donor}) with its own serialized-file name; built by scripts/build-action-asset-bundles.py",
         }
         if entry_id in by_id:
             by_id[entry_id].update(new_entry)

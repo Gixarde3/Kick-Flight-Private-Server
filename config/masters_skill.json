@@ -408,7 +408,7 @@
   "id": 10027,
   "description": "Deals large rear continuous damage while dashing",
   "skillType": 1,
-  "skillActionType": 1,
+  "skillActionType": 22,
   "skillCategoryType": 5,
   "targetAreaType": 0,
   "coolTime": 30,
@@ -1173,7 +1173,7 @@
   "id": 10079,
   "description": "Deals medium rear continuous damage while dashing",
   "skillType": 1,
-  "skillActionType": 1,
+  "skillActionType": 22,
   "skillCategoryType": 5,
   "targetAreaType": 0,
   "coolTime": 23,
@@ -1638,7 +1638,7 @@
   "id": 10112,
   "description": "Deals medium continuous rear damage + paralysis attack",
   "skillType": 1,
-  "skillActionType": 1,
+  "skillActionType": 22,
   "skillCategoryType": 5,
   "targetAreaType": 0,
   "coolTime": 23,
@@ -2167,7 +2167,7 @@
   "skillCategoryType": 0,
   "targetAreaType": 17,
   "coolTime": 7,
-  "range": 20.0,
+  "range": 11.0,
   "speed": 26.0,
   "summonId": 0,
   "attributeType": 3,
@@ -2202,6 +2202,6 @@
   "summonId": 0,
   "attributeType": 0,
   "seId": 0,
-  "coefficient": 10.0
+  "coefficient": 1.0
  }
 ]

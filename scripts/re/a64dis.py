@@ -1,8 +1,9 @@
-"""a64dis.py <rva_hex> [max_insns] [--so path]
+"""a64dis.py <rva_hex> [max_insns] [--so path] [--all]
 
 Annotated arm64 disassembly of libil2cpp.so. `bl` targets are named from Il2CppDumper, and
 `adrp`+`ldr`/`add` pairs are resolved through .rela.dyn (run reloc.py once) to the string literal,
-TypeInfo or Method* they load. Stops at the first `ret`. Needs capstone (pip install capstone).
+TypeInfo or Method* they load. Stops at the first `ret` unless --all is supplied.
+Needs capstone (pip install capstone).
 """
 import re
 import sys
@@ -49,7 +50,7 @@ def main() -> int:
                     note = f"meta {name}" if name else f"-> 0x{slot:X}"
         line = f"0x{ins.address:X}  {ins.bytes.hex():<8}  {ins.mnemonic:<7} {ins.op_str}"
         print(line + (f"    ; {note}" if note else ""))
-        if ins.mnemonic == "ret":
+        if ins.mnemonic == "ret" and "--all" not in sys.argv:
             break
     return 0
 

@@ -1,146 +1,92 @@
-[
- {
-  "id": 22,
-  "skillId": 10033,
-  "skillHealType": 2,
-  "coefficient": 0.4
- },
- {
-  "id": 60,
-  "skillId": 10065,
-  "skillHealType": 1,
-  "coefficient": 0.5
- },
- {
-  "id": 61,
-  "skillId": 10066,
-  "skillHealType": 2,
-  "coefficient": 0.6
- },
- {
-  "id": 62,
-  "skillId": 10067,
-  "skillHealType": 1,
-  "coefficient": 0.3
- },
- {
-  "id": 63,
-  "skillId": 10068,
-  "skillHealType": 1,
-  "coefficient": 0.5
- },
- {
-  "id": 64,
-  "skillId": 10069,
-  "skillHealType": 1,
-  "coefficient": 0.6
- },
- {
-  "id": 65,
-  "skillId": 10070,
-  "skillHealType": 1,
-  "coefficient": 0.3
- },
- {
-  "id": 68,
-  "skillId": 10074,
-  "skillHealType": 1,
-  "coefficient": 1.0
- },
- {
-  "id": 70,
-  "skillId": 10076,
-  "skillHealType": 1,
-  "coefficient": 0.5
- },
- {
-  "id": 71,
-  "skillId": 10078,
-  "skillHealType": 2,
-  "coefficient": 0.4
- },
- {
-  "id": 76,
-  "skillId": 10084,
-  "skillHealType": 3,
-  "coefficient": 0.8
- },
- {
-  "id": 82,
-  "skillId": 10087,
-  "skillHealType": 1,
-  "coefficient": 0.8
- },
- {
-  "id": 97,
-  "skillId": 10104,
-  "skillHealType": 1,
-  "coefficient": 0.3
- },
- {
-  "id": 100,
-  "skillId": 10106,
-  "skillHealType": 3,
-  "coefficient": 0.6
- },
- {
-  "id": 101,
-  "skillId": 10108,
-  "skillHealType": 4,
-  "coefficient": 0.2
- },
- {
-  "id": 110,
-  "skillId": 10117,
-  "skillHealType": 1,
-  "coefficient": 0.2
- },
- {
-  "id": 111,
-  "skillId": 10117,
-  "skillHealType": 5,
-  "coefficient": 1.0
- },
- {
-  "id": 116,
-  "skillId": 10123,
-  "skillHealType": 4,
-  "coefficient": 0.02
- },
- {
-  "id": 117,
-  "skillId": 10124,
-  "skillHealType": 1,
-  "coefficient": 0.3
- },
- {
-  "id": 124,
-  "skillId": 10131,
-  "skillHealType": 2,
-  "coefficient": 0.6
- },
- {
-  "id": 125,
-  "skillId": 10132,
-  "skillHealType": 3,
-  "coefficient": 1.0
- },
- {
-  "id": 126,
-  "skillId": 10133,
-  "skillHealType": 1,
-  "coefficient": 0.25
- },
- {
-  "id": 127,
-  "skillId": 10133,
-  "skillHealType": 5,
-  "coefficient": 1.0
- },
- {
-  "id": 130,
-  "skillId": 10135,
-  "skillHealType": 3,
-  "coefficient": 1.0
- }
+[
+ {
+  "id": 33,
+  "skillId": 10033,
+  "skillHealType": 1,
+  "coefficient": 1.8
+ },
+ {
+  "id": 64,
+  "skillId": 10065,
+  "skillHealType": 1,
+  "coefficient": 1.8
+ },
+ {
+  "id": 65,
+  "skillId": 10066,
+  "skillHealType": 1,
+  "coefficient": 3.9
+ },
+ {
+  "id": 66,
+  "skillId": 10067,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 68,
+  "skillId": 10069,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 69,
+  "skillId": 10070,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 70,
+  "skillId": 10071,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 71,
+  "skillId": 10072,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 77,
+  "skillId": 10078,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 86,
+  "skillId": 10087,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 107,
+  "skillId": 10110,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 114,
+  "skillId": 10117,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 125,
+  "skillId": 10131,
+  "skillHealType": 1,
+  "coefficient": 1.0
+ },
+ {
+  "id": 127,
+  "skillId": 10133,
+  "skillHealType": 1,
+  "coefficient": 3.0
+ },
+ {
+  "id": 130,
+  "skillId": 10136,
+  "skillHealType": 1,
+  "coefficient": 3.0
+ }
 ]

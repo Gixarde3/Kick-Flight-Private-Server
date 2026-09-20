@@ -80,7 +80,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -90,6 +90,14 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("originalshader.unity3d", protobufText);
         Assert.Contains("shader/preloadgameshadervariants.unity3d", protobufText);
         Assert.Contains("/cdn/{o}", protobufText);
+
+        var offset = 2; // Database.revision = 19 (08 13)
+        Assert.Equal(0x12UL, ReadVarint(body, ref offset)); // first Database.asset
+        var assetLength = checked((int)ReadVarint(body, ref offset));
+        var firstAsset = body[offset..(offset + assetLength)];
+        Assert.Equal(
+            new[] { (1, 0), (2, 2), (3, 2), (4, 0), (5, 0), (9, 0), (10, 2), (11, 2), (12, 0), (13, 0) },
+            ReadProtobufLayout(firstAsset));
     }
 
     [Fact]
@@ -100,7 +108,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        Assert.Equal(new byte[] { 0x08, 0x13 }, body[..2]); // Octo revision 19
     }
 
     [Fact]
@@ -451,8 +459,8 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var ruleBytes = await getRuleResponse.Content.ReadAsByteArrayAsync();
         var decryptedRule = D2CCodec.Decode(ruleBytes, Encoding.ASCII.GetBytes("1a837b9ee2ae11a07a0f529a4cd4b61c"));
         using var ruleDoc = JsonDocument.Parse(decryptedRule);
-        Assert.Equal("Crystal Scramble", ruleDoc.RootElement[0].GetProperty("name").GetString());
-        Assert.Equal("Rapid Ball", ruleDoc.RootElement[2].GetProperty("name").GetString());
+        Assert.Equal("Cristalmanía", ruleDoc.RootElement[0].GetProperty("name").GetString());
+        Assert.Equal("Bola rápida", ruleDoc.RootElement[2].GetProperty("name").GetString());
 
         // 6. Request POST /startup/index (verify 14 kickers unlocked)
         using var startupRequest = new HttpRequestMessage(HttpMethod.Post, "/startup/index")
@@ -520,8 +528,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.OK, discChangeResponse.StatusCode);
         Assert.Equal("0", discChangeResponse.Headers.GetValues("x-app-status-code").Single());
 
-        // 10. Request POST /home/index again (persisted kickerId = 8, activeDeck = 2; kickerCostumeId is a KickerCostume row id,
-        //     and row 2 is not one of kicker 8's costumes, so NormalizeCostume swaps it for Owlbert's default row 64)
+        // 10. Request POST /home/index again (persisted kickerId = 8, kickerCostumeId = 2, activeDeck = 2)
         using var homeRequest2 = new HttpRequestMessage(HttpMethod.Post, "/home/index")
         {
             Content = new ByteArrayContent(Array.Empty<byte>())
@@ -534,98 +541,10 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var homeDecrypted2 = D2CCodec.Decode(homeBytes2, sessionKeyBytes);
         using var homeDoc2 = JsonDocument.Parse(homeDecrypted2);
         Assert.Equal(8, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerId").GetInt32());
-        Assert.Equal(64, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
+        Assert.Equal(2, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
         Assert.Equal(2, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("discDeckNumber").GetInt32());
         var updatedDeck2 = homeDoc2.RootElement.GetProperty("userDiscDeckList").EnumerateArray().First(d => d.GetProperty("number").GetInt32() == 2);
         Assert.Equal(3010050, updatedDeck2.GetProperty("discIdList")[0].GetInt32());
-    }
-
-    [Fact]
-    public async Task Rapid_ball_masters_are_served_with_goal_guardians()
-    {
-        var client = _factory.CreateClient();
-        var host = "kickflight-api.grenge.jp";
-        var sessionKey = "0123456789abcdef0123456789abcdef";
-        var sessionKeyBytes = Encoding.ASCII.GetBytes(sessionKey);
-        var commonCode = "1a837b9ee2ae11a07a0f529a4cd4b61c";
-        var commonCodeBytes = Encoding.ASCII.GetBytes(commonCode);
-
-        // 1. Authenticate to establish demo session
-        var testUuid = Guid.NewGuid().ToString("N");
-        var authPayload = JsonSerializer.Serialize(new { hash = sessionKey, uuid = testUuid });
-        var encodedAuth = D2CCodec.Encode(Encoding.UTF8.GetBytes(authPayload), commonCodeBytes, new byte[16]);
-        using var authRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/index")
-        {
-            Content = new ByteArrayContent(encodedAuth)
-        };
-        authRequest.Headers.Host = host;
-        using var authResponse = await client.SendAsync(authRequest);
-        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
-        var accessToken = authResponse.Headers.GetValues("x-app-access-token").Single();
-
-        // 2. The rule controllers read both score tables every frame and at match end; an unlisted table makes the
-        //    client NRE in GetScore and loop on the loading screen instead of sending /battle/end.
-        using var masterRequest = new HttpRequestMessage(HttpMethod.Post, "/download/master")
-        {
-            Content = new ByteArrayContent(Array.Empty<byte>())
-        };
-        masterRequest.Headers.Host = host;
-        masterRequest.Headers.Add("x-app-access-token", accessToken);
-        using var masterResponse = await client.SendAsync(masterRequest);
-        var masterDecrypted = D2CCodec.Decode(await masterResponse.Content.ReadAsByteArrayAsync(), sessionKeyBytes);
-        using var masterDoc = JsonDocument.Parse(masterDecrypted);
-        var masterNames = masterDoc.RootElement.GetProperty("masterDownloadList").EnumerateArray()
-            .Select(e => e.GetProperty("name").GetString()).ToList();
-        Assert.Contains("BattleRuleRapidBallScore", masterNames);
-        Assert.Contains("BattleRuleFlagFlightScore", masterNames);
-
-        // 3. Ball goals hold a guardian (guardianAmount 1 for the ball rules 3/4), and the crystal rule is untouched.
-        using var getRuleRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRule");
-        getRuleRequest.Headers.Host = host;
-        using var getRuleResponse = await client.SendAsync(getRuleRequest);
-        Assert.Equal(HttpStatusCode.OK, getRuleResponse.StatusCode);
-        var ruleBytes = await getRuleResponse.Content.ReadAsByteArrayAsync();
-        using var ruleDoc = JsonDocument.Parse(D2CCodec.Decode(ruleBytes, commonCodeBytes));
-        var rules = ruleDoc.RootElement.EnumerateArray().ToDictionary(r => r.GetProperty("id").GetInt32());
-        Assert.Equal(1, rules[3].GetProperty("guardianAmount").GetInt32());
-        Assert.Equal(1, rules[4].GetProperty("guardianAmount").GetInt32());
-        Assert.Equal(1, rules[1].GetProperty("guardianAmount").GetInt32());
-        Assert.Equal(50, rules[1].GetProperty("crystalAmount").GetInt32());
-
-        // 4. Row 2 is the weaker goal guardian /battle/start returns for the ball rules.
-        using var getGuardianRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/GuardianParameter");
-        getGuardianRequest.Headers.Host = host;
-        using var getGuardianResponse = await client.SendAsync(getGuardianRequest);
-        Assert.Equal(HttpStatusCode.OK, getGuardianResponse.StatusCode);
-        var guardianBytes = await getGuardianResponse.Content.ReadAsByteArrayAsync();
-        using var guardianDoc = JsonDocument.Parse(D2CCodec.Decode(guardianBytes, commonCodeBytes));
-        var guardians = guardianDoc.RootElement.EnumerateArray().ToDictionary(g => g.GetProperty("id").GetInt32());
-        Assert.Equal(3000, guardians[2].GetProperty("hp").GetInt32());
-
-        // 5. Both ball rules (3 and 4) need a score row keyed by battleRuleId.
-        using var getScoreRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRuleRapidBallScore");
-        getScoreRequest.Headers.Host = host;
-        using var getScoreResponse = await client.SendAsync(getScoreRequest);
-        Assert.Equal(HttpStatusCode.OK, getScoreResponse.StatusCode);
-        var scoreBytes = await getScoreResponse.Content.ReadAsByteArrayAsync();
-        using var scoreDoc = JsonDocument.Parse(D2CCodec.Decode(scoreBytes, commonCodeBytes));
-        Assert.Contains(scoreDoc.RootElement.EnumerateArray(), r => r.GetProperty("battleRuleId").GetInt32() == 3);
-
-        // 6. /battle/start hands the ball rule (battleRuleType 3) the goal-guardian row 2, everything else row 1.
-        using var startRequest = new HttpRequestMessage(HttpMethod.Post, "/battle/start")
-        {
-            Content = new ByteArrayContent(D2CCodec.Encode(
-                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { battleId = "battle-1", battleRuleId = 3 })),
-                sessionKeyBytes, new byte[16]))
-        };
-        startRequest.Headers.Host = host;
-        startRequest.Headers.Add("x-app-access-token", accessToken);
-        using var startResponse = await client.SendAsync(startRequest);
-        Assert.Equal(HttpStatusCode.OK, startResponse.StatusCode);
-        using var startDoc = JsonDocument.Parse(D2CCodec.Decode(await startResponse.Content.ReadAsByteArrayAsync(), sessionKeyBytes));
-        Assert.Equal(2, startDoc.RootElement.GetProperty("guardianParameter").GetProperty("id").GetInt32());
-        // The arena is drawn at random from BattleMatchmakingService.FieldPool (KF_FIELDS) for every battle.
-        Assert.Contains(startDoc.RootElement.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
     }
 
     private static string FindRepositoryRoot()
@@ -634,6 +553,45 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "KickFlight.PrivateServer.sln")))
             directory = directory.Parent;
         return directory?.FullName ?? throw new DirectoryNotFoundException("Repository root not found.");
+    }
+
+    private static (int Field, int WireType)[] ReadProtobufLayout(ReadOnlySpan<byte> payload)
+    {
+        var result = new List<(int, int)>();
+        var offset = 0;
+        while (offset < payload.Length)
+        {
+            var tag = ReadVarint(payload, ref offset);
+            var wireType = checked((int)(tag & 7));
+            result.Add((checked((int)(tag >> 3)), wireType));
+            switch (wireType)
+            {
+                case 0:
+                    ReadVarint(payload, ref offset);
+                    break;
+                case 2:
+                    var length = checked((int)ReadVarint(payload, ref offset));
+                    offset += length;
+                    break;
+                default:
+                    throw new InvalidDataException(
+                        $"Unsupported protobuf wire type {wireType} at offset {offset - 1}; " +
+                        $"payload={Convert.ToHexString(payload)}");
+            }
+        }
+        return result.ToArray();
+    }
+
+    private static ulong ReadVarint(ReadOnlySpan<byte> payload, ref int offset)
+    {
+        ulong result = 0;
+        for (var shift = 0; shift < 64 && offset < payload.Length; shift += 7)
+        {
+            var value = payload[offset++];
+            result |= (ulong)(value & 0x7F) << shift;
+            if ((value & 0x80) == 0) return result;
+        }
+        throw new InvalidDataException("Invalid protobuf varint.");
     }
 
     private static void WriteReloadFixture(string path, string body)

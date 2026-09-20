@@ -119,35 +119,6 @@ Open:
   weapon types/roles per the user, `skillId` 20000+k.
 * `/battle/result` handler; bot rank 13; tests pass (22).
 
-## Real devices / remote play (2026-09-14)
-
-* No cache seeding any more: a fresh install downloads the whole catalogue (2593 files, 728 MB) from
-  the title screen. Every row is tagged `common` (tag names must be unique — duplicates throw in
-  `DataManager.SerializeDatabase`), `ui/localize/zh/*` rows are not served (the es/en client re-requests
-  them forever), Octo revision 25.
-* Octo cache files are named by MD5 (`GetAssetBundleFileName` → `Item.md5`). Rows with identical bytes
-  (259 entries carry alias names) must never be in flight together: `build-title-resource-catalog.py::
-  order_rows` lists aliased primaries largest-first, then alias-free primaries, then every alias row —
-  by the tail they are cache hits and skipped. Adjacent twins = "communication error" (collision on
-  `LockStorage`, one retry, abort); distance in rows alone is useless because cache-skips take no time.
-  Emulator repro: `adb shell pm clear jp.grenge.kickflight`, START → Download (`0 duplicate /cdn/`
-  requests in the server log = good).
-* `matchmakingExpirationDatetime` is a bare wall-clock string read in the client's own time zone:
-  `BattleMatchmakingService` sends `2030-01-01 00:00:00`; a UTC "now + 30 min" is hours in the past on a
-  UTC+8 phone and every entry ends in `/battle/timeout` 230 ms after Stage 1. The emulator only passed
-  because it runs on UTC — test with `adb root; adb shell setprop persist.sys.timezone Asia/Singapore`.
-* Remote play: forward TCP 18080 (HTTP) + 18081 (gRPC) to this PC, list the public name in
-  `Harness__DirectClientHosts__N` (`start-server.bat` has `kickflightsg.ddns.net`), build with
-  `URL=http://<name>:18080 bash .local/build.sh`; `/v1/list/*` rewrites the Octo url format to the host the
-  request came through (`OctoDatabaseUrl.Rewrite`), or to `Harness:OctoCdnUrlFormat` when the bundles live
-  on an external static host. `/battle/entry` already answers with `request.Host`.
-* Slow links: `BaseDownloadRequest.StallTimeout` 10 s → 120 s (arm64 `0x222DCEC`), `MaxParallelDownload`
-  4 (`0x2746F30`), `scripts/patch-octo-http-timeout.py` raises the Java `HttpAsyncTask` connect/read
-  timeouts to 20 s / 120 s (classes2.dex). This PC's uplink measured ~250 KB/s: a full first download from
-  outside takes ~50 min; Kestrel's "Request finished" logs Content-Length, not bytes sent.
-* Crash reports under ndk_translation always show `libunity.so+0x34426c`; only `fault addr` and the
-  thread name mean anything. `LoadManager.Enqueue` `_isUnloading` bypass is off (`KF_UNLOAD_BYPASS=1`).
-
 ## Diagnosis recipes
 
 * Exceptions: run the stack-aggregation snippet over `.local/logcat-*.txt` (E Unity + "  at " frames).

@@ -16,7 +16,7 @@
   "specialSkillId": 5,
   "trapType": 6,
   "duration": 8.0,
-  "radius": 5.0,
+  "radius": 100.0,
   "effectValue": 0.0,
   "interval": 0.0,
   "executeSeId": 0,

@@ -1,14 +1,1 @@
-[
- {
-  "id": 140,
-  "skillId": 20008,
-  "distance": 20.0,
-  "speed": 30.0
- },
- {
-  "id": 142,
-  "skillId": 20010,
-  "distance": 16.0,
-  "speed": 40.0
- }
-]
+[]

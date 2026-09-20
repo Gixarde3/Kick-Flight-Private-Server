@@ -1,560 +1,146 @@
-[
- {
-  "id": 2,
-  "skillId": 10002,
-  "conditionType": 2,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 0.6,
-  "triggerType": 1
- },
- {
-  "id": 3,
-  "skillId": 10007,
-  "conditionType": 1,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 1
- },
- {
-  "id": 4,
-  "skillId": 10008,
-  "conditionType": 8,
-  "duration": 2.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 13,
-  "skillId": 10021,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 14,
-  "skillId": 10025,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 15,
-  "skillId": 10026,
-  "conditionType": 6,
-  "duration": 2.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 20,
-  "skillId": 10031,
-  "conditionType": 17,
-  "duration": 8.0,
-  "interval": 0.42,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 36,
-  "skillId": 10041,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 40,
-  "skillId": 10045,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 42,
-  "skillId": 10047,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 43,
-  "skillId": 10048,
-  "conditionType": 5,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.08,
-  "triggerType": 1
- },
- {
-  "id": 45,
-  "skillId": 10049,
-  "conditionType": 9,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 47,
-  "skillId": 10051,
-  "conditionType": 5,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.04,
-  "triggerType": 1
- },
- {
-  "id": 48,
-  "skillId": 10052,
-  "conditionType": 1,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 1
- },
- {
-  "id": 49,
-  "skillId": 10053,
-  "conditionType": 2,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 1.2,
-  "triggerType": 3
- },
- {
-  "id": 50,
-  "skillId": 10055,
-  "conditionType": 1,
-  "duration": 15.0,
-  "interval": 0.0,
-  "effectValue": 1.2,
-  "triggerType": 3
- },
- {
-  "id": 51,
-  "skillId": 10056,
-  "conditionType": 1,
-  "duration": 20.0,
-  "interval": 0.0,
-  "effectValue": 1.1,
-  "triggerType": 3
- },
- {
-  "id": 52,
-  "skillId": 10057,
-  "conditionType": 4,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 0.3,
-  "triggerType": 3
- },
- {
-  "id": 53,
-  "skillId": 10058,
-  "conditionType": 4,
-  "duration": 15.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 3
- },
- {
-  "id": 54,
-  "skillId": 10059,
-  "conditionType": 1,
-  "duration": 15.0,
-  "interval": 0.0,
-  "effectValue": 1.3,
-  "triggerType": 3
- },
- {
-  "id": 55,
-  "skillId": 10060,
-  "conditionType": 1,
-  "duration": 30.0,
-  "interval": 0.0,
-  "effectValue": 1.1,
-  "triggerType": 3
- },
- {
-  "id": 56,
-  "skillId": 10061,
-  "conditionType": 4,
-  "duration": 15.0,
-  "interval": 0.0,
-  "effectValue": 0.5,
-  "triggerType": 3
- },
- {
-  "id": 57,
-  "skillId": 10062,
-  "conditionType": 4,
-  "duration": 25.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 3
- },
- {
-  "id": 58,
-  "skillId": 10063,
-  "conditionType": 30,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- },
- {
-  "id": 59,
-  "skillId": 10064,
-  "conditionType": 2,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 1.1,
-  "triggerType": 3
- },
- {
-  "id": 66,
-  "skillId": 10071,
-  "conditionType": 11,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.1,
-  "triggerType": 3
- },
- {
-  "id": 67,
-  "skillId": 10072,
-  "conditionType": 11,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.05,
-  "triggerType": 3
- },
- {
-  "id": 69,
-  "skillId": 10075,
-  "conditionType": 31,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- },
- {
-  "id": 73,
-  "skillId": 10082,
-  "conditionType": 5,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.06,
-  "triggerType": 5
- },
- {
-  "id": 75,
-  "skillId": 10083,
-  "conditionType": 30,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 3.0,
-  "triggerType": 3
- },
- {
-  "id": 77,
-  "skillId": 10085,
-  "conditionType": 1,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 1.2,
-  "triggerType": 3
- },
- {
-  "id": 78,
-  "skillId": 10085,
-  "conditionType": 2,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 1.2,
-  "triggerType": 3
- },
- {
-  "id": 80,
-  "skillId": 10086,
-  "conditionType": 17,
-  "duration": 8.0,
-  "interval": 1.0,
-  "effectValue": 0.4,
-  "triggerType": 5
- },
- {
-  "id": 81,
-  "skillId": 10086,
-  "conditionType": 11,
-  "duration": 8.0,
-  "interval": 1.0,
-  "effectValue": 0.08,
-  "triggerType": 6
- },
- {
-  "id": 84,
-  "skillId": 10090,
-  "conditionType": 32,
-  "duration": 1.0,
-  "interval": 0.0,
-  "effectValue": 0.8,
-  "triggerType": 1
- },
- {
-  "id": 85,
-  "skillId": 10091,
-  "conditionType": 30,
-  "duration": 4.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- },
- {
-  "id": 86,
-  "skillId": 10092,
-  "conditionType": 31,
-  "duration": 12.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- },
- {
-  "id": 88,
-  "skillId": 10094,
-  "conditionType": 4,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 0.5,
-  "triggerType": 3
- },
- {
-  "id": 89,
-  "skillId": 10095,
-  "conditionType": 6,
-  "duration": 2.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 90,
-  "skillId": 10096,
-  "conditionType": 1,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 1
- },
- {
-  "id": 93,
-  "skillId": 10097,
-  "conditionType": 8,
-  "duration": 2.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 94,
-  "skillId": 10101,
-  "conditionType": 4,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 0.3,
-  "triggerType": 3
- },
- {
-  "id": 99,
-  "skillId": 10105,
-  "conditionType": 1,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 5
- },
- {
-  "id": 102,
-  "skillId": 10109,
-  "conditionType": 9,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 103,
-  "skillId": 10110,
-  "conditionType": 11,
-  "duration": 15.0,
-  "interval": 1.0,
-  "effectValue": 0.08,
-  "triggerType": 3
- },
- {
-  "id": 104,
-  "skillId": 10112,
-  "conditionType": 6,
-  "duration": 3.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 105,
-  "skillId": 10113,
-  "conditionType": 1,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 1.2,
-  "triggerType": 3
- },
- {
-  "id": 113,
-  "skillId": 10119,
-  "conditionType": 4,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 0.0,
-  "triggerType": 3
- },
- {
-  "id": 115,
-  "skillId": 10122,
-  "conditionType": 30,
-  "duration": 4.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- },
- {
-  "id": 118,
-  "skillId": 10125,
-  "conditionType": 32,
-  "duration": 1.0,
-  "interval": 0.0,
-  "effectValue": 0.7,
-  "triggerType": 1
- },
- {
-  "id": 122,
-  "skillId": 10128,
-  "conditionType": 9,
-  "duration": 1.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 123,
-  "skillId": 10129,
-  "conditionType": 5,
-  "duration": 10.0,
-  "interval": 1.0,
-  "effectValue": 0.03,
-  "triggerType": 1
- },
- {
-  "id": 132,
-  "skillId": 10136,
-  "conditionType": 11,
-  "duration": 20.0,
-  "interval": 1.0,
-  "effectValue": 0.04,
-  "triggerType": 3
- },
- {
-  "id": 133,
-  "skillId": 10138,
-  "conditionType": 8,
-  "duration": 2.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 134,
-  "skillId": 20002,
-  "conditionType": 2,
-  "duration": 4.0,
-  "interval": 0.0,
-  "effectValue": 0.6,
-  "triggerType": 1
- },
- {
-  "id": 135,
-  "skillId": 20003,
-  "conditionType": 8,
-  "duration": 1.5,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
-  "id": 136,
-  "skillId": 20005,
-  "conditionType": 9,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 5
- },
- {
-  "id": 137,
-  "skillId": 20005,
-  "conditionType": 9,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 4
- },
- {
-  "id": 139,
-  "skillId": 20007,
-  "conditionType": 2,
-  "duration": 5.0,
-  "interval": 0.0,
-  "effectValue": 0.4,
-  "triggerType": 1
- },
- {
-  "id": 141,
-  "skillId": 20009,
-  "conditionType": 24,
-  "duration": 8.0,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 3
- },
- {
-  "id": 144,
-  "skillId": 20012,
-  "conditionType": 26,
-  "duration": 6.0,
-  "interval": 0.0,
-  "effectValue": 4000.0,
-  "triggerType": 3
- },
- {
-  "id": 145,
-  "skillId": 20014,
-  "conditionType": 28,
-  "duration": 10.0,
-  "interval": 0.0,
-  "effectValue": 2.0,
-  "triggerType": 3
- }
+[
+ {
+  "id": 53,
+  "skillId": 10053,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 54,
+  "skillId": 10055,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 55,
+  "skillId": 10056,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 56,
+  "skillId": 10057,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 57,
+  "skillId": 10058,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 58,
+  "skillId": 10059,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 59,
+  "skillId": 10060,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 60,
+  "skillId": 10061,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 61,
+  "skillId": 10062,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 63,
+  "skillId": 10064,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 74,
+  "skillId": 10075,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 84,
+  "skillId": 10085,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 91,
+  "skillId": 10092,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 93,
+  "skillId": 10094,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 98,
+  "skillId": 10101,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ },
+ {
+  "id": 116,
+  "skillId": 10119,
+  "conditionType": 1,
+  "duration": 10.0,
+  "interval": 0.0,
+  "effectValue": 1.2,
+  "triggerType": 3
+ }
 ]
