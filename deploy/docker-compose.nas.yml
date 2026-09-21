@@ -1,0 +1,103 @@
+# Kick-Flight API + CDN + PostgreSQL, as deployed on the TrueNAS (192.168.68.53).
+#
+# This is the file a TrueNAS Custom App is created from. It references a pre-built image rather than
+# building one: the Custom App UI has no build context, so the image is built on the NAS itself first.
+# See deploy/README.md for the full procedure.
+#
+# Photon is NOT here. The client is pointed at the VM that already runs it, so there is no luxon-server
+# service and no UDP ports to forward - only 18080 (HTTP + CDN) and 18081 (gRPC).
+#
+# Ports bound on the NAS, both already forwarded by the router:
+#   18080 -> cdn      nginx: serves /cdn/ from disk, proxies everything else to the API
+#   18081 -> api      gRPC, published directly; the client learns this port from the matchmaking response
+#
+# The API's own HTTP port (8080) is deliberately not published - every HTTP request arrives through nginx,
+# which is what keeps the Host header (and therefore the CDN urls the client receives) correct.
+#
+# PostgreSQL publishes no port either: only the api service talks to it, over the compose network.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: kickflight-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kickflight
+      POSTGRES_DB: kickflight
+      # Not published, so this only guards the compose network. Override it in the TrueNAS app if the NAS is
+      # ever shared with something that should not read player state.
+      POSTGRES_PASSWORD: ${KF_DB_PASSWORD:-kickflight-local}
+      # The dataset is mounted at the image's default PGDATA parent and the cluster lives in a subdirectory of
+      # it: initdb refuses a data directory that already has anything in it, and a ZFS dataset root is not
+      # guaranteed to be empty (a snapshot mount or a stray file would be enough).
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /mnt/Tanuki_1/kickflight/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # The API applies its migrations at startup, so it must not start before the server accepts connections.
+      test: ["CMD-SHELL", "pg_isready -U kickflight -d kickflight"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  cdn:
+    image: nginx:1.27-alpine
+    container_name: kickflight-cdn
+    restart: unless-stopped
+    ports:
+      - "18080:18080"
+    volumes:
+      - /mnt/Tanuki_1/kickflight/assets:/assets:ro
+      - /mnt/Tanuki_1/kickflight/app/deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+
+  api:
+    image: kickflight-api:local
+    container_name: kickflight-api
+    restart: unless-stopped
+    ports:
+      - "18081:18081"
+    volumes:
+      # The repository root, as RepositoryPaths expects it. config/ must be read-write so a masters edit can
+      # be picked up by a restart without a rebuild; content/ and the assets tree are read-only.
+      - /mnt/Tanuki_1/kickflight/app/config:/srv/repo/config
+      - /mnt/Tanuki_1/kickflight/app/content:/srv/repo/content
+      # Mounted, not used: player state lives in PostgreSQL now and this is only where the JSON fallback would
+      # write, which is what the API falls back to when the connection string below is unset.
+      - /mnt/Tanuki_1/kickflight/app/data:/srv/repo/data
+      # One catalog entry addresses a file as ".local/...": the installable APK served at
+      # /apk/KickFlight-*, which is how a phone gets the client. It is a build artifact of the repository,
+      # so it is uploaded rather than committed - but the catalog pins its SHA-256, so it must be the exact
+      # file the catalog was generated against or /health/ready fails on it.
+      - /mnt/Tanuki_1/kickflight/app/.local:/srv/repo/.local:ro
+      # Mounted one level above the repo root because the catalog addresses bundles as
+      # "../Kick-Flight-Assets/octo_sorted/...".
+      - /mnt/Tanuki_1/kickflight/assets:/srv/Kick-Flight-Assets:ro
+    environment:
+      HttpPort: "8080"
+      GrpcPort: "18081"
+      KF_REPO_ROOT: /srv/repo
+
+      # Player state. Setting this is what selects PostgresPlayerStore; unset, the API writes per-user JSON
+      # files under /srv/repo/data/users and identity is only as durable as that directory.
+      PlayerStore__ConnectionString: "Host=postgres;Port=5432;Database=kickflight;Username=kickflight;Password=${KF_DB_PASSWORD:-kickflight-local}"
+
+      # Photon stays on the public VM.
+      PhotonServer__Enabled: "true"
+      PhotonServer__Host: 51.79.241.70
+      PhotonServer__MasterServerPort: "5055"
+      PhotonServer__GameServerPort: "5056"
+      PhotonServer__NameServerPort: "5058"
+
+      # The host gate in Program.cs answers 421 for anything not listed here. Entries are bare hostnames -
+      # the port is stripped before comparison - and the request's own Host decides the CDN urls, so a client
+      # on the LAN and one on the DDNS name both work.
+      Harness__DirectClientHosts__0: 192.168.68.53
+      Harness__DirectClientHosts__1: tanukifurhirenas.tplinkdns.com
+      Harness__DirectClientHosts__2: kickflightsg.ddns.net
+      Harness__DirectClientHosts__3: 192.168.68.55
+      Harness__PersistCaptures: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
