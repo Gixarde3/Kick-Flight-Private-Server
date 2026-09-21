@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using KickFlight.BootstrapApi;
+using KickFlight.BootstrapApi.PlayerStore;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
+// Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
+builder.Services.AddSingleton<IPlayerStore>(services => PlayerStoreFactory.Create(services, builder.Configuration));
 builder.Services.AddSingleton<DemoSessionApi>();
 builder.Services.AddGrpc();
 
@@ -42,6 +45,13 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
+
+// Resolve the player store here rather than on the first request. Its constructor is what applies the schema
+// migrations and opens the connection pool, so a database that is unreachable has to fail the start loudly: if
+// this were left lazy, the first request would throw and /health/ready - which never touches the store - would
+// keep answering "ready" for a server that cannot serve a single player.
+app.Services.GetRequiredService<IPlayerStore>();
+
 app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
 
@@ -50,6 +60,31 @@ app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
 app.MapGet("/gym", () => Results.Json(new { gym = BattleMatchmakingService.GymEnabled, bots = BattleMatchmakingService.GymBotCount, usage = "/gym/on | /gym/off" }));
 app.MapGet("/gym/on", () => { BattleMatchmakingService.GymEnabled = true; return Results.Text("gym ON: next match = you vs 3 mannequin bots + harmless guardian"); });
 app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; return Results.Text("gym OFF: normal 4v4 bot matches"); });
+// The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
+// /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
+app.MapGet("/webview/information/index", () => Results.Content("""
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Avisos</title>
+<body style="font-family:sans-serif;padding:24px;max-width:640px;line-height:1.5">
+<h2>Avisos</h2>
+<ul>
+<li><b>Bienvenido a Kick-Flight</b><br>Este es un servidor privado de pruebas. El progreso es local y puede
+reiniciarse sin aviso.</li>
+<li><b>Tienda y gacha</b><br>La tienda y el gacha todavia no estan disponibles; llegaran en una proxima
+actualizacion.</li>
+</ul>
+</body></html>
+""", "text/html; charset=utf-8"));
+app.MapGet("/webview/{**rest}", (string? rest) => Results.Content($"""
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>/webview/{rest}</title>
+<body style="font-family:sans-serif;padding:24px;max-width:640px">
+<h2>/webview/{rest}</h2>
+<p>Pagina no disponible en este servidor.</p>
+</body></html>
+""", "text/html; charset=utf-8"));
 // APK download for phones: http://<server>:18080/apk (LAN build) and /apk/remote (kickflightsg.ddns.net build).
 // Files live in .local/ (git-ignored, produced by .local/build.sh); 404 with the expected path when missing.
 var repoRoot = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
