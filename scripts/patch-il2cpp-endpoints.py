@@ -564,6 +564,13 @@ def _attack_interval_patches() -> list[dict[str, object]]:
 # (crash guards, result scene, RPC handling) is installed in both flavours.
 PHOTON_FLOW = os.environ.get("KF_PHOTON") == "1"
 
+# Ready scene. The "ponytail" patches (2026-09-07) skip the whole GameReadyScene intro cinematic (whose end is the
+# 3-2-1 countdown) because the high-model game_ready animators were not served back then, and then fake its
+# completion at PlayGoAnimation / relax the RoomStartTime gate. KF_READY_SCENE=1 drops those seven patches so the
+# retail flow runs (ready cinematic -> countdown -> GO, input locked until then). Experimental, 2026-09-21.
+READY_SCENE = os.environ.get("KF_READY_SCENE") == "1"
+
+
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
     "arm64-v8a": [
         {
@@ -1172,24 +1179,24 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f44fbea9fd7b01a9"),
             "replacement": bytes.fromhex("4ff501141f2003d5"),
         },
-        {
+        *([{
             "description": "ponytail: stub GameReadyScene.GetGameReadyAnimationClip entry to return null, one guard covers all three null-throw sites inside (0x176035c/0x1760378/0x17603cc); sole caller 0x175fa7c skips clip-use region via 0x175fab4 guard",
             "offset": 0x01760304,
             "expected": bytes.fromhex("ffc300d1f44f01a9"),  # sub sp, sp, #0x30; stp x20, x19, [sp, #0x10]
             "replacement": bytes.fromhex("e0031faac0035fd6"),  # mov x0, xzr; ret (return null clip)
-        },
-        {
+        }] if not READY_SCENE else []),
+        *([{
             "description": "ponytail: skip clip-use region when clip is null (cbz x26 to 0x175fb88 cbnz, falls to throw-safe path via existing checks), non-null falls through via b to 0x175fac0; lands before x25 null-check so str preserves loop state (x24/x25) and reaches timeline tail 0x175fdc4",
             "offset": 0x0175FAB4,
             "expected": bytes.fromhex("7a0000b5e0031faaccd1ea97"),  # cbnz x26, #0x175fac0; mov x0, xzr; bl throw
             "replacement": bytes.fromhex("ba0600b4020000141f2003d5"),  # cbz x26, #0x175fb88; b #0x175fac0; nop
-        },
-        {
+        }] if not READY_SCENE else []),
+        *([{
             "description": "ponytail: force Play past w2 gate (bypass tbz w21 at 0x175aff4, sole caller w2=0) so shared-gate result is ignored and setup runs; downstream cbnz null-throws preserved, epilogue still reachable via normal ret",
             "offset": 0x0175AFF4,
             "expected": bytes.fromhex("55030036"),  # tbz w21, #0, #0x175b05c (epilogue ret)
             "replacement": bytes.fromhex("1f2003d5"),  # nop (always fall through to state-check/setup)
-        },
+        }] if not READY_SCENE else []),
         {
             "description": "safely early-exit PlayerStateNormal.UpdateAction when animator lookup object is null (2nd cbnz site)",
             "offset": 0x017E13EC,
@@ -1370,12 +1377,12 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("22cae897"),
             "replacement": bytes.fromhex("1c000014"),  # b #0x17e19d4
         },
-        {
+        *([{
             "description": "ponytail: force Play gate 0x175b530 to always return false (nop tbz at 0x175b598 falls through to mov w0,wzr, skipping the 0x23ecf30-gated true path with its x19 null-throw at 0x175ba8); Play then uses AFE4 state-check + 0x175aff4 nop to reach setup",
             "offset": 0x0175B598,
             "expected": bytes.fromhex("60000036"),  # tbz w0, #0, #0x175b5a4 (little-endian: 36 00 00 60)
             "replacement": bytes.fromhex("1f2003d5"),  # nop (fall through to return false)
-        },
+        }] if not READY_SCENE else []),
         {
             "description": "force ReplayManager.get_ReplayMode to return 0 (not replay/playback)",
             "offset": 0x1773670,
@@ -1432,24 +1439,24 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         # Re-emit that completion at countdown start. In this patched flow the
         # asynchronous Readied update can land after Playing, so accept either
         # state when GameManager writes RoomStartTime.
-        {
+        *([{
             "description": "cave: call GameManager.CompleteGameReady, then run displaced PlayGoAnimation state load",
             "offset": 0x01570EF8,
             "expected": bytes.fromhex("e0031faa5717fc9760000036e0031f3264000014487801d008e142f9000140f9089c4439"),
             "replacement": bytes.fromhex("fd7bbfa9687301b0087941f9000140f94abe4e94fb060094fd7bc1a868b240b9c0035fd6"),
-        },
-        {
+        }] if not READY_SCENE else []),
+        *([{
             "description": "GameStartAnimation.PlayGoAnimation: complete GameReadyScene at countdown start",
             "offset": 0x017630EC,
             "expected": bytes.fromhex("68b240b9"),  # ldr w8, [x19, #0xb0]
             "replacement": bytes.fromhex("8337f897"),  # bl #0x1570ef8
-        },
-        {
+        }] if not READY_SCENE else []),
+        *([{
             "description": "GameManager.UpdateState: write RoomStartTime when local PlayerState is at least Readied",
             "offset": 0x0156EB14,
             "expected": bytes.fromhex("1f10007121050054"),  # cmp w0, #4; b.ne #0x156ebbc
             "replacement": bytes.fromhex("1f0c00712b050054"),  # cmp w0, #3; b.lt #0x156ebbc
-        },
+        }] if not READY_SCENE else []),
         {
             "description": "prevent GameManager.BeginReconnectFailed from disconnecting Photon",
             "offset": 0x1577F94,
