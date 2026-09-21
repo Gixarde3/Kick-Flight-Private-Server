@@ -1001,12 +1001,21 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("53d6ff97"),  # bl IsCreatedCommonObject
             "replacement": bytes.fromhex("39ab1294"),  # bl GameManagerBase<GameManager>.IsCreatedGuardian
         },
-        {
+        # States 10/11 of <BeginAsync>: 10 = LoadFadeSceneAsync(GameResultFade) - the "whistle / scrolling banner" fade
+        # scene Timeup() switches to at the end of the round; 11 = ReplayManager.StartSessionUpdate (unguarded
+        # singleton). The historical patch skipped both, so Timeup fell back to the default fade (the KF loading
+        # animation). With KF_READY_SCENE the preload runs and only state 11 is skipped (2026-09-21).
+        *([{
             "description": "bypass GameResultFade and ReplayManager in GameManager.<BeginAsync>d__71.MoveNext by jumping State 10 directly to 0x157a44c",
             "offset": 0x0157A30C,
             "expected": bytes.fromhex("08008012681200b9"),
             "replacement": bytes.fromhex("500000141f2003d5"),  # b #0x157a44c; nop
-        },
+        }] if not READY_SCENE else [{
+            "description": "GameManager.<BeginAsync> State 11 (ReplayManager.StartSessionUpdate) -> jump to 0x157a44c; State 10 (GameResultFade preload) now runs",
+            "offset": 0x0157A384,
+            "expected": bytes.fromhex("08008012681200b9"),
+            "replacement": bytes.fromhex("320000141f2003d5"),  # b #0x157a44c; nop
+        }]),
         {
             "description": "safely skip PlayEnvironmentEffect and jump to GameReadyAsync when StageManager.Instance is null in GameManager.<BeginAsync>d__71.MoveNext",
             "offset": 0x0157A488,
