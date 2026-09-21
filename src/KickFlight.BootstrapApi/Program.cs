@@ -68,6 +68,10 @@ app.MapGet("/apk/merged", () => ServeApk("KickFlight-2.11.0-merged.apk"));
 app.MapGet("/apk/merged-remote", () => ServeApk("KickFlight-2.11.0-merged-remote.apk"));
 app.MapGet("/apk/merged-diag", () => ServeApk("KickFlight-2.11.0-merged-DIAG.apk"));
 app.MapGet("/apk/merged-diag-remote", () => ServeApk("KickFlight-2.11.0-merged-DIAG-remote.apk"));
+// Photon flavour (KF_PHOTON=1, KF_PHOTON_HOST=51.79.241.70): real 2-player rooms on the LuxonServer hosted at 51.79.241.70.
+app.MapGet("/apk/photon-remote", () => ServeApk("KickFlight-2.11.0-photon-remote.apk"));
+app.MapGet("/apk/photon-diag", () => ServeApk("KickFlight-2.11.0-photon-DIAG.apk"));
+app.MapGet("/apk/photon-diag-remote", () => ServeApk("KickFlight-2.11.0-photon-DIAG-remote.apk"));
 // Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
 // from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
 app.MapPost("/diag/upload", async (HttpContext context) =>

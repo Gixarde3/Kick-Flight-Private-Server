@@ -2037,7 +2037,7 @@ def normalize_base_url(value: str) -> tuple[str, str]:
     return f"http://{authority}", authority
 
 
-def patch_metadata(path: Path, base_url: str, authority: str) -> list[dict[str, object]]:
+def patch_metadata(path: Path, base_url: str, authority: str, photon_host: str | None = None) -> list[dict[str, object]]:
     data = bytearray(path.read_bytes())
     sanity, version = struct.unpack_from("<II", data, 0)
     if sanity != SANITY or version != METADATA_VERSION:
@@ -2069,8 +2069,10 @@ def patch_metadata(path: Path, base_url: str, authority: str) -> list[dict[str, 
         elif kind == "authority":
             replacement = f"{authority}/"
         elif kind == "photon_host":
+            # Photon NameServer host (ns.exitgames.com). Defaults to the API host; --photon-host / KF_PHOTON_HOST points it
+            # at a separately hosted LuxonServer (e.g. 51.79.241.70, 2026-09-21).
             parsed_host = urlsplit(base_url).hostname
-            replacement = parsed_host if parsed_host else "10.0.2.2"
+            replacement = photon_host or (parsed_host if parsed_host else "10.0.2.2")
         else:
             replacement = base_url
         encoded = replacement.encode("utf-8")
@@ -2210,6 +2212,8 @@ def main() -> int:
     parser.add_argument("--armv7", required=False, type=Path)
     parser.add_argument("--arm64-unity", required=False, type=Path)
     parser.add_argument("--base-url", required=False)
+    parser.add_argument("--photon-host", required=False, default=os.environ.get("KF_PHOTON_HOST") or None,
+                        help="host for the Photon NameServer literal (default: the --base-url host; env KF_PHOTON_HOST)")
     parser.add_argument("dry_run_target", nargs="?", type=Path, help="Target .so file for dry-run")
     args = parser.parse_args()
 
@@ -2235,7 +2239,8 @@ def main() -> int:
 
     report = {
         "baseUrl": base_url,
-        "metadata": patch_metadata(args.metadata, base_url, authority),
+        "photonHost": args.photon_host,
+        "metadata": patch_metadata(args.metadata, base_url, authority, args.photon_host),
         "native": native_reports,
     }
     print(json.dumps(report, indent=2))
