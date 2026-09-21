@@ -1921,6 +1921,24 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f5031f2a"),
             "replacement": bytes.fromhex("9417f497"),
         },
+        # Ready scene ordering. GameStartPresenter.Update starts the READY/GO animation as soon as
+        # GameManager.IsAllPlayerLoaded, in parallel with the GameReadyScene cinematic (retail keeps the HUD inactive
+        # until the cinematic ends; our flow does not), so GO fired ~15 s before the intro finished and the countdown
+        # never showed (2026-09-21). The cave answers IsAllPlayerLoaded && local PlayerState >= Readied(3); Readied is
+        # only published by WaitReadiedAsync once the cinematic completes. Cave lives in the dead body of
+        # GameManager.<BeginAsync>b__4 (stubbed at its entry above).
+        *([{
+            "description": "cave: GameStartPresenter gate -> IsAllPlayerLoaded && local PlayerState >= Readied (dead body of <BeginAsync>b__4)",
+            "offset": 0x1579AD0,
+            "expected": bytes.fromhex("fd430091948a01b088c65739f30300aae8000037a874019008bd41f9000140b9c8c0f197e803003288c61739740a40f9740000b5e0031faab969f297e00314aa99d2ff97"),
+            "replacement": bytes.fromhex("fd7bbfa941cfff97a0010034e0031faa47740d94c8780190080942f9e97401b0299d43f9e2031f2a010140f9230140f957f011941f0c0071e0b79f1afd7bc1a8c0035fd6"),
+        },
+        {
+            "description": "GameStartPresenter.Update `bl GameManager.get_IsAllPlayerLoaded` -> bl ready gate cave",
+            "offset": 0x1763FE0,
+            "expected": bytes.fromhex("fe25f897"),
+            "replacement": bytes.fromhex("bc56f897"),
+        }] if READY_SCENE else []),
         *_attack_interval_patches(),
         # Diagnostics: KF_DIAG=1 installs the full KFDIAG probe set (regions relocated out of LoadDeckSummonModel on
         # 2026-09-20 so disc pets still load); KF_RESULT_DIAG=1 installs only the isolated ResultManager/ResultScene
