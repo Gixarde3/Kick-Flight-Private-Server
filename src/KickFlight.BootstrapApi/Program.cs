@@ -89,7 +89,8 @@ app.MapGet("/diag", () => Results.Content("""
 </form>
 <p style="color:#666">Bug report: Ajustes &gt; Opciones de desarrollador &gt; "Crear informe de errores" (interactivo), luego
 comparte el zip a Archivos/Descargas y subelo aqui. Max 200 MB.</p>
-</body>""", "text/html; charset=utf-8"));
+</body>
+""", "text/html; charset=utf-8"));
 app.MapPost("/diag/upload-file", async (HttpContext context) =>
 {
     if (!context.Request.HasFormContentType) return Results.Json(new { error = "multipart form expected" }, statusCode: 400);
