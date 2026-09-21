@@ -15,7 +15,7 @@ validators (was: return null), GetRange/GetDisplayAngles use the offline caves (
 
 Build modes (environment variables): KF_DIAG=1 full KFDIAG trace (DIAG_PATCHES_ARM64), KF_RESULT_DIAG=1 isolated
 ResultManager/ResultScene trace (RESULT_DIAG_PATCHES_ARM64; exclusive with KF_DIAG), KF_NRE_LR=1 (with KF_DIAG)
-log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_EXPERIMENTAL_ALLOCATORS=1,
+log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_NO_ALLOCATOR_REBIND=1 (drop the libunity allocator rebinding),
 KF_PHOTON=1 Photon (LuxonServer) matchmaking flow instead of the offline bridge (see PHOTON_FLOW).
 """
 
@@ -2022,7 +2022,11 @@ UNITY_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x50AEF0,
             "expected": bytes.fromhex("c8068352886a6838a8000034e00313aaf37b41a9f40742f8023def17"),
             "replacement": bytes.fromhex("600000b4080040f9e2ffff171f0300f168fe61d30213889ae3ffff17"),
-        }] if os.environ.get("KF_UNITY_EXPERIMENTAL_ALLOCATORS") == "1" else []),
+        # Global allocator rebinding (tanuki-discs, validated for weeks): libunity frees pointers owned by Unity's
+        # MemoryManager through the native-bridge libc free from several sites; the targeted nop above covers only
+        # 0x614C00 and the merged build aborted at boot on the emulator from libunity+0x32fa10 ("Scudo ERROR:
+        # corrupted chunk header", 2026-09-21). On by default; KF_UNITY_NO_ALLOCATOR_REBIND=1 builds without it.
+        }] if os.environ.get("KF_UNITY_NO_ALLOCATOR_REBIND") != "1" else []),
     ],
 }
 
