@@ -1,0 +1,42 @@
+From 1e9f1e410b95ef6d65a5a2c1fffd49305d47d680 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 12:40:03 +0800
+Subject: [PATCH] fix(kickflight): let the second peer join a battle- room that
+ is still pending creation
+
+Both humans receive the room id at Stage 3 together; the second JoinGame reaches
+the MasterServer before the creator has joined on the GameServer (is_created is
+false) and validate_join answered GameIdNotExists, which the client treats as a
+fatal disconnect ("Title Disconnect Error" on player 2, 2026-09-21). Treat that
+as a pending room for battle- ids and let the peer through; the GameServer
+handler already creates or joins on arrival.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
+---
+ src/handler_masterserver.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/handler_masterserver.cpp b/src/handler_masterserver.cpp
+index 5c04eac..6c3e0cb 100644
+--- a/src/handler_masterserver.cpp
++++ b/src/handler_masterserver.cpp
+@@ -404,7 +404,14 @@ Awaitable<> MasterServerHandler::HandleOperationRequest(ser::OperationRequestMes
+             // Validate join
+             if (!is_new) {
+                 const auto [join_validation_code, join_validation_message] = game->validate_join(peer_->persistent->user_id);
+-                if (join_validation_code != ErrorCodes::Core::Ok) {
++                // Kick-Flight: both humans of a battle are told the room id at the same time (Stage 3), so the second
++                // one usually asks for it before the first has landed on the GameServer and `is_created` is still
++                // false. That is not a missing room, only a pending one: let the peer through, the GameServer
++                // handler creates/joins on arrival either way (2026-09-21, "Title Disconnect Error" on player 2).
++                const bool pending_battle = join_validation_code == ErrorCodes::Matchmaking::GameIdNotExists && !game->is_created && game_id.starts_with("battle-");
++                if (pending_battle)
++                    peer_->log->info("Game {} is pending creation, allowing join", game_id);
++                if (join_validation_code != ErrorCodes::Core::Ok && !pending_battle) {
+                     const ser::OperationResponseMessage resp{.operation_code = OpCodes::Matchmaking::JoinGame,
+                                                              .return_code = join_validation_code,
+                                                              .debug_message = std::string(join_validation_message)};
+-- 
+2.52.0.windows.1
+
