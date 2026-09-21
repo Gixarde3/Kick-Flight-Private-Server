@@ -11,8 +11,6 @@ CallbackRoomPropertiesUpdate) never transitions. Send the current room
 properties to a non-master joiner of a battle- room as an event right after
 the join response and event flood.
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
 ---
  src/handler_gameserver.cpp | 17 +++++++++++++++++
  1 file changed, 17 insertions(+)

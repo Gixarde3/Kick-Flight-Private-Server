@@ -11,8 +11,6 @@ whichever player was slower. Both humans are invited through the MasterServer
 and sit on expected_users, so honour that reservation for battle- ids even
 when the room is closed.
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
 ---
  src/game.cpp | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)

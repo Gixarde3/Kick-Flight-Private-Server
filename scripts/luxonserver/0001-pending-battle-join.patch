@@ -11,8 +11,6 @@ fatal disconnect ("Title Disconnect Error" on player 2, 2026-09-21). Treat that
 as a pending room for battle- ids and let the peer through; the GameServer
 handler already creates or joins on arrival.
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
 ---
  src/handler_masterserver.cpp | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)
