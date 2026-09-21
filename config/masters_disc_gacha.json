@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "gachaGroupId": 1,
+    "lotteryId": 1,
+    "lotteryDiscRarityGroupId": 1,
+    "lotteryDiscRarityGroupName": "Grupo de discos 1",
+    "lastLotteryDiscRarityGroupId": 0,
+    "lastLotteryDiscRarityGroupName": "",
+    "lotteryDiscDropAmountGroupId": 1,
+    "lotteryCostId": 1,
+    "lotteryCostAmount": 1,
+    "modelId": 0,
+    "effectTopImageFilename": "",
+    "effectBottomImageFilename": "",
+    "limitedCount": 0,
+    "resetType": 0,
+    "resetHour": 0,
+    "completedDisplayFlag": false
+  }
+]

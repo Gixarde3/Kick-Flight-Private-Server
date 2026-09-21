@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "rarityType": 0,
+    "dropRatio": 1
+  },
+  {
+    "id": 2,
+    "rarityType": 1,
+    "dropRatio": 1
+  },
+  {
+    "id": 3,
+    "rarityType": 2,
+    "dropRatio": 1
+  },
+  {
+    "id": 4,
+    "rarityType": 3,
+    "dropRatio": 1
+  }
+]

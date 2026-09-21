@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": 2010101,
     "kickerId": 1,
     "costumeId": 1,
     "costumeName": "Tsubame - Color estándar",
@@ -11,7 +11,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 2,
+    "id": 2010201,
     "kickerId": 1,
     "costumeId": 2,
     "costumeName": "Tsubame - Color alternativo 1",
@@ -22,7 +22,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 3,
+    "id": 2010301,
     "kickerId": 1,
     "costumeId": 3,
     "costumeName": "Tsubame - Color alternativo 2",
@@ -33,7 +33,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 4,
+    "id": 2010401,
     "kickerId": 1,
     "costumeId": 4,
     "costumeName": "Tsubame - Color alternativo 3",
@@ -44,7 +44,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 5,
+    "id": 2010501,
     "kickerId": 1,
     "costumeId": 5,
     "costumeName": "Tsubame - Traje de gala",
@@ -55,7 +55,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 6,
+    "id": 2010601,
     "kickerId": 1,
     "costumeId": 6,
     "costumeName": "Tsubame - Traje urbano",
@@ -66,7 +66,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 7,
+    "id": 2010701,
     "kickerId": 1,
     "costumeId": 7,
     "costumeName": "Tsubame - Edición especial",
@@ -77,7 +77,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 8,
+    "id": 2012201,
     "kickerId": 1,
     "costumeId": 22,
     "costumeName": "Tsubame - Traje veraniego",
@@ -88,7 +88,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 9,
+    "id": 2012301,
     "kickerId": 1,
     "costumeId": 23,
     "costumeName": "Tsubame - Traje invernal",
@@ -99,7 +99,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 10,
+    "id": 2020101,
     "kickerId": 2,
     "costumeId": 1,
     "costumeName": "Ruriha - Color estándar",
@@ -110,7 +110,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 11,
+    "id": 2020201,
     "kickerId": 2,
     "costumeId": 2,
     "costumeName": "Ruriha - Color alternativo 1",
@@ -121,7 +121,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 12,
+    "id": 2020301,
     "kickerId": 2,
     "costumeId": 3,
     "costumeName": "Ruriha - Color alternativo 2",
@@ -132,7 +132,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 13,
+    "id": 2020401,
     "kickerId": 2,
     "costumeId": 4,
     "costumeName": "Ruriha - Color alternativo 3",
@@ -143,7 +143,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 14,
+    "id": 2020501,
     "kickerId": 2,
     "costumeId": 5,
     "costumeName": "Ruriha - Traje de gala",
@@ -154,7 +154,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 15,
+    "id": 2020601,
     "kickerId": 2,
     "costumeId": 6,
     "costumeName": "Ruriha - Traje urbano",
@@ -165,7 +165,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 16,
+    "id": 2020701,
     "kickerId": 2,
     "costumeId": 7,
     "costumeName": "Ruriha - Edición especial",
@@ -176,7 +176,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 17,
+    "id": 2022201,
     "kickerId": 2,
     "costumeId": 22,
     "costumeName": "Ruriha - Traje veraniego",
@@ -187,7 +187,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 18,
+    "id": 2022301,
     "kickerId": 2,
     "costumeId": 23,
     "costumeName": "Ruriha - Traje invernal",
@@ -198,7 +198,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 19,
+    "id": 2030101,
     "kickerId": 3,
     "costumeId": 1,
     "costumeName": "Coco - Color estándar",
@@ -209,7 +209,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 20,
+    "id": 2030201,
     "kickerId": 3,
     "costumeId": 2,
     "costumeName": "Coco - Color alternativo 1",
@@ -220,7 +220,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 21,
+    "id": 2030301,
     "kickerId": 3,
     "costumeId": 3,
     "costumeName": "Coco - Color alternativo 2",
@@ -231,7 +231,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 22,
+    "id": 2030401,
     "kickerId": 3,
     "costumeId": 4,
     "costumeName": "Coco - Color alternativo 3",
@@ -242,7 +242,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 23,
+    "id": 2030501,
     "kickerId": 3,
     "costumeId": 5,
     "costumeName": "Coco - Traje de gala",
@@ -253,7 +253,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 24,
+    "id": 2030601,
     "kickerId": 3,
     "costumeId": 6,
     "costumeName": "Coco - Traje urbano",
@@ -264,7 +264,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 25,
+    "id": 2030701,
     "kickerId": 3,
     "costumeId": 7,
     "costumeName": "Coco - Edición especial",
@@ -275,7 +275,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 26,
+    "id": 2032201,
     "kickerId": 3,
     "costumeId": 22,
     "costumeName": "Coco - Traje veraniego",
@@ -286,7 +286,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 27,
+    "id": 2032301,
     "kickerId": 3,
     "costumeId": 23,
     "costumeName": "Coco - Traje invernal",
@@ -297,7 +297,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 28,
+    "id": 2035101,
     "kickerId": 3,
     "costumeId": 51,
     "costumeName": "Coco - Traje legendario",
@@ -308,7 +308,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 29,
+    "id": 2035201,
     "kickerId": 3,
     "costumeId": 52,
     "costumeName": "Coco - Traje de campeonato",
@@ -319,7 +319,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 30,
+    "id": 2040101,
     "kickerId": 4,
     "costumeId": 1,
     "costumeName": "Kite - Color estándar",
@@ -330,7 +330,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 31,
+    "id": 2040201,
     "kickerId": 4,
     "costumeId": 2,
     "costumeName": "Kite - Color alternativo 1",
@@ -341,7 +341,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 32,
+    "id": 2040301,
     "kickerId": 4,
     "costumeId": 3,
     "costumeName": "Kite - Color alternativo 2",
@@ -352,7 +352,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 33,
+    "id": 2040401,
     "kickerId": 4,
     "costumeId": 4,
     "costumeName": "Kite - Color alternativo 3",
@@ -363,7 +363,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 34,
+    "id": 2040501,
     "kickerId": 4,
     "costumeId": 5,
     "costumeName": "Kite - Traje de gala",
@@ -374,7 +374,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 35,
+    "id": 2040601,
     "kickerId": 4,
     "costumeId": 6,
     "costumeName": "Kite - Traje urbano",
@@ -385,7 +385,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 36,
+    "id": 2040701,
     "kickerId": 4,
     "costumeId": 7,
     "costumeName": "Kite - Edición especial",
@@ -396,7 +396,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 37,
+    "id": 2045101,
     "kickerId": 4,
     "costumeId": 51,
     "costumeName": "Kite - Traje legendario",
@@ -407,7 +407,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 38,
+    "id": 2050101,
     "kickerId": 5,
     "costumeId": 1,
     "costumeName": "Owlbert - Color estándar",
@@ -418,7 +418,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 39,
+    "id": 2050201,
     "kickerId": 5,
     "costumeId": 2,
     "costumeName": "Owlbert - Color alternativo 1",
@@ -429,7 +429,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 40,
+    "id": 2050301,
     "kickerId": 5,
     "costumeId": 3,
     "costumeName": "Owlbert - Color alternativo 2",
@@ -440,7 +440,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 41,
+    "id": 2050401,
     "kickerId": 5,
     "costumeId": 4,
     "costumeName": "Owlbert - Color alternativo 3",
@@ -451,7 +451,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 42,
+    "id": 2050501,
     "kickerId": 5,
     "costumeId": 5,
     "costumeName": "Owlbert - Traje de gala",
@@ -462,7 +462,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 43,
+    "id": 2050601,
     "kickerId": 5,
     "costumeId": 6,
     "costumeName": "Owlbert - Traje urbano",
@@ -473,7 +473,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 44,
+    "id": 2050701,
     "kickerId": 5,
     "costumeId": 7,
     "costumeName": "Owlbert - Edición especial",
@@ -484,7 +484,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 45,
+    "id": 2052101,
     "kickerId": 5,
     "costumeId": 21,
     "costumeName": "Owlbert - Traje de festival",
@@ -495,7 +495,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 46,
+    "id": 2060101,
     "kickerId": 6,
     "costumeId": 1,
     "costumeName": "Pitophy - Color estándar",
@@ -506,7 +506,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 47,
+    "id": 2060201,
     "kickerId": 6,
     "costumeId": 2,
     "costumeName": "Pitophy - Color alternativo 1",
@@ -517,7 +517,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 48,
+    "id": 2060301,
     "kickerId": 6,
     "costumeId": 3,
     "costumeName": "Pitophy - Color alternativo 2",
@@ -528,7 +528,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 49,
+    "id": 2060401,
     "kickerId": 6,
     "costumeId": 4,
     "costumeName": "Pitophy - Color alternativo 3",
@@ -539,7 +539,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 50,
+    "id": 2060501,
     "kickerId": 6,
     "costumeId": 5,
     "costumeName": "Pitophy - Traje de gala",
@@ -550,7 +550,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 51,
+    "id": 2060601,
     "kickerId": 6,
     "costumeId": 6,
     "costumeName": "Pitophy - Traje urbano",
@@ -561,7 +561,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 52,
+    "id": 2060701,
     "kickerId": 6,
     "costumeId": 7,
     "costumeName": "Pitophy - Edición especial",
@@ -572,7 +572,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 53,
+    "id": 2062201,
     "kickerId": 6,
     "costumeId": 22,
     "costumeName": "Pitophy - Traje veraniego",
@@ -583,7 +583,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 54,
+    "id": 2065101,
     "kickerId": 6,
     "costumeId": 51,
     "costumeName": "Pitophy - Traje legendario",
@@ -594,7 +594,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 55,
+    "id": 2070101,
     "kickerId": 7,
     "costumeId": 1,
     "costumeName": "Grenhawk - Color estándar",
@@ -605,7 +605,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 56,
+    "id": 2070201,
     "kickerId": 7,
     "costumeId": 2,
     "costumeName": "Grenhawk - Color alternativo 1",
@@ -616,7 +616,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 57,
+    "id": 2070301,
     "kickerId": 7,
     "costumeId": 3,
     "costumeName": "Grenhawk - Color alternativo 2",
@@ -627,7 +627,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 58,
+    "id": 2070401,
     "kickerId": 7,
     "costumeId": 4,
     "costumeName": "Grenhawk - Color alternativo 3",
@@ -638,7 +638,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 59,
+    "id": 2070501,
     "kickerId": 7,
     "costumeId": 5,
     "costumeName": "Grenhawk - Traje de gala",
@@ -649,7 +649,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 60,
+    "id": 2070601,
     "kickerId": 7,
     "costumeId": 6,
     "costumeName": "Grenhawk - Traje urbano",
@@ -660,7 +660,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 61,
+    "id": 2070701,
     "kickerId": 7,
     "costumeId": 7,
     "costumeName": "Grenhawk - Edición especial",
@@ -671,7 +671,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 62,
+    "id": 2075101,
     "kickerId": 7,
     "costumeId": 51,
     "costumeName": "Grenhawk - Traje legendario",
@@ -682,7 +682,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 63,
+    "id": 2075201,
     "kickerId": 7,
     "costumeId": 52,
     "costumeName": "Grenhawk - Traje de campeonato",
@@ -693,7 +693,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 64,
+    "id": 2080101,
     "kickerId": 8,
     "costumeId": 1,
     "costumeName": "Anna - Color estándar",
@@ -704,7 +704,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 65,
+    "id": 2080201,
     "kickerId": 8,
     "costumeId": 2,
     "costumeName": "Anna - Color alternativo 1",
@@ -715,7 +715,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 66,
+    "id": 2080301,
     "kickerId": 8,
     "costumeId": 3,
     "costumeName": "Anna - Color alternativo 2",
@@ -726,7 +726,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 67,
+    "id": 2080401,
     "kickerId": 8,
     "costumeId": 4,
     "costumeName": "Anna - Color alternativo 3",
@@ -737,7 +737,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 68,
+    "id": 2080501,
     "kickerId": 8,
     "costumeId": 5,
     "costumeName": "Anna - Traje de gala",
@@ -748,7 +748,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 69,
+    "id": 2080601,
     "kickerId": 8,
     "costumeId": 6,
     "costumeName": "Anna - Traje urbano",
@@ -759,7 +759,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 70,
+    "id": 2080701,
     "kickerId": 8,
     "costumeId": 7,
     "costumeName": "Anna - Edición especial",
@@ -770,7 +770,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 71,
+    "id": 2082101,
     "kickerId": 8,
     "costumeId": 21,
     "costumeName": "Anna - Traje de festival",
@@ -781,7 +781,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 72,
+    "id": 2085101,
     "kickerId": 8,
     "costumeId": 51,
     "costumeName": "Anna - Traje legendario",
@@ -792,7 +792,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 73,
+    "id": 2085201,
     "kickerId": 8,
     "costumeId": 52,
     "costumeName": "Anna - Traje de campeonato",
@@ -803,7 +803,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 74,
+    "id": 2090101,
     "kickerId": 9,
     "costumeId": 1,
     "costumeName": "Jay - Color estándar",
@@ -814,7 +814,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 75,
+    "id": 2090201,
     "kickerId": 9,
     "costumeId": 2,
     "costumeName": "Jay - Color alternativo 1",
@@ -825,7 +825,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 76,
+    "id": 2090301,
     "kickerId": 9,
     "costumeId": 3,
     "costumeName": "Jay - Color alternativo 2",
@@ -836,7 +836,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 77,
+    "id": 2090401,
     "kickerId": 9,
     "costumeId": 4,
     "costumeName": "Jay - Color alternativo 3",
@@ -847,7 +847,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 78,
+    "id": 2090501,
     "kickerId": 9,
     "costumeId": 5,
     "costumeName": "Jay - Traje de gala",
@@ -858,7 +858,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 79,
+    "id": 2090601,
     "kickerId": 9,
     "costumeId": 6,
     "costumeName": "Jay - Traje urbano",
@@ -869,7 +869,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 80,
+    "id": 2090701,
     "kickerId": 9,
     "costumeId": 7,
     "costumeName": "Jay - Edición especial",
@@ -880,7 +880,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 81,
+    "id": 2092101,
     "kickerId": 9,
     "costumeId": 21,
     "costumeName": "Jay - Traje de festival",
@@ -891,7 +891,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 82,
+    "id": 2095101,
     "kickerId": 9,
     "costumeId": 51,
     "costumeName": "Jay - Traje legendario",
@@ -902,7 +902,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 83,
+    "id": 2100101,
     "kickerId": 10,
     "costumeId": 1,
     "costumeName": "Yuyan - Color estándar",
@@ -913,7 +913,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 84,
+    "id": 2100201,
     "kickerId": 10,
     "costumeId": 2,
     "costumeName": "Yuyan - Color alternativo 1",
@@ -924,7 +924,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 85,
+    "id": 2100301,
     "kickerId": 10,
     "costumeId": 3,
     "costumeName": "Yuyan - Color alternativo 2",
@@ -935,7 +935,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 86,
+    "id": 2100401,
     "kickerId": 10,
     "costumeId": 4,
     "costumeName": "Yuyan - Color alternativo 3",
@@ -946,7 +946,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 87,
+    "id": 2100501,
     "kickerId": 10,
     "costumeId": 5,
     "costumeName": "Yuyan - Traje de gala",
@@ -957,7 +957,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 88,
+    "id": 2100601,
     "kickerId": 10,
     "costumeId": 6,
     "costumeName": "Yuyan - Traje urbano",
@@ -968,7 +968,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 89,
+    "id": 2100701,
     "kickerId": 10,
     "costumeId": 7,
     "costumeName": "Yuyan - Edición especial",
@@ -979,7 +979,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 90,
+    "id": 2102101,
     "kickerId": 10,
     "costumeId": 21,
     "costumeName": "Yuyan - Traje de festival",
@@ -990,7 +990,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 91,
+    "id": 2102301,
     "kickerId": 10,
     "costumeId": 23,
     "costumeName": "Yuyan - Traje invernal",
@@ -1001,7 +1001,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 92,
+    "id": 2105101,
     "kickerId": 10,
     "costumeId": 51,
     "costumeName": "Yuyan - Traje legendario",
@@ -1012,7 +1012,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 93,
+    "id": 2110101,
     "kickerId": 11,
     "costumeId": 1,
     "costumeName": "Diatrius - Color estándar",
@@ -1023,7 +1023,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 94,
+    "id": 2110201,
     "kickerId": 11,
     "costumeId": 2,
     "costumeName": "Diatrius - Color alternativo 1",
@@ -1034,7 +1034,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 95,
+    "id": 2110301,
     "kickerId": 11,
     "costumeId": 3,
     "costumeName": "Diatrius - Color alternativo 2",
@@ -1045,7 +1045,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 96,
+    "id": 2110401,
     "kickerId": 11,
     "costumeId": 4,
     "costumeName": "Diatrius - Color alternativo 3",
@@ -1056,7 +1056,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 97,
+    "id": 2110501,
     "kickerId": 11,
     "costumeId": 5,
     "costumeName": "Diatrius - Traje de gala",
@@ -1067,7 +1067,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 98,
+    "id": 2110601,
     "kickerId": 11,
     "costumeId": 6,
     "costumeName": "Diatrius - Traje urbano",
@@ -1078,7 +1078,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 99,
+    "id": 2110701,
     "kickerId": 11,
     "costumeId": 7,
     "costumeName": "Diatrius - Edición especial",
@@ -1089,7 +1089,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 100,
+    "id": 2112101,
     "kickerId": 11,
     "costumeId": 21,
     "costumeName": "Diatrius - Traje de festival",
@@ -1100,7 +1100,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 101,
+    "id": 2115101,
     "kickerId": 11,
     "costumeId": 51,
     "costumeName": "Diatrius - Traje legendario",
@@ -1111,7 +1111,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 102,
+    "id": 2120101,
     "kickerId": 12,
     "costumeId": 1,
     "costumeName": "Buzzy Big - Color estándar",
@@ -1122,7 +1122,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 103,
+    "id": 2120201,
     "kickerId": 12,
     "costumeId": 2,
     "costumeName": "Buzzy Big - Color alternativo 1",
@@ -1133,7 +1133,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 104,
+    "id": 2120301,
     "kickerId": 12,
     "costumeId": 3,
     "costumeName": "Buzzy Big - Color alternativo 2",
@@ -1144,7 +1144,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 105,
+    "id": 2120401,
     "kickerId": 12,
     "costumeId": 4,
     "costumeName": "Buzzy Big - Color alternativo 3",
@@ -1155,7 +1155,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 106,
+    "id": 2120501,
     "kickerId": 12,
     "costumeId": 5,
     "costumeName": "Buzzy Big - Traje de gala",
@@ -1166,7 +1166,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 107,
+    "id": 2120601,
     "kickerId": 12,
     "costumeId": 6,
     "costumeName": "Buzzy Big - Traje urbano",
@@ -1177,7 +1177,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 108,
+    "id": 2120701,
     "kickerId": 12,
     "costumeId": 7,
     "costumeName": "Buzzy Big - Edición especial",
@@ -1188,7 +1188,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 109,
+    "id": 2122201,
     "kickerId": 12,
     "costumeId": 22,
     "costumeName": "Buzzy Big - Traje veraniego",
@@ -1199,7 +1199,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 110,
+    "id": 2130101,
     "kickerId": 13,
     "costumeId": 1,
     "costumeName": "Hitagi - Color estándar",
@@ -1210,7 +1210,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 111,
+    "id": 2130201,
     "kickerId": 13,
     "costumeId": 2,
     "costumeName": "Hitagi - Color alternativo 1",
@@ -1221,7 +1221,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 112,
+    "id": 2130301,
     "kickerId": 13,
     "costumeId": 3,
     "costumeName": "Hitagi - Color alternativo 2",
@@ -1232,7 +1232,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 113,
+    "id": 2130401,
     "kickerId": 13,
     "costumeId": 4,
     "costumeName": "Hitagi - Color alternativo 3",
@@ -1243,7 +1243,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 114,
+    "id": 2130701,
     "kickerId": 13,
     "costumeId": 7,
     "costumeName": "Hitagi - Edición especial",
@@ -1254,7 +1254,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 115,
+    "id": 2140101,
     "kickerId": 14,
     "costumeId": 1,
     "costumeName": "Sid - Color estándar",
@@ -1265,7 +1265,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 116,
+    "id": 2140201,
     "kickerId": 14,
     "costumeId": 2,
     "costumeName": "Sid - Color alternativo 1",
@@ -1276,7 +1276,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 117,
+    "id": 2140301,
     "kickerId": 14,
     "costumeId": 3,
     "costumeName": "Sid - Color alternativo 2",
@@ -1287,7 +1287,7 @@
     "releaseDatetime": "2019-01-01 00:00:00"
   },
   {
-    "id": 118,
+    "id": 2145101,
     "kickerId": 14,
     "costumeId": 51,
     "costumeName": "Sid - Traje legendario",

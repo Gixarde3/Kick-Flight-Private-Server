@@ -87,10 +87,19 @@ kickers_meta = [
      "costumes": [1, 2, 3, 51]}
 ]
 
+# KickerCostume rows are keyed by a composite retail id, 2|KK|CC|VV: a class digit, the kicker id, the
+# costume number and a variant. The numbering is not ours to choose, because one of those ids is baked
+# into the binary: TutorialUtil.KICKER_COSTUME_ID is 2010101, i.e. kicker 1's costume 1, and the client
+# resolves every id the server hands it through this same table. A sequential 1..N table (what this
+# script used to emit) misses that lookup and throws a NullReferenceException building the home screen,
+# which stalls a new account on the loading screen before the tutorial can even ask for a name.
+def costume_row_id(kicker_id: int, costume_id: int, variant: int = 1) -> int:
+    return 2_000_000 + kicker_id * 10_000 + costume_id * 100 + variant
+
+
 kicker_list = []
 kicker_detail_list = []
 kicker_costume_list = []
-costume_id_counter = 1
 
 costume_names_es = {
     1: "Color estándar",
@@ -131,9 +140,10 @@ for km in kickers_meta:
         "kickerAbilityShortText": km["ab_s"],
         "kickerAbilityLongText": km["ab_l"],
         "kickerDiscDistinctionText": "Compatible con discos de combate aéreo y ataque rápido.",
-        "kickerGraphHpRate": 0.8,
-        "kickerGraphAttackRate": 0.9,
-        "kickerGraphSpeedRate": 1.0,
+        # The client fills these gauges with Image.fillAmount = rate / 100, so they are 0..100 percentages, not fractions.
+        "kickerGraphHpRate": 80,
+        "kickerGraphAttackRate": 90,
+        "kickerGraphSpeedRate": 100,
         "age": 18,
         "birthday": "1/1",
         "height": "165cm",
@@ -142,7 +152,7 @@ for km in kickers_meta:
     for c in km["costumes"]:
         cname = costume_names_es.get(c, f"Variante {c}")
         kicker_costume_list.append({
-            "id": costume_id_counter,
+            "id": costume_row_id(kid, c),
             "kickerId": kid,
             "costumeId": c,
             "costumeName": f"{kname} - {cname}",
@@ -152,7 +162,6 @@ for km in kickers_meta:
             "exclusiveFlag": False,
             "releaseDatetime": "2019-01-01 00:00:00"
         })
-        costume_id_counter += 1
 
 print(f"Generated: {len(kicker_list)} kickers, {len(kicker_costume_list)} costumes, {len(kicker_detail_list)} details")
 
@@ -164,3 +173,34 @@ with open("config/masters_kicker_costume.json", "w", encoding="utf-8") as f:
 
 with open("config/masters_kicker_detail.json", "w", encoding="utf-8") as f:
     json.dump(kicker_detail_list, f, indent=2, ensure_ascii=False)
+
+# Two more masters point at a costume, and both are derived from the table above rather than authored by
+# hand, so the composite id stays in one place: the lottery drop table has exactly one row per costume,
+# and an AI parameter row wears its kicker's first costume. The AI file is otherwise hand-tuned - only
+# that one column is written here.
+lottery_drop_kicker_list = [
+    {
+        "id": row["id"],
+        "kickerCostumeId": row["id"],
+        "dropRatio": 1,
+        "pickupFlag": False,
+        "sortOrder": index,
+        "newFlag": False,
+    }
+    for index, row in enumerate(kicker_costume_list, start=1)
+]
+
+with open("config/masters_lottery_drop_kicker.json", "w", encoding="utf-8") as f:
+    json.dump(lottery_drop_kicker_list, f, indent=2, ensure_ascii=False)
+
+with open("config/masters_kicker_ai_parameter.json", encoding="utf-8") as f:
+    ai_parameter_list = json.load(f)
+
+for row in ai_parameter_list:
+    row["kickerCostumeId"] = costume_row_id(row["kickerId"], 1)
+
+with open("config/masters_kicker_ai_parameter.json", "w", encoding="utf-8") as f:
+    json.dump(ai_parameter_list, f, indent=2, ensure_ascii=False)
+
+print(f"Generated: {len(lottery_drop_kicker_list)} lottery drop rows, "
+      f"{len(ai_parameter_list)} AI parameter rows rewired to the composite costume ids")

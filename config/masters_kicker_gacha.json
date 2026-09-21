@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "gachaGroupId": 2,
+    "lotteryId": 2,
+    "lotteryCostId": 2,
+    "lotteryCostAmount": 1,
+    "boxFlag": false,
+    "sideBySideFlag": false,
+    "effectTopImageFilename": "",
+    "effectBottomImageFilename": ""
+  }
+]

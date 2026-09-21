@@ -212,9 +212,10 @@ def main():
             "kickerAbilityShortText": sk.get("kickerAbilityShortText", ""),
             "kickerAbilityLongText": sk.get("kickerAbilityLongText", ""),
             "kickerDiscDistinctionText": sk.get("compatibleDiscs", "全ディスク適正"),
-            "kickerGraphHpRate": round(hp_mult / 1.5, 2),
-            "kickerGraphAttackRate": round(atk_mult / 1.5, 2),
-            "kickerGraphSpeedRate": round(speed_val / 1.3, 2),
+            # The client fills these gauges with Image.fillAmount = rate / 100, so they are 0..100 percentages, not fractions.
+            "kickerGraphHpRate": min(100, round(hp_mult / 1.5 * 100)),
+            "kickerGraphAttackRate": min(100, round(atk_mult / 1.5 * 100)),
+            "kickerGraphSpeedRate": min(100, round(speed_val / 1.3 * 100)),
             "age": sk.get("age", 16),
             "birthday": sk.get("birthday", "1/1"),
             "height": sk.get("height", "165cm"),
@@ -452,18 +453,31 @@ def main():
         ])
     ]
 
-    buildup_master = []
-    b_id = 1
-    for r_type, lv_list in buildup_data:
-        for lvl, df_cost, cards in lv_list:
-            buildup_master.append({
-                "id": b_id,
-                "rarityType": r_type,
-                "level": lvl,
-                "necessaryDiscForceAmount": df_cost,
-                "totalDiscAmount": cards
-            })
-            b_id += 1
+    buildup_rows = [(r_type, *row) for r_type, lv_list in buildup_data for row in lv_list]
+
+    # Top tier (level 10) of every rarity, the row the published table stopped one short of. The client asks for
+    # `RarityType == r && Level == 10` three times in ShopDiscCellView.SetDiscExchangeData (predicates
+    # <>9__51_3/4/5 @ 0x14ADF14/0x14ADF78/0x14ADFDC) and dereferences the result with no null check, while
+    # DiscParameterUtil.CalcMaxAmount returns 0 (disc maxed out) only when the *next* tier is missing: level 10 is
+    # the last tier of N/R/SR/UR alike, so the master has to carry it. Values continue each rarity's final step
+    # (DiscForce x1.4, disc count + the last per-level increment).
+    buildup_rows += [
+        (0, 10, 7800, 600),
+        (1, 10, 11800, 100),
+        (2, 10, 19600, 18),
+        (3, 10, 28000, 5)
+    ]
+
+    buildup_master = [
+        {
+            "id": b_id,
+            "rarityType": r_type,
+            "level": lvl,
+            "necessaryDiscForceAmount": df_cost,
+            "totalDiscAmount": cards
+        }
+        for b_id, (r_type, lvl, df_cost, cards) in enumerate(buildup_rows, start=1)
+    ]
 
     # -------------------------------------------------------------
     # 4. Save Master JSONs

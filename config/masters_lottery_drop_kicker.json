@@ -1,0 +1,946 @@
+[
+  {
+    "id": 2010101,
+    "kickerCostumeId": 2010101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 1,
+    "newFlag": false
+  },
+  {
+    "id": 2010201,
+    "kickerCostumeId": 2010201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 2,
+    "newFlag": false
+  },
+  {
+    "id": 2010301,
+    "kickerCostumeId": 2010301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 3,
+    "newFlag": false
+  },
+  {
+    "id": 2010401,
+    "kickerCostumeId": 2010401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 4,
+    "newFlag": false
+  },
+  {
+    "id": 2010501,
+    "kickerCostumeId": 2010501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 5,
+    "newFlag": false
+  },
+  {
+    "id": 2010601,
+    "kickerCostumeId": 2010601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 6,
+    "newFlag": false
+  },
+  {
+    "id": 2010701,
+    "kickerCostumeId": 2010701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 7,
+    "newFlag": false
+  },
+  {
+    "id": 2012201,
+    "kickerCostumeId": 2012201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 8,
+    "newFlag": false
+  },
+  {
+    "id": 2012301,
+    "kickerCostumeId": 2012301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 9,
+    "newFlag": false
+  },
+  {
+    "id": 2020101,
+    "kickerCostumeId": 2020101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 10,
+    "newFlag": false
+  },
+  {
+    "id": 2020201,
+    "kickerCostumeId": 2020201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 11,
+    "newFlag": false
+  },
+  {
+    "id": 2020301,
+    "kickerCostumeId": 2020301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 12,
+    "newFlag": false
+  },
+  {
+    "id": 2020401,
+    "kickerCostumeId": 2020401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 13,
+    "newFlag": false
+  },
+  {
+    "id": 2020501,
+    "kickerCostumeId": 2020501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 14,
+    "newFlag": false
+  },
+  {
+    "id": 2020601,
+    "kickerCostumeId": 2020601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 15,
+    "newFlag": false
+  },
+  {
+    "id": 2020701,
+    "kickerCostumeId": 2020701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 16,
+    "newFlag": false
+  },
+  {
+    "id": 2022201,
+    "kickerCostumeId": 2022201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 17,
+    "newFlag": false
+  },
+  {
+    "id": 2022301,
+    "kickerCostumeId": 2022301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 18,
+    "newFlag": false
+  },
+  {
+    "id": 2030101,
+    "kickerCostumeId": 2030101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 19,
+    "newFlag": false
+  },
+  {
+    "id": 2030201,
+    "kickerCostumeId": 2030201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 20,
+    "newFlag": false
+  },
+  {
+    "id": 2030301,
+    "kickerCostumeId": 2030301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 21,
+    "newFlag": false
+  },
+  {
+    "id": 2030401,
+    "kickerCostumeId": 2030401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 22,
+    "newFlag": false
+  },
+  {
+    "id": 2030501,
+    "kickerCostumeId": 2030501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 23,
+    "newFlag": false
+  },
+  {
+    "id": 2030601,
+    "kickerCostumeId": 2030601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 24,
+    "newFlag": false
+  },
+  {
+    "id": 2030701,
+    "kickerCostumeId": 2030701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 25,
+    "newFlag": false
+  },
+  {
+    "id": 2032201,
+    "kickerCostumeId": 2032201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 26,
+    "newFlag": false
+  },
+  {
+    "id": 2032301,
+    "kickerCostumeId": 2032301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 27,
+    "newFlag": false
+  },
+  {
+    "id": 2035101,
+    "kickerCostumeId": 2035101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 28,
+    "newFlag": false
+  },
+  {
+    "id": 2035201,
+    "kickerCostumeId": 2035201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 29,
+    "newFlag": false
+  },
+  {
+    "id": 2040101,
+    "kickerCostumeId": 2040101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 30,
+    "newFlag": false
+  },
+  {
+    "id": 2040201,
+    "kickerCostumeId": 2040201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 31,
+    "newFlag": false
+  },
+  {
+    "id": 2040301,
+    "kickerCostumeId": 2040301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 32,
+    "newFlag": false
+  },
+  {
+    "id": 2040401,
+    "kickerCostumeId": 2040401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 33,
+    "newFlag": false
+  },
+  {
+    "id": 2040501,
+    "kickerCostumeId": 2040501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 34,
+    "newFlag": false
+  },
+  {
+    "id": 2040601,
+    "kickerCostumeId": 2040601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 35,
+    "newFlag": false
+  },
+  {
+    "id": 2040701,
+    "kickerCostumeId": 2040701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 36,
+    "newFlag": false
+  },
+  {
+    "id": 2045101,
+    "kickerCostumeId": 2045101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 37,
+    "newFlag": false
+  },
+  {
+    "id": 2050101,
+    "kickerCostumeId": 2050101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 38,
+    "newFlag": false
+  },
+  {
+    "id": 2050201,
+    "kickerCostumeId": 2050201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 39,
+    "newFlag": false
+  },
+  {
+    "id": 2050301,
+    "kickerCostumeId": 2050301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 40,
+    "newFlag": false
+  },
+  {
+    "id": 2050401,
+    "kickerCostumeId": 2050401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 41,
+    "newFlag": false
+  },
+  {
+    "id": 2050501,
+    "kickerCostumeId": 2050501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 42,
+    "newFlag": false
+  },
+  {
+    "id": 2050601,
+    "kickerCostumeId": 2050601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 43,
+    "newFlag": false
+  },
+  {
+    "id": 2050701,
+    "kickerCostumeId": 2050701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 44,
+    "newFlag": false
+  },
+  {
+    "id": 2052101,
+    "kickerCostumeId": 2052101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 45,
+    "newFlag": false
+  },
+  {
+    "id": 2060101,
+    "kickerCostumeId": 2060101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 46,
+    "newFlag": false
+  },
+  {
+    "id": 2060201,
+    "kickerCostumeId": 2060201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 47,
+    "newFlag": false
+  },
+  {
+    "id": 2060301,
+    "kickerCostumeId": 2060301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 48,
+    "newFlag": false
+  },
+  {
+    "id": 2060401,
+    "kickerCostumeId": 2060401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 49,
+    "newFlag": false
+  },
+  {
+    "id": 2060501,
+    "kickerCostumeId": 2060501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 50,
+    "newFlag": false
+  },
+  {
+    "id": 2060601,
+    "kickerCostumeId": 2060601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 51,
+    "newFlag": false
+  },
+  {
+    "id": 2060701,
+    "kickerCostumeId": 2060701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 52,
+    "newFlag": false
+  },
+  {
+    "id": 2062201,
+    "kickerCostumeId": 2062201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 53,
+    "newFlag": false
+  },
+  {
+    "id": 2065101,
+    "kickerCostumeId": 2065101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 54,
+    "newFlag": false
+  },
+  {
+    "id": 2070101,
+    "kickerCostumeId": 2070101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 55,
+    "newFlag": false
+  },
+  {
+    "id": 2070201,
+    "kickerCostumeId": 2070201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 56,
+    "newFlag": false
+  },
+  {
+    "id": 2070301,
+    "kickerCostumeId": 2070301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 57,
+    "newFlag": false
+  },
+  {
+    "id": 2070401,
+    "kickerCostumeId": 2070401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 58,
+    "newFlag": false
+  },
+  {
+    "id": 2070501,
+    "kickerCostumeId": 2070501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 59,
+    "newFlag": false
+  },
+  {
+    "id": 2070601,
+    "kickerCostumeId": 2070601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 60,
+    "newFlag": false
+  },
+  {
+    "id": 2070701,
+    "kickerCostumeId": 2070701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 61,
+    "newFlag": false
+  },
+  {
+    "id": 2075101,
+    "kickerCostumeId": 2075101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 62,
+    "newFlag": false
+  },
+  {
+    "id": 2075201,
+    "kickerCostumeId": 2075201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 63,
+    "newFlag": false
+  },
+  {
+    "id": 2080101,
+    "kickerCostumeId": 2080101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 64,
+    "newFlag": false
+  },
+  {
+    "id": 2080201,
+    "kickerCostumeId": 2080201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 65,
+    "newFlag": false
+  },
+  {
+    "id": 2080301,
+    "kickerCostumeId": 2080301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 66,
+    "newFlag": false
+  },
+  {
+    "id": 2080401,
+    "kickerCostumeId": 2080401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 67,
+    "newFlag": false
+  },
+  {
+    "id": 2080501,
+    "kickerCostumeId": 2080501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 68,
+    "newFlag": false
+  },
+  {
+    "id": 2080601,
+    "kickerCostumeId": 2080601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 69,
+    "newFlag": false
+  },
+  {
+    "id": 2080701,
+    "kickerCostumeId": 2080701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 70,
+    "newFlag": false
+  },
+  {
+    "id": 2082101,
+    "kickerCostumeId": 2082101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 71,
+    "newFlag": false
+  },
+  {
+    "id": 2085101,
+    "kickerCostumeId": 2085101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 72,
+    "newFlag": false
+  },
+  {
+    "id": 2085201,
+    "kickerCostumeId": 2085201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 73,
+    "newFlag": false
+  },
+  {
+    "id": 2090101,
+    "kickerCostumeId": 2090101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 74,
+    "newFlag": false
+  },
+  {
+    "id": 2090201,
+    "kickerCostumeId": 2090201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 75,
+    "newFlag": false
+  },
+  {
+    "id": 2090301,
+    "kickerCostumeId": 2090301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 76,
+    "newFlag": false
+  },
+  {
+    "id": 2090401,
+    "kickerCostumeId": 2090401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 77,
+    "newFlag": false
+  },
+  {
+    "id": 2090501,
+    "kickerCostumeId": 2090501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 78,
+    "newFlag": false
+  },
+  {
+    "id": 2090601,
+    "kickerCostumeId": 2090601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 79,
+    "newFlag": false
+  },
+  {
+    "id": 2090701,
+    "kickerCostumeId": 2090701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 80,
+    "newFlag": false
+  },
+  {
+    "id": 2092101,
+    "kickerCostumeId": 2092101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 81,
+    "newFlag": false
+  },
+  {
+    "id": 2095101,
+    "kickerCostumeId": 2095101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 82,
+    "newFlag": false
+  },
+  {
+    "id": 2100101,
+    "kickerCostumeId": 2100101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 83,
+    "newFlag": false
+  },
+  {
+    "id": 2100201,
+    "kickerCostumeId": 2100201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 84,
+    "newFlag": false
+  },
+  {
+    "id": 2100301,
+    "kickerCostumeId": 2100301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 85,
+    "newFlag": false
+  },
+  {
+    "id": 2100401,
+    "kickerCostumeId": 2100401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 86,
+    "newFlag": false
+  },
+  {
+    "id": 2100501,
+    "kickerCostumeId": 2100501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 87,
+    "newFlag": false
+  },
+  {
+    "id": 2100601,
+    "kickerCostumeId": 2100601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 88,
+    "newFlag": false
+  },
+  {
+    "id": 2100701,
+    "kickerCostumeId": 2100701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 89,
+    "newFlag": false
+  },
+  {
+    "id": 2102101,
+    "kickerCostumeId": 2102101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 90,
+    "newFlag": false
+  },
+  {
+    "id": 2102301,
+    "kickerCostumeId": 2102301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 91,
+    "newFlag": false
+  },
+  {
+    "id": 2105101,
+    "kickerCostumeId": 2105101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 92,
+    "newFlag": false
+  },
+  {
+    "id": 2110101,
+    "kickerCostumeId": 2110101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 93,
+    "newFlag": false
+  },
+  {
+    "id": 2110201,
+    "kickerCostumeId": 2110201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 94,
+    "newFlag": false
+  },
+  {
+    "id": 2110301,
+    "kickerCostumeId": 2110301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 95,
+    "newFlag": false
+  },
+  {
+    "id": 2110401,
+    "kickerCostumeId": 2110401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 96,
+    "newFlag": false
+  },
+  {
+    "id": 2110501,
+    "kickerCostumeId": 2110501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 97,
+    "newFlag": false
+  },
+  {
+    "id": 2110601,
+    "kickerCostumeId": 2110601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 98,
+    "newFlag": false
+  },
+  {
+    "id": 2110701,
+    "kickerCostumeId": 2110701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 99,
+    "newFlag": false
+  },
+  {
+    "id": 2112101,
+    "kickerCostumeId": 2112101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 100,
+    "newFlag": false
+  },
+  {
+    "id": 2115101,
+    "kickerCostumeId": 2115101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 101,
+    "newFlag": false
+  },
+  {
+    "id": 2120101,
+    "kickerCostumeId": 2120101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 102,
+    "newFlag": false
+  },
+  {
+    "id": 2120201,
+    "kickerCostumeId": 2120201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 103,
+    "newFlag": false
+  },
+  {
+    "id": 2120301,
+    "kickerCostumeId": 2120301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 104,
+    "newFlag": false
+  },
+  {
+    "id": 2120401,
+    "kickerCostumeId": 2120401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 105,
+    "newFlag": false
+  },
+  {
+    "id": 2120501,
+    "kickerCostumeId": 2120501,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 106,
+    "newFlag": false
+  },
+  {
+    "id": 2120601,
+    "kickerCostumeId": 2120601,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 107,
+    "newFlag": false
+  },
+  {
+    "id": 2120701,
+    "kickerCostumeId": 2120701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 108,
+    "newFlag": false
+  },
+  {
+    "id": 2122201,
+    "kickerCostumeId": 2122201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 109,
+    "newFlag": false
+  },
+  {
+    "id": 2130101,
+    "kickerCostumeId": 2130101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 110,
+    "newFlag": false
+  },
+  {
+    "id": 2130201,
+    "kickerCostumeId": 2130201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 111,
+    "newFlag": false
+  },
+  {
+    "id": 2130301,
+    "kickerCostumeId": 2130301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 112,
+    "newFlag": false
+  },
+  {
+    "id": 2130401,
+    "kickerCostumeId": 2130401,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 113,
+    "newFlag": false
+  },
+  {
+    "id": 2130701,
+    "kickerCostumeId": 2130701,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 114,
+    "newFlag": false
+  },
+  {
+    "id": 2140101,
+    "kickerCostumeId": 2140101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 115,
+    "newFlag": false
+  },
+  {
+    "id": 2140201,
+    "kickerCostumeId": 2140201,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 116,
+    "newFlag": false
+  },
+  {
+    "id": 2140301,
+    "kickerCostumeId": 2140301,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 117,
+    "newFlag": false
+  },
+  {
+    "id": 2145101,
+    "kickerCostumeId": 2145101,
+    "dropRatio": 1,
+    "pickupFlag": false,
+    "sortOrder": 118,
+    "newFlag": false
+  }
+]
