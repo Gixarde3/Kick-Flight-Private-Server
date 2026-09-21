@@ -1,21 +1,21 @@
 {
-  "UserId": "1000001",
-  "UserName": "Gixarde3",
-  "KickerId": 8,
-  "KickerCostumeId": 64,
-  "ActiveDeckNumber": 2,
+  "UserId": "1000005",
+  "UserName": "Player 0005",
+  "KickerId": 13,
+  "KickerCostumeId": 110,
+  "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
-      3010001,
-      3010002,
-      3010003,
-      3010004
+      3010083,
+      3010027,
+      3010037,
+      3010042
     ],
     "2": [
-      3010050,
-      3010051,
-      3010052,
-      3010053
+      3010005,
+      3010006,
+      3010007,
+      3010008
     ],
     "3": [
       3010009,
@@ -693,8 +693,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 210754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50000
+  "ItemKickPoints": 50400
 }

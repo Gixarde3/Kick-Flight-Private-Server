@@ -6,10 +6,10 @@
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
-      3010001,
-      3010002,
-      3010003,
-      3010004
+      3010083,
+      3010027,
+      3010037,
+      3010042
     ],
     "2": [
       3010005,
@@ -693,8 +693,8 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 209754,
+  "ItemJetCoins": 208754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50200
+  "ItemKickPoints": 50000
 }
