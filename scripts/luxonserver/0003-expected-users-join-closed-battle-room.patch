@@ -1,0 +1,39 @@
+From 1bc49a1ec86663f7c51c0b114b37b33f7c6914a9 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 12:52:00 +0800
+Subject: [PATCH] fix(kickflight): expected users may join a battle- room the
+ master already closed
+
+The Kick-Flight room master sets IsOpen=false within ~100 ms of creating the
+room; the other human reaches the GameServer after that about half the time
+and validate_join answered GameClosed (32764) -> Title Disconnect Error on
+whichever player was slower. Both humans are invited through the MasterServer
+and sit on expected_users, so honour that reservation for battle- ids even
+when the room is closed.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
+---
+ src/game.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/game.cpp b/src/game.cpp
+index ef09e1c..0a4c16f 100644
+--- a/src/game.cpp
++++ b/src/game.cpp
+@@ -335,7 +335,11 @@ std::pair<int16_t, std::string_view> Game::validate_join(const std::string& user
+         return {ErrorCodes::Matchmaking::GameIdNotExists, "Game does not exist"};
+ 
+     // Return error if game is closed
+-    if (!is_open)
++    // Kick-Flight: the room master closes the room (IsOpen=false) within ~100 ms of creating it, before the other
++    // human has reached the GameServer, so whichever player is slower got "Game is closed" (2026-09-21). Everyone
++    // who belongs to a battle room was invited through the MasterServer and is on expected_users: keep the
++    // reserved slot valid for them even when the room is already closed.
++    if (!is_open && !(id.starts_with("battle-") && expected_users.contains(user_id)))
+         return {ErrorCodes::Matchmaking::GameClosed, "Game is closed"};
+ 
+     // Check capacity (peers + expected users)
+-- 
+2.52.0.windows.1
+

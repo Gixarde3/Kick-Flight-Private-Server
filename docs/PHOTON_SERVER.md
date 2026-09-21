@@ -9,7 +9,7 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
 * Host: `51.79.241.70` (Ubuntu 24.04), servicio `luxon-server.service` (systemd, `Restart=always`).
 * Binario: `/opt/luxon-server/luxon_server`, config `/opt/luxon-server/config.yml` (= `config.yml` del fork con
   `external_address: 51.79.241.70:<puerto>`). Fuente en `~/kickflight/luxonserver` (fork `Gixarde3/luxonserver`
-  @ `a84ecc3` + `scripts/luxonserver/0001-pending-battle-join.patch`).
+  @ `a84ecc3` + `scripts/luxonserver/000{1,2,3}-*.patch`, aplicados en ese orden con `git am`).
 * Compilado con `g++-14` (el código usa C++23 "deducing this"; g++ 13 no compila):
   `cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLUXON_SERVER_USE_SANMAKE=OFF -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 && ninja -C build`.
   Submodulos necesarios: `Luxon` y `tracy` (solo cabeceras).
@@ -30,3 +30,11 @@ que el creador haya entrado al GameServer (`is_created == false`) y `validate_jo
 el cliente trata como desconexion fatal ("Title Disconnect Error" en el jugador 2). El parche deja pasar ese caso para
 ids `battle-*`; el handler del GameServer ya crea o une al llegar. Pendiente: subirlo al fork `Gixarde3/luxonserver` y
 actualizar el puntero del submodulo.
+
+## Parche `0003-expected-users-join-closed-battle-room.patch`
+
+El cliente maestro cierra la sala (`IsOpen=false`) unos ~100 ms despues de crearla; si el otro humano llega al
+GameServer despues de eso, `validate_join` respondia `GameClosed` (32764) y ese jugador (el mas lento, al azar) recibia
+"Title Disconnect Error". Ambos humanos entran por el MasterServer y estan en `expected_users`, asi que para ids
+`battle-*` la reserva vale aunque la sala ya este cerrada. `0002` solo agrega el log de por que se rechaza un join
+(`journalctl -u luxon-server | grep rejected`).

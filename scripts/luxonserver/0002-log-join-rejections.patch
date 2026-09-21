@@ -1,0 +1,42 @@
+From e093b87584b03cf50ff51a69e430e8d495baaca5 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 12:46:43 +0800
+Subject: [PATCH] log why a join is rejected (master + game server)
+
+---
+ src/handler_gameserver.cpp   | 3 +++
+ src/handler_masterserver.cpp | 4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/src/handler_gameserver.cpp b/src/handler_gameserver.cpp
+index 2194f69..6bea1d7 100644
+--- a/src/handler_gameserver.cpp
++++ b/src/handler_gameserver.cpp
+@@ -347,6 +347,9 @@ Awaitable<> GameServerHandler::HandleOperationRequest(ser::OperationRequestMessa
+                 // Verify join if joining existing room
+                 const auto [join_validation_code, join_validation_message] = game->validate_join(peer_->persistent->user_id);
+                 if (join_validation_code != ErrorCodes::Core::Ok) {
++                    peer_->log->warn("Join of game {} rejected: {} ({}); created={} open={} peers={} expected={} max_peers={} flags={:#x}",
++                                     game->id, join_validation_message, join_validation_code, game->is_created, game->is_open,
++                                     game->peers.size(), game->expected_users.size(), game->max_peers, game->flags);
+                     const ser::OperationResponseMessage resp{.operation_code = OpCodes::Matchmaking::JoinGame,
+                                                              .return_code = join_validation_code,
+                                                              .debug_message = std::string(join_validation_message)};
+diff --git a/src/handler_masterserver.cpp b/src/handler_masterserver.cpp
+index 6c3e0cb..40e105a 100644
+--- a/src/handler_masterserver.cpp
++++ b/src/handler_masterserver.cpp
+@@ -411,6 +411,10 @@ Awaitable<> MasterServerHandler::HandleOperationRequest(ser::OperationRequestMes
+                 const bool pending_battle = join_validation_code == ErrorCodes::Matchmaking::GameIdNotExists && !game->is_created && game_id.starts_with("battle-");
+                 if (pending_battle)
+                     peer_->log->info("Game {} is pending creation, allowing join", game_id);
++                if (join_validation_code != ErrorCodes::Core::Ok && !pending_battle)
++                    peer_->log->warn("Join of game {} rejected: {} ({}); created={} open={} peers={} expected={} max_peers={}",
++                                     game_id, join_validation_message, join_validation_code, game->is_created, game->is_open,
++                                     game->peers.size(), game->expected_users.size(), game->max_peers);
+                 if (join_validation_code != ErrorCodes::Core::Ok && !pending_battle) {
+                     const ser::OperationResponseMessage resp{.operation_code = OpCodes::Matchmaking::JoinGame,
+                                                              .return_code = join_validation_code,
+-- 
+2.52.0.windows.1
+
