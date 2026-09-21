@@ -43,3 +43,5 @@ config/fixtures.local/
 config/apk-direct-server.local.json
 .codebase-memory/
 octo_cache.tar
+# DeepSeek handoff rounds
+handoff/

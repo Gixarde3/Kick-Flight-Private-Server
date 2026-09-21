@@ -22,6 +22,10 @@ python scripts/re/reloc.py                 # builds .local/re-cache/reloc.pkl so
 | `xref.py <rva>...` | who `bl`/`b`s to these RVAs (virtual calls are `blr` and do not show up) |
 | `reloc.py [--find "Text"]` | parse `.rela.dyn`; `--find` prints the slots that point at a string literal |
 | `slotref.py <slot>...` | which code materialises a data slot (feed it the slots from `reloc.py --find`) |
+| `bundle_tree.py <logical> [--filter re] [--all]` | transform hierarchy (local pos/rot/scale) of every prefab in a catalog bundle (`player/pc_005/pc_005_001`, `weapon/wp_005/wp_005_001_001`); repairs the Octo header via `../Kick-Flight-Assets/reconstruct_unity_bundles.py` |
+| `anim_paths.py <kicker> --weapons 001_001,001_201` | clip generic bindings are CRC32 of the full transform path: explains the body bones and brute-forces `<bone>/<rootName>/<weapon node>` for animated weapons → the `Weapon` master bone + rootName |
+| `served_master.py <Table>` | fetch and decrypt a served master from the running server (uses the direct-client Host header) |
+| `bot_special_skill_cave.py` | keystone source of the production "AI casts its special skill" cave (prints replacement/expected hex for the patch table) |
 
 Vtable slot N of an object is at `[klass + 0x128 + N*16]` (the `ldp x9, x1, [x8, #0x178]; blr x9` pattern
 is slot 5). IL2CPP class-init boilerplate (`ldrb w8,[x0,#0x127]` ... `bl 0x11f7160`) can be filtered out.
@@ -42,4 +46,33 @@ Rules learned the hard way:
   jumps back to entry+4 after re-executing the displaced instruction. Mid-function hooks may use `bl`+`ret`.
 - Free dead code for caves: body of `PlayerBoneController.SetDisplayAngles` (0x13BC318-0x13BC3A8) and
   `GameManager.GetMenuType` (0x1570EB0-0x15710A4); both are stubbed at their entry by existing patches and
-  nothing branches into them (verified).
+  nothing branches into them (verified). `HomeSummonModelController.SetModel` (0x159D1BC-0x159DAB0, entry-stubbed)
+  holds the production bot-special-skill cave from 0x159D200 (376 bytes); the rest of its body is free.
+
+## Basic-attack / warp probes (DIAG builds)
+
+* `scripts/re/attack_diag_caves.py` — KFDIAG 8100-8600: combo index of every swing (`8100+n`), target lost (`8200`),
+  search-distance result (`8300/8301`), the four `IsAttack` angle checks with |delta| and limit (`8320-8323`),
+  `IsAttack` true (`8310`), and which "in" animation played (`8400/8500/8600 + combo`). Minimal caves in the dead
+  bodies of the entry-stubbed `PlayerBoneController.InterpolationUpdate` / `SetPose`.
+  Read them with `python scripts/re/attack_diag_read.py [logcat.txt]` (collapses per-frame repeats).
+* `scripts/re/warp_diag_caves.py` — KFDIAG 7700-7830: `JapaneseSwordSkillAction` no-target end position vs the
+  player position, `WarpSkillAction.UpdateFinish` gates, `PlayerCharacter.SetVisible` pointers.
+* Regenerate entries with the script and paste them before `# ---- END DIAGNOSTIC ----` in
+  `patch-il2cpp-endpoints.py` (replace the whole previous block: caves are re-packed and move); build with
+  `KF_DIAG=1 OUT=.local/KickFlight-2.11.0-DIAG.apk bash .local/build.sh` (Tanuki's machine) or
+  `KF_DIAG=1 scripts/build-direct-apk.sh` / `.ps1` anywhere. `KF_NRE_LR=1` adds the NRE-origin hook (cave H).
+  Values 8790+state (current PlayerStateType) and 8800+destroy type / 8810+hits (`CollisionBase.OnDestroy`) were
+  added 2026-09-20; the latter pinned the 1-1-1 combo bug to `collisionHitType All` (see AGENTS.md).
+* Dead bodies in use (all entry-stubbed in production, nothing branches into them): `HomeSummonModelController.SetModel`
+  (0x159D200-0x159DAB0: gym/AI cave, GetDisplayAngles cave, warp probes), `UnloadModel` (region F),
+  `PlayerBoneController.InterpolationUpdate` / `SetPose` / `LateUpdate` (attack probes),
+  `PlayerCharacter.UpdateLookTarget` (0x13CD990-0x13CDFE0: regions D + E incl. the safe LOG helper, moved there by
+  `scripts/re/relocate_diag_region.py` on 2026-09-20 — they used to sit in `LoadManager.LoadDeckSummonModel`, which
+  forced the DIAG build to stub it and so no summon model ever loaded: Leorex/MOVE/TRAP froze the kicker in the
+  skill state and it never respawned). `UpdateIdleTypeRate` (0x13CE3E0-0x13CE7C8): DIAG attack probes at
+  0x13CE3E0-0x13CE4B0, the **production** bat-bomb TrapInfo cave (`BatAbilityParameter..ctor` tail, 60 bytes) at
+  0x13CE500-0x13CE540 (64 bytes); DIAG bomb probes (`bomb_diag_caves.py`, 9001-9041) at 0x13CE540-0x13CE7B0.
+  `HomeSummonModelController.SetModel` tail 0x159DA48-0x159DA78 holds the production bat-bomb HitInfo fallback cave
+  (0x159DA78-0x159DAB0 free).
+* `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).

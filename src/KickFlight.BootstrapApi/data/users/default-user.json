@@ -1,5 +1,6 @@
 {
   "UserId": "default-user",
+  "UserName": "Gixarde3",
   "KickerId": 8,
   "KickerCostumeId": 2,
   "ActiveDeckNumber": 2,
@@ -665,10 +666,35 @@
       "DiscId": 3010135,
       "Level": 10,
       "Amount": 99
+    },
+    "3010045": {
+      "DiscId": 3010045,
+      "Level": 10,
+      "Amount": 99
+    },
+    "3010096": {
+      "DiscId": 3010096,
+      "Level": 10,
+      "Amount": 99
+    },
+    "3010133": {
+      "DiscId": 3010133,
+      "Level": 10,
+      "Amount": 99
+    },
+    "3010136": {
+      "DiscId": 3010136,
+      "Level": 10,
+      "Amount": 99
+    },
+    "3010138": {
+      "DiscId": 3010138,
+      "Level": 10,
+      "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 211754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50000
+  "ItemKickPoints": 50600
 }
