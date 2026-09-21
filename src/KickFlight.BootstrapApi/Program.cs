@@ -66,6 +66,8 @@ app.MapGet("/apk/diag-remote", () => ServeApk("KickFlight-2.11.0-DIAG-remote.apk
 // OUT=.local/KickFlight-2.11.0-merged.apk .local/build.sh (LAN) and with URL=http://kickflightsg.ddns.net:18080 (remote).
 app.MapGet("/apk/merged", () => ServeApk("KickFlight-2.11.0-merged.apk"));
 app.MapGet("/apk/merged-remote", () => ServeApk("KickFlight-2.11.0-merged-remote.apk"));
+app.MapGet("/apk/merged-diag", () => ServeApk("KickFlight-2.11.0-merged-DIAG.apk"));
+app.MapGet("/apk/merged-diag-remote", () => ServeApk("KickFlight-2.11.0-merged-DIAG-remote.apk"));
 // Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
 // from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
 app.MapPost("/diag/upload", async (HttpContext context) =>
