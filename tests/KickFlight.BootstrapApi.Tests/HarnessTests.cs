@@ -10,11 +10,11 @@ using Xunit;
 
 namespace KickFlight.BootstrapApi.Tests;
 
-public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
 {
     private readonly WebApplicationFactory<Program> _factory;
 
-    public HarnessTests(WebApplicationFactory<Program> factory) => _factory = factory;
+    public HarnessTests(ServerTestHostFixture fixture) => _factory = fixture.Factory;
 
     [Theory]
     [InlineData("/health/live")]
@@ -312,7 +312,10 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
                 Content = new StringContent("1234567890", Encoding.UTF8, "text/plain")
             };
             request.Headers.Host = "kickflight-api.grenge.jp";
-            request.Headers.Add("x-app-access-token", "must-not-appear-in-capture");
+            // A sensitive header, and one a real /boot/index actually carries (docs/evidence/boot-index-redacted.md):
+            // this route is served by the fixture router, which never reads a session token, so the request must
+            // stay a 200 whether or not the client has authenticated yet.
+            request.Headers.Add("x-app-adid", "must-not-appear-in-capture");
             using var response = await factory.CreateClient().SendAsync(request);
             Assert.True(response.IsSuccessStatusCode);
             var file = Directory.GetFiles(captureDirectory, "request-*.json").Single();
@@ -435,7 +438,9 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         using var costumeDoc = JsonDocument.Parse(decryptedMaster);
         var list = costumeDoc.RootElement;
         Assert.Equal(118, list.GetArrayLength());
-        Assert.Equal(1, list[0].GetProperty("id").GetInt32());
+        // The customer-facing fields of the first row (Tsubame's default colour); the row id is the composite
+        // 2|kicker|costume|variant, whose kicker-1 / costume-1 value the client itself hardcodes as 2010101.
+        Assert.Equal(2010101, list[0].GetProperty("id").GetInt32());
         Assert.Equal(1, list[0].GetProperty("kickerId").GetInt32());
         Assert.Equal(1, list[0].GetProperty("costumeId").GetInt32());
 
@@ -495,8 +500,9 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var userDiscDeckList = homeDoc.RootElement.GetProperty("userDiscDeckList");
         Assert.Equal(5, userDiscDeckList.GetArrayLength());
 
-        // 8. Select kicker 8 (Anna), costume 2 via POST /kicker/change
-        var changePayload = JsonSerializer.Serialize(new { kickerId = 8, kickerCostumeId = 2 });
+        // 8. Select kicker 8 (Anna) and ask for a costume that is not hers: 2010101 is kicker 1's first
+        //    costume, so the server has to swap it for one of Anna's (see the assertion in step 10).
+        var changePayload = JsonSerializer.Serialize(new { kickerId = 8, kickerCostumeId = 2010101 });
         var encodedChange = D2CCodec.Encode(Encoding.UTF8.GetBytes(changePayload), sessionKeyBytes, new byte[16]);
         using var changeRequest = new HttpRequestMessage(HttpMethod.Post, "/kicker/change")
         {
@@ -529,7 +535,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("0", discChangeResponse.Headers.GetValues("x-app-status-code").Single());
 
         // 10. Request POST /home/index again (persisted kickerId = 8, activeDeck = 2; kickerCostumeId is a KickerCostume row id,
-        //     and row 2 is not one of kicker 8's costumes, so NormalizeCostume swaps it for Owlbert's default row 64)
+        //     and that one belongs to kicker 1, so NormalizeCostume swaps it for Anna's first costume row 2080101)
         using var homeRequest2 = new HttpRequestMessage(HttpMethod.Post, "/home/index")
         {
             Content = new ByteArrayContent(Array.Empty<byte>())
@@ -542,7 +548,7 @@ public sealed class HarnessTests : IClassFixture<WebApplicationFactory<Program>>
         var homeDecrypted2 = D2CCodec.Decode(homeBytes2, sessionKeyBytes);
         using var homeDoc2 = JsonDocument.Parse(homeDecrypted2);
         Assert.Equal(8, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerId").GetInt32());
-        Assert.Equal(64, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
+        Assert.Equal(2080101, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("kickerCostumeId").GetInt32());
         Assert.Equal(2, homeDoc2.RootElement.GetProperty("userPlayer").GetProperty("discDeckNumber").GetInt32());
         var updatedDeck2 = homeDoc2.RootElement.GetProperty("userDiscDeckList").EnumerateArray().First(d => d.GetProperty("number").GetInt32() == 2);
         Assert.Equal(3010050, updatedDeck2.GetProperty("discIdList")[0].GetInt32());
