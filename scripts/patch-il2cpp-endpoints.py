@@ -16,7 +16,8 @@ validators (was: return null), GetRange/GetDisplayAngles use the offline caves (
 Build modes (environment variables): KF_DIAG=1 full KFDIAG trace (DIAG_PATCHES_ARM64), KF_RESULT_DIAG=1 isolated
 ResultManager/ResultScene trace (RESULT_DIAG_PATCHES_ARM64; exclusive with KF_DIAG), KF_NRE_LR=1 (with KF_DIAG)
 log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_NO_ALLOCATOR_REBIND=1 (drop the libunity allocator rebinding),
-KF_PHOTON=1 Photon (LuxonServer) matchmaking flow instead of the offline bridge (see PHOTON_FLOW).
+KF_PHOTON=1 Photon (LuxonServer) matchmaking flow instead of the offline bridge (see PHOTON_FLOW),
+KF_NO_READY_SCENE=1 the pre-2026-09-21 ready-scene bypass (no intro cinematic / countdown / end banner).
 """
 
 from __future__ import annotations
@@ -47,9 +48,9 @@ LITERAL_INDEXES = {
 
 # Ready scene. The "ponytail" patches (2026-09-07) skip the whole GameReadyScene intro cinematic (whose end is the
 # 3-2-1 countdown) because the high-model game_ready animators were not served back then, and then fake its
-# completion at PlayGoAnimation / relax the RoomStartTime gate. KF_READY_SCENE=1 drops those seven patches so the
-# retail flow runs (ready cinematic -> countdown -> GO, input locked until then). Experimental, 2026-09-21.
-READY_SCENE = os.environ.get("KF_READY_SCENE") == "1"
+# completion at PlayGoAnimation / relax the RoomStartTime gate. The retail flow (ready cinematic -> READY/GO gated on
+# Readied, GameResultFade banner preloaded) is the default; KF_NO_READY_SCENE=1 restores the old bypass set.
+READY_SCENE = os.environ.get("KF_NO_READY_SCENE") != "1"  # default since 2026-09-21 (validated: intro, 3-2-1/GO, end banner)
 
 # Battle-start / AI diagnostics. Off by default; enable with KF_DIAG=1 when building. Each hook logs an
 # integer through __android_log_print (logcat tag KFDIAG). See docs/CONTINUATION_PROMPT_BATTLE_CRASH_FIX_V2.md §7.
