@@ -2061,6 +2061,32 @@ UNITY_PATCHES: dict[str, list[dict[str, object]]] = {
         # 0x614C00 and the merged build aborted at boot on the emulator from libunity+0x32fa10 ("Scudo ERROR:
         # corrupted chunk header", 2026-09-21). On by default; KF_UNITY_NO_ALLOCATOR_REBIND=1 builds without it.
         }] if os.environ.get("KF_UNITY_NO_ALLOCATOR_REBIND") != "1" else []),
+        # Emulator (ARM translation) SIGSEGV on the UnityPreload thread while a scene loads, seen since 2026-09-12 and
+        # about 1 run in 3 with the ready cinematic on: libunity+0x2bf2b0 takes a {id, object, list} entry and, when
+        # the object callback declines (or there is no object), walks `list` - which is NULL for some entry, so
+        # `ldp x25, x8, [x23]` at 0x2bf37c faults (Unity's crash banner then hangs the process). An empty list ends the
+        # loop with "not found" (mov x19, xzr at 0x2bf3c8), so treat a null list the same way. The 3-instruction guard
+        # and its 1-instruction trampoline live in the dead tails of the two PLT stubs rebound above (0xda630/0xda690),
+        # hence the same gate. Diagnosed 2026-09-21 from the CRASH banner pc + /proc/pid/maps (.local/run/crash-bt-*).
+        *([{
+            "description": "guard: libunity preload entry walker (0x2bf37c) -> b null-list guard in dead PLT tail 0xda634",
+            "offset": 0x2BF37C,
+            "expected": bytes.fromhex("f92240a9"),  # ldp x25, x8, [x23]
+            "replacement": bytes.fromhex("ae6cf817"),  # b #0xda634
+        },
+        {
+            "description": "guard cave: cbz x23 -> 0xda694; ldp x25, x8, [x23]; b 0x2bf380 (dead tail of the rebound operator new PLT stub)",
+            "offset": 0xDA634,
+            "expected": bytes.fromhex("11ce44f91062269120021fd6"),
+            "replacement": bytes.fromhex("170300b4f92240a951930714"),
+        },
+        {
+            "description": "guard trampoline: b 0x2bf3c8 (null list == empty list; dead tail of the rebound operator delete PLT stub)",
+            "offset": 0xDA694,
+            "expected": bytes.fromhex("11e644f9"),
+            "replacement": bytes.fromhex("4d930714"),
+        }] if os.environ.get("KF_UNITY_NO_ALLOCATOR_REBIND") != "1" else []),
+
     ],
 }
 
