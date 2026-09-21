@@ -1,0 +1,50 @@
+From d85e14b5a8fc933984423b9d9c98ab1749630617 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 14:59:32 +0800
+Subject: [PATCH] fix(kickflight): replay current room properties to a late
+ joiner as a PropertiesUpdate event
+
+The master writes the battle/room state properties within ~40 ms of joining;
+when the other human's JoinGame lands after that, the properties only arrive in
+the join response and the client (which advances from MatchingScene on
+CallbackRoomPropertiesUpdate) never transitions. Send the current room
+properties to a non-master joiner of a battle- room as an event right after
+the join response and event flood.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_016Wk6ALbuY31nk3JFJK28oB
+---
+ src/handler_gameserver.cpp | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/handler_gameserver.cpp b/src/handler_gameserver.cpp
+index c593da7..2e86a68 100644
+--- a/src/handler_gameserver.cpp
++++ b/src/handler_gameserver.cpp
+@@ -495,6 +495,23 @@ Awaitable<> GameServerHandler::HandleOperationRequest(ser::OperationRequestMessa
+             // Flood the client with current state
+             game->flood_peer(game_peer_);
+ 
++            // Kick-Flight: the room master writes the battle/room state properties within ~40 ms of joining, often
++            // before the other human's JoinGame lands. The client only advances from the matching scene on the
++            // PropertiesUpdate *event* (CallbackRoomPropertiesUpdate), never from the properties carried in the
++            // join response, so replay the current custom game properties to a late joiner as if the master had
++            // just set them (2026-09-21, second player stuck in MatchingScene).
++            if (!is_master && game->id.starts_with("battle-")) {
++                if (auto room_props = game->get_game_props(); !room_props.empty()) {
++                    auto event = game->create_property_update_event(game->master_actor, std::move(room_props));
++                    if (const auto payload = event.get_cached_data(*peer_->protocol)) {
++                        peer_->send(*payload, enet::EnetSendOptions{.channel = event.channel, .mode = event.delivery_mode});
++                        peer_->log->info("Replayed current room properties to late joiner");
++                    } else {
++                        peer_->log->warn("Failed to serialize room property replay: {}", payload.error().message);
++                    }
++                }
++            }
++
+             lco_return;
+         }
+ 
+-- 
+2.52.0.windows.1
+

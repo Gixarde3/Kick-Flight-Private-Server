@@ -1,0 +1,28 @@
+From 4320af822dad4c87cc39b631f444ceb784fab684 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 13:27:55 +0800
+Subject: [PATCH] log every non-RaiseEvent operation a game peer sends
+
+---
+ src/handler_gameserver.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/handler_gameserver.cpp b/src/handler_gameserver.cpp
+index 6bea1d7..c593da7 100644
+--- a/src/handler_gameserver.cpp
++++ b/src/handler_gameserver.cpp
+@@ -94,6 +94,11 @@ Awaitable<> GameServerHandler::HandleDisconnect() {
+ Awaitable<> GameServerHandler::HandleOperationRequest(ser::OperationRequestMessage&& req, bool is_encrypted, const enet::EnetCommandHeader& cmd_header) {
+     ZoneScoped;
+ 
++    // Kick-Flight debugging (2026-09-21): trace what each game peer sends so a client that stalls during loading can be
++    // told apart from one that left on purpose. RaiseEvent is the hot path (position sync), so it is not logged.
++    if (req.operation_code != OpCodes::Lite::RaiseEvent)
++        peer_->log->info("op {} on channel {} ({} params)", static_cast<int>(req.operation_code), cmd_header.channel_id, req.parameters.size());
++
+     const auto ensure_is_master = [&]() {
+         const bool is_master = game_peer_ && game_peer_->actor_id == current_game_->master_actor || current_game_->peers.size() == 0;
+         if (!is_master) {
+-- 
+2.52.0.windows.1
+

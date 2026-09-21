@@ -9,7 +9,7 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
 * Host: `51.79.241.70` (Ubuntu 24.04), servicio `luxon-server.service` (systemd, `Restart=always`).
 * Binario: `/opt/luxon-server/luxon_server`, config `/opt/luxon-server/config.yml` (= `config.yml` del fork con
   `external_address: 51.79.241.70:<puerto>`). Fuente en `~/kickflight/luxonserver` (fork `Gixarde3/luxonserver`
-  @ `a84ecc3` + `scripts/luxonserver/000{1,2,3}-*.patch`, aplicados en ese orden con `git am`).
+  @ `a84ecc3` + `scripts/luxonserver/000{1..5}-*.patch`, aplicados en ese orden con `git am`).
 * Compilado con `g++-14` (el código usa C++23 "deducing this"; g++ 13 no compila):
   `cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLUXON_SERVER_USE_SANMAKE=OFF -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 && ninja -C build`.
   Submodulos necesarios: `Luxon` y `tracy` (solo cabeceras).
@@ -38,3 +38,11 @@ GameServer despues de eso, `validate_join` respondia `GameClosed` (32764) y ese 
 "Title Disconnect Error". Ambos humanos entran por el MasterServer y estan en `expected_users`, asi que para ids
 `battle-*` la reserva vale aunque la sala ya este cerrada. `0002` solo agrega el log de por que se rechaza un join
 (`journalctl -u luxon-server | grep rejected`).
+
+## Parche `0005-replay-room-properties-to-late-joiner.patch`
+
+El maestro escribe las propiedades de sala (estado de batalla) ~40 ms despues de entrar; si el `JoinGame` del otro
+humano llega despues, esas propiedades solo viajan en la respuesta del join y el cliente (que sale de MatchingScene
+con `CallbackRoomPropertiesUpdate`, es decir con el *evento* PropertiesUpdate) se queda en el lobby. El servidor
+reenvia ahora las propiedades actuales a quien entra segundo en una sala `battle-*` como evento, justo despues de
+la respuesta del join. `0004` solo registra cada operacion (op code) que manda cada peer del GameServer.
