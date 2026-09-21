@@ -15,7 +15,8 @@ validators (was: return null), GetRange/GetDisplayAngles use the offline caves (
 
 Build modes (environment variables): KF_DIAG=1 full KFDIAG trace (DIAG_PATCHES_ARM64), KF_RESULT_DIAG=1 isolated
 ResultManager/ResultScene trace (RESULT_DIAG_PATCHES_ARM64; exclusive with KF_DIAG), KF_NRE_LR=1 (with KF_DIAG)
-log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_EXPERIMENTAL_ALLOCATORS=1.
+log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_EXPERIMENTAL_ALLOCATORS=1,
+KF_PHOTON=1 Photon (LuxonServer) matchmaking flow instead of the offline bridge (see PHOTON_FLOW).
 """
 
 from __future__ import annotations
@@ -555,6 +556,13 @@ def _attack_interval_patches() -> list[dict[str, object]]:
                         "expected": _struct.pack("<I", 0x72A00008 | (ohi << 5)), "replacement": _struct.pack("<I", 0x72A00008 | (hi << 5))})
     return out
 
+
+# Matchmaking flow. The offline set bridges matchmaking completion straight into a local (bot-filled) room and never
+# touches Photon; the Photon set joins the room on a LuxonServer after /battle/start. They cannot coexist in one
+# binary (whichever callback fires first wins, the other flow hangs in the lobby), so KF_PHOTON=1 selects the
+# Photon flow and drops the six offline bridge patches; the default keeps the offline flow. Everything else
+# (crash guards, result scene, RPC handling) is installed in both flavours.
+PHOTON_FLOW = os.environ.get("KF_PHOTON") == "1"
 
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
     "arm64-v8a": [
@@ -1514,12 +1522,12 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("750000b5e0031faa6b38f497"),  # cbnz x21, #0x1506044; mov x0, xzr; bl #0x12141ec
             "replacement": bytes.fromhex("150100b41f2003d51f2003d5"),  # cbz x21, #0x1506058; nop; nop
         },
-        {
+        *([{
             "description": "set NormalMatchingJoinBattleRoomState.GetDelayTime to 0.0s to eliminate lobby join stagger",
             "offset": 0x13EFE74,
             "expected": bytes.fromhex("ff4302d1e82300fd"),  # sub sp, sp, #0x90; str d8, [sp, #0x40]
             "replacement": bytes.fromhex("e003271ec0035fd6"),  # fmov s0, wzr; ret
-        },
+        }] if PHOTON_FLOW else []),
         {
             "description": "safely bypass ReconnectInfo null dereference in GameManager.InitializeReconnect",
             "offset": 0x1570164,
@@ -1559,7 +1567,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("740000b5e0031faa3ac4ea97"),  # cbnz x20, #0x1763108; mov x0, xzr; bl #0x12141ec
             "replacement": bytes.fromhex("b40800b41f2003d51f2003d5"),  # cbz x20, #0x1763210; nop; nop
         },
-        {
+        *([{
             "description": "dispatch CallbackGetAssignments: Case 0 when Assignment.connection_ is empty, Case 1 when populated",
             "offset": 0x13EE484,
             "expected": bytes.fromhex("df120071280b0054c9f100b0e803162a298104912879a8b80801098b00011fd6"),
@@ -1568,8 +1576,8 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             # protobuf uses a non-null empty-string object for Stages 1/2, so testing only
             # the connection_ pointer incorrectly classifies those updates as Success.
             "replacement": bytes.fromhex("880e40f9480200b4090d40f9090200b4291140b9c9010034170000141f2003d5"),
-        },
-        {
+        }] if PHOTON_FLOW else []),
+        *([{
             "description": "commit Stage 3 through the captured NormalMatchingController instead of the racy MatchingManager singleton",
             "offset": 0x13EE548,
             # The original success tail restores the callback frame and calls
@@ -1583,7 +1591,7 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             # the guarded dispatch above only selects Update or Success.
             "expected": bytes.fromhex("fd7b43a9f44f42a9f65741a9e0031e32e1031faaf70744f80dd40314740a40f9740000b5e0031faa"),
             "replacement": bytes.fromhex("680240f9e00313aa8100805203895aa960003fd6fd7b43a9f44f42a9f65741a9f70744f8c0035fd6"),
-        },
+        }] if PHOTON_FLOW else []),
         {
             # LoadDeckSummonModel successfully enqueues the eight distinct summon
             # bundles used by the two human/bot decks.  Its completion callback
@@ -1678,42 +1686,42 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("0924a852"),  # mov w9, #0x41200000 (10.0f)
             "replacement": bytes.fromhex("095ea852"),  # mov w9, #0x42f00000 (120.0f)
         },
-        {
+        *([{
             "description": "bridge matchmaking completion to offline battle room and launch GameScene",
             "offset": 0x13EF4C0,
             "expected": bytes.fromhex("687e019008a141f9000140f947c554948002003657820190f78243f9e00240f9d4c45494f40300aa540000b5"),
             "replacement": bytes.fromhex("e0031f2a01a68e52e2031faadca01394fd7b43a9f44f42a9f65741a9f70744f8c0035fd61f2003d51f2003d5"),
-        },
-        {
+        }] if not PHOTON_FLOW else []),
+        *([{
             "description": "force MatchingManager.IsRoomLocalPlayerMaster to true",
             "offset": 0x14E16AC,
             "expected": bytes.fromhex("e0031faa75d50f14"),  # mov x0, xzr; b #0x18d6c84
             "replacement": bytes.fromhex("20008052c0035fd6"),  # mov w0, #1; ret
-        },
-        {
+        }] if not PHOTON_FLOW else []),
+        *([{
             "description": "store battleRuleInfo and battleInfo into ArchiveData and launch ChangeGameSceneSync in ApplyBattleProperties",
             "offset": 0x17A2148,
             "expected": bytes.fromhex("ffc301d1fc6f01a9fa6702a9f85f03a9f65704a9f44f05a9fd7b06a9fd830191557901b0a87a5d39f40302aaf30301aa"),
             "replacement": bytes.fromhex("f44fbea9fd7b01a9f30301aaf40302aae00314aa94a90394aee96894131801f9141c01f9fd7b41a9f44fc2a8be03f517"),
-        },
-        {
+        }] if not PHOTON_FLOW else []),
+        *([{
             "description": "bypass IsMatched check in NormalMatchingController.BattleStart to allow local battle setup",
             "offset": 0x13EB238,
             "expected": bytes.fromhex("00080037"),
             "replacement": bytes.fromhex("1f2003d5"),
-        },
-        {
+        }] if not PHOTON_FLOW else []),
+        *([{
             "description": "bypass IsRoomLocalPlayerMaster check in NormalMatchingController.BattleStart to allow local battle setup",
             "offset": 0x13EB25C,
             "expected": bytes.fromhex("e0060036"),
             "replacement": bytes.fromhex("1f2003d5"),
-        },
-        {
+        }] if not PHOTON_FLOW else []),
+        *([{
             "description": "bypass premature scene change in CallbackRoomPropertiesUpdate on status 3",
             "offset": 0x13EB720,
             "expected": bytes.fromhex("400a0054"),
             "replacement": bytes.fromhex("1f2003d5"),
-        },
+        }] if not PHOTON_FLOW else []),
         {
             # GetDisplayAngles = _modelCtr.t.eulerAngles + _displayOffsetAngles, i.e. the direction the kicker faces.
             # It used to be stubbed to Vector3.zero (crash on combat start while _modelCtr was still null), which made
