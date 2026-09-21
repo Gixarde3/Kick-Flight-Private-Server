@@ -1934,14 +1934,16 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         # Ready scene ordering. GameStartPresenter.Update starts the READY/GO animation as soon as
         # GameManager.IsAllPlayerLoaded, in parallel with the GameReadyScene cinematic (retail keeps the HUD inactive
         # until the cinematic ends; our flow does not), so GO fired ~15 s before the intro finished and the countdown
-        # never showed (2026-09-21). The cave answers IsAllPlayerLoaded && local PlayerState >= Readied(3); Readied is
-        # only published by WaitReadiedAsync once the cinematic completes. Cave lives in the dead body of
-        # GameManager.<BeginAsync>b__4 (stubbed at its entry above).
+        # never showed (2026-09-21). Retail re-enables the HUD from CallbackRoomPropertiesUpdate(RoomState == Playing)
+        # -> CompleteGameReady, i.e. READY/GO runs only after the master saw every human Readied and moved the room to
+        # Playing (a local-Readied gate deadlocked 2-player rooms: the master reached Playing before the other human
+        # was Readied and IsPlayerStateComplete(Readied) never held). The cave answers
+        # IsAllPlayerLoaded && RoomState >= Playing(6). Cave lives in the dead body of GameManager.<BeginAsync>b__4.
         *([{
-            "description": "cave: GameStartPresenter gate -> IsAllPlayerLoaded && local PlayerState >= Readied (dead body of <BeginAsync>b__4)",
+            "description": "cave: GameStartPresenter gate -> IsAllPlayerLoaded && RoomState >= Playing (dead body of <BeginAsync>b__4)",
             "offset": 0x1579AD0,
             "expected": bytes.fromhex("fd430091948a01b088c65739f30300aae8000037a874019008bd41f9000140b9c8c0f197e803003288c61739740a40f9740000b5e0031faab969f297e00314aa99d2ff97"),
-            "replacement": bytes.fromhex("fd7bbfa941cfff97a0010034e0031faa47740d94c8780190080942f9e97401b0299d43f9e2031f2a010140f9230140f957f011941f0c0071e0b79f1afd7bc1a8c0035fd6"),
+            "replacement": bytes.fromhex("fd7bbfa941cfff97a0010034e0031faa0f770d94a87601b008ad40f9297901d0295946f9e2031f2a010140f9230140f987f211941f180071e0b79f1afd7bc1a8c0035fd6"),
         },
         {
             "description": "GameStartPresenter.Update `bl GameManager.get_IsAllPlayerLoaded` -> bl ready gate cave",
