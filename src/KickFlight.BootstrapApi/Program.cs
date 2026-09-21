@@ -28,8 +28,10 @@ var certificatePassword = builder.Configuration["Certificate:Password"];
 var httpPort = builder.Configuration.GetValue("HttpPort", 8080);
 var grpcPort = builder.Configuration.GetValue("GrpcPort", 18081);
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = 256L * 1024 * 1024);
 builder.WebHost.ConfigureKestrel(options =>
 {
+    options.Limits.MaxRequestBodySize = 256L * 1024 * 1024; // phone bug-report zips on /diag/upload-file
     options.ListenAnyIP(httpPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1);
     options.ListenAnyIP(grpcPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
     if (!string.IsNullOrWhiteSpace(certificatePath) && File.Exists(certificatePath))
@@ -74,6 +76,36 @@ app.MapGet("/apk/photon-diag", () => ServeApk("KickFlight-2.11.0-photon-DIAG.apk
 app.MapGet("/apk/photon-diag-remote", () => ServeApk("KickFlight-2.11.0-photon-DIAG-remote.apk"));
 // Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
 // from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
+// Phone-only diagnostics: open http://<server>:18080/diag in the phone browser and upload a bug report zip
+// (Developer options -> Take bug report) or any log file; saved under .local/run/diag-upload-*.
+app.MapGet("/diag", () => Results.Content("""
+<!doctype html><meta name=viewport content="width=device-width,initial-scale=1">
+<title>KF diag upload</title>
+<body style="font-family:sans-serif;padding:24px;max-width:480px">
+<h2>Kick-Flight diag upload</h2>
+<form method=post action="/diag/upload-file" enctype="multipart/form-data">
+<p><input type=file name=file required></p>
+<p><input type=submit value="Upload" style="font-size:1.2em;padding:8px 24px"></p>
+</form>
+<p style="color:#666">Bug report: Ajustes &gt; Opciones de desarrollador &gt; "Crear informe de errores" (interactivo), luego
+comparte el zip a Archivos/Descargas y subelo aqui. Max 200 MB.</p>
+</body>""", "text/html; charset=utf-8"));
+app.MapPost("/diag/upload-file", async (HttpContext context) =>
+{
+    if (!context.Request.HasFormContentType) return Results.Json(new { error = "multipart form expected" }, statusCode: 400);
+    var form = await context.Request.ReadFormAsync(context.RequestAborted);
+    var file = form.Files.GetFile("file");
+    if (file is null || file.Length == 0) return Results.Json(new { error = "no file" }, statusCode: 400);
+    const long max = 200L * 1024 * 1024;
+    if (file.Length > max) return Results.Json(new { error = "too-large", max }, statusCode: 413);
+    var dir = Path.Combine(repoRoot, ".local", "run");
+    Directory.CreateDirectory(dir);
+    var safeName = string.Concat(Path.GetFileName(file.FileName).Where(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_'));
+    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{(string.IsNullOrEmpty(safeName) ? "file" : safeName)}";
+    await using (var target = File.Create(Path.Combine(dir, name)))
+        await file.CopyToAsync(target, context.RequestAborted);
+    return Results.Content($"<!doctype html><meta name=viewport content=\"width=device-width\"><body style=\"font-family:sans-serif;padding:24px\"><h2>Saved</h2><p>{name}<br>{file.Length} bytes</p><a href=\"/diag\">back</a></body>", "text/html; charset=utf-8");
+});
 app.MapPost("/diag/upload", async (HttpContext context) =>
 {
     var dir = Path.Combine(repoRoot, ".local", "run");
