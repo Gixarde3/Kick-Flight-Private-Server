@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xiaoxuan.tai@digipen.edu>
+Date: Sun, 21 Sep 2026 22:40:00 +0800
+Subject: [PATCH] game: hand mastership to a peer joining a game whose master left
+
+Game::add_peer never touched master_actor, and Game::remove_peer only
+reassigns it when the room is not empty.  Because a game outlives its
+peers (the lobby keeps it for empty_game_ttl), the room can go to zero
+peers with master_actor still pointing at the actor that left -- and
+last_actor_id never rewinds, so the peer that joins next is handed a
+different actor id and the game has no master at all.
+
+That is fatal for Kick-Flight reconnects.  ReconnectInfo learns who the
+master is from the MasterClientId game property carried in the join
+response, so a client that rejoins an emptied battle room is told it is
+not the master; UpdateReconnectWait then takes its non-master branch,
+bails on ReconnectInfo.IsSerializeRead == false every frame (waiting for
+a ReconnectSharedInfo RPC from a master that no longer exists) and ends
+in BeginReconnectFailed once the reconnect budget runs out.  Assign
+mastership to the joiner whenever no live peer holds it.
+---
+ src/game.cpp | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/game.cpp b/src/game.cpp
+index 0a4c16f..496e988 100644
+--- a/src/game.cpp
++++ b/src/game.cpp
+@@ -169,6 +169,16 @@ GamePeer *Game::add_peer(GamePeer&& game_peer) {
+     // Add peer to list
+     auto& fres = peers.emplace_back(game_peer);
+
++    // master_actor is only ever reassigned in remove_peer(), and only while somebody else is still
++    // in the room.  A game outlives its peers (it stays in the lobby for empty_game_ttl), so a peer
++    // joining a game that emptied keeps finding master_actor pointing at the actor that left.  It is
++    // told as much through the MasterClientId game property, and its client-side reconnect state
++    // machine then waits forever for a master that no longer exists -- the reconnecting player is
++    // dropped instead of resumed.  Hand mastership to the joiner whenever the current holder is not
++    // around anymore; same rule remove_peer() applies when the room is not empty.
++    if (!find_peer(master_actor))
++        master_actor = fres.actor_id;
++
+     // Remove user from expected users
+     expected_users.erase(peer->persistent->user_id);
+
+--
+2.52.0.windows.1
+

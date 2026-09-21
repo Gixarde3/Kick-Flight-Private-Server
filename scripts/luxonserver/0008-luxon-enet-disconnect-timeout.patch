@@ -1,0 +1,33 @@
+From f0a50b80078307cc7f358d0da510a249a444bf35 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xiaoxuan.tai@digipen.edu>
+Date: Mon, 21 Sep 2026 20:13:33 +0800
+Subject: [PATCH] enet: honour the 30 s disconnect timeout (server_manager
+ pinned 5000)
+
+ServerManager::setup() builds its EnetPeerConfig by hand and pinned
+disconnect_timeout_ms = 5000, silently overriding the header default of
+30000 that beaf848 ("ENet-default resend tolerance") had raised.  Any peer
+whose reliable command stayed unacknowledged for 5 s was therefore declared
+Stale and disconnected -- that is what expelled live Kick-Flight clients
+during short server->client loss bursts.  Use the same 30000 here so the
+header stays the single source of truth for the intended value.
+---
+ src/server_manager.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/server_manager.cpp b/src/server_manager.cpp
+index b961082..d0cc6bd 100644
+--- a/src/server_manager.cpp
++++ b/src/server_manager.cpp
+@@ -933,7 +933,7 @@ void ServerManager::setup() {
+     enet::EnetPeerConfig cfg;
+     cfg.time_base = enet::EnetPeer::create_time_base();
+     cfg.time_ping_interval_ms = 1000;
+-    cfg.disconnect_timeout_ms = 5000;
++    cfg.disconnect_timeout_ms = 30000; // ENet default (was 5000: a 5 s unacked reliable command expelled live clients)
+ 
+     // Create servers
+     for (const auto& config : configs_) {
+-- 
+2.52.0.windows.1
+

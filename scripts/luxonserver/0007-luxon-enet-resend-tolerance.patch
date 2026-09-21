@@ -1,0 +1,29 @@
+From beaf848d6559c7494eb67e27c317be63db0acee0 Mon Sep 17 00:00:00 2001
+From: tanuki <t@x>
+Date: Mon, 21 Sep 2026 10:50:50 +0000
+Subject: [PATCH] enet: ENet-default resend tolerance (32 resends / 30 s)
+ instead of 7 / 10 s
+
+---
+ include/luxon/enet_peer.hpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/luxon/enet_peer.hpp b/include/luxon/enet_peer.hpp
+index ad77ca4..dc16df1 100644
+--- a/include/luxon/enet_peer.hpp
++++ b/include/luxon/enet_peer.hpp
+@@ -61,9 +61,9 @@ struct EnetPeerConfig {
+ 
+     // Approximate measured values
+     int time_ping_interval_ms = 1000;
+-    int disconnect_timeout_ms = 10000;
++    int disconnect_timeout_ms = 30000;
+ 
+-    uint8_t max_resends = 7; // Allows about 20 seconds of resends
++    uint8_t max_resends = 32; // ENet default; 7 dropped Kick-Flight masters on short server->client loss bursts (2026-09-21)
+     uint8_t fast_resend_count = 0;
+     int max_pending_unreliable_commands = 0;
+ 
+-- 
+2.43.0
+
