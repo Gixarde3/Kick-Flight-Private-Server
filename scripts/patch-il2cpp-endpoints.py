@@ -45,6 +45,12 @@ LITERAL_INDEXES = {
     "ns.exitgames.com": 2039,
 }
 
+# Ready scene. The "ponytail" patches (2026-09-07) skip the whole GameReadyScene intro cinematic (whose end is the
+# 3-2-1 countdown) because the high-model game_ready animators were not served back then, and then fake its
+# completion at PlayGoAnimation / relax the RoomStartTime gate. KF_READY_SCENE=1 drops those seven patches so the
+# retail flow runs (ready cinematic -> countdown -> GO, input locked until then). Experimental, 2026-09-21.
+READY_SCENE = os.environ.get("KF_READY_SCENE") == "1"
+
 # Battle-start / AI diagnostics. Off by default; enable with KF_DIAG=1 when building. Each hook logs an
 # integer through __android_log_print (logcat tag KFDIAG). See docs/CONTINUATION_PROMPT_BATTLE_CRASH_FIX_V2.md §7.
 DIAG_PATCHES_ARM64: list[dict[str, object]] = [
@@ -176,60 +182,60 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
         "expected": bytes.fromhex("f44fbea9"),
         "replacement": bytes.fromhex("af05c617"),
     },
-    {
+    *([{
         "description": "DIAG: region C caves in dead body of GameReadyScene.GetGameReadyAnimationClip (900 ExecuteUpdate, 901 Execute, 902 UpdateTarget, 903 SetCurrentTarget)",
         "offset": 0x176030c,
         "expected": bytes.fromhex("fd7b02a9fd830091537b01f068e25239f40301aae20f00b9e80000376867019008c545f9000140b9b726ea97e803003268e21239a86601f008b545f9000140f9e30eeb97e1031faaf30300aa4b146794740000b5e0031faaa2cfea97e00314aae1031faa4a136794f40300aa730000b5e0031faa9bcfea97e00313aae10314aae2031faa80146794686801b0084940f9e0330091e2031faa010140f95a581794"),
         "replacement": bytes.fromhex("fd7bbda9e00701a9e20f02a9807080520b70f197e20f42a9e00741a9fd7bc3a8f30300aac0035fd6fd7bbda9e00701a9e20f02a9a07080520170f197e20f42a9e00741a9fd7bc3a8f30300aac0035fd6fd7bbda9e00701a9e20f02a9c0708052f76ff197e20f42a9e00741a9fd7bc3a8882e6b39c0035fd6fd7bbda9e00701a9e20f02a9e0708052ed6ff197e20f42a9e00741a9fd7bc3a8f40301aac0035fd6"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: AIPlayerEngine.ExecuteUpdate -> log 900",
         "offset": 0x018049e8,
         "expected": bytes.fromhex("f30300aa"),
         "replacement": bytes.fromhex("496efd97"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: AIPlayerEngine.Execute -> log 901",
         "offset": 0x01804e10,
         "expected": bytes.fromhex("f30300aa"),
         "replacement": bytes.fromhex("496dfd97"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: AIPlayerEngine.UpdateTarget -> log 902",
         "offset": 0x01807170,
         "expected": bytes.fromhex("882e6b39"),
         "replacement": bytes.fromhex("7b64fd97"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: AIPlayerEngine.SetCurrentTarget -> log 903",
         "offset": 0x01806834,
         "expected": bytes.fromhex("f40301aa"),
         "replacement": bytes.fromhex("d466fd97"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG: region C (cont.) caves — 921 WaitForWarpOut, 922 ApplyCancelWarp, 923 ApplyWarp",
         "offset": 0x17603ac,
         "expected": bytes.fromhex("486801b0080540f9e10300aae2031faa080140f9e00308aae34f1894f40300aa730000b5e0031faa86cfea97e00313aae10314aae2031faa88146794a86601d0084146f9f30300aa080140f9099d4439a900083609d940b969000035e00308aa555bea97e00313aae1031faae2031faac5323294e00313aafd7b42a9f44f41a9ffc30091c0035fd6"),
         "replacement": bytes.fromhex("fd7bbda9e00701a9e20f02a920738052e36ff197e20f42a9e00741a9fd7bc3a8f30300aac0035fd6fd7bbda9e00701a9e20f02a940738052d96ff197e20f42a9e00741a9fd7bc3a8f30300aac0035fd6fd7bb9a9e00701a9e20f02a9e08701ade28f02ad60738052cd6ff197e28f42ade08741ade20f42a9e00741a9fd7bc7a828876039c0035fd6"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: WaitForWarpOut -> log 921",
         "offset": 0x0180589c,
         "expected": bytes.fromhex("f30300aa"),
         "replacement": bytes.fromhex("c46afd97"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: ApplyCancelWarp -> log 922",
         "offset": 0x013e4a20,
         "expected": bytes.fromhex("f30300aa"),
         "replacement": bytes.fromhex("6dee0d94"),
-    },
-    {
+    }] if not READY_SCENE else []),
+    *([{
         "description": "DIAG hook: ApplyWarp -> log 923",
         "offset": 0x013e45b8,
         "expected": bytes.fromhex("28876039"),
         "replacement": bytes.fromhex("91ef0d94"),
-    },
+    }] if not READY_SCENE else []),
     {
         "description": "DIAG: cave in ReplayManager.get_ReplayMode body tail — 940+PlayerStateType at PlayerCharacter.SetState",
         "offset": 0x17736a8,
@@ -563,12 +569,6 @@ def _attack_interval_patches() -> list[dict[str, object]]:
 # Photon flow and drops the six offline bridge patches; the default keeps the offline flow. Everything else
 # (crash guards, result scene, RPC handling) is installed in both flavours.
 PHOTON_FLOW = os.environ.get("KF_PHOTON") == "1"
-
-# Ready scene. The "ponytail" patches (2026-09-07) skip the whole GameReadyScene intro cinematic (whose end is the
-# 3-2-1 countdown) because the high-model game_ready animators were not served back then, and then fake its
-# completion at PlayGoAnimation / relax the RoomStartTime gate. KF_READY_SCENE=1 drops those seven patches so the
-# retail flow runs (ready cinematic -> countdown -> GO, input locked until then). Experimental, 2026-09-21.
-READY_SCENE = os.environ.get("KF_READY_SCENE") == "1"
 
 
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
