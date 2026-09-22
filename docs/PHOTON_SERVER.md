@@ -23,9 +23,10 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
   `a84ecc3`: los SHA que antes citaba este
   apartado (`1e9f1e4`, `e093b87`, `1bc49a1`, `4320af8`, `d85e14b`, `f0a50b8`) son los que produce `git am` con el
   mismo padre y autor, es decir los del clon de la VM, no commits de ningún remoto.
-* Al subir la rama, `git-lfs` intenta empujar `WASMImpl/C/cwsdpmi.exe`, el único fichero del upstream que va por
-  LFS, y GitHub lo rechaza (`can not upload new objects to public fork`); ninguno de los diez commits añade objetos
-  LFS (tocan `src/*.cpp` e `include/luxon/enet_peer.hpp`), así que la subida va con `GIT_LFS_SKIP_PUSH=1`. El pin
+* Al subir la rama, `git-lfs` avisa de un objeto pendiente, el de `WASMImpl/C/cwsdpmi.exe` (el único fichero del
+  árbol que va por LFS), y GitHub lo rechaza (`can not upload new objects to public fork`); ninguno de los ocho
+  commits que se suben añade objetos LFS, porque sólo tocan `src/*.cpp`, así que la subida va con
+  `GIT_LFS_SKIP_PUSH=1`. El pin
   arrastra el mismo objeto LFS que ya traía el commit base, así que un clon necesita lo mismo que necesitaba
   clonando `Gixarde3/luxonserver`.
 * Recompilar y desplegar tras tocar el servidor: `ninja -C build` en `~/kickflight/luxonserver`, y después
