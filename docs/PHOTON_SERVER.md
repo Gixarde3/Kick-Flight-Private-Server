@@ -10,8 +10,14 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
 * Binario: `/opt/luxon-server/luxon_server`, config `/opt/luxon-server/config.yml` (= `config.yml` del fork con
   `external_address: 51.79.241.70:<puerto>`). Fuente en `~/kickflight/luxonserver` (fork `Gixarde3/luxonserver`
   @ `a84ecc3` + `scripts/luxonserver/000{1..5}-*.patch` aplicados con `git am` en el fork, y `0006`/`0007-*.patch` aplicados dentro del
-  submodulo `Luxon/` del fork). `0008-*.patch`, `0009-*.patch` y `0010-*.patch` están aplicados en el árbol de
-  trabajo del fork (sin commit todavía); el diff exportado se verificó contra el servidor con `git apply --check -R`.
+  submodulo `Luxon/` del fork). En la VM, `0008-*.patch`, `0009-*.patch` y `0010-*.patch` quedaron aplicados en el
+  árbol de trabajo sin commit (observado el 2026-09-21); el diff exportado se verificó contra el servidor con
+  `git apply --check -R`.
+* Estado del fork y del puntero del submodulo, comprobado el 2026-09-22 en este repo: `0001`-`0005` y `0008` ya son
+  commits del fork (`1e9f1e4`, `e093b87`, `1bc49a1`, `4320af8`, `d85e14b`, `f0a50b8`), y `f0a50b8` es el puntero que
+  fija este repo; `0009` está aplicado sólo en el árbol de trabajo del submodulo (`src/authentication.cpp`, sin
+  commit) y `0010` no está aplicado. Un despliegue nuevo no depende del pin: aplica los diez parches de
+  `scripts/luxonserver/` con `git am` (ver [RECREATE_FROM_SCRATCH.md](RECREATE_FROM_SCRATCH.md) §6).
 * Recompilar y desplegar tras tocar el servidor: `ninja -C build` en `~/kickflight/luxonserver`, y después
   `sudo systemctl stop luxon-server && sudo cp build/luxon_server /opt/luxon-server/ && sudo systemctl start
   luxon-server`. El `cp` falla con "Text file busy" si el servicio sigue arriba. Copia de seguridad del binario
@@ -50,7 +56,7 @@ La prioridad es que los humanos jueguen juntos; los bots son el relleno, no el d
 **Sin verificar (Photon)**: el tope de la sala es el `MaxPlayers` que manda el cliente que la crea
 (`handler_gameserver.cpp:460-462`) y luxon solo lo aplica si `max_peers > 0` (su `MaxGamePeers` es 0). Ese literal no
 aparece en este repo: si el cliente pide 2, el 3er humano recibiría `GameFull` y haría falta un parche luxon
-(`scripts/luxonserver/0011-*`) que lo suba a 8 en salas `battle-*`. Comprobar con 2 y luego 3 humanos.
+(`0011-*`, todavía sin escribir) que lo suba a 8 en salas `battle-*`. Comprobar con 2 y luego 3 humanos.
 
 **Sin verificar (cliente)**: el cliente despacha cualquier update con `Connection` vacío como `UpdatePlayers` y
 refresca las ranuras, así que updates de más son inocuos; pero en este repo nunca se ha enviado un roster intermedio
@@ -69,8 +75,8 @@ Sin `KF_PHOTON=1` el APK usa el puente offline (sala local con bots) y nunca toc
 Los dos humanos reciben el id de sala en el Stage 3 a la vez; el segundo `JoinGame` llega al MasterServer antes de
 que el creador haya entrado al GameServer (`is_created == false`) y `validate_join` respondía `GameIdNotExists`, que
 el cliente trata como desconexion fatal ("Title Disconnect Error" en el jugador 2). El parche deja pasar ese caso para
-ids `battle-*`; el handler del GameServer ya crea o une al llegar. Pendiente: subirlo al fork `Gixarde3/luxonserver` y
-actualizar el puntero del submodulo.
+ids `battle-*`; el handler del GameServer ya crea o une al llegar. Está en el fork (`1e9f1e4`) y el puntero del
+submodulo de este repo ya lo incluye.
 
 ## Parche `0003-expected-users-join-closed-battle-room.patch`
 

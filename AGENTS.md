@@ -46,9 +46,9 @@ producción; solo sirve para leer qué hace el cliente por dentro. Documentació
 4. Antes de cada prueba `adb logcat -c`; después `adb logcat -d -v time > .local/run/logcat-<nombre>.txt`.
    Lectores: `python scripts/re/attack_diag_read.py <archivo>` (ataques básicos/combos, línea de tiempo legible),
    `adb logcat -d -s KFDIAG` para todo lo demás (tabla de valores en `scripts/re/README.md` y las cabeceras de
-   `attack_diag_caves.py` / `warp_diag_caves.py`).
+   `attack_diag_caves.py` / `warp_diag_caves.py` / `reconnect_diag_caves.py`).
 
-### Sondas actuales (2026-09-20)
+### Sondas actuales (actualizado 2026-09-22)
 
 | Valores | Qué dicen | Fuente |
 | --- | --- | --- |
@@ -58,6 +58,7 @@ producción; solo sirve para leer qué hace el cliente por dentro. Documentació
 | 6200–6421 | fin de skill, CrossFade, nunchaku, acople de armas, PlayIdle | idem (región F) |
 | 7700–7830 | warp de Hitagi (KS sin objetivo), `SetVisible` | `scripts/re/warp_diag_caves.py` |
 | 8100–8823 | bucle de ataque básico: combo, `IsUpdateAction` con motivos (`87x0/87x1`) y estado actual (`8790+n`), alcance, ángulos, `IsAttack`, `Play*AttackIn`, destrucción de colisiones (`8800+tipo`, `8810+impactos`) | `scripts/re/attack_diag_caves.py` |
+| 8901–8992 | reconexión Photon tras un corte: entrada de `CallbackDisconnected` y su causa, identidad del objeto que arrancó la máquina de estados (`8921`), `UpdateReconnect` con `_reconnectInfo` nulo (`8961`), `SetReconnectState`, `IsReconnectEnable`, el ida y vuelta de RPC de reconexión (`8981`-`8985`) y la causa final (`8992`) | `scripts/re/reconnect_diag_caves.py` |
 | LR crudo | origen de cada NRE (`KF_NRE_LR=1`) | cave H |
 
 ### Añadir o cambiar una sonda
