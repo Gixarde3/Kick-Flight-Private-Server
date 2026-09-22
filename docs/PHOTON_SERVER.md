@@ -13,11 +13,21 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
   submodulo `Luxon/` del fork). En la VM, `0008-*.patch`, `0009-*.patch` y `0010-*.patch` quedaron aplicados en el
   árbol de trabajo sin commit (observado el 2026-09-21); el diff exportado se verificó contra el servidor con
   `git apply --check -R`.
-* Estado del fork y del puntero del submodulo, comprobado el 2026-09-22 en este repo: `0001`-`0005` y `0008` ya son
-  commits del fork (`1e9f1e4`, `e093b87`, `1bc49a1`, `4320af8`, `d85e14b`, `f0a50b8`), y `f0a50b8` es el puntero que
-  fija este repo; `0009` está aplicado sólo en el árbol de trabajo del submodulo (`src/authentication.cpp`, sin
-  commit) y `0010` no está aplicado. Un despliegue nuevo no depende del pin: aplica los diez parches de
-  `scripts/luxonserver/` con `git am` (ver [RECREATE_FROM_SCRATCH.md](RECREATE_FROM_SCRATCH.md) §6).
+* Estado del fork y del puntero del submodulo, comprobado el 2026-09-22 con `git ls-remote`: la rama
+  **`tanuki-server` de `tanukifurhire/luxonserver`** (base `a84ecc3`, punta `a3539b8`) lleva ocho de los diez
+  parches como commits, los que tocan `src/*.cpp` (`0001`-`0005` y `0008`-`0010`), sin trailers de atribución, y
+  `a3539b8` es el puntero que fija este repo (`.gitmodules` apunta a ese fork y declara `branch = tanuki-server`).
+  Los otros dos, `0006` y `0007`, van dentro del submódulo anidado `Luxon/`, cuyo puntero esta rama no toca (sigue
+  en `9424d75`): se aplican aparte, como dice la tabla de
+  [RECREATE_FROM_SCRATCH.md](RECREATE_FROM_SCRATCH.md) §6.4. `Gixarde3/luxonserver` sólo tiene `main` en
+  `a84ecc3`: los SHA que antes citaba este
+  apartado (`1e9f1e4`, `e093b87`, `1bc49a1`, `4320af8`, `d85e14b`, `f0a50b8`) son los que produce `git am` con el
+  mismo padre y autor, es decir los del clon de la VM, no commits de ningún remoto.
+* Al subir la rama, `git-lfs` intenta empujar `WASMImpl/C/cwsdpmi.exe`, el único fichero del upstream que va por
+  LFS, y GitHub lo rechaza (`can not upload new objects to public fork`); ninguno de los diez commits añade objetos
+  LFS (tocan `src/*.cpp` e `include/luxon/enet_peer.hpp`), así que la subida va con `GIT_LFS_SKIP_PUSH=1`. El pin
+  arrastra el mismo objeto LFS que ya traía el commit base, así que un clon necesita lo mismo que necesitaba
+  clonando `Gixarde3/luxonserver`.
 * Recompilar y desplegar tras tocar el servidor: `ninja -C build` en `~/kickflight/luxonserver`, y después
   `sudo systemctl stop luxon-server && sudo cp build/luxon_server /opt/luxon-server/ && sudo systemctl start
   luxon-server`. El `cp` falla con "Text file busy" si el servicio sigue arriba. Copia de seguridad del binario
@@ -75,8 +85,8 @@ Sin `KF_PHOTON=1` el APK usa el puente offline (sala local con bots) y nunca toc
 Los dos humanos reciben el id de sala en el Stage 3 a la vez; el segundo `JoinGame` llega al MasterServer antes de
 que el creador haya entrado al GameServer (`is_created == false`) y `validate_join` respondía `GameIdNotExists`, que
 el cliente trata como desconexion fatal ("Title Disconnect Error" en el jugador 2). El parche deja pasar ese caso para
-ids `battle-*`; el handler del GameServer ya crea o une al llegar. Está en el fork (`1e9f1e4`) y el puntero del
-submodulo de este repo ya lo incluye.
+ids `battle-*`; el handler del GameServer ya crea o une al llegar. Está en la rama `tanuki-server` de
+`tanukifurhire/luxonserver` y el puntero del submodulo de este repo (`a3539b8`) lo incluye.
 
 ## Parche `0003-expected-users-join-closed-battle-room.patch`
 

@@ -1,3 +1,4 @@
 [submodule "submodules/luxonserver"]
 	path = submodules/luxonserver
-	url = https://github.com/niansa/LuxonServer.GIT
+	url = https://github.com/tanukifurhire/luxonserver.git
+	branch = tanuki-server

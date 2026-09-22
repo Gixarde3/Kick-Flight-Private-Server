@@ -144,15 +144,20 @@ cd kickflight
 git submodule update --init --recursive
 ```
 
-El submódulo `submodules/luxonserver` es el servidor de partidas. **Ojo con el
-origen**: `.gitmodules` apunta a un repositorio y el commit registrado puede
-vivir sólo en otro. Si `git submodule update` falla con
+El submódulo `submodules/luxonserver` es el servidor de partidas. `.gitmodules`
+apunta a la rama `tanuki-server` de `tanukifurhire/luxonserver`, que es donde
+viven como commits los ocho parches que tocan `src/*.cpp` (`0001`-`0005` y
+`0008`-`0010`, punta `a3539b8`); los dos restantes van dentro del submódulo
+`Luxon/` y se aplican aparte (§6.4). El `main`
+de ese fork y el de `Gixarde3/luxonserver` se quedan en el punto de partida
+`a84ecc3` (que ya trae el commit de Kick-Flight de Gixarde3, `485d0d0`, pero
+ninguno de los diez parches). Si `git submodule update` falla con
 `reference is not a tree` / `not our ref`, el commit grabado no está en el
 remoto configurado; añade el remoto que sí lo tiene y vuelve a intentarlo:
 
 ```bash
 cd submodules/luxonserver
-git remote add fork <url-del-fork-con-los-parches>
+git remote add fork https://github.com/tanukifurhire/luxonserver.git
 git fetch fork
 git checkout <sha-registrado-en-el-repositorio-padre>
 ```
@@ -526,8 +531,16 @@ del repositorio **no funciona** con este árbol; la buena es la de §6.4.
 Es el mismo problema del [§3](#3-fase-1--clonar-incluido-el-submódulo), pero aquí
 importa más: si clonas el upstream `niansa/LuxonServer` tal cual, **no tendrás
 ninguno de los parches de Kick-Flight** y las partidas fallarán de formas que
-parecen errores del cliente. Asegúrate de que el remoto del que partes contiene
-los commits de `scripts/luxonserver/*.patch`.
+parecen errores del cliente. Parte de la rama `tanuki-server` de
+`tanukifurhire/luxonserver`, que ya los lleva como commits:
+
+```bash
+git clone --branch tanuki-server https://github.com/tanukifurhire/luxonserver.git
+```
+
+Si partes de otro sitio (el upstream, o el `main` de `Gixarde3/luxonserver`, que
+se queda en `a84ecc3`), tendrás que aplicar los commits de
+`scripts/luxonserver/*.patch`.
 
 ### 6.3 Inicializa los submódulos anidados
 
@@ -557,10 +570,11 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 && ninja -C build
 ```
 
-> **Comprueba el estado real de 0008–0010 antes de fiarte.** El documento
-> [PHOTON_SERVER.md](PHOTON_SERVER.md) describe los tres como cambios sin
-> comitear en el árbol de trabajo; en el checkout del autor 0008 es un commit
-> (`f0a50b8`), 0009 está aplicado sin comitear y **0010 no está aplicado**. Se
+> **Comprueba el estado real de 0008–0010 antes de fiarte.** Si partes de la rama
+> `tanuki-server` (punta `a3539b8`) los ocho parches de la raíz ya son commits y este
+> paso sobra; `0006` y `0007` se siguen aplicando dentro de `Luxon/`. En el checkout de
+> la VM, [PHOTON_SERVER.md](PHOTON_SERVER.md) describe 0008, 0009 y
+> 0010 como cambios sin comitear en el árbol de trabajo (observado el 2026-09-21). Se
 > comprueba en un segundo con `git apply --check -R <parche>`: si el parche está
 > aplicado, el chequeo inverso pasa. El 0010 es el que entrega el mastership a un
 > peer que entra en una partida cuyo master se fue, y sin él la reconexión no
