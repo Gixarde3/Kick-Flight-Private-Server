@@ -4,6 +4,24 @@ Repositorio independiente para preservar y reconstruir, de forma local, el proto
 
 El estado actual es un arnés .NET 8 ejecutable y probado. Intercepta los tres hosts first-party, registra observaciones redacted y sólo responde con fixtures locales. La ejecución real confirmó y aceptó dos contratos mínimos: `POST /boot/index` con GRE/D2C (AES-256-CBC/PKCS7) y `GET /v1/list/12345/0` con una base Octo protobuf vacía. La APK alcanza la pantalla `TAP START` de la versión 2.11.0.
 
+## Montarlo desde cero en tus propias máquinas
+
+Lo que sigue es el arranque rápido del arnés local, que sigue siendo válido para
+desarrollo. Si lo que quieres es **levantar una copia completa** (API,
+PostgreSQL, CDN de assets, servidor Photon y cliente parcheado) en tus propias
+máquinas, empieza por ahí y no por aquí:
+
+| documento | para qué |
+| --- | --- |
+| [docs/RECREATE_FROM_SCRATCH.md](docs/RECREATE_FROM_SCRATCH.md) | la guía de punta a punta, en fases, con lo que **no** está en el repositorio |
+| [docs/ENVIRONMENT_REFERENCE.md](docs/ENVIRONMENT_REFERENCE.md) | todas las claves de configuración y variables de entorno, una por una |
+| [deploy/README.md](deploy/README.md) | el despliegue concreto del autor (TrueNAS + nginx + PostgreSQL) |
+
+Los documentos de la era del arnés de arranque (`PHASE1_*`, `HOME_DEMO_STATUS.md`,
+`CONTINUATION_PROMPT_*`) se conservan por trazabilidad histórica, pero describen
+un estado anterior del proyecto: no cubren Photon, ni PostgreSQL, ni el
+despliegue en contenedores.
+
 ## Inicio rápido del servidor
 
 ### macOS (APK directa, sin proxy ni CA)
@@ -124,9 +142,16 @@ Después se aplica el proxy del emulador con `configure-android-proxy.ps1`. La i
 
 ## Pruebas
 
+Requiere el SDK de .NET 8 en el `PATH` (`dotnet --version`); no hay ninguna copia
+de `dotnet` dentro del repositorio.
+
 ```powershell
-.\.local\tools\dotnet\dotnet.exe test .\KickFlight.PrivateServer.sln --nologo
+dotnet test .\KickFlight.PrivateServer.sln --nologo
+python tests\test_teamtype.py
 ```
+
+Las pruebas de la API usan un host en proceso contra una base de datos de
+descarte, así que no tocan tus partidas guardadas.
 
 Consulta [docs/PHASE1_RESULT.md](docs/PHASE1_RESULT.md) para el resultado observado,
 [docs/HOME_DEMO_STATUS.md](docs/HOME_DEMO_STATUS.md) para el contrato estático y
