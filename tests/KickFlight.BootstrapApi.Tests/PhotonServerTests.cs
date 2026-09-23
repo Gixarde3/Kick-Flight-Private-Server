@@ -17,7 +17,7 @@ public sealed class PhotonServerTests
         Assert.Equal(5056, options.GameServerPort);
         Assert.Equal(5058, options.NameServerPort);
         Assert.Equal("luxon-server", options.ContainerName);
-        Assert.Equal("https://github.com/Gixarde3/luxonserver.git", options.RepositoryUrl);
+        Assert.Equal("https://github.com/tanukifurhire/luxonserver.git", options.RepositoryUrl);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class PhotonServerTests
         var initial = manager.GetStatus();
 
         Assert.True(initial.Enabled);
-        Assert.Equal("https://github.com/Gixarde3/luxonserver.git", initial.RepositoryUrl);
+        Assert.Equal("https://github.com/tanukifurhire/luxonserver.git", initial.RepositoryUrl);
 
         var checkedStatus = await manager.CheckHealthAsync();
         Assert.NotNull(checkedStatus);

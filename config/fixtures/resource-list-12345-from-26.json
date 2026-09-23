@@ -1,0 +1,13 @@
+{
+  "id": "accepted-octo-title-minimum-12345-from-26",
+  "enabled": true,
+  "host": "kickflight-resource-api.grenge.jp",
+  "method": "GET",
+  "path": "/v1/list/12345/26",
+  "statusCode": 200,
+  "contentType": "application/x-protobuf",
+  "headers": {
+    "x-kickflight-fixture": "accepted-octo-title-minimum-12345-from-26"
+  },
+  "bodyBase64": "CBoqHWh0dHA6Ly8xMC4wLjIuMjoxODA4MC9jZG4ve299"
+}

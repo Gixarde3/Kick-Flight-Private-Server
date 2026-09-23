@@ -2,7 +2,7 @@
   {
     "id": 1,
     "kickerId": 1,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2010101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -27,7 +27,7 @@
   {
     "id": 2,
     "kickerId": 2,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2020101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -52,7 +52,7 @@
   {
     "id": 3,
     "kickerId": 3,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2030101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -77,7 +77,7 @@
   {
     "id": 4,
     "kickerId": 4,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2040101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -102,7 +102,7 @@
   {
     "id": 5,
     "kickerId": 5,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2050101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -127,7 +127,7 @@
   {
     "id": 6,
     "kickerId": 6,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2060101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -152,7 +152,7 @@
   {
     "id": 7,
     "kickerId": 7,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2070101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -177,7 +177,7 @@
   {
     "id": 8,
     "kickerId": 8,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2080101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -202,7 +202,7 @@
   {
     "id": 9,
     "kickerId": 9,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2090101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -227,7 +227,7 @@
   {
     "id": 10,
     "kickerId": 10,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2100101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -252,7 +252,7 @@
   {
     "id": 11,
     "kickerId": 11,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2110101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -277,7 +277,7 @@
   {
     "id": 12,
     "kickerId": 12,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2120101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -302,7 +302,7 @@
   {
     "id": 13,
     "kickerId": 13,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2130101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,
@@ -327,7 +327,7 @@
   {
     "id": 14,
     "kickerId": 14,
-    "kickerCostumeId": 1,
+    "kickerCostumeId": 2140101,
     "attackMotivation": 60,
     "defenseMotivation": 40,
     "scoreMotivation": 70,

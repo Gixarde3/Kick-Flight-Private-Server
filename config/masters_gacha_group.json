@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Gacha de discos",
+    "sortOrder": 1,
+    "gachaType": 0,
+    "bannerImageFilename": "banner_gacha_000.unity3d",
+    "startDatetime": "2019-01-01 00:00:00",
+    "endDatetime": "2030-01-01 23:59:59",
+    "drawableTermDay": 0,
+    "informationText": "Consigue discos nuevos con los tickets de gacha.",
+    "noticeText": "Cada tirada consume un ticket de gacha de discos."
+  },
+  {
+    "id": 2,
+    "name": "Gacha de Kickers",
+    "sortOrder": 2,
+    "gachaType": 1,
+    "bannerImageFilename": "banner_gacha_101.unity3d",
+    "startDatetime": "2019-01-01 00:00:00",
+    "endDatetime": "2030-01-01 23:59:59",
+    "drawableTermDay": 0,
+    "informationText": "Consigue trajes de kicker con los tickets de gacha.",
+    "noticeText": "Cada tirada consume un ticket de gacha de Kickers."
+  }
+]

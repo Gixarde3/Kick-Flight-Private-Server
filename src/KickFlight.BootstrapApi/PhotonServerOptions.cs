@@ -10,6 +10,6 @@ public sealed class PhotonServerOptions
     public int GameServerPort { get; set; } = 5056;
     public int NameServerPort { get; set; } = 5058;
     public string ContainerName { get; set; } = "luxon-server";
-    public string RepositoryUrl { get; set; } = "https://github.com/Gixarde3/luxonserver.git";
+    public string RepositoryUrl { get; set; } = "https://github.com/tanukifurhire/luxonserver.git";
     public int HealthCheckTimeoutMs { get; set; } = 1500;
 }

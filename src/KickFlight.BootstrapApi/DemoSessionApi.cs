@@ -2,10 +2,11 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using KickFlight.BootstrapApi.PlayerStore;
 
 namespace KickFlight.BootstrapApi;
 
-public sealed class DemoSessionApi
+public sealed partial class DemoSessionApi
 {
     private const string CommonCode = "1a837b9ee2ae11a07a0f529a4cd4b61c";
     // The client keeps its downloaded masters until this header changes, so it must follow the content:
@@ -14,54 +15,65 @@ public sealed class DemoSessionApi
     public string MasterVersion { get; private set; } = "demo-master-v27";
     private const string AccessToken = "demo-access-token-0000000000000000000000000000";
 
-    public sealed class SessionState
-    {
-        public string UserId { get; set; } = "1000001";
-        public string UserName { get; set; } = "Gixarde3";
-        public int KickerId { get; set; } = 1;
-        public int KickerCostumeId { get; set; } = 1;
-        public int ActiveDeckNumber { get; set; } = 1;
-        public Dictionary<int, List<int>> Decks { get; set; } = new()
-        {
-            [1] = [3010001, 3010002, 3010003, 3010004],
-            [2] = [3010005, 3010006, 3010007, 3010008],
-            [3] = [3010009, 3010010, 3010011, 3010012],
-            [4] = [3010013, 3010014, 3010020, 3010022],
-            [5] = [3010023, 3010024, 3010029, 3010030]
-        };
-        public Dictionary<int, UserDiscState> Discs { get; set; } = new();
-        public int ItemJetCoins { get; set; } = 208754;
-        public int ItemPaidJetCoins { get; set; } = 10000;
-        public int ItemDiscForce { get; set; } = 999999;
-        public int ItemKickPoints { get; set; } = 50000;
-    }
+    // Rank is per player and persisted now (player_ranks, via IPlayerStore); the table it indexes into, the
+    // range that renders, and the per-battle delta live in RankProgression.
 
-    public sealed class UserDiscState
-    {
-        public int DiscId { get; set; }
-        public int Level { get; set; } = 10;
-        public int Amount { get; set; } = 99;
-    }
+    // Onboarding status, which is how the player is made to choose a name.
+    //
+    // TutorialUtil.IsTutorial is literally "tutorialProgressStatus != 207", and GetTutorialInitialSubStep maps
+    // 206 to sub-step 16 (InputName), which HomeCharacterSelectView.RefreshTutorial opens as the name-entry
+    // window. So: 206 while the player has no name, 207 once they do. Never 0 - that starts the long tutorial
+    // at TapSlot, whose capsuleOpen / discBuildup / gachaDraw steps would each need a real inventory.
+    //
+    // Verified by decompiling the client; no client modification is involved.
+    public const int TutorialStatusInputName = 206;
+    public const int TutorialStatusComplete = 207;
+
+    private static int TutorialStatus(SessionState state) =>
+        state.HasName ? TutorialStatusComplete : TutorialStatusInputName;
+
+    // The regular ladder. Only this one is progressed today (see HandleBattleResultAsync); the other two rule
+    // types are reported at the same standing so the client's rank list has all three entries it expects.
+    public const int RegularBattleRuleType = 1;
+    private static readonly int[] RankedBattleRuleTypes = [1, 2, 3];
+
+    private object[] BuildBattleRankList(SessionState state) =>
+        RankedBattleRuleTypes.Select(ruleType =>
+        {
+            var rank = _playerStore.LoadRank(state.PlayerId, ruleType);
+            return (object)new { battleRuleType = ruleType, battlePoint = rank.BattlePoint, rank = rank.Rank };
+        }).ToArray();
 
     private readonly string _contentRoot;
-    private readonly ConcurrentDictionary<string, byte[]> _keysByAccessToken = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, SessionState> _sessionStateByToken = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, string> _userIdByUuid = new(StringComparer.Ordinal);
-    // The known-good two-client trace used the neutral Kicker 1 fixtures for
-    // users 1000003 and 1000004. User 1000001 is intentionally customized for
-    // the later Tsubame probe, so keep clean entry runs isolated from it.
-    private int _userCounter = 1000002;
+    // A live session, key and state together. One dictionary rather than two parallel ones so the two can
+    // never disagree about which tokens are known.
+    //
+    // This is a cache, not the record: the record is the store's sessions table. A token that is not here may
+    // still be valid - it was issued before a restart - so a miss is resolved against the store, and only a
+    // miss in both is a rejection.
+    private sealed record CachedSession(byte[] Key, SessionState State);
+
+    private readonly ConcurrentDictionary<string, CachedSession> _sessions = new(StringComparer.Ordinal);
+    private readonly IPlayerStore _playerStore;
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
+    private readonly Dictionary<int, int> _battleRuleTypeById = [];
     private readonly List<KickerInfo> _kickerList = [];
+    // kickerId -> KickerCostume master ROW ids. The client keys everything by row id (KickerCostumeMaster is a plain
+    // TMasterBase: UserKickerInfo.kickerCostumeId, /kicker/change, BattleInfo all carry the row id; it saves e.g. 110
+    // for Hitagi's standard colour, 64 for Owlbert's), not by the per-kicker costumeId column (1, 2, 3...).
     private readonly Dictionary<int, List<int>> _costumesByKicker = [];
+    private readonly Dictionary<int, int> _costumeKicker = [];   // row id -> kickerId
     private readonly List<int> _discIdList = [];
+    private readonly List<int> _gearIdList = [];                 // Gear master row ids, the pool gear/create rolls from
     private readonly ILogger<DemoSessionApi> _logger;
     private readonly BattleMatchmakingService _matchmaking;
 
-    public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment, BattleMatchmakingService matchmaking)
+    public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
+        BattleMatchmakingService matchmaking, IPlayerStore playerStore)
     {
         _logger = logger;
         _matchmaking = matchmaking;
+        _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
         InitializeMasters(environment.ContentRootPath);
     }
@@ -90,13 +102,14 @@ public sealed class DemoSessionApi
             foreach (var el in cDoc.RootElement.EnumerateArray())
             {
                 var kickerId = el.GetProperty("kickerId").GetInt32();
-                var costumeId = el.TryGetProperty("costumeId", out var cProp) ? cProp.GetInt32() : el.GetProperty("id").GetInt32();
+                var costumeRowId = el.GetProperty("id").GetInt32();
                 if (!_costumesByKicker.TryGetValue(kickerId, out var cList))
                 {
                     cList = [];
                     _costumesByKicker[kickerId] = cList;
                 }
-                cList.Add(costumeId);
+                cList.Add(costumeRowId);
+                _costumeKicker[costumeRowId] = kickerId;
             }
         }
         catch (Exception ex)
@@ -106,8 +119,12 @@ public sealed class DemoSessionApi
 
         if (_kickerList.Count == 0)
         {
+            // Only reached when the masters above could not be parsed at all. The costume is KickerCostume's
+            // composite row id for kicker 1 / costume 1 rather than "1", because every id the server hands
+            // the client is a lookup key into that master, not an index into our own files.
             _kickerList.Add(new KickerInfo(1, "Tsubame"));
-            _costumesByKicker[1] = [1];
+            _costumesByKicker[1] = [2010101];
+            _costumeKicker[2010101] = 1;
         }
 
         _encryptedMasters["Kicker"] = EncryptMaster(kickerJson);
@@ -118,27 +135,56 @@ public sealed class DemoSessionApi
         _encryptedMasters["KickerAbilityCondition"] = EncryptMaster(abilityConditionJson);
         _encryptedMasters["Translation"] = EncryptMaster(translationJson);
 
-        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
+        // FieldManager.InitializeAsync does FieldMaster[fieldId] and silently gives up (FieldInfo stays null, every
+        // PlayerCharacter.Initialize then NREs and the loading screen never ends) when the row is missing. 801 is the
+        // flat Trial arena BattleUtil.CreateTrialBattleInfo hard-codes (fld00801 / fielddata/fld00801_100 / mim00801_0).
+        // One row per arena of BattleMatchmakingService.FieldPool (+ the home stage 99999 and the Trial arena 801).
+        _encryptedMasters["Field"] = EncryptMaster("""[{"id":99999,"name":"FLD99999","minimapId":99999,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":801,"name":"FLD00801","minimapId":801,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":101,"name":"FLD00101","minimapId":101,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":301,"name":"FLD00301","minimapId":301,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":401,"name":"FLD00401","minimapId":401,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":601,"name":"FLD00601","minimapId":601,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":701,"name":"FLD00701","minimapId":701,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0},{"id":901,"name":"FLD00901","minimapId":901,"minimapSizeX":100,"minimapSizeY":100,"itemPostionMasterId":0}]""");
         // hp = turret HP per deposited crystal (StepHpValue; max HP = hp x crystal carry limit). Basic hits deal their
         // raw attack x coefficient to the turret and a kicker with four lv10 discs attacks for ~2000-3000, so 8000 =
         // about three hits per crystal (300 stripped ~10 crystals per hit). attack = beam damage before the receiver's
-        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot).
-        _encryptedMasters["GuardianParameter"] = EncryptMaster("""[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        // scaling (150 came out as ~50 on a ~40k HP kicker; 6000 = ~2000 per shot). Row 2 is the ball-rule goal
+        // guardian: NPCRevivalableGuardian.SetMaxHP is MAX_HP_STEP_AMOUNT (6) x hp, so 6 x 3000 = 18000 = ~7 hits.
+        // The file is the source; the literal is only the fallback for a checkout without config/.
+        var guardianParameterJson = LoadJson(contentRoot, "config/masters_guardian_parameter.json", """[{"id":1,"matchType":1,"rank":1,"hp":8000,"attack":6000}]""");
+        _encryptedMasters["GuardianParameter"] = EncryptMaster(guardianParameterJson);
         // guardianAmount is per team: GameManager.CreateGuardian spawns it for both teams and indexes
         // FieldManager.GetGuardianInitialPosition, and FLD00101_1 (the crystal-rule variant) has exactly two
-        // guardian points; the flag/ball variants have none, so only battleRuleType 1 gets turrets.
-        _encryptedMasters["BattleRule"] = EncryptMaster("""
+        // guardian points; the ball variants (rules 3/4) also spawn one guard per goal, which must be destroyed
+        // before the team can score. The file is the source; the literal is only the fallback.
+        var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", """
             [
               {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":3,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
               {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
               {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
             ]
             """);
-        _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":100},{"id":2,"battleRuleId":2,"fieldId":101,"ratio":100},{"id":3,"battleRuleId":3,"fieldId":101,"ratio":100},{"id":4,"battleRuleId":4,"fieldId":101,"ratio":100},{"id":5,"battleRuleId":5,"fieldId":101,"ratio":100},{"id":6,"battleRuleId":6,"fieldId":101,"ratio":100}]""");
-        _encryptedMasters["RegularMatchBattleSchedule"] = EncryptMaster("""
+        _encryptedMasters["BattleRule"] = EncryptMaster(battleRuleJson);
+        // id -> battleRuleType, read by /battle/start to pick the guardian for the requested rule. Parsed once here
+        // because the request handler only sees the rule id, not its type.
+        try
+        {
+            using var brDoc = JsonDocument.Parse(battleRuleJson);
+            foreach (var el in brDoc.RootElement.EnumerateArray())
+            {
+                if (el.TryGetProperty("id", out var idProp) && el.TryGetProperty("battleRuleType", out var typeProp))
+                {
+                    _battleRuleTypeById[idProp.GetInt32()] = typeProp.GetInt32();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Error parsing battle rule json: {Error}", ex.Message);
+        }
+
+        // every rule can be played on every arena of the pool (equal ratio); the server, not the client, draws the field
+        _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":16},{"id":2,"battleRuleId":1,"fieldId":301,"ratio":16},{"id":3,"battleRuleId":1,"fieldId":401,"ratio":16},{"id":4,"battleRuleId":1,"fieldId":601,"ratio":16},{"id":5,"battleRuleId":1,"fieldId":701,"ratio":16},{"id":6,"battleRuleId":1,"fieldId":901,"ratio":16},{"id":7,"battleRuleId":2,"fieldId":101,"ratio":16},{"id":8,"battleRuleId":2,"fieldId":301,"ratio":16},{"id":9,"battleRuleId":2,"fieldId":401,"ratio":16},{"id":10,"battleRuleId":2,"fieldId":601,"ratio":16},{"id":11,"battleRuleId":2,"fieldId":701,"ratio":16},{"id":12,"battleRuleId":2,"fieldId":901,"ratio":16},{"id":13,"battleRuleId":3,"fieldId":101,"ratio":16},{"id":14,"battleRuleId":3,"fieldId":301,"ratio":16},{"id":15,"battleRuleId":3,"fieldId":401,"ratio":16},{"id":16,"battleRuleId":3,"fieldId":601,"ratio":16},{"id":17,"battleRuleId":3,"fieldId":701,"ratio":16},{"id":18,"battleRuleId":3,"fieldId":901,"ratio":16},{"id":19,"battleRuleId":4,"fieldId":101,"ratio":16},{"id":20,"battleRuleId":4,"fieldId":301,"ratio":16},{"id":21,"battleRuleId":4,"fieldId":401,"ratio":16},{"id":22,"battleRuleId":4,"fieldId":601,"ratio":16},{"id":23,"battleRuleId":4,"fieldId":701,"ratio":16},{"id":24,"battleRuleId":4,"fieldId":901,"ratio":16},{"id":25,"battleRuleId":5,"fieldId":101,"ratio":16},{"id":26,"battleRuleId":5,"fieldId":301,"ratio":16},{"id":27,"battleRuleId":5,"fieldId":401,"ratio":16},{"id":28,"battleRuleId":5,"fieldId":601,"ratio":16},{"id":29,"battleRuleId":5,"fieldId":701,"ratio":16},{"id":30,"battleRuleId":5,"fieldId":901,"ratio":16},{"id":31,"battleRuleId":6,"fieldId":101,"ratio":16},{"id":32,"battleRuleId":6,"fieldId":301,"ratio":16},{"id":33,"battleRuleId":6,"fieldId":401,"ratio":16},{"id":34,"battleRuleId":6,"fieldId":601,"ratio":16},{"id":35,"battleRuleId":6,"fieldId":701,"ratio":16},{"id":36,"battleRuleId":6,"fieldId":901,"ratio":16}]""");
+        // The file is the source; the literal is only the fallback.
+        var regularMatchScheduleJson = LoadJson(contentRoot, "config/masters_regular_match_battle_schedule.json", """
             [
               {"id":1,"seasonMatchBattleRuleType":3,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":1,"sortOrder":1},
               {"id":2,"seasonMatchBattleRuleType":3,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":2,"sortOrder":2},
@@ -148,6 +194,7 @@ public sealed class DemoSessionApi
               {"id":6,"seasonMatchBattleRuleType":-1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":3,"sortOrder":3}
             ]
             """);
+        _encryptedMasters["RegularMatchBattleSchedule"] = EncryptMaster(regularMatchScheduleJson);
         _encryptedMasters["RankerMatchBattleSchedule"] = EncryptMaster("""
             [
               {"id":1,"seasonMatchBattleRuleType":1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1},
@@ -156,21 +203,35 @@ public sealed class DemoSessionApi
               {"id":4,"seasonMatchBattleRuleType":-1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1}
             ]
             """);
+        // Retail is rows 1..17 (rank 0..16): D, C, C⁺, B, B⁺, A, A⁺, S, S⁺1 … S⁺9 — one row per league badge the
+        // client ships (ui/league/thumbnail_league_0 … _16, see config/resources/catalog.json). The rank glyphs are
+        // resolved by index, so a short table shifts every name by one and the two top ranks have no sprite at all:
+        // BattleRankMaster.OnLoadComplete picks RegularEndRank as the first row with regularMatchFlag == 0, and
+        // BattleUtil.GetDisplayRankPath caps rank to RegularEndRank.Rank with variant 1 (asset thumbnail_league_<n>_1)
+        // for battleRuleType 1. Retail ships exactly one such variant asset, thumbnail_league_7_1 (S with the up
+        // arrow), so RegularEndRank must be rank 7 = S: regularMatchFlag is true for ranks 0..6 and false from rank 7.
+        // With the old 12-row table RegularEndRank was rank 4 and an S-rank player asked for thumbnail_league_4_1 /
+        // _11_1, neither of which exists — the Image kept a null sprite, which is the empty rectangle in the
+        // mode-selection banner and the black rectangle beside the lobby portrait.
         _encryptedMasters["BattleRank"] = EncryptMaster("""
             [
               {"id":1,"name":"D","rank":0,"regularMatchFlag":true,"totalBattlePoint":0,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
               {"id":2,"name":"C","rank":1,"regularMatchFlag":true,"totalBattlePoint":200,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":3,"name":"B","rank":2,"regularMatchFlag":true,"totalBattlePoint":500,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":4,"name":"A","rank":3,"regularMatchFlag":true,"totalBattlePoint":900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":5,"name":"S","rank":4,"regularMatchFlag":false,"totalBattlePoint":1400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":6,"name":"S⁺1","rank":5,"regularMatchFlag":false,"totalBattlePoint":1900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":7,"name":"S⁺2","rank":6,"regularMatchFlag":false,"totalBattlePoint":2400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":8,"name":"S⁺3","rank":7,"regularMatchFlag":false,"totalBattlePoint":2900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":9,"name":"S⁺4","rank":8,"regularMatchFlag":false,"totalBattlePoint":3400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":10,"name":"S⁺5","rank":9,"regularMatchFlag":false,"totalBattlePoint":3900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":11,"name":"S⁺6","rank":10,"regularMatchFlag":false,"totalBattlePoint":4400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":12,"name":"S⁺7","rank":11,"regularMatchFlag":false,"totalBattlePoint":5000,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
-              {"id":13,"name":"S⁺6","rank":13,"regularMatchFlag":false,"totalBattlePoint":4877,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false}
+              {"id":3,"name":"C⁺","rank":2,"regularMatchFlag":true,"totalBattlePoint":500,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":4,"name":"B","rank":3,"regularMatchFlag":true,"totalBattlePoint":900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":5,"name":"B⁺","rank":4,"regularMatchFlag":true,"totalBattlePoint":1400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":6,"name":"A","rank":5,"regularMatchFlag":true,"totalBattlePoint":1900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":7,"name":"A⁺","rank":6,"regularMatchFlag":true,"totalBattlePoint":2400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":8,"name":"S","rank":7,"regularMatchFlag":false,"totalBattlePoint":2900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":9,"name":"S⁺1","rank":8,"regularMatchFlag":false,"totalBattlePoint":3400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":10,"name":"S⁺2","rank":9,"regularMatchFlag":false,"totalBattlePoint":3900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":11,"name":"S⁺3","rank":10,"regularMatchFlag":false,"totalBattlePoint":4400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":12,"name":"S⁺4","rank":11,"regularMatchFlag":false,"totalBattlePoint":4900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":13,"name":"S⁺5","rank":12,"regularMatchFlag":false,"totalBattlePoint":5400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":14,"name":"S⁺6","rank":13,"regularMatchFlag":false,"totalBattlePoint":5900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":15,"name":"S⁺7","rank":14,"regularMatchFlag":false,"totalBattlePoint":6400,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":16,"name":"S⁺8","rank":15,"regularMatchFlag":false,"totalBattlePoint":6900,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false},
+              {"id":17,"name":"S⁺9","rank":16,"regularMatchFlag":false,"totalBattlePoint":7500,"winBattlePointCoefficient":1.0,"loseBattlePointCoefficient":1.0,"demontioableFlag":false}
             ]
             """);
         _encryptedMasters["CapsuleCampaign"] = EncryptMaster("""[{"id":1,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59","coefficient":0.5}]""");
@@ -249,22 +310,46 @@ public sealed class DemoSessionApi
                             weaponTypes.TryGetValue(k, out var kwt);
                             string bone;
                             var attach = 1;                                               // PropAttachType.Child
-                            if (p == 1) bone = kwt == 4 ? "Prop_Common" : "Prop_R";      // a Drone hovers from the body
-                            else if (p == 2) bone = "Prop_L";
-                            else if (p == 201 && kwt == 11) bone = "wp_010_001_Grip_L";  // Nunchaku free stick hangs off the handle's Grip_L locator
-                            else if (p == 201 && (kwt == 4 || (kwt == 10 && m >= 100)))
+                            // Bone names come from the client: ShieldPropTypeExtensions/LaserPropTypeTypeExtensions.AttachBoneName
+                            // resolve the wrist props by "Prop_R2"/"Prop_L2" (Buzzy's shields, Sid's lasers - the *2 bones sit on
+                            // the forearm with the opposite orientation, which is why Prop_L put the left shield on the wrong side of
+                            // the arm and the lasers pointed sideways); everything hand-held uses "Prop_R"/"Prop_L".
+                            // Drone (Owlbert) and Nunchaku (Yuyan) weapons are animated by the body clips: the clips bind
+                            // "Root/wp_005_001_Root/wp_005_001_Hip/..." (the drone hover, and the SS mini drones under
+                            // wp_005_101_Root / wp_005_201_Root), ".../Hand_R/Prop_R/wp_010_001_Root/wp_010_001_Grip_L" (the
+                            // nunchaku swing / dangling panda head) and "Root/wp_010_201_Root" (the SS panda mount), so those rows
+                            // need the exact bone and the model root renamed to "wp_<kicker>_<prop>_Root" (Weapon.Initialize sets
+                            // the instantiated model's name from rootName). Verified with scripts/re/anim_paths.py (CRC32 path
+                            // hashes of every clip vs. the body + weapon prefab hierarchies).
+                            var wristProps = kwt == 9 || kwt == 13;                       // Shield, Laser
+                            if (p == 1) bone = kwt == 4 ? "Root" : wristProps ? "Prop_R2" : "Prop_R";
+                            else if (p == 2) bone = wristProps ? "Prop_L2" : "Prop_L";
+                            else if (p == 201 && kwt == 11) bone = "Root";               // Nunchaku panda mount (NunchakuPandaAction)
+                            else if (p == 101 && kwt == 13) bone = "Root";               // Laser prop 101 = Sid's decoy statue (LaserPropType.KickerSkillStatue):
+                                                                                        // StatueTrapAction..ctor does ModelManager.InstantiateWeaponModel(kicker,
+                                                                                        // model, 101, parent: trap) and LoadManager only preloads the weapon
+                                                                                        // bundles that have a Weapon row (LoadWeaponModelAsync ->
+                                                                                        // GetWeaponAttachData), so without this row the cache misses and the
+                                                                                        // kicker skill NREs in the ctor (logcat 2026-09-21). Hidden on the
+                                                                                        // player like every prop >= 100; "Root" so LaserAttackAction's
+                                                                                        // GetWeapon("Prop_R2") never resolves to the statue.
+                            else if ((p == 201 && (kwt == 4 || kwt == 10)) || (p == 101 && kwt == 4))
                             {
-                                // Bat (Jay): only the high (cut-in) model gets the row - with a prop-201 row on the battle model
-                                // (wp_009_001_201) the client SIGSEGVs ~7 s into GameScene (logcat 14Mon09 01:28, 17:18:31).
+                                // Drone prop 101 is the drone unit itself: NPCDrone.InitializeAsync instantiates weapon prop 101
+                                // and reads owner.GetWeapon(101).ModelCtr, so Owlbert's kicker skill (silence drone trap) and
+                                // special (smog drones for the team) spawn nothing without this row.
+                                // HighPlayerCharacter builds its weapons from the modelId-1 rows too (ObjectUtil.
+                                // GetHighWeaponAttachData(id, 1)), so the cut-in rows must exist for modelId 1, not only 101.
                                 // Drone (Owlbert) and Bat (Jay) special-skill cut-ins call HighPlayerCharacter.GetWeapon(201)
                                 // and dereference its ModelCtr (DroneSpecialSkillCutAction/BatSpecialSkillCutAction.Initialize):
                                 // without a 201 row the NRE kills PlayerCharacter.ResetPlayer and the battle never loads.
-                                // Attached as a Child of the base bone like prop 1 (the cut-in shows/hides it itself); the old
-                                // breakage with 101/201 rows came from serving them as PropAttachType.Replace rows.
-                                bone = kwt == 4 ? "Prop_Common" : "Prop_R";
+                                // Attached as a Child like prop 1 (props >= 100 are hidden by Weapon.Initialize and shown by the
+                                // skill code itself); the old breakage with 101/201 rows came from serving them as
+                                // PropAttachType.Replace rows.
+                                bone = kwt == 4 ? "Root" : "Prop_R";
                             }
                             else continue;
-                            weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = "", attachType = attach });
+                            weaponList.Add(new { id = weaponId++, kickerId = k, modelId = m, propId = p, boneName = bone, rootName = $"wp_{k:000}_{p:000}_Root", attachType = attach });
                         }
                         loadedFromCatalog = true;
                         _logger.LogInformation("Loaded {Count} authentic weapon master entries from catalog.json", weaponList.Count);
@@ -346,14 +431,22 @@ public sealed class DemoSessionApi
         _encryptedMasters["PlayerLevelExp"] = EncryptMaster(JsonSerializer.Serialize(levelExpList));
 
         _encryptedMasters["Frame"] = EncryptMaster("""[{"id":1,"name":"Marco estándar","battleRuleId":0}]""");
-        _encryptedMasters["Item"] = EncryptMaster("""
+        // ItemMasterData: MasterData(id) + goodsType, name, maxAmount. ids 1-4 are the legacy counters; 5-8 carry the
+        // goodsTypes the gear screen (202 gear stamps), the gacha (401/402 tickets) and the goods shop trade in.
+        var itemJson = """
             [
               {"id":1,"goodsType":101,"name":"JetCoin","maxAmount":9999999},
               {"id":2,"goodsType":102,"name":"PaidJetCoin","maxAmount":9999999},
               {"id":3,"goodsType":302,"name":"DiscForce","maxAmount":9999999},
-              {"id":4,"goodsType":701,"name":"KickPoint","maxAmount":9999999}
+              {"id":4,"goodsType":701,"name":"KickPoint","maxAmount":9999999},
+              {"id":5,"goodsType":202,"name":"GearMaterial","maxAmount":9999999},
+              {"id":6,"goodsType":303,"name":"DiscFragment","maxAmount":9999999},
+              {"id":7,"goodsType":401,"name":"KickerGachaTicket","maxAmount":9999999},
+              {"id":8,"goodsType":402,"name":"DiscGachaTicket","maxAmount":9999999}
             ]
-            """);
+            """;
+        _encryptedMasters["Item"] = EncryptMaster(itemJson);
+        ParseItemMaster(itemJson);
 
         var discJson = LoadJson(contentRoot, "config/masters_disc.json", "[]");
         var skillJson = LoadJson(contentRoot, "config/masters_skill.json", "[]");
@@ -383,6 +476,19 @@ public sealed class DemoSessionApi
             for (var i = 3010001; i <= 3010135; i++) _discIdList.Add(i);
         }
 
+        try
+        {
+            using var gDoc = JsonDocument.Parse(gearJson);
+            foreach (var el in gDoc.RootElement.EnumerateArray())
+            {
+                _gearIdList.Add(el.GetProperty("id").GetInt32());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Error parsing gear master json: {Error}", ex.Message);
+        }
+
         _encryptedMasters["Disc"] = EncryptMaster(ApplyObscuredOffsets("Disc", discJson));
         _encryptedMasters["Skill"] = EncryptMaster(ApplyObscuredOffsets("Skill", skillJson));
         _encryptedMasters["DiscGrow"] = EncryptMaster(discGrowJson);
@@ -398,7 +504,7 @@ public sealed class DemoSessionApi
         var aiDeckJson = LoadJson(contentRoot, "config/masters_kicker_ai_disc_deck.json", "[]");
         var pingThresholdJson = LoadJson(contentRoot, "config/masters_matchmaking_ping_threshold.json", "[]");
 
-        _encryptedMasters["KickerAiParameter"] = EncryptMaster(aiParamJson);
+        _encryptedMasters["KickerAiParameter"] = EncryptMaster(AppendGymAiRows(aiParamJson));
         _encryptedMasters["KickerAiDisc"] = EncryptMaster(aiDiscJson);
         _encryptedMasters["KickerAiDiscDeck"] = EncryptMaster(aiDeckJson);
         _encryptedMasters["MatchmakingPingThreshold"] = EncryptMaster(pingThresholdJson);
@@ -438,11 +544,14 @@ public sealed class DemoSessionApi
             _encryptedMasters[masterName] = EncryptMaster(ApplyObscuredOffsets(masterName, json));
         }
 
+        // PlayerStateDeposit.get_DepositTime = powf(depositCount, crystalDepositSpeedCoefficient) - 0.2, depositCount
+        // starting at 1 and +1 per crystal of the same deposit. 1.0 made every consecutive crystal slower (0.8, 1.8,
+        // 2.8 s ...); a negative exponent makes them faster: -0.5 -> 0.8, 0.51, 0.38, 0.30, 0.25 s.
         _encryptedMasters["BattleRuleScramble"] = EncryptMaster("""
             [
-              {"id":1,"battleRuleId":1,"crystalDepositSpeedCoefficient":1.0},
-              {"id":2,"battleRuleId":5,"crystalDepositSpeedCoefficient":1.0},
-              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":1.0}
+              {"id":1,"battleRuleId":1,"crystalDepositSpeedCoefficient":-0.1},
+              {"id":2,"battleRuleId":5,"crystalDepositSpeedCoefficient":-0.1},
+              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":-0.1}
             ]
             """);
 
@@ -476,6 +585,13 @@ public sealed class DemoSessionApi
             ]
             """);
 
+        // BallShootRuleController.GetScore / FlagFlightRuleController.GetScore read these every frame and at match end
+        // (RuleControllerBase.CalcScore); a missing row NREs and the client never leaves "Cargando". The lookup is
+        // TMasterBase.get_Item(battleRuleId) - by row *id*, with a hard-coded fallback to id 3 - so each row's id must
+        // equal its battleRuleId (verified 2026-09-19: ids 1/2 kept the NRE, ids 3/4 fixed it).
+        _encryptedMasters["BattleRuleRapidBallScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_rapid_ball_score.json", "[]"));
+        _encryptedMasters["BattleRuleFlagFlightScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_flag_flight_score.json", "[]"));
+
         _encryptedMasters["Guardian"] = EncryptMaster("""
             [
               {"id":1,"modelId":1,"skillId":1,"attack":100,"defense":100,"laserLength":50.0,"targetSearchRadius":30.0,"aIInterval":1.0}
@@ -489,7 +605,35 @@ public sealed class DemoSessionApi
             kickerAiParameterId = k
         });
         _encryptedMasters["KickerAi"] = EncryptMaster(JsonSerializer.Serialize(kickerAis));
-        _encryptedMasters["TutorialKickerAi"] = EncryptMaster("[]");
+
+        // The tutorial fights a scripted battle instead of loading a normal home, which is why this table cannot
+        // stay empty. HomeScene.<PreBeginAsync>d__3 skips NetworkManager.HomeAsync whenever TutorialUtil.IsTutorial
+        // (tutorialProgressStatus != 207), so the tutorial scene has to get everything it needs from the masters;
+        // with no rows here the lookup came back null, the home never finished loading and the client hung on the
+        // LOADING splash with a NullReferenceException in that same MoveNext (verified 2026-09-22: logcat
+        // 17:30:52.923, and no POST /home/index in the API log at all).
+        //
+        // The rows mirror KickerAi, whose shape is proven against this client (bots fight with it). The extra keys
+        // are deliberate: the tutorial's row class is TutorialKickerAiMasterData and we have not recovered its
+        // field list, so each row carries the spellings the KickerAi family uses - the family prefixes the *class*
+        // (KickerAiMasterData, KickerAiDiscDeckMasterData) but shares the *fields* (id, kickerAiParameterId,
+        // kickerAiDiscId1..4) - and Unity's JsonUtility ignores the ones the class does not declare. Remove the
+        // aliases once the real field list is known. kickerAiDiscDeckId stays 1 because KickerAiDiscDeck has rows
+        // 1..6 and a reference to a missing deck is the same kind of null.
+        var tutorialKickerAis = Enumerable.Range(1, 14).Select(k => new
+        {
+            id = k,
+            kickerId = k,
+            kickerAiParameterId = k,
+            kickerAiDiscDeckId = 1,
+            tutorialKickerAiId = k,
+            tutorialKickerAiParameterId = k
+        });
+        _encryptedMasters["TutorialKickerAi"] = EncryptMaster(JsonSerializer.Serialize(tutorialKickerAis));
+
+        // Round C: the gacha and goods shop tables (config/masters_gacha_group.json and friends), plus the drop
+        // tables the draw endpoints read. Registered here so the master hash covers them too.
+        InitializeGachaMasters(contentRoot);
 
         using (var sha = SHA256.Create())
         {
@@ -505,72 +649,104 @@ public sealed class DemoSessionApi
         _logger.LogInformation("Master version {MasterVersion} ({Count} tables)", MasterVersion, _encryptedMasters.Count);
     }
 
-    private SessionState GetOrCreateUserState(string userId)
+    // Loads a player, creating them empty if the id is unknown, and repairs whatever the masters no longer
+    // support. The repair is policy, which is why it stays here: it needs _discIdList, and the store is only
+    // responsible for persisting the document.
+    private SessionState GetOrCreateUserState(long playerId)
     {
-        var usersDir = Path.Combine(_contentRoot, "data", "users");
-        Directory.CreateDirectory(usersDir);
-        var userFile = Path.Combine(usersDir, $"{userId}.json");
-
-        if (File.Exists(userFile))
+        var loaded = _playerStore.TryLoad(playerId);
+        if (loaded is not null)
         {
-            try
+            foreach (var discId in _discIdList)
             {
-                var json = File.ReadAllText(userFile);
-                var loaded = JsonSerializer.Deserialize<SessionState>(json);
-                if (loaded != null)
+                if (!loaded.Discs.ContainsKey(discId))
                 {
-                    loaded.UserId = userId;
-                    foreach (var discId in _discIdList)
-                    {
-                        if (!loaded.Discs.ContainsKey(discId))
-                        {
-                            loaded.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
-                        }
-                    }
-                    // a deck slot pointing at a disc that no longer exists in masters_disc.json makes the
-                    // client throw in PlayerDeckParameter..ctor and the battle never loads: swap it for a valid disc
-                    foreach (var (deckNumber, deck) in loaded.Decks)
-                    {
-                        for (var slot = 0; slot < deck.Count; slot++)
-                        {
-                            if (_discIdList.Contains(deck[slot])) continue;
-                            var replacement = _discIdList.FirstOrDefault(id => !deck.Contains(id), _discIdList[0]);
-                            _logger.LogWarning("User {UserId} deck {Deck} slot {Slot}: disc {DiscId} is not in the masters, replaced with {Replacement}",
-                                userId, deckNumber, slot + 1, deck[slot], replacement);
-                            deck[slot] = replacement;
-                        }
-                    }
-                    return loaded;
+                    // A disc added to the masters after this save was written: hand it over at the base level so
+                    // the client's disc list matches the masters it just downloaded.
+                    loaded.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
                 }
             }
-            catch (Exception ex)
+            // a deck slot pointing at a disc that no longer exists in masters_disc.json makes the
+            // client throw in PlayerDeckParameter..ctor and the battle never loads: swap it for a valid disc
+            foreach (var (deckNumber, deck) in loaded.Decks)
             {
-                _logger.LogWarning("Error loading user state for {UserId}: {Error}", userId, ex.Message);
+                for (var slot = 0; slot < deck.Count; slot++)
+                {
+                    if (_discIdList.Contains(deck[slot])) continue;
+                    var replacement = _discIdList.FirstOrDefault(id => !deck.Contains(id), _discIdList[0]);
+                    _logger.LogWarning("User {PlayerId} deck {Deck} slot {Slot}: disc {DiscId} is not in the masters, replaced with {Replacement}",
+                        playerId, deckNumber, slot + 1, deck[slot], replacement);
+                    deck[slot] = replacement;
+                }
             }
+            return loaded;
         }
 
-        var state = new SessionState { UserId = userId };
-        foreach (var discId in _discIdList)
-        {
-            state.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
-        }
+        var state = NewUserState(playerId);
         SaveUserState(state);
         return state;
     }
 
-    private void SaveUserState(SessionState state)
+    private SessionState NewUserState(long playerId)
+    {
+        var state = new SessionState { UserId = playerId.ToString() };
+        foreach (var discId in _discIdList)
+        {
+            state.Discs[discId] = new UserDiscState { DiscId = discId, Level = 10, Amount = 99 };
+        }
+        return state;
+    }
+
+    private void SaveUserState(SessionState state, string? uuid = null) => _playerStore.Save(state, uuid);
+
+    // Gym-mode bots use KickerAiParameter row id 100 + kickerId (BattleMatchmakingService.GymAiParameterBase): a copy
+    // of the kicker's real row with every motivation at 0, no lock-on and very long skill/dash intervals, so even a
+    // client without the Mannequin patch mostly stands still. The row must exist or the bot never gets an AI engine.
+    private static string AppendGymAiRows(string aiParamJson)
     {
         try
         {
-            var usersDir = Path.Combine(_contentRoot, "data", "users");
-            Directory.CreateDirectory(usersDir);
-            var userFile = Path.Combine(usersDir, $"{state.UserId}.json");
-            var json = JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(userFile, json);
+            var rows = System.Text.Json.Nodes.JsonNode.Parse(aiParamJson) as System.Text.Json.Nodes.JsonArray;
+            if (rows is null) return aiParamJson;
+            var extra = new List<System.Text.Json.Nodes.JsonNode>();
+            foreach (var row in rows)
+            {
+                if (row is not System.Text.Json.Nodes.JsonObject obj) continue;
+                var copy = (System.Text.Json.Nodes.JsonObject)obj.DeepClone();
+                copy["id"] = BattleMatchmakingService.GymAiParameterBase + (obj["id"]?.GetValue<int>() ?? 0);
+                copy["attackMotivation"] = 0;
+                copy["defenseMotivation"] = 0;
+                copy["scoreMotivation"] = 0;
+                copy["canLockon"] = false;
+                foreach (var col in new[] { "attackDashInterval", "defenseDashInterval", "scoreDashInterval", "attackSkillInterval",
+                                            "healSkillInterval", "buffSkillInterval", "trapSkillInterval", "warpSkillInterval" })
+                {
+                    copy[col] = 9999.0;
+                }
+                extra.Add(copy);
+            }
+            foreach (var e in extra) rows.Add(e);
+            return rows.ToJsonString();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogWarning("Error saving user state for {UserId}: {Error}", state.UserId, ex.Message);
+            return aiParamJson;
+        }
+    }
+
+    // A costume row that belongs to another kicker (hand-edited user file, or a file saved before costume ids were
+    // row ids) makes KickerDisplayPresenter.UpdateView work on the wrong kicker's costume; fall back to the kicker's
+    // first row (its standard colour).
+    private void NormalizeCostume(SessionState state)
+    {
+        if (_costumeKicker.TryGetValue(state.KickerCostumeId, out var owner) && owner == state.KickerId)
+        {
+            return;
+        }
+        if (_costumesByKicker.TryGetValue(state.KickerId, out var rows) && rows.Count > 0)
+        {
+            _logger.LogInformation("Costume {Costume} does not belong to kicker {Kicker}; using row {Row}", state.KickerCostumeId, state.KickerId, rows[0]);
+            state.KickerCostumeId = rows[0];
         }
     }
 
@@ -633,19 +809,27 @@ public sealed class DemoSessionApi
         var accessToken = context.Request.Headers["x-app-access-token"].ToString();
         if (string.IsNullOrEmpty(accessToken)) return null;
 
-        if (!_keysByAccessToken.TryGetValue(accessToken, out var key))
+        // The access token decides whose state this is, and there is deliberately no fallback: the previous
+        // behaviour, handing an unrecognised token the most recently issued session key, meant a stale or
+        // forged token read and wrote another player's state. A token the store does not know is a rejection.
+        if (!_sessions.TryGetValue(accessToken, out var cached))
         {
-            if (_keysByAccessToken.Count > 0)
+            var session = _playerStore.FindSession(accessToken);
+            if (session is null)
             {
-                key = _keysByAccessToken.Values.Last();
+                _logger.LogWarning("Rejecting unknown access token {Token}", accessToken);
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers["x-app-status-code"] = "1";
+                return Results.Empty;
             }
-            else
-            {
-                key = Encoding.ASCII.GetBytes(CommonCode);
-            }
+            // Issued before this process started, which is why the player id comes from the session row rather
+            // than from anything in memory: that is what makes a client's identity survive a redeploy.
+            cached = new CachedSession(session.Key, GetOrCreateUserState(session.PlayerId));
+            cached = _sessions.GetOrAdd(accessToken, cached);
         }
 
-        var state = _sessionStateByToken.GetOrAdd(accessToken, _ => GetOrCreateUserState("default-user"));
+        var key = cached.Key;
+        var state = cached.State;
 
         if (path == "/training/index")
         {
@@ -668,6 +852,44 @@ public sealed class DemoSessionApi
             return await HandleDiscBuildupAsync(context, state, key);
         }
 
+        if (path == "/gear/create")
+        {
+            return await HandleGearCreateAsync(context, state, key);
+        }
+
+        if (path == "/gear/set")
+        {
+            return await HandleGearSetAsync(context, state, key);
+        }
+
+        if (path == "/gear/destroy")
+        {
+            return await HandleGearDestroyAsync(context, state, key);
+        }
+
+        // Round C: the gacha screens, the goods shop, and the real-money IAP endpoints the shop view also calls.
+        if (path.StartsWith("/gacha/", StringComparison.Ordinal))
+        {
+            var gacha = await TryHandleGachaAsync(path, context, state, key);
+            if (gacha is not null) return gacha;
+        }
+
+        if (path.StartsWith("/goodsShop/", StringComparison.Ordinal) || path.StartsWith("/shop/", StringComparison.Ordinal))
+        {
+            var shop = await TryHandleShopAsync(path, context, state, key);
+            if (shop is not null) return shop;
+        }
+
+        // The name-entry window's submit. This is the only place a name is set on a new account, so it must
+        // persist before answering: the client re-issues /startup/index the moment this returns, and that reply
+        // has to carry both the name and tutorialProgressStatus = 207 or the home is left inconsistent.
+        if (path == "/tutorial/end")
+        {
+            return await HandleTutorialEndAsync(context, state, key);
+        }
+
+        // Every other /tutorial/* step (capsuleOpen, discBuildup, gachaDraw, ...) belongs to the long tutorial
+        // the player is never put on - see TutorialStatus - so they stay stubs.
         if (path.StartsWith("/tutorial/", StringComparison.Ordinal))
         {
             context.Response.Headers["x-app-status-code"] = "0";
@@ -764,6 +986,11 @@ public sealed class DemoSessionApi
             return BinaryJson("{}", key);
         }
 
+        // Screens the client opens but this server has no data for (rankings, presents, missions, replays...).
+        // They answer with a schema-complete neutral payload so the UI renders instead of showing "Network Error".
+        var stub = await TryHandleStubAsync(path, context, state, key);
+        if (stub is not null) return stub;
+
         return null;
     }
 
@@ -783,10 +1010,7 @@ public sealed class DemoSessionApi
             {
                 state.KickerCostumeId = costumeProp.GetInt32();
             }
-            else if (_costumesByKicker.TryGetValue(state.KickerId, out var defaultCostumes) && defaultCostumes.Count > 0)
-            {
-                state.KickerCostumeId = defaultCostumes[0];
-            }
+            NormalizeCostume(state);
 
             SaveUserState(state);
             _logger.LogInformation("Session updated: KickerId={KickerId}, CostumeId={CostumeId}", state.KickerId, state.KickerCostumeId);
@@ -899,8 +1123,125 @@ public sealed class DemoSessionApi
         }
     }
 
+    // Slot array of a costume: always three entries, padded from whatever the save file holds (a file from before
+    // gear support, or a short hand-edited array, must read as empty slots instead of throwing).
+    private static int[] GearSlots(SessionState state, int kickerCostumeId)
+    {
+        var slots = new int[3];
+        if (state.CostumeGears is not null && state.CostumeGears.TryGetValue(kickerCostumeId, out var stored) && stored is not null)
+        {
+            Array.Copy(stored, slots, Math.Min(stored.Length, slots.Length));
+        }
+        return slots;
+    }
+
+    // The one error shape this server uses: any non-zero x-app-status-code aborts the client flow and it shows the
+    // generic error toast for that screen. The body stays schema-shaped so nothing is left half-deserialized.
+    private static LocalFixtureResult StatusError(HttpContext context, byte[] key)
+    {
+        context.Response.Headers["x-app-status-code"] = "1";
+        return BinaryJson("{}", key);
+    }
+
+    // gear/create: retail rolls a random gear for the requested kicker and hands the id back; the player then either
+    // equips it (gear/set) or discards it (gear/destroy), both of which clear the pending roll.
+    private async Task<IResult?> HandleGearCreateAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        var kickerId = state.KickerId;
+        try
+        {
+            if (body.Length > 0)
+            {
+                var plaintext = D2CCodec.Decode(body, key);
+                using var document = JsonDocument.Parse(plaintext);
+                if (document.RootElement.TryGetProperty("kickerId", out var kickerProp))
+                {
+                    kickerId = kickerProp.GetInt32();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not decode gear create request: {Error}", ex.Message);
+            return StatusError(context, key);
+        }
+
+        if (_gearIdList.Count == 0 || _kickerList.All(k => k.Id != kickerId))
+        {
+            _logger.LogWarning("Rejected gear/create for unknown kicker {KickerId} ({GearCount} gears in master)", kickerId, _gearIdList.Count);
+            return StatusError(context, key);
+        }
+
+        var gearId = _gearIdList[Random.Shared.Next(_gearIdList.Count)];
+        state.PendingGear = new PendingGearState { KickerId = kickerId, GearId = gearId };
+        SaveUserState(state);
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-gear-create";
+        _logger.LogInformation("Rolled gear {GearId} for kicker {KickerId} (user {UserId})", gearId, kickerId, state.UserId);
+        return BinaryJson($"{{\"gearId\":{gearId}}}", key);
+    }
+
+    private async Task<IResult?> HandleGearSetAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        try
+        {
+            var plaintext = D2CCodec.Decode(body, key);
+            using var document = JsonDocument.Parse(plaintext);
+            var root = document.RootElement;
+            var costumeId = root.TryGetProperty("kickerCostumeId", out var costumeProp) ? costumeProp.GetInt32() : 0;
+            var slotNumber = root.TryGetProperty("gearIdNumber", out var slotProp) ? slotProp.GetInt32() : 0;
+
+            var gearId = state.PendingGear?.GearId ?? 0;
+            if (slotNumber is < 1 or > 3 || !_costumeKicker.ContainsKey(costumeId) || !_gearIdList.Contains(gearId))
+            {
+                _logger.LogWarning("Rejected gear/set: costume={CostumeId} slot={Slot} pendingGear={GearId}", costumeId, slotNumber, gearId);
+                return StatusError(context, key);
+            }
+
+            if (!state.CostumeGears.TryGetValue(costumeId, out var slots))
+            {
+                slots = new int[3];
+                state.CostumeGears[costumeId] = slots;
+            }
+            else if (slots.Length < 3)
+            {
+                Array.Resize(ref slots, 3);
+                state.CostumeGears[costumeId] = slots;
+            }
+            slots[slotNumber - 1] = gearId;
+            state.PendingGear = new PendingGearState();
+            SaveUserState(state);
+
+            context.Response.Headers["x-app-status-code"] = "0";
+            context.Response.Headers["x-kickflight-fixture"] = "dynamic-gear-set";
+            _logger.LogInformation("Equipped gear {GearId} in slot {Slot} of costume {CostumeId} (user {UserId})", gearId, slotNumber, costumeId, state.UserId);
+            return BinaryJson("{}", key);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not decode gear set request: {Error}", ex.Message);
+            return StatusError(context, key);
+        }
+    }
+
+    private Task<IResult?> HandleGearDestroyAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        state.PendingGear = new PendingGearState();
+        SaveUserState(state);
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-gear-destroy";
+        _logger.LogInformation("Discarded the pending gear of user {UserId}", state.UserId);
+        return Task.FromResult<IResult?>(BinaryJson("{}", key));
+    }
+
     private string BuildStartupJson(SessionState state, HttpRequest request)
     {
+        NormalizeCostume(state);
+        var pendingGear = state.PendingGear ?? new PendingGearState();
         var userKickerList = _kickerList.Select(k =>
         {
             var costumes = _costumesByKicker.GetValueOrDefault(k.Id, [1]);
@@ -909,12 +1250,16 @@ public sealed class DemoSessionApi
             {
                 kickerId = k.Id,
                 kickerCostumeId = selectedCostume,
-                userKickerCostumeList = costumes.Select(c => new
+                userKickerCostumeList = costumes.Select(c =>
                 {
-                    kickerCostumeId = c,
-                    gearId1 = 0,
-                    gearId2 = 0,
-                    gearId3 = 0
+                    var slots = GearSlots(state, c);
+                    return new
+                    {
+                        kickerCostumeId = c,
+                        gearId1 = slots[0],
+                        gearId2 = slots[1],
+                        gearId3 = slots[2]
+                    };
                 }).ToArray()
             };
         }).ToArray();
@@ -943,14 +1288,16 @@ public sealed class DemoSessionApi
             userKickerList,
             userDiscList,
             userHonorList = new[] { new { honorId = 6010000, newFlag = false } },
-            userItemList = new[]
+            // All 8 Item master rows: 1-4 the legacy counters, 5-8 the round C stocks (gear stamps, disc fragments
+            // and the two gacha tickets) that the gear screen and the shop read their counters from.
+            userItemList = BuildUserItemList(state),
+            // The client reads userGear.gearId != 0 as "there is a rolled gear waiting for equip/discard", and
+            // userGear.kickerId as whose it is; with nothing pending it keeps pointing at the active kicker.
+            userGear = new
             {
-                new { itemId = 1, amount = state.ItemJetCoins },
-                new { itemId = 2, amount = state.ItemPaidJetCoins },
-                new { itemId = 3, amount = state.ItemDiscForce },
-                new { itemId = 4, amount = state.ItemKickPoints }
+                kickerId = pendingGear.GearId != 0 ? pendingGear.KickerId : state.KickerId,
+                gearId = pendingGear.GearId
             },
-            userGear = new { kickerId = state.KickerId, gearId = 0 },
             userStampList = Array.Empty<object>(),
             userMissionProgressList = Array.Empty<object>(),
             userDailyRandomMissionTaskList = Array.Empty<object>(),
@@ -958,7 +1305,7 @@ public sealed class DemoSessionApi
             userPremium = new { premiumId = 0, startDatetime = "", endDatetime = "" },
             userSeasonPass = new { seasonPassId = 1, startDatetime = "2019-01-01 00:00:00", endDatetime = "2030-01-01 23:59:59" },
             userFestivalTeam = new { battleRuleId = 5, festivalTeamId = 1, festivalPoint = 0 },
-            tutorialProgressStatus = 207,
+            tutorialProgressStatus = TutorialStatus(state),
             birthdayConfirmFlag = true,
             dataUsageAgreementConfirmFlag = true,
             dataUsageAgreementAvailableFlag = false,
@@ -986,16 +1333,13 @@ public sealed class DemoSessionApi
 
     private string BuildHomeJson(SessionState state)
     {
-        if (state.KickerCostumeId == 0 && _costumesByKicker.TryGetValue(state.KickerId, out var homeCostumes) && homeCostumes.Count > 0)
-        {
-            state.KickerCostumeId = homeCostumes[0];
-        }
+        NormalizeCostume(state);
 
         var userPlayer = new
         {
             userId = state.UserId,
             displayUserId = int.TryParse(state.UserId, out var uid) ? uid : 1000001,
-            name = string.IsNullOrEmpty(state.UserName) ? "Gixarde3" : state.UserName,
+            name = CurrentUserName(state),
             exp = 38500,
             honorId = 6010000,
             userFrameList = new[]
@@ -1032,17 +1376,19 @@ public sealed class DemoSessionApi
                     openTimeSecond = 3600
                 }
             },
-            discGachaGroupList = Array.Empty<object>(),
-            kickerGachaGroupList = Array.Empty<object>(),
-            userBattleRankList = new[]
-            {
-                new { battleRuleType = 1, battlePoint = 4877, rank = 13 },
-                new { battleRuleType = 2, battlePoint = 4877, rank = 13 },
-                new { battleRuleType = 3, battlePoint = 4877, rank = 13 }
-            },
+            // The shop's disc/kicker scrollers (Colorful.ShopDiscScroller._data : List<GachaGroupInfo>) are filled
+            // from these two lists through GachaGroupListInfo(ResponseGachaGroup[]); serving them empty left the
+            // scroller with a data list shorter than the cell range EnhancedScroller._Resize walks and GetCellHeight
+            // threw ArgumentOutOfRangeException (List<T>.get_Item).
+            discGachaGroupList = BuildHomeGachaGroupList(DiscGachaGroupId),
+            kickerGachaGroupList = BuildHomeGachaGroupList(KickerGachaGroupId),
+            userBattleRankList = BuildBattleRankList(state),
             userMissionProgressList = Array.Empty<object>(),
+            // shopProductList is the real-money IAP list, which this server does not sell; the goods shop is the
+            // JetCoin one and is served in full.
             shopProductList = Array.Empty<object>(),
-            goodsShopProductList = Array.Empty<object>(),
+            goodsShopProductList = BuildGoodsShopProducts(),
+            // The exchange tab's own scroller (ShopExchangeScroller) stays empty: no disc fragments are converted.
             discFragmentConversionDiscIdList = Array.Empty<int>(),
             userMissionTaskStatusNotification = new { newFlagCount = 0, completionCount = 0 },
             presentNotificationCount = 0,
@@ -1101,32 +1447,30 @@ public sealed class DemoSessionApi
             if (hash is null || Encoding.ASCII.GetByteCount(hash) != D2CCodec.KeySizeBytes) return null;
 
             var uuid = root.TryGetProperty("uuid", out var uuidProp) ? uuidProp.GetString() ?? "default-user" : "default-user";
-            var userId = _userIdByUuid.GetOrAdd(uuid, _ =>
-            {
-                if (_userIdByUuid.IsEmpty && uuid == "default-user") return "1000001";
-                return Interlocked.Increment(ref _userCounter).ToString();
-            });
 
-            var state = GetOrCreateUserState(uuid);
-            state.UserId = userId;
-            if (string.IsNullOrEmpty(state.UserName) || state.UserName == "Gixarde3")
-            {
-                state.UserName = userId == "1000001" ? "Gixarde3" : $"Player {userId[^4..]}";
-            }
+            // The device uuid's player, created on first contact and the same one forever after. This is what
+            // used to be an in-memory counter, which re-issued 1000002 to whichever device authenticated first
+            // after a restart.
+            var playerId = _playerStore.ResolvePlayerId(uuid);
+            var state = GetOrCreateUserState(playerId);
+
+            // No name is invented here. An empty name is what puts the client on the name-entry window; a
+            // name is only ever set by the player, through POST /tutorial/end.
 
             var key = Encoding.ASCII.GetBytes(hash);
-            var sessionToken = $"demo-token-{userId}-{Guid.NewGuid():N}";
-            _keysByAccessToken[sessionToken] = key;
-            _sessionStateByToken[sessionToken] = state;
-            _keysByAccessToken[AccessToken] = key;
-            _sessionStateByToken[AccessToken] = state;
+            var sessionToken = $"demo-token-{playerId}-{Guid.NewGuid():N}";
+            _sessions[sessionToken] = new CachedSession(key, state);
+            _sessions[AccessToken] = new CachedSession(key, state);
+            _playerStore.SaveSession(sessionToken, playerId, key);
+            _playerStore.SaveSession(AccessToken, playerId, key);
 
             context.Response.Headers["x-app-status-code"] = "0";
-            context.Response.Headers["x-app-user-id"] = userId;
+            context.Response.Headers["x-app-user-id"] = playerId.ToString();
             context.Response.Headers["x-app-access-token"] = sessionToken;
             context.Response.Headers["x-kickflight-fixture"] = "dynamic-demo-auth";
             context.Response.Headers["x-app-datetime"] = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            _logger.LogInformation("Created session for user {UserId} ({UserName}) with token {Token}", userId, state.UserName, sessionToken);
+            _logger.LogInformation("Created session for player {PlayerId} (name {UserName:l}) with token {Token}",
+                playerId, state.HasName ? state.UserName : "<unset>", sessionToken);
             return BinaryJson("{}", key);
         }
         catch (Exception exception) when (exception is CryptographicException or JsonException or ArgumentException)
@@ -1134,6 +1478,86 @@ public sealed class DemoSessionApi
             _logger.LogWarning("Could not decode local demo authentication request: {Error}", exception.Message);
             return null;
         }
+    }
+
+    // The name-entry window's submit, and the only place a new account gets a name. It persists before
+    // answering because the client re-issues /startup/index the moment this returns, and that reply has to carry
+    // both the name and tutorialProgressStatus = 207 or the home is left inconsistent.
+    //
+    // TutorialEndRequestData carries the name in a field spelled "name"; "userName" is accepted too, for the same
+    // reason /user/change accepts both.
+    private async Task<IResult?> HandleTutorialEndAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        string name;
+        try
+        {
+            var plaintext = D2CCodec.Decode(body, key);
+            using var document = JsonDocument.Parse(plaintext);
+            name = TryGetString(document.RootElement, "name", out var decoded) || TryGetString(document.RootElement, "userName", out decoded)
+                ? decoded.Trim()
+                : "";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not decode tutorial end request: {Error}", ex.Message);
+            return StatusError(context, key);
+        }
+
+        var rejection = NameRejection(state, name);
+        if (rejection is not null)
+        {
+            _logger.LogInformation("Rejected the name submitted by player {PlayerId}: {Reason} ({Length} code units)",
+                state.PlayerId, rejection, name.Length);
+            return NameRejected(context, key, rejection);
+        }
+
+        state.UserName = name;
+        SaveUserState(state);
+        _logger.LogInformation("Player {PlayerId} chose the name {UserName:l}", state.PlayerId, name);
+        return OkJson(context, key, "{}");
+    }
+
+    // The client caps typing at 10 UTF-16 code units and truncates with Substring(0, 10) on end-edit, so 10 is the
+    // limit here too: the server must never reject a name the client let the player type. Surrogates and the
+    // zero-width joiner would let a name render as something other than what it compares as, and a control
+    // character would break the single line the name is drawn on.
+    private const int NameMaxLength = 10;
+
+    private string? NameRejection(SessionState state, string name)
+    {
+        if (name.Length == 0) return "empty";
+        if (name.Length > NameMaxLength) return "too-long";
+        if (name.Any(char.IsSurrogate)) return "surrogate";
+        if (name.Contains('‍')) return "zero-width-joiner";
+        if (name.Any(char.IsControl)) return "control-character";
+        if (_playerStore.IsNameTaken(name, state.PlayerId)) return "taken";
+        return null;
+    }
+
+    // A rejection is HTTP 200 carrying a non-zero x-app-status-code: the code, not the HTTP status, is what the
+    // client reads as the failure signal. Only 2005 opens its name-rule popup - the canned text lives in the
+    // prefab, so it explains the rules it knows and cannot be reworded from here - while 2002/2003/2004 fall
+    // through to the generic error dialog. The body stays schema-shaped so nothing comes out half-deserialized.
+    private static LocalFixtureResult NameRejected(HttpContext context, byte[] key, string reason)
+    {
+        context.Response.Headers["x-app-status-code"] = "2005";
+        var body = JsonSerializer.Serialize(new
+        {
+            error = new
+            {
+                code = "2005",
+                title = "Nombre no valido",
+                message = reason switch
+                {
+                    "empty" => "Escribe un nombre.",
+                    "too-long" => $"El nombre no puede pasar de {NameMaxLength} caracteres.",
+                    "taken" => "Ese nombre ya lo usa otro jugador.",
+                    _ => "Ese nombre no se puede usar."
+                }
+            }
+        });
+        return BinaryJson(body, key);
     }
 
     private async Task<IResult?> HandleBattleEntryAsync(HttpContext context, SessionState state, byte[] key)
@@ -1158,6 +1582,7 @@ public sealed class DemoSessionApi
         }
 
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
+        NormalizeCostume(state);
         var (battleEntryId, ticketId) = _matchmaking.RegisterEntry(
             state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck);
 
@@ -1175,14 +1600,48 @@ public sealed class DemoSessionApi
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
-    private Task<IResult?> HandleBattleStartAsync(HttpContext context, SessionState state, byte[] key)
+    private async Task<IResult?> HandleBattleStartAsync(HttpContext context, SessionState state, byte[] key)
     {
+        var body = await ReadBodyAsync(context.Request);
+        var battleRuleId = 1;
+        var battleRuleType = 1;
+        var battleId = "";
+        try
+        {
+            if (body.Length > 16)
+            {
+                var plaintext = D2CCodec.Decode(body, key);
+                using var document = JsonDocument.Parse(plaintext);
+                if (document.RootElement.TryGetProperty("battleRuleId", out var ruleProp))
+                {
+                    battleRuleId = ruleProp.GetInt32();
+                }
+                if (document.RootElement.TryGetProperty("battleId", out var battleProp) && battleProp.ValueKind == JsonValueKind.String)
+                {
+                    battleId = battleProp.GetString() ?? "";
+                }
+            }
+            if (!_battleRuleTypeById.TryGetValue(battleRuleId, out battleRuleType)) battleRuleType = 1;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to parse battle start body: {Error}, using rule 1", ex.Message);
+            battleRuleId = 1;
+            battleRuleType = 1;
+        }
+
+        // GuardianParameterMaster is looked up by the id returned here (CallbackBattleStartSuccess), so a rule
+        // whose guardian is the revivable ball-goal variant (battleRuleType 3) gets the weaker row 2.
+        // Gym: row 3 = same HP, attack 0, so the guardian's eye laser cannot hurt anyone.
+        var guardianId = BattleMatchmakingService.GymEnabled ? 3 : battleRuleType == 3 ? 2 : 1;
+        // The arena: the room's draw (same for every human in it) or a fresh draw when the room is unknown.
+        var fieldId = _matchmaking.GetRoomFieldId(battleId) ?? BattleMatchmakingService.PickRandomField();
         var resp = new
         {
-            fieldId = 101, // Arena 1 (FLD00101 Cristalmanía)
+            fieldId,
             guardianParameter = new
             {
-                id = 1,
+                id = guardianId,
                 rank = 1
             },
             lotteryFestivalPointId = 0
@@ -1190,21 +1649,31 @@ public sealed class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-start";
-        _logger.LogInformation("Handled /battle/start for {UserId}", state.UserId);
-        return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
+        _logger.LogInformation("Handled /battle/start for {UserId}: rule={RuleId} type={RuleType} guardianParameter={GuardianId} field={FieldId}",
+            state.UserId, battleRuleId, battleRuleType, guardianId, fieldId);
+        return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
     // Colorful.Networking.BattleResultResponseData: every list must be present (empty is fine); the client
     // constructs BattleResultInfo from it unconditionally and NREs on a missing array, which leaves the
-    // ResultScene stuck on the score board. Values mirror the static userBattleRankList served at startup.
+    // ResultScene stuck on the score board.
+    //
+    // Rank is real here: the battle's outcome is applied to the player's persisted standing, so
+    // beforeUserBattleRank and userBattleRank differ and the result screen animates a change. Caveat: the
+    // outcome is not read out of the request yet - the body's shape was never decoded - so every completed
+    // battle is scored as a win, which matches what this handler already did with its rewards.
     private Task<IResult?> HandleBattleResultAsync(HttpContext context, SessionState state, byte[] key)
     {
-        var rank = new { battleRuleType = 1, battlePoint = 4877, rank = 13 };
+        var before = _playerStore.LoadRank(state.PlayerId, RegularBattleRuleType);
+        var after = RankProgression.Apply(before, won: true);
+        _playerStore.SaveRank(state.PlayerId, RegularBattleRuleType, after);
+
+        var rank = new { battleRuleType = RegularBattleRuleType, battlePoint = after.BattlePoint, rank = after.Rank };
         var resp = new
         {
             userExp = 38500 + 800, // the user's total exp (see the static exp served at startup) plus this battle's reward
             userBattleRank = rank,
-            beforeUserBattleRank = rank,
+            beforeUserBattleRank = new { battleRuleType = RegularBattleRuleType, battlePoint = before.BattlePoint, rank = before.Rank },
             playerLevelUpRewardList = Array.Empty<object>(),
             receivedUserCapsuleList = Array.Empty<object>(),
             receivedUserItemList = Array.Empty<object>(),
@@ -1237,7 +1706,8 @@ public sealed class DemoSessionApi
         var resp = new
         {
             replayUploadFlag = false,
-            battlePoint = 150,
+            // The same delta /battle/result persisted, so the reward screen and the stored rank agree.
+            battlePoint = RankProgression.WinBattlePoint,
             exp = 800,
             kickPoint = 200,
             jetCoin = 1000

@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using KickFlight.BootstrapApi;
+using KickFlight.BootstrapApi.PlayerStore;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,8 @@ builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
+// Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
+builder.Services.AddSingleton<IPlayerStore>(services => PlayerStoreFactory.Create(services, builder.Configuration));
 builder.Services.AddSingleton<DemoSessionApi>();
 builder.Services.AddGrpc();
 
@@ -28,8 +31,10 @@ var certificatePassword = builder.Configuration["Certificate:Password"];
 var httpPort = builder.Configuration.GetValue("HttpPort", 8080);
 var grpcPort = builder.Configuration.GetValue("GrpcPort", 18081);
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = 256L * 1024 * 1024);
 builder.WebHost.ConfigureKestrel(options =>
 {
+    options.Limits.MaxRequestBodySize = 256L * 1024 * 1024; // phone bug-report zips on /diag/upload-file
     options.ListenAnyIP(httpPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1);
     options.ListenAnyIP(grpcPort, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
     if (!string.IsNullOrWhiteSpace(certificatePath) && File.Exists(certificatePath))
@@ -40,10 +45,114 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
+
+// Resolve the player store here rather than on the first request. Its constructor is what applies the schema
+// migrations and opens the connection pool, so a database that is unreachable has to fail the start loudly: if
+// this were left lazy, the first request would throw and /health/ready - which never touches the store - would
+// keep answering "ready" for a server that cannot serve a single player.
+app.Services.GetRequiredService<IPlayerStore>();
+
 app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
 
 app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
+// Gym mode: open these in any browser (phone too) while the server runs; applies to the next match you start.
+app.MapGet("/gym", () => Results.Json(new { gym = BattleMatchmakingService.GymEnabled, bots = BattleMatchmakingService.GymBotCount, usage = "/gym/on | /gym/off" }));
+app.MapGet("/gym/on", () => { BattleMatchmakingService.GymEnabled = true; return Results.Text("gym ON: next match = you vs 3 mannequin bots + harmless guardian"); });
+app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; return Results.Text("gym OFF: normal 4v4 bot matches"); });
+// The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
+// /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
+app.MapGet("/webview/information/index", () => Results.Content("""
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Avisos</title>
+<body style="font-family:sans-serif;padding:24px;max-width:640px;line-height:1.5">
+<h2>Avisos</h2>
+<ul>
+<li><b>Bienvenido a Kick-Flight</b><br>Este es un servidor privado de pruebas. El progreso es local y puede
+reiniciarse sin aviso.</li>
+<li><b>Tienda y gacha</b><br>La tienda y el gacha todavia no estan disponibles; llegaran en una proxima
+actualizacion.</li>
+</ul>
+</body></html>
+""", "text/html; charset=utf-8"));
+app.MapGet("/webview/{**rest}", (string? rest) => Results.Content($"""
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>/webview/{rest}</title>
+<body style="font-family:sans-serif;padding:24px;max-width:640px">
+<h2>/webview/{rest}</h2>
+<p>Pagina no disponible en este servidor.</p>
+</body></html>
+""", "text/html; charset=utf-8"));
+// APK download for phones: http://<server>:18080/apk (LAN build) and /apk/remote (kickflightsg.ddns.net build).
+// Files live in .local/ (git-ignored, produced by .local/build.sh); 404 with the expected path when missing.
+var repoRoot = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
+IResult ServeApk(string fileName)
+{
+    var path = Path.Combine(repoRoot, ".local", fileName);
+    return File.Exists(path)
+        ? Results.File(path, "application/vnd.android.package-archive", fileName, enableRangeProcessing: true)
+        : Results.Json(new { error = "apk-not-built", expected = path }, statusCode: 404);
+}
+app.MapGet("/apk", () => ServeApk("KickFlight-2.11.0-current-patches.apk"));
+app.MapGet("/apk/remote", () => ServeApk("KickFlight-2.11.0-remote-kickflightsg.apk"));
+app.MapGet("/apk/diag", () => ServeApk("KickFlight-2.11.0-DIAG.apk"));
+app.MapGet("/apk/diag-remote", () => ServeApk("KickFlight-2.11.0-DIAG-remote.apk"));
+// Merged patch set (offline combat + Photon 2-player, scripts/patch-il2cpp-endpoints.py since 46f9392), built by
+// OUT=.local/KickFlight-2.11.0-merged.apk .local/build.sh (LAN) and with URL=http://kickflightsg.ddns.net:18080 (remote).
+app.MapGet("/apk/merged", () => ServeApk("KickFlight-2.11.0-merged.apk"));
+app.MapGet("/apk/merged-remote", () => ServeApk("KickFlight-2.11.0-merged-remote.apk"));
+app.MapGet("/apk/merged-diag", () => ServeApk("KickFlight-2.11.0-merged-DIAG.apk"));
+app.MapGet("/apk/merged-diag-remote", () => ServeApk("KickFlight-2.11.0-merged-DIAG-remote.apk"));
+// Photon flavour (KF_PHOTON=1, KF_PHOTON_HOST=51.79.241.70): real 2-player rooms on the LuxonServer hosted at 51.79.241.70.
+app.MapGet("/apk/photon-remote", () => ServeApk("KickFlight-2.11.0-photon-remote.apk"));
+app.MapGet("/apk/photon-diag", () => ServeApk("KickFlight-2.11.0-photon-DIAG.apk"));
+app.MapGet("/apk/photon-diag-remote", () => ServeApk("KickFlight-2.11.0-photon-DIAG-remote.apk"));
+// Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
+// from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
+// Phone-only diagnostics: open http://<server>:18080/diag in the phone browser and upload a bug report zip
+// (Developer options -> Take bug report) or any log file; saved under .local/run/diag-upload-*.
+app.MapGet("/diag", () => Results.Content("""
+<!doctype html><meta name=viewport content="width=device-width,initial-scale=1">
+<title>KF diag upload</title>
+<body style="font-family:sans-serif;padding:24px;max-width:480px">
+<h2>Kick-Flight diag upload</h2>
+<form method=post action="/diag/upload-file" enctype="multipart/form-data">
+<p><input type=file name=file required></p>
+<p><input type=submit value="Upload" style="font-size:1.2em;padding:8px 24px"></p>
+</form>
+<p style="color:#666">Bug report: Ajustes &gt; Opciones de desarrollador &gt; "Crear informe de errores" (interactivo), luego
+comparte el zip a Archivos/Descargas y subelo aqui. Max 200 MB.</p>
+</body>
+""", "text/html; charset=utf-8"));
+app.MapPost("/diag/upload-file", async (HttpContext context) =>
+{
+    if (!context.Request.HasFormContentType) return Results.Json(new { error = "multipart form expected" }, statusCode: 400);
+    var form = await context.Request.ReadFormAsync(context.RequestAborted);
+    var file = form.Files.GetFile("file");
+    if (file is null || file.Length == 0) return Results.Json(new { error = "no file" }, statusCode: 400);
+    const long max = 200L * 1024 * 1024;
+    if (file.Length > max) return Results.Json(new { error = "too-large", max }, statusCode: 413);
+    var dir = Path.Combine(repoRoot, ".local", "run");
+    Directory.CreateDirectory(dir);
+    var safeName = string.Concat(Path.GetFileName(file.FileName).Where(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_'));
+    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{(string.IsNullOrEmpty(safeName) ? "file" : safeName)}";
+    await using (var target = File.Create(Path.Combine(dir, name)))
+        await file.CopyToAsync(target, context.RequestAborted);
+    return Results.Content($"<!doctype html><meta name=viewport content=\"width=device-width\"><body style=\"font-family:sans-serif;padding:24px\"><h2>Saved</h2><p>{name}<br>{file.Length} bytes</p><a href=\"/diag\">back</a></body>", "text/html; charset=utf-8");
+});
+app.MapPost("/diag/upload", async (HttpContext context) =>
+{
+    var dir = Path.Combine(repoRoot, ".local", "run");
+    Directory.CreateDirectory(dir);
+    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt";
+    using var ms = new MemoryStream();
+    await context.Request.Body.CopyToAsync(ms, context.RequestAborted);
+    if (ms.Length > 4 * 1024 * 1024) return Results.Json(new { error = "too-large", max = 4 * 1024 * 1024 }, statusCode: 413);
+    await File.WriteAllBytesAsync(Path.Combine(dir, name), ms.ToArray(), context.RequestAborted);
+    return Results.Json(new { saved = name, bytes = ms.Length });
+});
 app.MapGet("/health/photon", async (IPhotonServerManager photonManager, CancellationToken ct) =>
 {
     var status = await photonManager.CheckHealthAsync(ct);
@@ -123,9 +232,76 @@ app.MapMethods("/{**path}", new[] { "GET", "POST", "PUT", "PATCH", "DELETE", "HE
             "request -> fixture -> response: {Method} {Host}{Path} -> {FixtureId} -> {StatusCode}",
             context.Request.Method, host, context.Request.Path, fixture.Id, fixture.StatusCode);
 
-        return new LocalFixtureResult(fixture.GetBodyBytes(), fixture.ContentType, fixture.StatusCode);
+        var body = fixture.GetBodyBytes();
+        if (directClient && (context.Request.Path.Value ?? "").StartsWith("/v1/list/", StringComparison.Ordinal))
+        {
+            // The Octo database carries the CDN url format (field 5). It is baked with the LAN address at build time,
+            // but a client reaching us through another name (kickflightsg.ddns.net from outside) must download from
+            // that same name, so rewrite the format to the host the request actually came through - or to the
+            // configured external CDN when the bundles are hosted elsewhere.
+            var urlFormat = string.IsNullOrWhiteSpace(options.Value.OctoCdnUrlFormat)
+                ? $"{context.Request.Scheme}://{context.Request.Host}/cdn/{{o}}"
+                : options.Value.OctoCdnUrlFormat;
+            body = OctoDatabaseUrl.Rewrite(body, urlFormat);
+        }
+        return new LocalFixtureResult(body, fixture.ContentType, fixture.StatusCode);
     });
 
 app.Run();
 
 public partial class Program;
+
+/// <summary>Replaces the top-level string field 5 (urlFormat) of an Octo.Proto.Database message.</summary>
+public static class OctoDatabaseUrl
+{
+    public static byte[] Rewrite(byte[] message, string urlFormat)
+    {
+        var output = new List<byte>(message.Length + 64);
+        var i = 0;
+        while (i < message.Length)
+        {
+            var start = i;
+            if (!TryReadVarint(message, ref i, out var key)) return message;
+            var field = (int)(key >> 3);
+            var wireType = (int)(key & 7);
+            switch (wireType)
+            {
+                case 0: if (!TryReadVarint(message, ref i, out _)) return message; break;
+                case 1: i += 8; break;
+                case 5: i += 4; break;
+                case 2:
+                    if (!TryReadVarint(message, ref i, out var length)) return message;
+                    i += (int)length;
+                    break;
+                default: return message; // unknown wire type: leave the message untouched
+            }
+            if (i > message.Length) return message;
+            if (field != 5) output.AddRange(message[start..i]);
+        }
+        var text = System.Text.Encoding.UTF8.GetBytes(urlFormat);
+        output.Add((5 << 3) | 2);
+        WriteVarint(output, (ulong)text.Length);
+        output.AddRange(text);
+        return output.ToArray();
+    }
+
+    private static bool TryReadVarint(byte[] data, ref int index, out ulong value)
+    {
+        value = 0;
+        var shift = 0;
+        while (index < data.Length && shift < 64)
+        {
+            var b = data[index++];
+            value |= (ulong)(b & 0x7F) << shift;
+            if ((b & 0x80) == 0) return true;
+            shift += 7;
+        }
+        return false;
+    }
+
+    private static void WriteVarint(List<byte> output, ulong value)
+    {
+        while (value >= 0x80) { output.Add((byte)(value | 0x80)); value >>= 7; }
+        output.Add((byte)value);
+    }
+}

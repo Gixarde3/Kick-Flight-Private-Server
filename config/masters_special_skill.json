@@ -44,7 +44,7 @@
   "kickerId": 6,
   "duration": 6.0,
   "coefficient": 3.0,
-  "range": 10.0,
+  "range": 60.0,
   "finishTime": 1.0
  },
  {

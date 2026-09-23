@@ -208,5 +208,33 @@
     "level": 9,
     "necessaryDiscForceAmount": 20000,
     "totalDiscAmount": 4
+  },
+  {
+    "id": 31,
+    "rarityType": 0,
+    "level": 10,
+    "necessaryDiscForceAmount": 7800,
+    "totalDiscAmount": 600
+  },
+  {
+    "id": 32,
+    "rarityType": 1,
+    "level": 10,
+    "necessaryDiscForceAmount": 11800,
+    "totalDiscAmount": 100
+  },
+  {
+    "id": 33,
+    "rarityType": 2,
+    "level": 10,
+    "necessaryDiscForceAmount": 19600,
+    "totalDiscAmount": 18
+  },
+  {
+    "id": 34,
+    "rarityType": 3,
+    "level": 10,
+    "necessaryDiscForceAmount": 28000,
+    "totalDiscAmount": 5
   }
 ]

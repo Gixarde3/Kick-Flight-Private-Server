@@ -2,12 +2,12 @@
  {
   "id": 4,
   "specialSkillId": 4,
-  "distance": 60.0,
+  "distance": 300.0,
   "speed": 25.0,
   "resourcePath": "",
   "loopSeId": 0,
   "homingAngle": 0.0,
-  "endType": 0,
+  "endType": 1,
   "actionType": 0,
   "removeOnOwnerDeadFlag": true
  },
@@ -16,7 +16,7 @@
   "specialSkillId": 6,
   "distance": 60.0,
   "speed": 45.0,
-  "resourcePath": "",
+  "resourcePath": "effect/ss/ef_ss_006_001/ef_ss_006_001",
   "loopSeId": 0,
   "homingAngle": 90.0,
   "endType": 0,

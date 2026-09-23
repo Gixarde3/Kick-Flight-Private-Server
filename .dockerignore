@@ -1,0 +1,14 @@
+# The image only needs src/. Everything else is either mounted at runtime (config/, content/, the assets
+# tree) or irrelevant to the build.
+*
+!src/
+!src/**
+
+# Player saves: mounted at runtime, never baked in.
+src/KickFlight.BootstrapApi/data/
+
+# Build leftovers. bin/obj are re-created by the SDK layer anyway, and copying a Windows-built obj/ into a
+# Linux restore produces stale assets-file errors.
+**/bin/
+**/obj/
+**/*.user

@@ -1,0 +1,60 @@
+From 17893bfdfc243f0e8ef8d552d90c3c16f56a9de6 Mon Sep 17 00:00:00 2001
+From: Tai Xiao Xuan <xy4nid3@gmail.com>
+Date: Mon, 21 Sep 2026 21:55:51 +0800
+Subject: [PATCH] fix(kickflight): take over the token of a still-live
+ connection on reconnect
+
+A client reconnecting with the token it was handed failed authentication
+("Authentication failure: Got no persistent peer data") until its previous
+connection had been reaped as stale, which only happens after 30 s of keepalive
+timeouts (patch 0008). PUN therefore spent ~28 s retrying the rejoin (71
+attempts of state 1 -> 2) before it could get back into the room.
+
+The persistent data of a *connected* client lives only in Peer::persistent and
+is not in the pool, so the token path found nothing. Look for it among the live
+connections and take it over, dropping the old connection: a client presenting a
+token that belongs to a live session is that session, and PUN only ever
+reconnects with its own token.
+
+---
+ src/authentication.cpp | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/src/authentication.cpp b/src/authentication.cpp
+index 3cf6ea5..3e3d9e5 100644
+--- a/src/authentication.cpp
++++ b/src/authentication.cpp
+@@ -76,7 +76,32 @@ Awaitable<ser::OperationResponseMessage> authenticate(ServerManager& server_mana
+         if (!params)
+             lco_return params.error();
+ 
+-        peer.persistent = load_persistent_peer(server_manager, params->get<DictKeyCodes::LoadBalancing::Token>(), refresh_token);
++        const std::string& token = params->get<DictKeyCodes::LoadBalancing::Token>();
++        peer.persistent = load_persistent_peer(server_manager, token, refresh_token);
++
++        // Kick-Flight: token takeover. While a client is connected its persistent data lives only in
++        // Peer::persistent and NOT in the pool, so a client that reconnects with the token it was handed used to
++        // fail authentication ("Got no persistent peer data") until the old connection was reaped as stale - 30 s
++        // of keepalive timeouts (patch 0008). That is what made PUN retry the rejoin ~70 times over ~28 s and
++        // eventually give up. A client presenting a token that belongs to a live session *is* that session (PUN
++        // only ever reconnects with its own token), so reclaim the data from the old peer and drop the old
++        // connection instead of waiting for the timeout.
++        if (!peer.persistent) {
++            for (const auto& handler : server_manager.get_connections()) {
++                if (!handler)
++                    continue;
++                const auto& other = handler->get_peer();
++                if (!other || other.get() == &peer || !other->persistent)
++                    continue;
++                if (other->persistent->token != token)
++                    continue;
++
++                peer.log->info("Token takeover: reclaiming the persistent data of a still-live connection");
++                peer.persistent = std::move(other->persistent);
++                other->disconnect();
++                break;
++            }
++        }
+     } else {
+         // Regular mechanism
+         const auto params = models::StandardAuth::decode(req);
