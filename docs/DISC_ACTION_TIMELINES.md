@@ -43,8 +43,9 @@ ForcedMovement event, which froze **every** kicker: 10002, 10008, 10019, 10020, 
 1. `scripts/build-action-asset-bundles.py` builds the nine missing bundles from a donor bundle: same event data,
    internal names renamed `aed_DDD` → `aed_NNN`, and a **new serialized-file name** (`CAB-…`) — Unity refuses to load
    two bundles that share a CAB name and `MatchingScene` loads all 14 action assets at once, so plain Octo name
-   aliases would have failed for every kicker after the first. Output: `content/resources/actioneditor/*.bundle`
-   (git-ignored like every bundle; rerun the script to regenerate) + `action-asset-aed-NNN` entries in
+   aliases would have failed for every kicker after the first. Output: the nine runtime bundles under
+   `content/resources/actioneditor/` (explicitly tracked exceptions to the broad `*.bundle` ignore; this keeps
+   fresh clones usable without the external assets repo) + `action-asset-aed-NNN` entries in
    `config/resources/title-minimum.json` (octoId 5000+kicker, objectName `aed0NN`). Donor chosen by the smallest mean
    difference of the `skill_*_action` clip lengths in the kickers' `pc_NNN_001` animator controllers:
 

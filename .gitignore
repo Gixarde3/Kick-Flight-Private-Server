@@ -33,6 +33,23 @@ logs/
 *.unity3d
 *.bundle
 
+# Small generated bundles required by the reconstructed title catalog. Keep these
+# exact runtime dependencies in source control; the wider game-asset bundles stay ignored.
+!content/resources/actioneditor/41616564303032_72b678ed95d9c27697625b32fa4f85bc.bundle
+!content/resources/actioneditor/41616564303033_fc92f19957606a76839bfebf767fd0da.bundle
+!content/resources/actioneditor/41616564303036_42ef449c8447a4482f43e9835c754add.bundle
+!content/resources/actioneditor/41616564303037_0bec9a5e72be849f2f164b6baf8e1e99.bundle
+!content/resources/actioneditor/41616564303039_7c47f25726aa85b447e6b47a56bd0634.bundle
+!content/resources/actioneditor/41616564303130_9d50ef650aea0438f5002e85f1fe93f9.bundle
+!content/resources/actioneditor/41616564303132_218ecb2352db87fcbdeb23d984deacb2.bundle
+!content/resources/actioneditor/41616564303133_b16d49fb9b636a1cc9e96d50905edca9.bundle
+!content/resources/actioneditor/41616564303134_41439f54b5eecf2e4e486e114d289088.bundle
+!content/resources/ui-disc/41746862303435_9f460b2f03aae42c43addcb5becf8e88.bundle
+!content/resources/ui-disc/41746862303936_ccbd49e4ff62e96253ea7e58a42b8854.bundle
+!content/resources/ui-disc/41746862313333_1aab02d38b9dbc1f785a70e9e4b7008c.bundle
+!content/resources/ui-disc/41746862313336_601c906099595dee711fc4a3caed75bd.bundle
+!content/resources/ui-disc/41746862313338_f11dc3aa7e02b25e6c655b9931f13510.bundle
+
 # IDE and OS files
 .vs/
 .vscode/
