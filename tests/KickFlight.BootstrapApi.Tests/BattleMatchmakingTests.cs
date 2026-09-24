@@ -168,32 +168,46 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
-    public void Window_extension_matches_the_agreed_schedule()
+    public async Task Fixed_window_starts_at_first_entry_and_later_joins_do_not_extend_it()
     {
         var service = CreateService(fastWindow: false);
 
-        // The shipped defaults (20 s base, 5 s for the second human), unless the environment overrides them.
+        // The shipped default gives humans one minute from the first entry to join the room.
         if (Environment.GetEnvironmentVariable("KF_MATCH_WINDOW_SECONDS") is null)
         {
-            Assert.Equal(20.0, service.MatchWindow.TotalSeconds, 3);
-        }
-        if (Environment.GetEnvironmentVariable("KF_MATCH_JOIN_INCREMENT_SECONDS") is null)
-        {
-            Assert.Equal(5.0, service.JoinIncrementBaseSeconds, 3);
+            Assert.Equal(60.0, service.MatchWindow.TotalSeconds, 3);
         }
 
-        service.MatchWindow = TimeSpan.FromSeconds(20);
-        service.JoinIncrementBaseSeconds = 5.0;
+        // An accelerated integration check proves later joins don't reset or extend a room's deadline.
+        service.MatchWindow = TimeSpan.FromSeconds(2);
+        var (_, ticket1) = service.RegisterEntry("1000001", "Player 0001", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (_, ticket2) = service.RegisterEntry("1000002", "Player 0002", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (_, ticket3) = service.RegisterEntry("1000003", "Player 0003", 3, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var cancellation1 = new CancellationTokenSource();
+        using var cancellation2 = new CancellationTokenSource();
+        using var cancellation3 = new CancellationTokenSource();
+        var writer1 = new CollectingWriter(expectedCount: 5, cancellation1);
+        var writer2 = new CollectingWriter(expectedCount: 4, cancellation2);
+        var writer3 = new CollectingWriter(expectedCount: 3, cancellation3);
 
-        Assert.Equal(0.0, service.JoinIncrementSeconds(1), 3); // the first human only opens the window
-        Assert.Equal(5.0, service.JoinIncrementSeconds(2), 3);
-        Assert.Equal(4.5, service.JoinIncrementSeconds(3), 3);
-        Assert.Equal(4.0, service.JoinIncrementSeconds(4), 3);
-        Assert.Equal(2.0, service.JoinIncrementSeconds(8), 3);
+        var stream1 = service.StreamAssignmentsAsync(ticket1, writer1, cancellation1.Token);
+        await writer1.FirstWrite;
+        await Task.Delay(200);
+        var stream2 = service.StreamAssignmentsAsync(ticket2, writer2, cancellation2.Token);
+        await writer2.FirstWrite;
+        await Task.Delay(200);
+        var stream3 = service.StreamAssignmentsAsync(ticket3, writer3, cancellation3.Token);
 
-        var total = service.MatchWindow.TotalSeconds
-            + Enumerable.Range(2, 7).Select(service.JoinIncrementSeconds).Sum();
-        Assert.Equal(44.5, total, 3);
+        await Task.WhenAll(writer1.WaitForExpectedWritesAsync(), writer2.WaitForExpectedWritesAsync(), writer3.WaitForExpectedWritesAsync());
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream1);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream2);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream3);
+
+        var fullRosterWrite = writer1.Responses
+            .Select((response, index) => (response, index))
+            .First(item => Roster(item.response.Assignment).Count == 8);
+        var elapsed = writer1.WriteTimes[fullRosterWrite.index] - writer1.WriteTimes[0];
+        Assert.InRange(elapsed.TotalSeconds, 1.8, 2.8);
     }
 
     private static BattleMatchmakingService CreateService(bool fastWindow = true)
@@ -205,9 +219,8 @@ public sealed class BattleMatchmakingTests
 
         if (fastWindow)
         {
-            // Still a real deadline, only short: the agreed schedule has its own test.
-            service.MatchWindow = TimeSpan.FromMilliseconds(200);
-            service.JoinIncrementBaseSeconds = 0.05;
+            // Still a real fixed deadline, only short for the streaming tests.
+            service.MatchWindow = TimeSpan.FromSeconds(1);
         }
 
         return service;
@@ -251,6 +264,7 @@ public sealed class BattleMatchmakingTests
 
         public WriteOptions? WriteOptions { get; set; }
         public List<GetAssignmentsResponse> Responses { get; } = [];
+        public List<DateTimeOffset> WriteTimes { get; } = [];
         public Task FirstWrite => _firstWrite.Task;
 
         public async Task WaitForExpectedWritesAsync()
@@ -269,6 +283,7 @@ public sealed class BattleMatchmakingTests
         public Task WriteAsync(GetAssignmentsResponse message)
         {
             Responses.Add(message);
+            WriteTimes.Add(DateTimeOffset.UtcNow);
             _firstWrite.TrySetResult();
             if (Responses.Count >= _expectedCount)
             {

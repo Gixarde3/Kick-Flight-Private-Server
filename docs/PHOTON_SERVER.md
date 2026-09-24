@@ -163,3 +163,21 @@ El parche asigna el mando al que entra cuando ningún peer vivo lo tiene:
 `if (!find_peer(master_actor)) master_actor = fres.actor_id;` — la misma regla que ya aplica `remove_peer` cuando la
 sala no está vacía. Con eso el cliente que reconecta es maestro y su propia rama de reanudación funciona (el parche
 cliente en 0x1576B18 de `patch-il2cpp-endpoints.py`, que hasta ahora era inerte, pasa a ser el camino activo).
+
+## Revisión del handoff pendiente (2026-09-23)
+
+Comparé el submódulo `a3539b8` y `0001`-`0010` con `stash@{0}` (`5d60911`, basado en `a84ecc3`). El código actual
+ya deja pasar en MasterServer un `battle-*` existente mientras `is_created == false`, reserva al usuario en
+`expected_users` antes de responder con la dirección/token del GameServer y permite al primer peer crear la sala en
+GameServer. Por tanto cubre la carrera concreta documentada en `0001` (el segundo `JoinGame` llega antes de que el
+primero cree la sala). La lógica añadida por el stash exige que exista ya alguna reserva antes de permitir ese handoff;
+en el orden normal de solicitudes serializadas de MasterServer es un endurecimiento equivalente, no un cambio del
+handoff al GameServer. No modifica el encaminamiento ni la aceptación del GameServer.
+
+Decisión: no aplicar el stash completo ni portar sus hunks todavía. El stash restaura además cambios vigentes de
+`0001`-`0010` (timeout ENet, takeover de token, replay de propiedades y elección de maestro), lo que sería una regresión.
+Como la reproducción reportada el 2026-09-23 sigue dejando clientes en `Master Finding game` en tres intentos, esa
+observación contradice que el parche actual haya resuelto el síntoma de extremo a extremo; los cambios del stash no
+explican ni reparan por sí solos ese estancamiento. El siguiente diagnóstico requiere logs del intercambio Photon para
+separar una respuesta de JoinGame ausente/rechazada de una respuesta exitosa cuya dirección o conexión GameServer no
+progresa. Esta revisión fue estática: no se usó ADB ni se hizo build.

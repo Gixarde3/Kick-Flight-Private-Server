@@ -47,6 +47,25 @@ public sealed class PlayerStoreIdentityTests : IDisposable
     }
 
     [Fact]
+    public void Concurrent_stores_preserve_every_identity_after_reload()
+    {
+        const int deviceCount = 64;
+        var stores = Enumerable.Range(0, deviceCount).Select(_ => NewStore()).ToArray();
+        var playerIds = new long[deviceCount];
+
+        Parallel.For(0, deviceCount, index =>
+            playerIds[index] = stores[index].ResolvePlayerId($"parallel-device-{index}"));
+
+        Assert.Equal(deviceCount, playerIds.Distinct().Count());
+
+        var reloaded = NewStore();
+        for (var index = 0; index < deviceCount; index++)
+        {
+            Assert.Equal(playerIds[index], reloaded.ResolvePlayerId($"parallel-device-{index}"));
+        }
+    }
+
+    [Fact]
     public void The_same_device_keeps_its_id_across_stores_and_restarts()
     {
         var id = NewStore().ResolvePlayerId("device-stable");

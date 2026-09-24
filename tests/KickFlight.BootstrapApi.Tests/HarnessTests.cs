@@ -16,13 +16,26 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
 
     public HarnessTests(ServerTestHostFixture fixture) => _factory = fixture.Factory;
 
-    [Theory]
-    [InlineData("/health/live")]
-    [InlineData("/health/ready")]
-    public async Task Health_endpoints_are_successful(string path)
+    [Fact]
+    public async Task Health_live_reports_that_the_server_is_running()
     {
-        using var response = await _factory.CreateClient().GetAsync(path);
+        using var response = await _factory.CreateClient().GetAsync("/health/live");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("live", body.GetProperty("status").GetString());
+    }
+
+    [Fact]
+    public async Task Health_ready_reports_missing_resource_prerequisites()
+    {
+        using var response = await _factory.CreateClient().GetAsync("/health/ready");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("not-ready", body.GetProperty("status").GetString());
+        Assert.Contains(
+            body.GetProperty("errors").EnumerateArray().Select(error => error.GetString()),
+            error => error is not null && error.Contains("apk-remote-kickflightsg: Source file was not found.", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -120,6 +133,23 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.Contains("/cdn/{o}", Encoding.UTF8.GetString(body));
+    }
+
+    [Fact]
+    public async Task Octo_revision_twenty_receives_the_current_database_and_future_revision_is_not_fallback()
+    {
+        var client = _factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/20");
+        request.Headers.Host = "kickflight-resource-api.grenge.jp";
+        using var response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadAsByteArrayAsync();
+        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Current database revision 26
+
+        using var futureRequest = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/27");
+        futureRequest.Headers.Host = "kickflight-resource-api.grenge.jp";
+        using var futureResponse = await client.SendAsync(futureRequest);
+        Assert.Equal(HttpStatusCode.NotFound, futureResponse.StatusCode);
     }
 
     [Fact]

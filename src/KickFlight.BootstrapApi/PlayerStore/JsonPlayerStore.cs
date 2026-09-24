@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace KickFlight.BootstrapApi.PlayerStore;
@@ -23,11 +24,12 @@ public sealed class JsonPlayerStore : IPlayerStore
     // directory before either writes and issue the same id to two different devices, leaving two sessions to
     // overwrite each other's save file. One server in production never needs this, but it costs nothing there.
     private static readonly object IdLock = new();
+    private static readonly ConcurrentDictionary<string, object> IdentityLocksByDirectory = new(StringComparer.Ordinal);
     private static long _idHighWaterMark;
 
     private readonly string _usersDirectory;
     private readonly ILogger<JsonPlayerStore> _logger;
-    private readonly object _identityLock = new();
+    private readonly object _identityLock;
     private readonly Dictionary<string, long> _playerIdByUuid = new(StringComparer.Ordinal);
     private readonly Dictionary<string, byte[]> _keysByAccessToken = new(StringComparer.Ordinal);
     private readonly Dictionary<string, long> _playerIdByToken = new(StringComparer.Ordinal);
@@ -36,8 +38,9 @@ public sealed class JsonPlayerStore : IPlayerStore
     {
         _logger = logger;
         _usersDirectory = Path.Combine(environment.ContentRootPath, "data", "users");
+        _identityLock = IdentityLocksByDirectory.GetOrAdd(Path.GetFullPath(_usersDirectory), _ => new object());
         Directory.CreateDirectory(_usersDirectory);
-        LoadIdentityIndex();
+        lock (_identityLock) LoadIdentityIndex();
     }
 
     private void LoadIdentityIndex()
@@ -67,7 +70,9 @@ public sealed class JsonPlayerStore : IPlayerStore
             var json = JsonSerializer.Serialize(_playerIdByUuid, new JsonSerializerOptions { WriteIndented = true });
             // Write-then-rename: a crash mid-write must not leave a truncated index, which would silently
             // re-issue identities to every device that then connects.
-            var temporary = path + ".tmp";
+            // Stores over this directory share the identity lock, while the unique suffix also avoids
+            // collisions with another process writing the same index.
+            var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
             File.WriteAllText(temporary, json);
             File.Move(temporary, path, overwrite: true);
         }
@@ -81,6 +86,9 @@ public sealed class JsonPlayerStore : IPlayerStore
     {
         lock (_identityLock)
         {
+            // Each instance has its own dictionary. Refresh under the directory-wide lock so a second
+            // store cannot persist an older snapshot and erase identities just added by the first.
+            LoadIdentityIndex();
             if (_playerIdByUuid.TryGetValue(uuid, out var existing)) return existing;
 
             var playerId = NextPlayerId();
@@ -149,6 +157,7 @@ public sealed class JsonPlayerStore : IPlayerStore
             {
                 lock (_identityLock)
                 {
+                    LoadIdentityIndex();
                     if (_playerIdByUuid.TryGetValue(uuid, out var known) && known != state.PlayerId)
                     {
                         _logger.LogWarning("Device {Uuid} maps to {Known} but is saving {Actual}; keeping the mapping",
