@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using KickFlight.BootstrapApi.PlayerStore;
+using Microsoft.Extensions.Configuration;
 
 namespace KickFlight.BootstrapApi;
 
@@ -45,6 +46,7 @@ public sealed partial class DemoSessionApi
         }).ToArray();
 
     private readonly string _contentRoot;
+    private readonly int _grpcPort;
     // A live session, key and state together. One dictionary rather than two parallel ones so the two can
     // never disagree about which tokens are known.
     //
@@ -69,12 +71,13 @@ public sealed partial class DemoSessionApi
     private readonly BattleMatchmakingService _matchmaking;
 
     public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
-        BattleMatchmakingService matchmaking, IPlayerStore playerStore)
+        BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration)
     {
         _logger = logger;
         _matchmaking = matchmaking;
         _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
+        _grpcPort = configuration.GetValue("GrpcPort", 18081);
         InitializeMasters(environment.ContentRootPath);
     }
 
@@ -1318,7 +1321,7 @@ public sealed partial class DemoSessionApi
             {
                 new { id = 1, code = "jp", appId = "local-demo-app" }
             },
-            matchmakingFrontend = new { host = request.Host.Host, port = 18081 },
+            matchmakingFrontend = new { host = request.Host.Host, port = _grpcPort },
             battleTeamPhotonCloudRegionIdList = new[] { 1 },
             interruptNotificationList = Array.Empty<object>(),
             teamBattleInvitationCustomToken = "",

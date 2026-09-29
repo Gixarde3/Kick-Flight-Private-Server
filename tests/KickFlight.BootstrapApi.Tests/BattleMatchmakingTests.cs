@@ -172,10 +172,10 @@ public sealed class BattleMatchmakingTests
     {
         var service = CreateService(fastWindow: false);
 
-        // The shipped default gives humans one minute from the first entry to join the room.
+        // The shipped default gives humans ten seconds from the first entry to join the room.
         if (Environment.GetEnvironmentVariable("KF_MATCH_WINDOW_SECONDS") is null)
         {
-            Assert.Equal(60.0, service.MatchWindow.TotalSeconds, 3);
+            Assert.Equal(10.0, service.MatchWindow.TotalSeconds, 3);
         }
 
         // An accelerated integration check proves later joins don't reset or extend a room's deadline.

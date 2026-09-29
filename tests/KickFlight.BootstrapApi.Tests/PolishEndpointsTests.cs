@@ -4,6 +4,7 @@ using System.Text.Json;
 using KickFlight.BootstrapApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -90,6 +91,20 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         Assert.Equal(0, discarded.GetProperty("userGear").GetProperty("gearId").GetInt32());
         Assert.Equal(0, ReadPendingGearId(session));
         Assert.Equal(gearId, FindCostume(discarded, costumeId).GetProperty("gearId2").GetInt32());
+    }
+
+    [Fact]
+    public async Task Startup_announces_configured_grpc_port_and_keeps_default()
+    {
+        var defaultSession = await CreateSessionAsync();
+        var defaultStartup = await PostAsync(defaultSession, "/startup/index", null);
+        Assert.Equal(18081, defaultStartup.GetProperty("matchmakingFrontend").GetProperty("port").GetInt32());
+
+        using var configuredFactory = _factory.WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
+            config.AddInMemoryCollection(new Dictionary<string, string?> { ["GrpcPort"] = "18083" })));
+        var configuredSession = await CreateSessionAsync(configuredFactory);
+        var configuredStartup = await PostAsync(configuredSession, "/startup/index", null);
+        Assert.Equal(18083, configuredStartup.GetProperty("matchmakingFrontend").GetProperty("port").GetInt32());
     }
 
     [Fact]
@@ -418,9 +433,9 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         return await session.Client.SendAsync(request);
     }
 
-    private async Task<DemoSession> CreateSessionAsync()
+    private async Task<DemoSession> CreateSessionAsync(WebApplicationFactory<Program>? factory = null)
     {
-        var client = _factory.CreateClient();
+        var client = (factory ?? _factory).CreateClient();
         var key = Encoding.ASCII.GetBytes("0123456789abcdef0123456789abcdef");
         var payload = JsonSerializer.Serialize(new { hash = Encoding.ASCII.GetString(key), uuid = Guid.NewGuid().ToString("N") });
 

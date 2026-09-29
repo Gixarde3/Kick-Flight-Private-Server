@@ -161,7 +161,7 @@ public sealed class BattleMatchmakingService
     // How long a room stays open for more humans. This is a fixed deadline from the first entry; later joins
     // update waiting clients' rosters but do not move the deadline. Bots fill the empty slots after it expires.
     public TimeSpan MatchWindow { get; set; } =
-        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 60.0));
+        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 10.0));
 
     private static double ParseMatchConfiguration(string variable, double fallback)
     {
@@ -208,8 +208,8 @@ public sealed class BattleMatchmakingService
     }
 
     /// <summary>
-    /// Waits out the room's window. Task.Delay cannot be extended, so the deadline is re-read on every iteration:
-    /// that is what lets a join push the end of the window further away.
+    /// Waits out the room's fixed window. The deadline is re-read after each delay so cancellation/finalization
+    /// can be observed; joins do not move it.
     /// </summary>
     private async Task RunMatchWindowAsync(ActiveBattleRoom room)
     {
@@ -298,8 +298,7 @@ public sealed class BattleMatchmakingService
 
             if (openRoom is not null)
             {
-                // The third, fourth, … human lands in the first player's room: a join never tears the pending room
-                // down, it only makes its window longer.
+                // The third, fourth, … human lands in the first player's room while its fixed window is open.
                 room = openRoom;
                 joinedExistingRoom = true;
                 var humansBefore = room.HumanPlayers.Count;
@@ -348,7 +347,7 @@ public sealed class BattleMatchmakingService
 
         if (!joinedExistingRoom)
         {
-            // Only the stream that opened the room starts its clock; joins extend it from here on.
+            // Only the stream that opened the room starts its fixed-deadline clock.
             _ = RunMatchWindowAsync(room);
         }
 
