@@ -3,7 +3,8 @@
 ## Ruteo de modelos
 
 - Sol se queda en el hilo primario: planeacion, arquitectura, decisiones ambiguas, resolucion de conflictos, verificacion y sintesis final.
-- Luna se usa en subagentes: paquetes acotados, repetibles o de alto volumen con criterios de exito explicitos. Todo turno del loop ADB cae aqui.
+- Toda investigación de código, ensamblador o binarios, y toda operación con procesos de emuladores o ejecución del juego, se delega a subagentes Luna. El agente primario razona, planea y decide a partir de sus resúmenes; no realiza esas investigaciones directamente.
+- Ajustar el nivel de razonamiento de cada Luna a la dificultad de su tarea. Darle un prompt breve, un objetivo y criterio de éxito explícitos, y pedir un resumen corto con la evidencia necesaria para decidir. Todo turno del loop ADB cae aquí.
 - Escalar a Sol unicamente cuando un subagente falle dos veces seguidas contra su criterio de aceptacion explicito, y enviar un resumen, no el historial.
 
 ## Higiene de contexto del loop ADB

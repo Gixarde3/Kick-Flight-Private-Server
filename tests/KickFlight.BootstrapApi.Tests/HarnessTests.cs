@@ -93,7 +93,7 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Octo revision 27
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -121,7 +121,7 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Octo revision 27
     }
 
     [Fact]
@@ -144,9 +144,9 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         using var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Current database revision 26
+        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Current database revision 27
 
-        using var futureRequest = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/27");
+        using var futureRequest = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/28");
         futureRequest.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var futureResponse = await client.SendAsync(futureRequest);
         Assert.Equal(HttpStatusCode.NotFound, futureResponse.StatusCode);
@@ -670,6 +670,58 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal(2, startDoc.RootElement.GetProperty("guardianParameter").GetProperty("id").GetInt32());
         // The arena is drawn at random from BattleMatchmakingService.FieldPool (KF_FIELDS) for every battle.
         Assert.Contains(startDoc.RootElement.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
+    }
+
+    [Fact]
+    public async Task Second_battle_start_succeeds_before_first_battle_ends()
+    {
+        var client = _factory.CreateClient();
+        const string host = "kickflight-api.grenge.jp";
+        var sessionKeyBytes = Encoding.ASCII.GetBytes("0123456789abcdef0123456789abcdef");
+        var commonCodeBytes = Encoding.ASCII.GetBytes("1a837b9ee2ae11a07a0f529a4cd4b61c");
+
+        var authPayload = JsonSerializer.Serialize(new { hash = Encoding.ASCII.GetString(sessionKeyBytes), uuid = Guid.NewGuid().ToString("N") });
+        using var authRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/index")
+        {
+            Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(authPayload), commonCodeBytes, new byte[16]))
+        };
+        authRequest.Headers.Host = host;
+        using var authResponse = await client.SendAsync(authRequest);
+        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
+        var accessToken = authResponse.Headers.GetValues("x-app-access-token").Single();
+
+        async Task<JsonElement> StartBattle(string battleId, int ruleId)
+        {
+            var payload = JsonSerializer.Serialize(new { battleId, battleRuleId = ruleId });
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/battle/start")
+            {
+                Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(payload), sessionKeyBytes, new byte[16]))
+            };
+            request.Headers.Host = host;
+            request.Headers.Add("x-app-access-token", accessToken);
+            using var response = await client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("0", response.Headers.GetValues("x-app-status-code").Single());
+            return JsonDocument.Parse(D2CCodec.Decode(await response.Content.ReadAsByteArrayAsync(), sessionKeyBytes)).RootElement.Clone();
+        }
+
+        // Battle A remains active while the server starts battle B under a separate id and rule.
+        var battleA = await StartBattle($"battle-a-{Guid.NewGuid():N}", ruleId: 3);
+        var battleB = await StartBattle($"battle-b-{Guid.NewGuid():N}", ruleId: 1);
+        Assert.Equal(2, battleA.GetProperty("guardianParameter").GetProperty("id").GetInt32());
+        Assert.Equal(1, battleB.GetProperty("guardianParameter").GetProperty("id").GetInt32());
+        Assert.Contains(battleA.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
+        Assert.Contains(battleB.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
+
+        using var endRequest = new HttpRequestMessage(HttpMethod.Post, "/battle/end")
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>())
+        };
+        endRequest.Headers.Host = host;
+        endRequest.Headers.Add("x-app-access-token", accessToken);
+        using var endResponse = await client.SendAsync(endRequest);
+        Assert.Equal(HttpStatusCode.OK, endResponse.StatusCode);
+        Assert.Equal("0", endResponse.Headers.GetValues("x-app-status-code").Single());
     }
 
     private static string FindRepositoryRoot()

@@ -1,6 +1,6 @@
 {
-  "UserId": "1000010",
-  "UserName": "EmuDual4",
+  "UserId": "1000021",
+  "UserName": "waba",
   "KickerId": 1,
   "KickerCostumeId": 2010101,
   "ActiveDeckNumber": 1,
@@ -704,5 +704,5 @@
     "GearId": 0
   },
   "HasName": true,
-  "PlayerId": 1000010
+  "PlayerId": 1000021
 }

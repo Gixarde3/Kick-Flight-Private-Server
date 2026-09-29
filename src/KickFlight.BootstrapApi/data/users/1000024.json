@@ -1,15 +1,15 @@
 {
-  "UserId": "1000010",
-  "UserName": "EmuDual4",
+  "UserId": "1000024",
+  "UserName": "Mayura",
   "KickerId": 1,
   "KickerCostumeId": 2010101,
   "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
       3010001,
-      3010002,
-      3010003,
-      3010004
+      3010102,
+      3010066,
+      3010065
     ],
     "2": [
       3010005,
@@ -693,10 +693,10 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 209754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50000,
+  "ItemKickPoints": 50200,
   "ItemAmounts": {},
   "CostumeGears": {},
   "PendingGear": {
@@ -704,5 +704,5 @@
     "GearId": 0
   },
   "HasName": true,
-  "PlayerId": 1000010
+  "PlayerId": 1000024
 }

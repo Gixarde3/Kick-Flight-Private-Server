@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 26,
+  "revision": 27,
   "fromRevisions": [
     0,
     1,
@@ -29,7 +29,8 @@
     23,
     24,
     25,
-    26
+    26,
+    27
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [
@@ -42,7 +43,7 @@
       ],
       "objectName": "v9pkqH",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/5_unknown/527639706B7148_41c2d14a98f2e813999d86c442441e9c.bin",
-      "logicalName": "Configuración maestra CriWare Atom ACF",
+      "logicalName": "Configuraci\u00f3n maestra CriWare Atom ACF",
       "description": "Master audio bus and category configuration"
     },
     {

@@ -1,6 +1,6 @@
 {
-  "UserId": "1000010",
-  "UserName": "EmuDual4",
+  "UserId": "1000026",
+  "UserName": "EmuDual6",
   "KickerId": 1,
   "KickerCostumeId": 2010101,
   "ActiveDeckNumber": 1,
@@ -693,10 +693,10 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 213754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50000,
+  "ItemKickPoints": 51000,
   "ItemAmounts": {},
   "CostumeGears": {},
   "PendingGear": {
@@ -704,5 +704,5 @@
     "GearId": 0
   },
   "HasName": true,
-  "PlayerId": 1000010
+  "PlayerId": 1000026
 }

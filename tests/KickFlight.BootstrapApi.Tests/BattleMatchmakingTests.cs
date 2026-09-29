@@ -52,6 +52,51 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
+    public async Task A_second_room_can_reach_stage_three_while_the_first_room_stream_is_still_active()
+    {
+        var service = CreateService();
+        service.MatchWindow = TimeSpan.FromMilliseconds(50);
+
+        var (_, firstTicket) = service.RegisterEntry("1000001", "First room", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (_, secondTicket) = service.RegisterEntry("1000002", "Second room", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+
+        using var firstCancellation = new CancellationTokenSource();
+        using var secondCancellation = new CancellationTokenSource();
+        // A single client receives Stage 1, Stage 2, and Stage 3. Keep each stream alive until the test cancels it.
+        var firstWriter = new CollectingWriter(expectedCount: 4, firstCancellation);
+        var secondWriter = new CollectingWriter(expectedCount: 4, secondCancellation);
+        var firstStream = service.StreamAssignmentsAsync(firstTicket, firstWriter, firstCancellation.Token);
+        Task? secondStream = null;
+
+        try
+        {
+            var firstFinal = await firstWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.NotEmpty(firstFinal.Assignment.Connection);
+            Assert.False(firstStream.IsCompleted);
+
+            // Room one has finalized and left _pendingRoom, but its Stage 3 acknowledgement stream is still active.
+            secondStream = service.StreamAssignmentsAsync(secondTicket, secondWriter, secondCancellation.Token);
+            var secondFinal = await secondWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.NotEmpty(secondFinal.Assignment.Connection);
+            Assert.NotEqual(firstFinal.Assignment.Connection, secondFinal.Assignment.Connection);
+            Assert.False(firstStream.IsCompleted);
+            Assert.False(secondStream.IsCompleted);
+        }
+        finally
+        {
+            firstCancellation.Cancel();
+            secondCancellation.Cancel();
+        }
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => firstStream);
+        if (secondStream is not null)
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => secondStream);
+        }
+    }
+
+    [Fact]
     public async Task Three_humans_share_the_first_room_instead_of_opening_a_second_one()
     {
         var service = CreateService();
@@ -255,6 +300,7 @@ public sealed class BattleMatchmakingTests
         private readonly CancellationTokenSource _cancellation;
         private readonly TaskCompletionSource _firstWrite = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource _expectedWrites = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<GetAssignmentsResponse> _finalAssignment = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public CollectingWriter(int expectedCount, CancellationTokenSource cancellation)
         {
@@ -266,6 +312,7 @@ public sealed class BattleMatchmakingTests
         public List<GetAssignmentsResponse> Responses { get; } = [];
         public List<DateTimeOffset> WriteTimes { get; } = [];
         public Task FirstWrite => _firstWrite.Task;
+        public Task<GetAssignmentsResponse> FinalAssignment => _finalAssignment.Task;
 
         public async Task WaitForExpectedWritesAsync()
         {
@@ -285,6 +332,11 @@ public sealed class BattleMatchmakingTests
             Responses.Add(message);
             WriteTimes.Add(DateTimeOffset.UtcNow);
             _firstWrite.TrySetResult();
+            if (!string.IsNullOrEmpty(message.Assignment.Connection))
+            {
+                _finalAssignment.TrySetResult(message);
+            }
+
             if (Responses.Count >= _expectedCount)
             {
                 _expectedWrites.TrySetResult();

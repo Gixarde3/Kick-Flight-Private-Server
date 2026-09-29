@@ -1,15 +1,15 @@
 {
-  "UserId": "1000010",
-  "UserName": "EmuDual4",
-  "KickerId": 1,
-  "KickerCostumeId": 2010101,
-  "ActiveDeckNumber": 1,
+  "UserId": "1000025",
+  "UserName": "Gixarde3",
+  "KickerId": 7,
+  "KickerCostumeId": 2070101,
+  "ActiveDeckNumber": 3,
   "Decks": {
     "1": [
-      3010001,
-      3010002,
-      3010003,
-      3010004
+      3010063,
+      3010113,
+      3010053,
+      3010066
     ],
     "2": [
       3010005,
@@ -19,9 +19,9 @@
     ],
     "3": [
       3010009,
-      3010010,
-      3010011,
-      3010012
+      3010007,
+      3010053,
+      3010136
     ],
     "4": [
       3010013,
@@ -693,10 +693,10 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 208754,
+  "ItemJetCoins": 217754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 50000,
+  "ItemKickPoints": 51800,
   "ItemAmounts": {},
   "CostumeGears": {},
   "PendingGear": {
@@ -704,5 +704,5 @@
     "GearId": 0
   },
   "HasName": true,
-  "PlayerId": 1000010
+  "PlayerId": 1000025
 }

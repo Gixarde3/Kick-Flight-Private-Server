@@ -220,7 +220,8 @@ screen_has() {
   grep -Eiq "$pattern" "$ocr"
 }
 wait_scene() {
-  local serial="$1" marker="$2" seconds="$3" deadline=$((SECONDS + seconds))
+  local serial="$1" marker="$2" seconds="$3" deadline
+  deadline=$((SECONDS + seconds))
   while ((SECONDS < deadline)); do
     assert_healthy "$serial"
     grep -Fq "$marker" "$run_dir/logcat-$serial.txt" && return 0
@@ -230,7 +231,8 @@ wait_scene() {
   fail "$serial did not reach $marker within ${seconds}s"
 }
 wait_ime() {
-  local serial="$1" want="$2" seconds="$3" deadline=$((SECONDS + seconds)) state
+  local serial="$1" want="$2" seconds="$3" deadline state
+  deadline=$((SECONDS + seconds))
   while ((SECONDS < deadline)); do
     assert_healthy "$serial"
     state="$("$adb" -s "$serial" shell dumpsys input_method 2>/dev/null | grep -E 'mInputShown=' | tail -n 1 | tr -d '\r')"

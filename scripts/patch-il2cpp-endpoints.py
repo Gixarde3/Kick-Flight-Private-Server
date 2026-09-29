@@ -1620,6 +1620,14 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("160100b41f2003d51f2003d5"),  # cbz x22, #0x1504c80; nop; nop
         },
         {
+            "description": "skip missing SpecialSkillCut playable tracks during battle initialization",
+            "offset": 0x1504F98,
+            # GetTracks can return null even when the Octo bundle exists on disk. Dereferencing the null
+            # track array aborts GameManager.BeginAsync and leaves the client at Remain Count 0.
+            "expected": bytes.fromhex("750000b5e0031faa933cf497"),  # cbnz x21, #0x1504fa4; mov x0, xzr; bl NRE
+            "replacement": bytes.fromhex("d50000b4020000141f2003d5"),  # cbz x21, #0x1504fb0; b #0x1504fa4; nop
+        },
+        {
             "description": "bypass null _fovFitter exception in SpecialSkillCut.LateUpdate",
             "offset": 0x150539C,
             "expected": bytes.fromhex("740000b5e0031faa923bf497"),  # cbnz x20, #0x15053a8; mov x0, xzr; bl #0x12141ec
