@@ -1,4 +1,4 @@
 [submodule "submodules/luxonserver"]
 	path = submodules/luxonserver
-	url = https://github.com/Gixarde3/luxonserver.git
-	branch = fix/team-flow
+	url = https://github.com/tanukifurhire/luxonserver.git
+	branch = tanuki-server
