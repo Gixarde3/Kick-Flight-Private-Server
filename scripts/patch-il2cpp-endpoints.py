@@ -493,9 +493,37 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     {"description": "DIAG hook: IsReconnectEnable player loop: 8971, player index, that player's PlayerState (roomState comes from 8930)", "offset": 0x1576f18, "expected": bytes.fromhex("1f180071"), "replacement": bytes.fromhex("1a5df917")},
     {"description": "DIAG cave: SetReconnectFailedCause(cause): 8992 then the cause code - names every UpdateReconnectWait/Start exit", "offset": 0x159da78, "expected": bytes.fromhex("e0031faadcd9f197e00314aae10315aafd7b47a9f44f46a9f65745a9f85f44a9fa6743a9fc6f42a9e923416de2031faa"), "replacement": bytes.fromhex("fd7bbea9e00b00f9e10f00f900648452307af897e01b40b92e7af897e10f40f9e00b40f9fd7bc2a8014000b9e5da0914")},
     {"description": "DIAG hook: SetReconnectFailedCause(cause): 8992 then the cause code - names every UpdateReconnectWait/Start exit", "offset": 0x1814634, "expected": bytes.fromhex("014000b9"), "replacement": bytes.fromhex("1125f617")},
+    # Spectator target-change trace (2026-09-29). These three entry probes use the free tail of the
+    # entry-stubbed UpdateIdleTypeRate body, after the production costume-refresh cave (ends 0x13CE5A4).
+    # Each logs one fixed KFDIAG value, restores x0/x1/LR, replays the displaced prologue instruction,
+    # and branches back to the method. No user/profile values are emitted.
+    {"description": "DIAG cave: SpectatorInfoPresenter member callback entry -> 9101", "offset": 0x13ce5a4, "expected": bytes.fromhex("1217f997a101805208000014e00313aae1031faaf1a00b94f40300aa540000b50a17f99741048052"), "replacement": bytes.fromhex("fd7bbea9e00b00f9e10f00f9a071845265b7ff97e10f40f9e00b40f9fd7bc2a8f85fbca92ecc0914")},
+    {"description": "DIAG cave: GameManager.InitializeSpectatorPlayer entry -> 9102", "offset": 0x13ce5d0, "expected": bytes.fromhex("e00314aae3031faa7bbc0f941f000072e003271ec91d201e74a640f9740000b5e0031faafe16f997"), "replacement": bytes.fromhex("fd7bbea9e00b00f9e10f00f9c07184525ab7ff97e10f40f9e00b40f9fd7bc2a8f50f1df813880614")},
+    {"description": "DIAG cave: GameManager.SetMainPlayer entry -> 9103", "offset": 0x13ce5fc, "expected": bytes.fromhex("8396ff97c00240f9081ca04e089c44398800083608d840b948000035d2a2f897a00240f92939281e"), "replacement": bytes.fromhex("fd7bbea9e00b00f9e10f00f9e07184524fb7ff97e10f40f9e00b40f9fd7bc2a8f50f1df89f880614")},
+    {"description": "DIAG hook: SpectatorInfoPresenter member callback entry -> 9101", "offset": 0x164167c, "expected": bytes.fromhex("f85fbca9"), "replacement": bytes.fromhex("ca33f617")},
+    {"description": "DIAG hook: GameManager.InitializeSpectatorPlayer entry -> 9102", "offset": 0x157063c, "expected": bytes.fromhex("f50f1df8"), "replacement": bytes.fromhex("e577f917")},
+    {"description": "DIAG hook: GameManager.SetMainPlayer entry -> 9103", "offset": 0x1570898, "expected": bytes.fromhex("f50f1df8"), "replacement": bytes.fromhex("5977f917")},
         # ---- END reconnect DIAG block ----
     # ---- END DIAGNOSTIC ----
 ] if os.environ.get("KF_DIAG") == "1" else []
+
+# The retired 9001–9041 Jay bomb probes used to occupy 0x13CE540–0x13CE7C8 in the dead
+# UpdateIdleTypeRate body. The production costume-refresh cave now occupies 0x13CE540–0x13CE5A4;
+# the spectator-selection probes use the verified free tail 0x13CE5A4–0x13CE624. Drop the old
+# bomb caves/hooks and preserve only that current spectator range.
+_RETIRED_BOMB_DIAG_HOOKS = {
+    0x143BCB0, 0x143BF44, 0x143BF80, 0x143BFF8, 0x143C244,
+    0x143C274, 0x143C394, 0x143C440, 0x143B750, 0x160C268,
+}
+_RETIRED_BOMB_DIAG_CAVES = {
+    0x13CE540, 0x13CE578, 0x13CE5B0, 0x13CE5E8,
+    0x13CE620, 0x13CE664, 0x13CE6A8, 0x13CE6EC,
+    0x13CE724, 0x13CE76C,
+}
+DIAG_PATCHES_ARM64 = [
+    patch for patch in DIAG_PATCHES_ARM64
+    if int(patch["offset"]) not in _RETIRED_BOMB_DIAG_HOOKS | _RETIRED_BOMB_DIAG_CAVES
+]
 
 # Isolated ResultManager / ResultScene trace (Gixarde3, 2026-09-17): the state probes plus the region-A log helper and
 # the region-E safe logger they `bl` into. Region E lives in LoadDeckSummonModel's body, hence the stub. Kept verbatim
@@ -1458,12 +1486,6 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f30f1ef8fd7b01a9"),  # str x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
             "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
         },
-        {
-            "description": "force GameManager.GetMenuType to return 0 (MenuType.Default)",
-            "offset": 0x1570EA8,
-            "expected": bytes.fromhex("f44fbea9fd7b01a9"),  # stp x20, x19, [sp, #-0x20]!; stp x29, x30, [sp, #0x10]
-            "replacement": bytes.fromhex("e0031f2ac0035fd6"),  # mov w0, wzr; ret
-        },
         # PlayerAnimator.IsBindMotionCondition used to be stubbed to `return true` (for dead bot animators); since
         # PlayIdle/PlayMove bail out when it is true, NO kicker ever played its idle again after a skill (pose stuck
         # until another action played). Guard instead: true only when the Animator is null/destroyed.
@@ -1964,6 +1986,18 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         # and AIPlayerEngine.ManagedUpdate parks in WaitForWarpOut forever. Cave lives in the dead body of the stubbed
         # ReplayManager.get_ReplayMode.
         {
+            "description": "cave: preserve current patched behavior for normal play, return spectator menu type 6 only for TeamColorType 2 (GetMyTeamType)",
+            "offset": 0x13CE4B0,
+            "expected": bytes.fromhex("a800083608d840b96800003529a3f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd"),
+            "replacement": bytes.fromhex("fd7bbfa9fd0300919baa07941f080071c800805200019f1afd7bc1a8c0035fd6"),
+        },
+        {
+            "description": "GameManager.GetMenuType entry: branch to spectator-aware compatibility cave (normal modes remain MenuType 0)",
+            "offset": 0x1570EA8,
+            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
+            "replacement": bytes.fromhex("8275f9171f2003d5"),  # b 0x13CE4B0; nop
+        },
+        {
             "description": "cave: CharacterBase.IsMine -> return true when PhotonManager.IsOffline(), else run displaced prologue insn and continue",
             "offset": 0x1773678,
             "expected": bytes.fromhex("fd430091d37a019068325639e8000037286901d008f546f9000140b9dfd9e997e803003268321639336801f073e242f9"),
@@ -2024,6 +2058,23 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "offset": 0x1439B60,
             "expected": bytes.fromhex("e3737614"),
             "replacement": bytes.fromhex("6852fe17"),
+        },
+        # First custom match from Home can reach this getter before the player's archive
+        # list was populated by StartupAfterDownload.Refresh. At battle pre-begin time
+        # the kicker masters are loaded; if the unlimited list has no selected kicker,
+        # refresh it from the parsed userKickerList and let the original getter resolve
+        # the selected costume. A valid existing selection is left untouched.
+        {
+            "description": "cave: BattleUtil.GetKickerCostumeId unlimited path lazily refreshes an empty archive list, preserving original arguments and prologue",
+            "offset": 0x13CE540,
+            "expected": bytes.fromhex("001da84e5296ff9760ca40f9a00b00b4e1031faa3d2f1194e1031faafa4b1194000b003674ca40f9740000b5e0031faa1f17f997e00314aae1031faa332f11941f30007160010054e903271ee0020035e00313aae1031faaf9a00b94f40300aa540000b51217f997a101805208000014"),
+            "replacement": bytes.fromhex("f37bbea9e00b00f9e10f00f9f303002a13020036e0031faae1031faaaf387894800100b4e1031faaa3997894200100b4f30300aae00313aae1031faa84861494800000b5e00313aae1031faa54851494e00b40f9e10f40f9f37bc2a8f44fbea9bca40714"),
+        },
+        {
+            "description": "BattleUtil.GetKickerCostumeId entry -> b guarded archive refresh cave",
+            "offset": 0x15B788C,
+            "expected": bytes.fromhex("f44fbea9"),
+            "replacement": bytes.fromhex("2d5bf817"),
         },
         # Second half of the same bug: DiscSkillParameter.HitInfo is only assigned by SetSkillActionHitData from a damage
         # Collider clip of the aed timeline, so for 40001 it is null, BatAbilityParameter.HitInfo = null and every

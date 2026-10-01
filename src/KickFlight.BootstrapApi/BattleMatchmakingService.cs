@@ -13,6 +13,8 @@ public sealed class BattleMatchmakingService
     private readonly IPhotonServerManager _photonManager;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, TeamLobby> _teamsById = new(StringComparer.Ordinal);
+    private readonly object _teamLock = new();
     // Luxon can outlive this API process. Seed the compact numeric suffix from
     // the current UTC second so an API restart cannot accidentally reuse a
     // still-cached Photon room from the previous process.
@@ -34,7 +36,116 @@ public sealed class BattleMatchmakingService
         public int KickerCostumeId { get; set; } = 2010101;
         public int BattleRuleId { get; set; } = 1;
         public List<int> DeckDiscs { get; set; } = [];
+        /// <summary>Stable matchmaking party identity. Null means the player queues alone.</summary>
+        public string? PartyId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public sealed class TeamLobby
+    {
+        public string MatchmakingTeamId { get; init; } = "";
+        public string Code { get; init; } = "";
+        public string HostUserId { get; init; } = "";
+        public int BattleRuleId { get; init; }
+        public Dictionary<string, BattleEntrySession> MembersByUserId { get; } = new(StringComparer.Ordinal);
+        public HashSet<string> SelectedUserIds { get; } = new(StringComparer.Ordinal);
+        public bool IsStarted { get; set; }
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    public sealed record TeamMemberEntry(string BattleEntryId, string TicketId, string MatchmakingTeamId);
+    public sealed record TeamLobbySnapshot(
+        string MatchmakingTeamId, string Code, int BattleRuleId, IReadOnlyList<int> KickerCostumeIdList);
+
+    public TeamMemberEntry CreateTeam(
+        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string code)
+    {
+        lock (_teamLock)
+        {
+            var teamId = $"team-{Guid.NewGuid():N}"[..21];
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, teamId);
+            var team = new TeamLobby
+            {
+                MatchmakingTeamId = teamId,
+                Code = code.Trim(),
+                HostUserId = userId,
+                BattleRuleId = battleRuleId
+            };
+            team.MembersByUserId.Add(userId, member);
+            _teamsById[teamId] = team;
+            return new TeamMemberEntry(member.BattleEntryId, member.TicketId, teamId);
+        }
+    }
+
+    public TeamMemberEntry? JoinTeam(
+        string teamId, string userId, string userName, int kickerId, int costumeId, List<int> deck)
+    {
+        lock (_teamLock)
+        {
+            if (!_teamsById.TryGetValue(teamId, out var team) || team.IsStarted) return null;
+            if (team.MembersByUserId.TryGetValue(userId, out var existing))
+                return new TeamMemberEntry(existing.BattleEntryId, existing.TicketId, team.MatchmakingTeamId);
+            if (team.MembersByUserId.Count >= MaxPerTeam) return null;
+
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, team.BattleRuleId, deck, teamId);
+            team.MembersByUserId.Add(userId, member);
+            return new TeamMemberEntry(member.BattleEntryId, member.TicketId, team.MatchmakingTeamId);
+        }
+    }
+
+    public bool StartTeam(string teamId, string hostUserId, IReadOnlyCollection<string> userIds)
+    {
+        lock (_teamLock)
+        {
+            if (!_teamsById.TryGetValue(teamId, out var team) || team.HostUserId != hostUserId)
+                return false;
+
+            // Photon supplies the players actually present in the host's room. Keep exactly that selected roster
+            // as the party so stale invitations and users who already left cannot be assigned to this match.
+            var selectedIds = new HashSet<string>(userIds, StringComparer.Ordinal) { hostUserId };
+            var selectedMembers = team.MembersByUserId.Keys.Where(selectedIds.Contains).ToHashSet(StringComparer.Ordinal);
+            if (team.IsStarted) return selectedMembers.SetEquals(team.SelectedUserIds);
+
+            foreach (var member in team.MembersByUserId.Values)
+            {
+                // A member who left before the battle can still have an open assignment stream. Make that ticket
+                // a solo entry so the remaining members keep their party intact and the leaver can be re-queued.
+                if (!selectedMembers.Contains(member.UserId)) member.PartyId = null;
+            }
+            if (selectedMembers.Count == 0 || selectedMembers.Count > MaxPerTeam) return false;
+            team.SelectedUserIds.UnionWith(selectedMembers);
+            team.IsStarted = true;
+            team.Started.TrySetResult();
+            return true;
+        }
+    }
+
+    public IReadOnlyList<TeamLobbySnapshot> GetTeams(IReadOnlyCollection<string> teamIds)
+    {
+        lock (_teamLock)
+        {
+            return teamIds.Distinct(StringComparer.Ordinal)
+                .Where(_teamsById.ContainsKey)
+                .Select(teamId =>
+                {
+                    var team = _teamsById[teamId];
+                    var costumes = team.MembersByUserId.Values
+                        .OrderBy(member => member.CreatedAt)
+                        .Select(member => member.KickerCostumeId)
+                        .ToArray();
+                    return new TeamLobbySnapshot(team.MatchmakingTeamId, team.Code, team.BattleRuleId, costumes);
+                })
+                .ToList();
+        }
+    }
+
+    private Task? GetTeamStartTask(string? teamId)
+    {
+        if (string.IsNullOrWhiteSpace(teamId)) return null;
+        lock (_teamLock)
+        {
+            return _teamsById.TryGetValue(teamId, out var team) ? team.Started.Task : null;
+        }
     }
 
     public sealed class ActiveBattleRoom
@@ -57,6 +168,9 @@ public sealed class BattleMatchmakingService
         /// <summary>Completes with the final roster; every waiting GetAssignments stream is parked on it.</summary>
         public TaskCompletionSource<MatchingBattleInfo> Finalized { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        /// <summary>Tickets included in this battle; excluded parties are re-queued by their active streams.</summary>
+        public HashSet<string> AssignedTicketIds { get; } = new(StringComparer.Ordinal);
 
         /// <summary>One entry per waiting stream, so a join can refresh the other clients' slots.</summary>
         public List<AssignmentSubscriber> Subscribers { get; } = [];
@@ -106,7 +220,15 @@ public sealed class BattleMatchmakingService
     }
 
     public (string battleEntryId, string ticketId) RegisterEntry(
-        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck)
+        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck,
+        string? partyId = null)
+    {
+        var session = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, partyId);
+        return (session.BattleEntryId, session.TicketId);
+    }
+
+    private BattleEntrySession RegisterTeamMember(
+        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string? partyId)
     {
         var entryId = $"be-{Guid.NewGuid():N}"[..12];
         var ticketId = $"ticket-{Guid.NewGuid():N}"[..16];
@@ -120,14 +242,15 @@ public sealed class BattleMatchmakingService
             KickerId = kickerId,
             KickerCostumeId = costumeId,
             BattleRuleId = battleRuleId,
-            DeckDiscs = deck
+            DeckDiscs = deck,
+            PartyId = string.IsNullOrWhiteSpace(partyId) ? null : partyId.Trim()
         };
 
         _entriesByTicket[ticketId] = session;
         _logger.LogInformation("Registered battle entry: user={UserId} ({UserName}), ticket={TicketId}, kicker={KickerId}, rule={RuleId}",
             userId, userName, ticketId, kickerId, battleRuleId);
 
-        return (entryId, ticketId);
+        return session;
     }
 
     // Arenas that ship complete in the capture: field/fld{id:05}, fielddata/fld{id:05}_{1,2,3} (crystal / flag / ball
@@ -194,15 +317,18 @@ public sealed class BattleMatchmakingService
             // finalized by the join that filled it.
             if (room.IsFinalized || room.HumanPlayers.Count == 0) return;
 
+            var allocation = SelectBattleParties(room.HumanPlayers);
+            if (allocation.Assignments.Count == 0) return;
             room.IsFinalized = true;
-            roster = BuildRoster(room);
+            foreach (var player in allocation.Assignments.Keys) room.AssignedTicketIds.Add(player.TicketId);
+            roster = BuildRoster(room, allocation.Assignments);
             room.MatchingInfo = roster;
             if (ReferenceEquals(_pendingRoom, room)) _pendingRoom = null;
         }
 
         _logger.LogInformation(
             "Matchmaking window of room {BattleId} closed with {Humans} human(s); filling empty slots with bots",
-            room.BattleId, room.HumanPlayers.Count);
+            room.BattleId, room.AssignedTicketIds.Count);
 
         room.Finalized.TrySetResult(roster);
     }
@@ -263,6 +389,14 @@ public sealed class BattleMatchmakingService
             ? registered
             : DemoEntrySession(ticketId);
 
+        // Team tickets can be returned while members are still recruiting. Do not let an early client poll
+        // create or join a battle room until the host's /battle/teamEntry commits the selected roster.
+        var teamStart = GetTeamStartTask(playerSession.PartyId);
+        if (teamStart is not null)
+        {
+            await teamStart.WaitAsync(cancellationToken);
+        }
+
         // A reconnect/retry for a ticket whose room already started must replay the same final
         // assignment. Creating a second room here leaves the client and Photon
         // with different room identities and makes recovery impossible.
@@ -273,7 +407,7 @@ public sealed class BattleMatchmakingService
         {
             completedRoom = _roomsByBattleId.Values.FirstOrDefault(room =>
                 room.IsFinalized &&
-                room.HumanPlayers.Any(player => player.TicketId == ticketId));
+                room.AssignedTicketIds.Contains(ticketId));
         }
         if (completedRoom is not null)
         {
@@ -375,6 +509,18 @@ public sealed class BattleMatchmakingService
             // --- STAGE 2: every waiting stream has been parked here for the whole window, which closes when the
             // deadline runs out or the room filled up with humans; the empty slots are bots by now.
             var fullRoster = await room.Finalized.Task.WaitAsync(cancellationToken);
+
+            if (!room.AssignedTicketIds.Contains(ticketId))
+            {
+                // Keep an indivisible party together for the next match when it does not fit this roster.
+                lock (_matchLock) room.Subscribers.Remove(subscriber);
+                _logger.LogInformation(
+                    "Re-queueing excluded party member {UserId} from room {BattleId}",
+                    playerSession.UserId, room.BattleId);
+                await StreamAssignmentsAsync(ticketId, responseStream, cancellationToken);
+                return;
+            }
+
             await subscriber.SendStageAsync("", fullRoster);
             _logger.LogInformation("Streamed Stage 2 (full roster / Iniciar combate) for user {UserId}", playerSession.UserId);
 
@@ -594,17 +740,24 @@ public sealed class BattleMatchmakingService
     }
 
     /// <summary>One entry per human waiting in the room; the order is what the client reads as Blue/Red slots.</summary>
-    private static List<MatchingPlayerBattleInfo> BuildHumanEntries(ActiveBattleRoom room)
+    private static List<MatchingPlayerBattleInfo> BuildHumanEntries(ActiveBattleRoom room) =>
+        BuildHumanEntries(room.HumanPlayers, null);
+
+    private static List<MatchingPlayerBattleInfo> BuildHumanEntries(
+        IReadOnlyList<BattleEntrySession> players,
+        IReadOnlyDictionary<BattleEntrySession, int>? fixedTeams)
     {
         var entries = new List<MatchingPlayerBattleInfo>();
+        var teams = fixedTeams ?? SelectBattleParties(players).Assignments;
+        if (teams.Count != players.Count) teams = AssignHumanTeamsForInterim(players);
 
-        for (int i = 0; i < room.HumanPlayers.Count; i++)
+        for (int i = 0; i < players.Count; i++)
         {
-            var p = room.HumanPlayers[i];
-            int team = (i % 2 == 0) ? 0 : 1;
+            var p = players[i];
+            int team = teams[p];
 
             var playerName = p.UserName;
-            if (i > 0 && playerName == room.HumanPlayers[0].UserName)
+            if (i > 0 && playerName == players[0].UserName)
             {
                 playerName = $"{p.UserName} (P{i + 1})";
             }
@@ -635,13 +788,108 @@ public sealed class BattleMatchmakingService
         return entries;
     }
 
-    /// <summary>Final roster, built only when the room's window closes: the humans plus the bots for the free slots.</summary>
-    private static MatchingBattleInfo BuildRoster(ActiveBattleRoom room)
+    /// <summary>
+    private static Dictionary<BattleEntrySession, int> AssignHumanTeamsForInterim(
+        IReadOnlyList<BattleEntrySession> players)
     {
-        // Humans alternate Blue/Red in canonical order, so the two teams are never more than one human apart and
-        // the bots below only have to top each side up to MaxPerTeam. That is the whole team balance, and it holds
-        // for any number of humans from 1 to 8 (5 humans -> 3 Blue + 2 Red, bots taking one Blue and two Red).
-        var humanEntries = BuildHumanEntries(room);
+        var parties = players
+            .GroupBy(player => player.PartyId is { Length: > 0 } partyId
+                ? $"party:{partyId}"
+                : $"solo:{player.TicketId}", StringComparer.Ordinal)
+            .Select(group => group.ToList())
+            .ToList();
+
+        // Recruiting may temporarily contain a party combination that cannot fit. Keep groups intact in the
+        // waiting display; final allocation below selects the largest compatible set for the battle.
+        var interimTeams = new Dictionary<BattleEntrySession, int>();
+        var counts = new int[2];
+        foreach (var party in parties)
+        {
+            var team = counts[0] <= counts[1] ? 0 : 1;
+            foreach (var player in party) interimTeams[player] = team;
+            counts[team] += party.Count;
+        }
+        return interimTeams;
+    }
+
+    private sealed record PartyAllocation(Dictionary<BattleEntrySession, int> Assignments);
+
+    /// <summary>Select the largest whole-party subset that fits two four-player sides.</summary>
+    private static PartyAllocation SelectBattleParties(IReadOnlyList<BattleEntrySession> players)
+    {
+        var parties = players
+            .GroupBy(player => player.PartyId is { Length: > 0 } partyId
+                ? $"party:{partyId}"
+                : $"solo:{player.TicketId}", StringComparer.Ordinal)
+            .Select(group => group.OrderBy(player => player.CreatedAt)
+                .ThenBy(player => player.UserId, StringComparer.Ordinal).ToList())
+            .OrderBy(group => group[0].CreatedAt)
+            .ThenBy(group => group[0].UserId, StringComparer.Ordinal)
+            .ToList();
+
+        // Each party has three states: queued for this match's Blue side, queued for Red, or left for the
+        // next match. A room has at most eight entries, so this checks at most 3^8 combinations.
+        var optionCount = (int)Math.Pow(3, parties.Count);
+        var bestOption = -1;
+        var bestPlayers = 0;
+        var bestPriority = -1L;
+        var bestDifference = int.MaxValue;
+        var bestBlueCount = -1;
+        for (var option = 0; option < optionCount; option++)
+        {
+            var state = option;
+            var selectedPlayers = 0;
+            var priority = 0L;
+            var blueCount = 0;
+            var redCount = 0;
+            for (var i = 0; i < parties.Count; i++)
+            {
+                var side = state % 3;
+                state /= 3;
+                if (side == 0) continue;
+                selectedPlayers += parties[i].Count;
+                priority += 1L << (parties.Count - i - 1);
+                if (side == 1) blueCount += parties[i].Count;
+                else redCount += parties[i].Count;
+                if (blueCount > MaxPerTeam || redCount > MaxPerTeam) break;
+            }
+
+            if (blueCount > MaxPerTeam || redCount > MaxPerTeam) continue;
+            var difference = Math.Abs(blueCount - redCount);
+            if (selectedPlayers > bestPlayers
+                || selectedPlayers == bestPlayers && priority > bestPriority
+                || selectedPlayers == bestPlayers && priority == bestPriority && difference < bestDifference
+                || selectedPlayers == bestPlayers && priority == bestPriority && difference == bestDifference && blueCount > bestBlueCount)
+            {
+                bestOption = option;
+                bestPlayers = selectedPlayers;
+                bestPriority = priority;
+                bestDifference = difference;
+                bestBlueCount = blueCount;
+            }
+        }
+
+        var assignments = new Dictionary<BattleEntrySession, int>();
+        if (bestOption < 0) return new PartyAllocation(assignments);
+        var bestState = bestOption;
+        for (var i = 0; i < parties.Count; i++)
+        {
+            var side = bestState % 3;
+            bestState /= 3;
+            if (side == 0) continue;
+            var team = side == 1 ? 0 : 1;
+            foreach (var player in parties[i]) assignments[player] = team;
+        }
+        return new PartyAllocation(assignments);
+    }
+
+    /// <summary>Final roster, built only when the room's window closes: the humans plus the bots for the free slots.</summary>
+    private static MatchingBattleInfo BuildRoster(
+        ActiveBattleRoom room,
+        IReadOnlyDictionary<BattleEntrySession, int> humanTeams)
+    {
+        var selectedPlayers = room.HumanPlayers.Where(humanTeams.ContainsKey).ToList();
+        var humanEntries = BuildHumanEntries(selectedPlayers, humanTeams);
         var info = new MatchingBattleInfo
         {
             matchmakingExpirationDatetime = MatchmakingNeverExpires,
@@ -649,7 +897,7 @@ public sealed class BattleMatchmakingService
             battlePlayerList = [.. humanEntries]
         };
 
-        var usedKickers = new HashSet<int>(room.HumanPlayers.Select(player => player.KickerId));
+        var usedKickers = new HashSet<int>(selectedPlayers.Select(player => player.KickerId));
         int team0Count = humanEntries.Count(entry => entry.teamType == 0);
         int team1Count = humanEntries.Count - team0Count;
 
@@ -658,7 +906,7 @@ public sealed class BattleMatchmakingService
         var botIdx = 0;
 
         var gym = GymEnabled;
-        var totalPlayers = gym ? room.HumanPlayers.Count + GymBotCount : MaxPerTeam * 2;
+        var totalPlayers = gym ? selectedPlayers.Count + GymBotCount : MaxPerTeam * 2;
 
         while (info.battlePlayerList.Count < totalPlayers)
         {

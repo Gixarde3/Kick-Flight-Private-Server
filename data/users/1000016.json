@@ -1,21 +1,21 @@
 {
-  "UserId": "1000013",
-  "UserName": "Gixarde3",
+  "UserId": "1000016",
+  "UserName": "waba2",
   "KickerId": 1,
-  "KickerCostumeId": 2012201,
-  "ActiveDeckNumber": 2,
+  "KickerCostumeId": 2010101,
+  "ActiveDeckNumber": 1,
   "Decks": {
     "1": [
-      3010009,
-      3010007,
+      3010001,
       3010002,
+      3010003,
       3010004
     ],
     "2": [
-      3010083,
-      3010063,
-      3010066,
-      3010092
+      3010005,
+      3010006,
+      3010007,
+      3010008
     ],
     "3": [
       3010009,
@@ -693,10 +693,10 @@
       "Amount": 99
     }
   },
-  "ItemJetCoins": 213754,
+  "ItemJetCoins": 209754,
   "ItemPaidJetCoins": 10000,
   "ItemDiscForce": 999999,
-  "ItemKickPoints": 51000,
+  "ItemKickPoints": 50200,
   "ItemAmounts": {},
   "CostumeGears": {},
   "PendingGear": {
@@ -704,5 +704,5 @@
     "GearId": 0
   },
   "HasName": true,
-  "PlayerId": 1000013
+  "PlayerId": 1000016
 }

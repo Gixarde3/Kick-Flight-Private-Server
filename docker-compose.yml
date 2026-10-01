@@ -35,6 +35,7 @@ services:
       - GrpcPort=18081
       - KF_REPO_ROOT=/srv/repo
       - Harness__DirectClientHosts__0=192.168.1.17
+      - Harness__DirectClientHosts__1=10.0.2.2
       - PhotonServer__Enabled=true
       - PhotonServer__Host=luxon-server
       - PhotonServer__MasterServerPort=5055

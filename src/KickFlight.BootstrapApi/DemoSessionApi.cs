@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -9,6 +10,8 @@ namespace KickFlight.BootstrapApi;
 
 public sealed partial class DemoSessionApi
 {
+    private sealed record ApplicationAssetRevision(int platform, int revision);
+
     private const string CommonCode = "1a837b9ee2ae11a07a0f529a4cd4b61c";
     // The client keeps its downloaded masters until this header changes, so it must follow the content:
     // a SHA-256 over every served table (see the end of the constructor). Editing any config/masters_*.json
@@ -59,6 +62,7 @@ public sealed partial class DemoSessionApi
     private readonly IPlayerStore _playerStore;
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
     private readonly Dictionary<int, int> _battleRuleTypeById = [];
+    private long _customBattleSequence;
     private readonly List<KickerInfo> _kickerList = [];
     // kickerId -> KickerCostume master ROW ids. The client keys everything by row id (KickerCostumeMaster is a plain
     // TMasterBase: UserKickerInfo.kickerCostumeId, /kicker/change, BattleInfo all carry the row id; it saves e.g. 110
@@ -186,6 +190,53 @@ public sealed partial class DemoSessionApi
 
         // every rule can be played on every arena of the pool (equal ratio); the server, not the client, draws the field
         _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":16},{"id":2,"battleRuleId":1,"fieldId":301,"ratio":16},{"id":3,"battleRuleId":1,"fieldId":401,"ratio":16},{"id":4,"battleRuleId":1,"fieldId":601,"ratio":16},{"id":5,"battleRuleId":1,"fieldId":701,"ratio":16},{"id":6,"battleRuleId":1,"fieldId":901,"ratio":16},{"id":7,"battleRuleId":2,"fieldId":101,"ratio":16},{"id":8,"battleRuleId":2,"fieldId":301,"ratio":16},{"id":9,"battleRuleId":2,"fieldId":401,"ratio":16},{"id":10,"battleRuleId":2,"fieldId":601,"ratio":16},{"id":11,"battleRuleId":2,"fieldId":701,"ratio":16},{"id":12,"battleRuleId":2,"fieldId":901,"ratio":16},{"id":13,"battleRuleId":3,"fieldId":101,"ratio":16},{"id":14,"battleRuleId":3,"fieldId":301,"ratio":16},{"id":15,"battleRuleId":3,"fieldId":401,"ratio":16},{"id":16,"battleRuleId":3,"fieldId":601,"ratio":16},{"id":17,"battleRuleId":3,"fieldId":701,"ratio":16},{"id":18,"battleRuleId":3,"fieldId":901,"ratio":16},{"id":19,"battleRuleId":4,"fieldId":101,"ratio":16},{"id":20,"battleRuleId":4,"fieldId":301,"ratio":16},{"id":21,"battleRuleId":4,"fieldId":401,"ratio":16},{"id":22,"battleRuleId":4,"fieldId":601,"ratio":16},{"id":23,"battleRuleId":4,"fieldId":701,"ratio":16},{"id":24,"battleRuleId":4,"fieldId":901,"ratio":16},{"id":25,"battleRuleId":5,"fieldId":101,"ratio":16},{"id":26,"battleRuleId":5,"fieldId":301,"ratio":16},{"id":27,"battleRuleId":5,"fieldId":401,"ratio":16},{"id":28,"battleRuleId":5,"fieldId":601,"ratio":16},{"id":29,"battleRuleId":5,"fieldId":701,"ratio":16},{"id":30,"battleRuleId":5,"fieldId":901,"ratio":16},{"id":31,"battleRuleId":6,"fieldId":101,"ratio":16},{"id":32,"battleRuleId":6,"fieldId":301,"ratio":16},{"id":33,"battleRuleId":6,"fieldId":401,"ratio":16},{"id":34,"battleRuleId":6,"fieldId":601,"ratio":16},{"id":35,"battleRuleId":6,"fieldId":701,"ratio":16},{"id":36,"battleRuleId":6,"fieldId":901,"ratio":16}]""");
+        // Custom battle uses its own stage lookup. Only expose fields whose base scene and three rule variants
+        // are present in the catalog; Trial field 801 has a single flat _100 variant and is not a custom stage.
+        var customBattleRuleFieldJson = LoadJson(contentRoot, "config/masters_custom_battle_rule_field.json", """
+            [
+              {"id":1,"battleRuleType":1,"fieldId":101,"sortOrder":1},
+              {"id":2,"battleRuleType":1,"fieldId":301,"sortOrder":2},
+              {"id":3,"battleRuleType":1,"fieldId":401,"sortOrder":3},
+              {"id":4,"battleRuleType":1,"fieldId":601,"sortOrder":4},
+              {"id":5,"battleRuleType":1,"fieldId":701,"sortOrder":5},
+              {"id":6,"battleRuleType":1,"fieldId":901,"sortOrder":6},
+              {"id":7,"battleRuleType":2,"fieldId":101,"sortOrder":1},
+              {"id":8,"battleRuleType":2,"fieldId":301,"sortOrder":2},
+              {"id":9,"battleRuleType":2,"fieldId":401,"sortOrder":3},
+              {"id":10,"battleRuleType":2,"fieldId":601,"sortOrder":4},
+              {"id":11,"battleRuleType":2,"fieldId":701,"sortOrder":5},
+              {"id":12,"battleRuleType":2,"fieldId":901,"sortOrder":6},
+              {"id":13,"battleRuleType":3,"fieldId":101,"sortOrder":1},
+              {"id":14,"battleRuleType":3,"fieldId":301,"sortOrder":2},
+              {"id":15,"battleRuleType":3,"fieldId":401,"sortOrder":3},
+              {"id":16,"battleRuleType":3,"fieldId":601,"sortOrder":4},
+              {"id":17,"battleRuleType":3,"fieldId":701,"sortOrder":5},
+              {"id":18,"battleRuleType":3,"fieldId":901,"sortOrder":6}
+            ]
+            """);
+        _encryptedMasters["CustomBattleRuleField"] = EncryptMaster(customBattleRuleFieldJson);
+
+        // These are the retail-supported AI kicker/AI deck pairs. The client uses this custom-only master when an
+        // owner chooses Add AI; humans do not depend on it.
+        var customBattleKickerAiJson = LoadJson(contentRoot, "config/masters_custom_battle_kicker_ai.json", """
+            [
+              {"id":1,"kickerAiParameterId":1,"kickerAiDiscDeckId":1},
+              {"id":2,"kickerAiParameterId":2,"kickerAiDiscDeckId":1},
+              {"id":3,"kickerAiParameterId":3,"kickerAiDiscDeckId":1},
+              {"id":4,"kickerAiParameterId":4,"kickerAiDiscDeckId":1},
+              {"id":5,"kickerAiParameterId":5,"kickerAiDiscDeckId":1},
+              {"id":6,"kickerAiParameterId":6,"kickerAiDiscDeckId":1},
+              {"id":7,"kickerAiParameterId":7,"kickerAiDiscDeckId":1},
+              {"id":8,"kickerAiParameterId":8,"kickerAiDiscDeckId":1},
+              {"id":9,"kickerAiParameterId":9,"kickerAiDiscDeckId":1},
+              {"id":10,"kickerAiParameterId":10,"kickerAiDiscDeckId":1},
+              {"id":11,"kickerAiParameterId":11,"kickerAiDiscDeckId":1},
+              {"id":12,"kickerAiParameterId":12,"kickerAiDiscDeckId":1},
+              {"id":13,"kickerAiParameterId":13,"kickerAiDiscDeckId":1},
+              {"id":14,"kickerAiParameterId":14,"kickerAiDiscDeckId":1}
+            ]
+            """);
+        _encryptedMasters["CustomBattleKickerAi"] = EncryptMaster(customBattleKickerAiJson);
         // The file is the source; the literal is only the fallback.
         var regularMatchScheduleJson = LoadJson(contentRoot, "config/masters_regular_match_battle_schedule.json", """
             [
@@ -927,9 +978,62 @@ public sealed partial class DemoSessionApi
             return BinaryJson(json, key);
         }
 
-        if (path == "/battle/entry" || path == "/battle/teamEntry")
+        if (path == "/battle/teamCreate")
+        {
+            return await HandleTeamCreateAsync(context, state, key);
+        }
+
+        if (path == "/battle/teamJoin")
+        {
+            return await HandleTeamJoinAsync(context, state, key);
+        }
+
+        if (path == "/battle/teamEntry")
+        {
+            return await HandleTeamEntryAsync(context, state, key);
+        }
+
+        if (path == "/battle/teamRecruiting")
+        {
+            return await HandleTeamRecruitingAsync(context, state, key);
+        }
+
+        if (path == "/battle/entry")
         {
             return await HandleBattleEntryAsync(context, state, key);
+        }
+
+        if (path == "/customBattle/prepare")
+        {
+            // The client copies this ResponseAsset list into ArchiveData.ApplicationAssetRevisionList and later
+            // publishes it as a Photon lobby property. Returning [] erases its current asset revision; the next
+            // create flow then treats the application assets as stale and opens the full title-data update/restart.
+            // ResponseAsset.IsSameAssetRevision compares against ArchiveData.AppAssetRevision, which the client
+            // sends as x-app-asset-revision. This app-asset revision is separate from the CDN title-minimum
+            // revision (currently 27); echo the active client revision so the current installation is recognized.
+            context.Response.Headers["x-app-status-code"] = "0";
+            context.Response.Headers["x-kickflight-fixture"] = "dynamic-custom-battle-prepare";
+            var assetList = BuildApplicationAssetList(context.Request);
+            _logger.LogInformation("Prepared custom battle assets for {UserId}: platform={Platform} revision={Revision}",
+                state.UserId, assetList[0].platform, assetList[0].revision);
+            var response = new { assetList };
+            return BinaryJson(JsonSerializer.Serialize(response), key);
+        }
+
+        if (path == "/customBattle/start")
+        {
+            return await HandleCustomBattleStartAsync(context, state, key);
+        }
+
+        if (path == "/customBattle/end" || path == "/customBattle/result")
+        {
+            // Both response DTOs are empty in the retail client. Keep them explicit so these calls never depend on
+            // the broad route fallback and are easy to distinguish in captured API traces.
+            context.Response.Headers["x-app-status-code"] = "0";
+            context.Response.Headers["x-kickflight-fixture"] = path.EndsWith("/end", StringComparison.Ordinal)
+                ? "dynamic-custom-battle-end"
+                : "dynamic-custom-battle-result";
+            return BinaryJson("{}", key);
         }
 
         if (path == "/battle/start" || path == "/customBattle/start")
@@ -1563,6 +1667,208 @@ public sealed partial class DemoSessionApi
         return BinaryJson(body, key);
     }
 
+    private async Task<IResult?> HandleTeamCreateAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        using var request = await ReadTeamRequestAsync(context, state, key);
+        if (request is null
+            || !TryReadInt(request.RootElement, "battleRuleId", out var battleRuleId)
+            || !TryReadString(request.RootElement, "code", out var code)
+            || string.IsNullOrWhiteSpace(code))
+        {
+            return StatusError(context, key);
+        }
+
+        NormalizeCostume(state);
+        var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
+        var entry = _matchmaking.CreateTeam(
+            state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck, code);
+        // TeamCreate is called before Photon joins the recruiting room. Echo the app-asset revision the client
+        // already has; an empty list is interpreted as missing application data and sends it to the update/restart
+        // flow before it reaches Photon.
+        var assetList = BuildApplicationAssetList(context.Request);
+        var response = new
+        {
+            battleEntryId = entry.BattleEntryId,
+            matchmakingTeamId = entry.MatchmakingTeamId,
+            battleEntryTicketId = entry.TicketId,
+            assetList,
+            campaignList = Array.Empty<object>()
+        };
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-team-create";
+        _logger.LogInformation("Created team {TeamId} for {UserId}, code={Code}, rule={RuleId}",
+            entry.MatchmakingTeamId, state.UserId, code, battleRuleId);
+        return BinaryJson(JsonSerializer.Serialize(response), key);
+    }
+
+    private async Task<IResult?> HandleTeamJoinAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        using var request = await ReadTeamRequestAsync(context, state, key);
+        if (request is null
+            || !TryReadString(request.RootElement, "matchmakingTeamId", out var teamId)
+            || string.IsNullOrWhiteSpace(teamId))
+        {
+            return StatusError(context, key);
+        }
+
+        NormalizeCostume(state);
+        var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
+        var entry = _matchmaking.JoinTeam(
+            teamId, state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, deck);
+        if (entry is null) return StatusError(context, key);
+
+        var response = new
+        {
+            battleEntryId = entry.BattleEntryId,
+            matchmakingTeamId = entry.MatchmakingTeamId,
+            battleEntryTicketId = entry.TicketId,
+            campaignList = Array.Empty<object>()
+        };
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-team-join";
+        _logger.LogInformation("User {UserId} joined team {TeamId}", state.UserId, teamId);
+        return BinaryJson(JsonSerializer.Serialize(response), key);
+    }
+
+    private async Task<IResult?> HandleTeamEntryAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        using var request = await ReadTeamRequestAsync(context, state, key);
+        if (request is null
+            || !TryReadString(request.RootElement, "matchmakingTeamId", out var teamId)
+            || string.IsNullOrWhiteSpace(teamId)
+            || !TryReadStringList(request.RootElement, "userIdList", out var userIds)
+            || !_matchmaking.StartTeam(teamId, state.UserId, userIds))
+        {
+            return StatusError(context, key);
+        }
+
+        var response = new { matchmakingCancelWaitingTimeSecond = 5, scf = false };
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-team-entry";
+        _logger.LogInformation("Started team entry {TeamId} for {UserId} with {MemberCount} selected member(s)",
+            teamId, state.UserId, userIds.Count);
+        return BinaryJson(JsonSerializer.Serialize(response), key);
+    }
+
+    private async Task<IResult?> HandleTeamRecruitingAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        using var request = await ReadTeamRequestAsync(context, state, key);
+        if (request is null
+            || !TryReadStringList(request.RootElement, "matchmakingTeamIdList", out var teamIds))
+            return StatusError(context, key);
+
+        var teams = _matchmaking.GetTeams(teamIds);
+        var response = new
+        {
+            matchmakingTeamList = teams.Select(team => new
+            {
+                matchmakingTeamId = team.MatchmakingTeamId,
+                battleRuleId = team.BattleRuleId,
+                code = team.Code,
+                kickerCostumeIdList = team.KickerCostumeIdList
+            }).ToArray()
+        };
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-team-recruiting";
+        return BinaryJson(JsonSerializer.Serialize(response), key);
+    }
+
+    private async Task<JsonDocument?> ReadTeamRequestAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        try
+        {
+            var plaintext = D2CCodec.Decode(body, key);
+            var document = JsonDocument.Parse(plaintext);
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                document.Dispose();
+                return null;
+            }
+            return document;
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or InvalidOperationException)
+        {
+            _logger.LogWarning("Could not decode team request for {UserId}: {Error}", state.UserId, ex.Message);
+            return null;
+        }
+    }
+
+    private static bool TryReadString(JsonElement root, string propertyName, out string value)
+    {
+        value = "";
+        if (!root.TryGetProperty(propertyName, out var property)) return false;
+        if (property.ValueKind == JsonValueKind.String)
+        {
+            value = property.GetString() ?? "";
+            return true;
+        }
+        if (property.ValueKind == JsonValueKind.Number && property.TryGetInt64(out var number))
+        {
+            value = number.ToString(CultureInfo.InvariantCulture);
+            return true;
+        }
+        return false;
+    }
+
+    private static bool TryReadInt(JsonElement root, string propertyName, out int value)
+    {
+        value = 0;
+        if (!root.TryGetProperty(propertyName, out var property)) return false;
+        if (property.ValueKind == JsonValueKind.Number) return property.TryGetInt32(out value);
+        return property.ValueKind == JsonValueKind.String
+            && int.TryParse(property.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static bool TryReadStringList(JsonElement root, string propertyName, out List<string> values)
+    {
+        values = [];
+        if (!root.TryGetProperty(propertyName, out var property) || property.ValueKind != JsonValueKind.Array)
+            return false;
+
+        foreach (var item in property.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String)
+            {
+                var value = item.GetString();
+                if (!string.IsNullOrWhiteSpace(value)) values.Add(value);
+                continue;
+            }
+            if (item.ValueKind == JsonValueKind.Number && item.TryGetInt64(out var number))
+            {
+                values.Add(number.ToString(CultureInfo.InvariantCulture));
+                continue;
+            }
+            if (item.ValueKind == JsonValueKind.Object
+                && TryReadString(item, "userId", out var userId)
+                && !string.IsNullOrWhiteSpace(userId))
+            {
+                values.Add(userId);
+                continue;
+            }
+            return false;
+        }
+
+        values = values.Distinct(StringComparer.Ordinal).ToList();
+        return true;
+    }
+
+    private static ApplicationAssetRevision[] BuildApplicationAssetList(HttpRequest request)
+    {
+        var platform = int.TryParse(request.Headers["x-app-asset-platform"], NumberStyles.Integer,
+            CultureInfo.InvariantCulture, out var requestedPlatform)
+            ? requestedPlatform
+            : 3;
+        var revision = int.TryParse(request.Headers["x-app-asset-revision"], NumberStyles.Integer,
+                           CultureInfo.InvariantCulture, out var requestedRevision)
+                       && requestedRevision >= 0
+            ? requestedRevision
+            : 0;
+        return [new ApplicationAssetRevision(platform, revision)];
+    }
+
     private async Task<IResult?> HandleBattleEntryAsync(HttpContext context, SessionState state, byte[] key)
     {
         var body = await ReadBodyAsync(context.Request);
@@ -1655,6 +1961,61 @@ public sealed partial class DemoSessionApi
         _logger.LogInformation("Handled /battle/start for {UserId}: rule={RuleId} type={RuleType} guardianParameter={GuardianId} field={FieldId}",
             state.UserId, battleRuleId, battleRuleType, guardianId, fieldId);
         return BinaryJson(JsonSerializer.Serialize(resp), key);
+    }
+
+    private async Task<IResult?> HandleCustomBattleStartAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        int battleRuleType;
+        int fieldId;
+        int guardianId;
+        try
+        {
+            var plaintext = D2CCodec.Decode(body, key);
+            using var document = JsonDocument.Parse(plaintext);
+            var root = document.RootElement;
+            battleRuleType = root.GetProperty("battleRuleType").GetInt32();
+            fieldId = root.GetProperty("fieldId").GetInt32();
+
+            // CustomBattleRuleField is the client's source of legal rule/map pairs. Enforce that same pair at
+            // start so the saved map and the selected mode cannot drift after the lobby has been created.
+            using var customFields = JsonDocument.Parse(LoadJson(
+                _contentRoot, "config/masters_custom_battle_rule_field.json", "[]"));
+            var fieldIsAllowed = customFields.RootElement.EnumerateArray().Any(row =>
+                row.TryGetProperty("battleRuleType", out var type) && type.GetInt32() == battleRuleType
+                && row.TryGetProperty("fieldId", out var field) && field.GetInt32() == fieldId);
+            if (!fieldIsAllowed)
+            {
+                _logger.LogWarning("Rejected custom battle start for {UserId}: unsupported rule/map pair {RuleType}/{FieldId}",
+                    state.UserId, battleRuleType, fieldId);
+                return StatusError(context, key);
+            }
+
+            guardianId = battleRuleType == 3 ? 2 : 1;
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or InvalidOperationException
+                                   or KeyNotFoundException or FormatException)
+        {
+            _logger.LogWarning("Could not decode custom battle start for {UserId}: {Error}", state.UserId, ex.Message);
+            return StatusError(context, key);
+        }
+
+        // This is the custom battle's recording/correlation ID used by its end/result requests. Photon already
+        // created/joined the room from the lobby RoomName before this response; it is not the Photon GameId or
+        // the four-digit invite code (neither is present in CustomBattleStartRequestData).
+        var customBattleId = $"custom-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-{Interlocked.Increment(ref _customBattleSequence)}";
+        var response = new
+        {
+            customBattleId,
+            guardianParameter = new { id = guardianId, rank = 1 }
+        };
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-custom-battle-start";
+        _logger.LogInformation(
+            "Started custom battle {CustomBattleId} for {UserId}: ruleType={RuleType} field={FieldId}",
+            customBattleId, state.UserId, battleRuleType, fieldId);
+        return BinaryJson(JsonSerializer.Serialize(response), key);
     }
 
     // Colorful.Networking.BattleResultResponseData: every list must be present (empty is fine); the client

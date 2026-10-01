@@ -57,10 +57,10 @@ TitleScene → DownloadScene → HomeScene (3D, 14 kickers, 126 discos)
   - Si el resultado es `1` (Spectator/Replay), inicializa `SpectatorInfoPresenter` (RVA `0x15D2DD0`) -> Discos rojos pasivos.
   - Si el resultado es `0` (Default), inicializa `PlayerInfoPresenter` (RVA `0x1745578`) -> HUD interactivo real (`media_1789078663610.jpg`).
   - Además, `ReplayManager.get_ReplayMode` (RVA `0x1773670`) devolvía `1` en offline mode.
-- **Solución implementada en `scripts/patch-il2cpp-endpoints.py`**:
-  - Parche RVA `0x1773670` (`ReplayManager.get_ReplayMode`): `mov w0, wzr; ret` (`e0031f2ac0035fd6`). Fuerza `ReplayMode = 0`.
-  - Parche RVA `0x1570EA8` (`GameManager.GetMenuType`): `mov w0, wzr; ret` (`e0031f2ac0035fd6`). Fuerza `MenuType = 0` (`Default`).
-  - Con esto, el cliente instancia `PlayerInfoPresenter`: 4 discos verdes interactivos con countdown de cooldown ("45"), botón SP central, ATQ (2119), HP (16811) y radar.
+- **Solución vigente en `scripts/patch-il2cpp-endpoints.py`**:
+  - El parche RVA `0x1773670` (`ReplayManager.get_ReplayMode`) devuelve `0` (`mov w0, wzr; ret`, `e0031f2ac0035fd6`) para evitar que el estado de replay predeterminado del modo offline active `SpectatorInfoPresenter`.
+  - `GameManager.GetMenuType` (RVA `0x1570EA8`) deriva a una cave pequeña: devuelve `6` solo cuando `BattleUtil.GetMyTeamType()` lee la propiedad Photon `TeamColorType=2` (espectador), y devuelve `0` para el resto, igual que el stub anterior. `MenuTypeExtensions.IsSpectatorMode` reconoce `6` y el tipo de replay `1`; mantener `ReplayMode=0` evita que una partida offline salte por la ruta de replay.
+  - El HUD normal conserva `PlayerInfoPresenter` y sus controles interactivos; el HUD espectador usa `SpectatorInfoPresenter` cuando el cliente asigna la propiedad Photon de espectador.
 
 ### 1.3. Controles del Jugador Congelados / Inoperativos
 - **Síntoma original**: El personaje aparecía estático en la arena; los swipes y taps en la pantalla no producían rotación, vuelo ni ataques.
