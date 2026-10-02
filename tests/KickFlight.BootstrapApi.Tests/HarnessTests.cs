@@ -93,7 +93,8 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Octo revision 27
+        var title = ReadTitleResourceDefinition();
+        AssertOctoRevision(body, title.Revision);
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -114,39 +115,49 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
     }
 
     [Fact]
-    public async Task Octo_revision_one_can_update_to_the_reconstructed_title_database()
+    public async Task Octo_supported_old_revision_can_update_to_the_reconstructed_title_database()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/1");
+        var title = ReadTitleResourceDefinition();
+        var fromRevision = title.FromRevisions.First(revision => revision < title.Revision);
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{fromRevision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Octo revision 27
+        AssertOctoRevision(body, title.Revision);
     }
 
     [Fact]
     public async Task Octo_current_revision_preserves_the_url_format()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/15");
+        var title = ReadTitleResourceDefinition();
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{title.Revision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
+        AssertOctoRevision(body, title.Revision);
         Assert.Contains("/cdn/{o}", Encoding.UTF8.GetString(body));
     }
 
     [Fact]
-    public async Task Octo_revision_twenty_receives_the_current_database_and_future_revision_is_not_fallback()
+    public async Task Octo_supported_old_revision_receives_current_database_and_future_revision_is_not_fallback()
     {
+        var title = ReadTitleResourceDefinition();
+        var fromRevision = title.FromRevisions.First(revision => revision < title.Revision);
         var client = _factory.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/20");
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{fromRevision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1B }, body[..2]); // Current database revision 27
+        AssertOctoRevision(body, title.Revision);
 
-        using var futureRequest = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/28");
+        using var futureRequest = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{title.Revision + 1}");
         futureRequest.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var futureResponse = await client.SendAsync(futureRequest);
         Assert.Equal(HttpStatusCode.NotFound, futureResponse.StatusCode);
@@ -730,6 +741,24 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "KickFlight.PrivateServer.sln")))
             directory = directory.Parent;
         return directory?.FullName ?? throw new DirectoryNotFoundException("Repository root not found.");
+    }
+
+    private static (int AssetVersion, int Revision, int[] FromRevisions) ReadTitleResourceDefinition()
+    {
+        using var document = JsonDocument.Parse(
+            File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), "config/resources/title-minimum.json")));
+        var title = document.RootElement;
+        return (
+            title.GetProperty("assetVersion").GetInt32(),
+            title.GetProperty("revision").GetInt32(),
+            title.GetProperty("fromRevisions").EnumerateArray().Select(revision => revision.GetInt32()).ToArray());
+    }
+
+    private static void AssertOctoRevision(ReadOnlySpan<byte> body, int expectedRevision)
+    {
+        var offset = 0;
+        Assert.Equal(8UL, ReadVarint(body, ref offset)); // Database.revision tag
+        Assert.Equal((ulong)expectedRevision, ReadVarint(body, ref offset));
     }
 
     private static (int Field, int WireType)[] ReadProtobufLayout(ReadOnlySpan<byte> payload)

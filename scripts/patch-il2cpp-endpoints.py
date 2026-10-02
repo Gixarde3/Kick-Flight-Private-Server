@@ -15,7 +15,8 @@ validators (was: return null), GetRange/GetDisplayAngles use the offline caves (
 
 Build modes (environment variables): KF_DIAG=1 full KFDIAG trace (DIAG_PATCHES_ARM64), KF_RESULT_DIAG=1 isolated
 ResultManager/ResultScene trace (RESULT_DIAG_PATCHES_ARM64; exclusive with KF_DIAG), KF_NRE_LR=1 (with KF_DIAG)
-log the return address of every NRE, KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_NO_ALLOCATOR_REBIND=1 (drop the libunity allocator rebinding),
+log the return address of every NRE, KF_EXCEPTION_LR=1 (with KF_DIAG) additionally hooks every generic exception throw,
+KF_UNLOAD_BYPASS=1, KF_FORCE_GAME_SCENE=1, KF_UNITY_NO_ALLOCATOR_REBIND=1 (drop the libunity allocator rebinding),
 KF_PHOTON=1 Photon (LuxonServer) matchmaking flow instead of the offline bridge (see PHOTON_FLOW),
 KF_NO_READY_SCENE=1 the pre-2026-09-21 ready-scene bypass (no intro cinematic / countdown / end banner).
 """
@@ -144,15 +145,13 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
         "expected": bytes.fromhex("940f7294f30300aa530000b59a8cf297e00313aae1031faa4a2d079460000036e00700323f000014800240f9089c44398800083608d840b9480000356b18f297"),
         "replacement": bytes.fromhex("fd7bbca9e00701a9e20f02a9f45703a9e0031e2aef2cf997e02340f9ed2cf997e02740f9eb2cf997f45743a9e20f42a9e00741a9fd7bc4a8f30f1ef86b8cf217"),
     },
-    # DISABLED 2026-09-20: hooks every il2cpp exception raise on EVERY thread; a raise on UnityPreload during the
-    # match load (right after 952 RouteJunctionTable.InitTable) ended in SIGSEGV in the Unity log formatter 5/5 times
-    # (the known "DIAG hangs/crashes on the loading screen" race). Re-enable only for exception-origin hunts.
-    #     {
-    #         "description": "DIAG hookI: il2cpp generic raise entry -> b cave I (logs LR, re-runs displaced str x19, jumps back)",
-    #         "offset": 0x0121415C,
-    #         "expected": bytes.fromhex("f30f1ef8"),  # str x19, [sp, #-0x20]!
-    #         "replacement": bytes.fromhex("87730d14"),
-    #     },
+    # Opt-in only: this traces every generic exception on every thread, so it can add noisy logs and perturb timing.
+    *([{
+        "description": "DIAG hookI: il2cpp generic raise entry -> b cave I (logs LR + frame-pointer returns, re-runs displaced str x19)",
+        "offset": 0x0121415C,
+        "expected": bytes.fromhex("f30f1ef8"),  # str x19, [sp, #-0x20]!
+        "replacement": bytes.fromhex("87730d14"),
+    }] if os.environ.get("KF_EXCEPTION_LR") == "1" else []),
     {
         "description": "DIAG: SetParamVelocity guard with logging (810 = Animator null, 811 + addr = Animator native dead); replaces the plain guard cave",
         "offset": 0x1570ff0,
@@ -503,14 +502,36 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     {"description": "DIAG hook: SpectatorInfoPresenter member callback entry -> 9101", "offset": 0x164167c, "expected": bytes.fromhex("f85fbca9"), "replacement": bytes.fromhex("ca33f617")},
     {"description": "DIAG hook: GameManager.InitializeSpectatorPlayer entry -> 9102", "offset": 0x157063c, "expected": bytes.fromhex("f50f1df8"), "replacement": bytes.fromhex("e577f917")},
     {"description": "DIAG hook: GameManager.SetMainPlayer entry -> 9103", "offset": 0x1570898, "expected": bytes.fromhex("f50f1df8"), "replacement": bytes.fromhex("5977f917")},
+    # HomeScene.<PreBeginAsync>d__3.MoveNext state at [x19+0x10], logged on every entry/resume.
+    # 8399 is the initial -1 state; 8400+n identifies the continuation state. Markers 8420/8421
+    # delimit the raw low/high 32 bits of this async state-machine object's pointer so a live dump
+    # can read its current pending state after the spinner appears. The DIAG-only logger at 0x13BC348
+    # tail-calls the full caller-saved-register-safe helper at 0x13CDBA0. Replay the displaced load,
+    # then branch to the original continuation: returning from this BL-based hook would resume
+    # inside the cave at the last logger call instead of continuing MoveNext.
+    {"description": "DIAG cave: HomeScene.PreBeginAsync.MoveNext -> 8400+state, 8420+pointer low, 8421+pointer high", "offset": 0x13ce624, "expected": bytes.fromhex("089c4439a800083608d840b968000035cba2f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd48af0094f40300aa540000b5"), "replacement": bytes.fromhex("601240b9081a84520000080b46b7ff97801c845244b7ff97e003132a42b7ff97a01c845240b7ff9768fe60d3e003082a3db7ff97681240b9961d0714")},
+    {"description": "DIAG hook: HomeScene.PreBeginAsync.MoveNext state -> 8400+state", "offset": 0x1595cb0, "expected": bytes.fromhex("681240b9"), "replacement": bytes.fromhex("5de2f897")},
+    # TitleScene's predecessor state machine, with distinct values from the HomeScene probe above.
+    # 8459 is the initial -1 state; 8460+n is the state on entry/resume. 8480/8481 bracket the
+    # raw low/high pointer halves so a live dump can read the pending state at [this+0x10]. Replay
+    # the displaced load and branch back to MoveNext: RET after a BL-based hook would continue at
+    # the last logger call inside this cave instead of the original function.
+    {"description": "DIAG cave: TitleScene.PreBeginAsync.MoveNext -> 8460+state, 8480+pointer low, 8481+pointer high", "offset": 0x13ce660, "expected": bytes.fromhex("e316f997e00314aae1031faa68ff1d94041ca04ea01dad4e411daa4e621dab4e831dac4ee0031faa4ab01a940a1ca04e201da94ee0031faaf3654094"), "replacement": bytes.fromhex("601240b9882184520000080b37b7ff970024845235b7ff97e003132a33b7ff972024845231b7ff9768fe60d3e003082a2eb7ff97681240b976e27714")},
+    {"description": "DIAG hook: TitleScene.PreBeginAsync.MoveNext state -> 8460+state", "offset": 0x31c706c, "expected": bytes.fromhex("681240b9"), "replacement": bytes.fromhex("7d1d8897")},
+    # Track the scene transition await from HomeScene activation through its virtual PreBeginAsync dispatch.
+    # _ChangeSceneAsync.MoveNext has saved x30 and assigned this to x19 before 0x1CB3038; the init guard
+    # joins there on both paths. Log 8500+state and pointer halves, replay the state load, and B to its
+    # continuation. Cave 0x13CE69C-0x13CE6D8 is the verified dead tail of UpdateIdleTypeRate (no branch refs).
+    {"description": "DIAG cave: SceneManager._ChangeSceneAsync.MoveNext -> 8500+state, 8520+pointer low, 8521+pointer high", "offset": 0x13ce69c, "expected": bytes.fromhex("74a640f94009201e0829201e740000b5e0031faacf16f997e00314aa001da84e3296ff97e00313aabac3ff9774a640f91f000072e003271ec91d201e"), "replacement": bytes.fromhex("601240b9882684520000080b28b7ff970029845226b7ff97e003132a24b7ff972029845222b7ff9768fe60d3e003082a1fb7ff97681240b95a922314")},
+    {"description": "DIAG hook: SceneManager._ChangeSceneAsync.MoveNext state -> 8500+state", "offset": 0x1cb3038, "expected": bytes.fromhex("681240b9"), "replacement": bytes.fromhex("996ddc97")},
         # ---- END reconnect DIAG block ----
     # ---- END DIAGNOSTIC ----
 ] if os.environ.get("KF_DIAG") == "1" else []
 
 # The retired 9001–9041 Jay bomb probes used to occupy 0x13CE540–0x13CE7C8 in the dead
 # UpdateIdleTypeRate body. The production costume-refresh cave now occupies 0x13CE540–0x13CE5A4;
-# the spectator-selection probes use the verified free tail 0x13CE5A4–0x13CE624. Drop the old
-# bomb caves/hooks and preserve only that current spectator range.
+# spectator probes use 0x13CE5A4–0x13CE624; HomeScene and TitleScene state/pointer logging use
+# 0x13CE624–0x13CE660 and 0x13CE660–0x13CE69C. Drop old bomb caves/hooks, preserving current ranges.
 _RETIRED_BOMB_DIAG_HOOKS = {
     0x143BCB0, 0x143BF44, 0x143BF80, 0x143BFF8, 0x143C244,
     0x143C274, 0x143C394, 0x143C440, 0x143B750, 0x160C268,
@@ -636,6 +657,25 @@ PHOTON_FLOW = os.environ.get("KF_PHOTON") == "1"
 
 NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
     "arm64-v8a": [
+        # Octo coalesces multiple loads of the same bundle into one AssetBundleData and emits one
+        # OnAssetBundleUnloadCompleted callback when its refcount reaches zero. ResourceManager may
+        # have several active AssetBundleInfo records for that same name (e.g. repeated requests for
+        # font/localize/es/font.unity3d); removing only the first leaves the rest active forever and
+        # TitleScene's UnloadAssetBundleAll WaitWhile never finishes. Iterate the pool backwards and
+        # retire every *currently unloading* record with this callback's name. State=3 is unloading;
+        # preserving IsActive and State guards avoids removing a newly loaded/reused record.
+        {
+            "description": "AssetBundleUnloadCompleted: branch to callback cleanup cave (remove all active unloading records for this bundle name)",
+            "offset": 0x1A830B8,
+            "expected": bytes.fromhex("f50f1df8"),
+            "replacement": bytes.fromhex("882de517"),  # b 0x13CE6D8; preserves caller LR
+        },
+        {
+            "description": "cave: AssetBundleUnloadCompleted removes matching active State=3 AssetBundleInfo records in reverse pool order",
+            "offset": 0x13CE6D8,
+            "expected": bytes.fromhex("740000b5e0031faac316f997e00314aacc95ff97c00240f9081ca04e089c44398800083608d840b94800003597a2f897a00240f92939281e089c4439a800083608d840b96800003590a2f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd0daf0094f40300aa540000b5a816f997e00314aae1031faa2dff1d94041ca04ea01dad4e411daa4e621dab4e831dac4ee0031faa0fb01a940a1ca04e201da94ee0031faab865409473a640f94009201e0829201e730000b5e0031faa9416f997e00313aa"),
+            "replacement": bytes.fromhex("f353bca9f55b01a9f76302a9fd7b03a9fdc30091f30301aa130500b4c88401f0080947f9000140f91f495594f40300aa540400b4950e40f9150400b4688201b0088140f9010140f9e00315aa0b3d5594160400712b030054688201f008c942f9020140f9e00315aae103162a653d5594f70300aaf70100b4e8924039a8010034e82240b91f0d007141010054e10a40f9010100b4e00313aae2031faa90c0269480000035e00314aae10317aa51d11a94d60600712afdff54fd7b43a9f76342a9f55b41a9f353c4a8c0035fd6"),
+        },
         {
             "description": "force HTTP for direct server access",
             "offset": 0x31B5024,

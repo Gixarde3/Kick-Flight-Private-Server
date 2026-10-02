@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 27,
+  "revision": 35,
   "fromRevisions": [
     0,
     1,
@@ -30,7 +30,15 @@
     24,
     25,
     26,
-    27
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [
@@ -43,7 +51,7 @@
       ],
       "objectName": "v9pkqH",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/5_unknown/527639706B7148_41c2d14a98f2e813999d86c442441e9c.bin",
-      "logicalName": "Configuraci\u00f3n maestra CriWare Atom ACF",
+      "logicalName": "Configuración maestra CriWare Atom ACF",
       "description": "Master audio bus and category configuration"
     },
     {
@@ -31517,6 +31525,954 @@
       "sourcePath": "content/resources/ui-disc/41746862313338_f11dc3aa7e02b25e6c655b9931f13510.bundle",
       "logicalName": "Unity AssetBundle ui/disc/thumbnail_3010138.unity3d",
       "description": "Generated neutral-art placeholder for disc thumbnail 3010138; the original was never captured (scripts/build-disc-thumbnail-bundles.py)"
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5400,
+      "names": [
+        "ui/kicker/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wpQhS1",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41777051685331_ae76b4e1cc844434bd1aa3ea715a2301.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5401,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "w8C5C8",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773843354338_10efeeaa352bc0950405b4e0f4ae9393.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5402,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wsjrQE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177736A725145_32d131fed3ed0e91f4a46e385e2f5622.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5403,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wCzvjP",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177437A766A50_63413213eebcd383fb4756b6f5301abe.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5404,
+      "names": [
+        "ui/kicker/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wCy6r7",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774379367237_9d0746e22b1ae928f49f9bd288e19e41.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5405,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wtFOMN",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417774464F4D4E_689856e0a2c62422d11dec58620f5975.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5406,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wJxnLV",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774A786E4C56_93abcb35fe90c7300317efe7a9e1b142.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5407,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wcbSbZ",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177636253625A_b42e4d38e627b563c07ad1b57092193d.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5408,
+      "names": [
+        "ui/kicker/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wWBCyr",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775742437972_6bf8f5a2e0ed62fc96b4ea82e9052fe2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5409,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wHdlZG",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417748646C5A47_8542ddf7b4ea88cd4eeb1ae3ae1cf8f2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5410,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wH65vM",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177483635764D_1df3bdb47f4ff59085344b53ef774e93.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5411,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wJFSF2",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774A46534632_fa359fd48300be60eb1213d4fdaf89de.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-direct",
+      "kind": "assetBundle",
+      "octoId": 5412,
+      "names": [
+        "ui/kicker/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wGNPAB",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177474E504142_6c9816422dccf2e31ceab22e95213428.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-oblique",
+      "kind": "assetBundle",
+      "octoId": 5413,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wyfZct",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417779665A6374_7888c14ade733937701ccf417bbe6222.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-circle",
+      "kind": "assetBundle",
+      "octoId": 5414,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "w3VDJE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773356444A45_78d0023117f14cc95bae75b51b800f85.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-r20",
+      "kind": "assetBundle",
+      "octoId": 5415,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wV0zLY",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417756307A4C59_cdecd2e06fb460030209e153ac361314.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5416,
+      "names": [
+        "ui/kicker/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wKYAeH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774B59416548_e8dc65a7959966fbe46ee729c915c665.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5417,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wmwtcE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776D77746345_058c57545888ddea86e772608c19004a.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5418,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wliz1j",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776C697A316A_a9fbe68cd1410c65938e490f67c3c9b4.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5419,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wgUkjQ",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417767556B6A51_c4cdc0db1206d729cfbb9b572d57bf29.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-direct",
+      "kind": "assetBundle",
+      "octoId": 5420,
+      "names": [
+        "ui/kicker/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wItDWv",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774974445776_a92b910a33c39a7098a78714ddc65d17.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-oblique",
+      "kind": "assetBundle",
+      "octoId": 5421,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wL1VkI",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774C31566B49_0139c2335f49027ce219cfd91c6b6a82.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-circle",
+      "kind": "assetBundle",
+      "octoId": 5422,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wvumDH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417776756D4448_1a70211b6d3edaaf6fe07bb683bed7de.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-r20",
+      "kind": "assetBundle",
+      "octoId": 5423,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wL4e20",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774C34653230_0feb527d969594da57062e17a84b78aa.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-direct",
+      "kind": "assetBundle",
+      "octoId": 5424,
+      "names": [
+        "ui/kicker/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wu1Co5",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41777531436F35_6b1f3375e63c2c247dea477acb3d3878.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-oblique",
+      "kind": "assetBundle",
+      "octoId": 5425,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wtUiAO",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177745569414F_60decbc4bd06cd1c754d1895f63b489f.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-circle",
+      "kind": "assetBundle",
+      "octoId": 5426,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wAlEs3",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177416C457333_e9f02b17f9507da4344609cb5fddeee7.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-r20",
+      "kind": "assetBundle",
+      "octoId": 5427,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wXU3hO",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177585533684F_6b60ea05dbbc208a96fcfa5e84ef92e3.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5428,
+      "names": [
+        "ui/kicker/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wFQWNT",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774651574E54_6e1b4b744e5eb9518cc41fff61613f92.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5429,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wncLan",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776E634C616E_de943e373089da6e00ccffb803c16a61.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5430,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "w7Cg84",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773743673834_f5782d3704fa5645cdc6d6c1d270ad59.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5431,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wMFG2t",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774D46473274_c4b250803df38791d2137380c7263e6d.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-direct",
+      "kind": "assetBundle",
+      "octoId": 5432,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "w5UQs9",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773555517339_6eff74de4f933a77bc6c6f561b46d67b.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-oblique",
+      "kind": "assetBundle",
+      "octoId": 5433,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "whQUpB",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776851557042_16524b8894481f2cb3d71f0c9aaa85fb.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-circle",
+      "kind": "assetBundle",
+      "octoId": 5434,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "wRzY0f",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177527A593066_92efbc75ce8a18cbb93742f012db469c.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-r20",
+      "kind": "assetBundle",
+      "octoId": 5435,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "wCHu3F",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774348753346_af82fccbbc1366c1f8726fa0036bffc2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-direct",
+      "kind": "assetBundle",
+      "octoId": 5436,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wwxM9V",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417777784D3956_50c6bf0ba730ea32dca248c5bbfe019c.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-oblique",
+      "kind": "assetBundle",
+      "octoId": 5437,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wker4F",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776B65723446_7d857fb9d45f477e4db267d24ac6b26f.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-circle",
+      "kind": "assetBundle",
+      "octoId": 5438,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wjVPMx",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776A56504D78_afeecafd2121ad9888833cd95d001441.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-r20",
+      "kind": "assetBundle",
+      "octoId": 5439,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "w6THo2",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773654486F32_187c13867996581dbdedf81c907f5b64.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-direct",
+      "kind": "assetBundle",
+      "octoId": 5440,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wQ07qH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775130377148_4e190d8fbd43ecaecf7de70679e6e8f7.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-oblique",
+      "kind": "assetBundle",
+      "octoId": 5441,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wwsmmC",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417777736D6D43_a5bb8e4a842190d1c5c4ddca3a8caac9.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-circle",
+      "kind": "assetBundle",
+      "octoId": 5442,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wYHetT",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775948657454_afe6eb8c1b4fc35d1e11629dde3475c3.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-r20",
+      "kind": "assetBundle",
+      "octoId": 5443,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "w7zRvK",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177377A52764B_1cd4777b48d1b40b2e6f1385d504f9fd.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "weapon-costume-fallback-k001-m022-p001",
+      "kind": "assetBundle",
+      "octoId": 5444,
+      "names": [
+        "weapon/wp_001/wp_001_022_001.unity3d"
+      ],
+      "objectName": "wL94NP",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774C39344E50_b8ae9f0ac70b3c75f99f714ec9fefaac.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_001/wp_001_022_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_001/wp_001_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k001-m122-p001",
+      "kind": "assetBundle",
+      "octoId": 5445,
+      "names": [
+        "weapon/wp_001/wp_001_122_001.unity3d"
+      ],
+      "objectName": "w0IuxP",
+      "sourcePath": ".local/weapon-costume-fallbacks/41773049757850_3d764f0bdc988b87f9aaae05448b2814.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_001/wp_001_122_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_001/wp_001_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k002-m022-p001",
+      "kind": "assetBundle",
+      "octoId": 5446,
+      "names": [
+        "weapon/wp_002/wp_002_022_001.unity3d"
+      ],
+      "objectName": "wQkG08",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177516B473038_b3b141062d20098700d19968c30abab9.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_002/wp_002_022_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_002/wp_002_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k002-m122-p001",
+      "kind": "assetBundle",
+      "octoId": 5447,
+      "names": [
+        "weapon/wp_002/wp_002_122_001.unity3d"
+      ],
+      "objectName": "wpbYvs",
+      "sourcePath": ".local/weapon-costume-fallbacks/41777062597673_0b66b69d9719bb35b0dc5e0025a4d706.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_002/wp_002_122_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_002/wp_002_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k003-m022-p001",
+      "kind": "assetBundle",
+      "octoId": 5448,
+      "names": [
+        "weapon/wp_003/wp_003_022_001.unity3d"
+      ],
+      "objectName": "wxkHAc",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177786B484163_8c478c0a6c599197d3ff9d008190692a.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_003/wp_003_022_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_003/wp_003_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k003-m052-p001",
+      "kind": "assetBundle",
+      "octoId": 5449,
+      "names": [
+        "weapon/wp_003/wp_003_052_001.unity3d"
+      ],
+      "objectName": "w86OPN",
+      "sourcePath": ".local/weapon-costume-fallbacks/417738364F504E_74664e7aafd5ad5203135338df086e12.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_003/wp_003_052_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_003/wp_003_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k003-m122-p001",
+      "kind": "assetBundle",
+      "octoId": 5450,
+      "names": [
+        "weapon/wp_003/wp_003_122_001.unity3d"
+      ],
+      "objectName": "wcYqvP",
+      "sourcePath": ".local/weapon-costume-fallbacks/41776359717650_708b47f07cc4c84498a40af0bacc7187.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_003/wp_003_122_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_003/wp_003_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k003-m152-p001",
+      "kind": "assetBundle",
+      "octoId": 5451,
+      "names": [
+        "weapon/wp_003/wp_003_152_001.unity3d"
+      ],
+      "objectName": "wGZgVL",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177475A67564C_c1a16385ef048ed73d3c8d329fc815d3.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_003/wp_003_152_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_003/wp_003_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k006-m022-p001",
+      "kind": "assetBundle",
+      "octoId": 5452,
+      "names": [
+        "weapon/wp_006/wp_006_022_001.unity3d"
+      ],
+      "objectName": "wIoxyH",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177496F787948_8ebac30577e6eea5e00cbca2532ae162.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_006/wp_006_022_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_006/wp_006_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k006-m122-p001",
+      "kind": "assetBundle",
+      "octoId": 5453,
+      "names": [
+        "weapon/wp_006/wp_006_122_001.unity3d"
+      ],
+      "objectName": "wLf03m",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774C6630336D_fd0be32352a9a0d606246d5cef249fc3.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_006/wp_006_122_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_006/wp_006_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k008-m052-p001",
+      "kind": "assetBundle",
+      "octoId": 5454,
+      "names": [
+        "weapon/wp_008/wp_008_052_001.unity3d"
+      ],
+      "objectName": "whG84k",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177684738346B_5fbf709c0b1afaeb355751795ceea4bc.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_008/wp_008_052_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_008/wp_008_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k008-m152-p001",
+      "kind": "assetBundle",
+      "octoId": 5455,
+      "names": [
+        "weapon/wp_008/wp_008_152_001.unity3d"
+      ],
+      "objectName": "wZpunl",
+      "sourcePath": ".local/weapon-costume-fallbacks/41775A70756E6C_3519f92312a8500646552ec906dd5c99.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_008/wp_008_152_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_008/wp_008_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k012-m022-p001",
+      "kind": "assetBundle",
+      "octoId": 5456,
+      "names": [
+        "weapon/wp_012/wp_012_022_001.unity3d"
+      ],
+      "objectName": "wQhrbX",
+      "sourcePath": ".local/weapon-costume-fallbacks/41775168726258_74948319a2c2ef888e259bf49ed9bc26.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_012/wp_012_022_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_012/wp_012_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k012-m022-p002",
+      "kind": "assetBundle",
+      "octoId": 5457,
+      "names": [
+        "weapon/wp_012/wp_012_022_002.unity3d"
+      ],
+      "objectName": "w6l2CP",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177366C324350_07e0dda902d98c4020a097a906eb26cc.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_012/wp_012_022_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_012/wp_012_001_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k012-m122-p001",
+      "kind": "assetBundle",
+      "octoId": 5458,
+      "names": [
+        "weapon/wp_012/wp_012_122_001.unity3d"
+      ],
+      "objectName": "wEphsD",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774570687344_5ed7838d5556674c50f321d3860a9bbf.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_012/wp_012_122_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_012/wp_012_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k012-m122-p002",
+      "kind": "assetBundle",
+      "octoId": 5459,
+      "names": [
+        "weapon/wp_012/wp_012_122_002.unity3d"
+      ],
+      "objectName": "wn8ctQ",
+      "sourcePath": ".local/weapon-costume-fallbacks/41776E38637451_a3c3085f981063a8099849b1dd72f55e.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_012/wp_012_122_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_012/wp_012_101_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m002-p001",
+      "kind": "assetBundle",
+      "octoId": 5460,
+      "names": [
+        "weapon/wp_014/wp_014_002_001.unity3d"
+      ],
+      "objectName": "wHZSgL",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177485A53674C_e65dbd586f10f96e48b4fd9e9d933cea.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_002_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m002-p002",
+      "kind": "assetBundle",
+      "octoId": 5461,
+      "names": [
+        "weapon/wp_014/wp_014_002_002.unity3d"
+      ],
+      "objectName": "weMsoW",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177654D736F57_56ad9f64f4c471e7767498fac1ccd695.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_002_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m002-p101",
+      "kind": "assetBundle",
+      "octoId": 5462,
+      "names": [
+        "weapon/wp_014/wp_014_002_101.unity3d"
+      ],
+      "objectName": "wUZVGB",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177555A564742_c4c94eda43e80993d697ad4519ef947d.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_002_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m003-p001",
+      "kind": "assetBundle",
+      "octoId": 5463,
+      "names": [
+        "weapon/wp_014/wp_014_003_001.unity3d"
+      ],
+      "objectName": "wNMpOJ",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774E4D704F4A_0d3b24cf59263bae46dedfaed813c852.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_003_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m003-p002",
+      "kind": "assetBundle",
+      "octoId": 5464,
+      "names": [
+        "weapon/wp_014/wp_014_003_002.unity3d"
+      ],
+      "objectName": "w1TcAX",
+      "sourcePath": ".local/weapon-costume-fallbacks/41773154634158_841d4eba2c9b8c089668f764a8174351.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_003_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m003-p101",
+      "kind": "assetBundle",
+      "octoId": 5465,
+      "names": [
+        "weapon/wp_014/wp_014_003_101.unity3d"
+      ],
+      "objectName": "weITfX",
+      "sourcePath": ".local/weapon-costume-fallbacks/41776549546658_8b974d9469cc392c766d6fb3bbd760e6.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_003_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m051-p001",
+      "kind": "assetBundle",
+      "octoId": 5466,
+      "names": [
+        "weapon/wp_014/wp_014_051_001.unity3d"
+      ],
+      "objectName": "whm51s",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177686D353173_96a5467bc6264edad1c2311396cc0d95.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_051_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m051-p002",
+      "kind": "assetBundle",
+      "octoId": 5467,
+      "names": [
+        "weapon/wp_014/wp_014_051_002.unity3d"
+      ],
+      "objectName": "wHbN7h",
+      "sourcePath": ".local/weapon-costume-fallbacks/417748624E3768_6f68a0ba538c297c0466dc2b5019a894.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_051_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m051-p101",
+      "kind": "assetBundle",
+      "octoId": 5468,
+      "names": [
+        "weapon/wp_014/wp_014_051_101.unity3d"
+      ],
+      "objectName": "wLMuxH",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774C4D757848_d937a2b609f38d914f97cf73608cc7f7.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_051_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m101-p101",
+      "kind": "assetBundle",
+      "octoId": 5469,
+      "names": [
+        "weapon/wp_014/wp_014_101_101.unity3d"
+      ],
+      "objectName": "w9REGP",
+      "sourcePath": ".local/weapon-costume-fallbacks/41773952454750_2f20e3ddabac1a662dfcb353d96bfbed.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_101_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m102-p001",
+      "kind": "assetBundle",
+      "octoId": 5470,
+      "names": [
+        "weapon/wp_014/wp_014_102_001.unity3d"
+      ],
+      "objectName": "w1DFqn",
+      "sourcePath": ".local/weapon-costume-fallbacks/4177314446716E_358e79f3898c401ec0fb70716579dff7.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_102_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m102-p002",
+      "kind": "assetBundle",
+      "octoId": 5471,
+      "names": [
+        "weapon/wp_014/wp_014_102_002.unity3d"
+      ],
+      "objectName": "wlMeDK",
+      "sourcePath": ".local/weapon-costume-fallbacks/41776C4D65444B_f0edb033d798c73848bf9fecd49bd001.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_102_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m102-p101",
+      "kind": "assetBundle",
+      "octoId": 5472,
+      "names": [
+        "weapon/wp_014/wp_014_102_101.unity3d"
+      ],
+      "objectName": "wH2ocL",
+      "sourcePath": ".local/weapon-costume-fallbacks/417748326F634C_f4648a373f40cfbe6ab6fc9f7854e86d.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_102_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m103-p001",
+      "kind": "assetBundle",
+      "octoId": 5473,
+      "names": [
+        "weapon/wp_014/wp_014_103_001.unity3d"
+      ],
+      "objectName": "wJldGL",
+      "sourcePath": ".local/weapon-costume-fallbacks/41774A6C64474C_796afec7a88e95215ef04bcb67f1a5c4.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_103_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m103-p002",
+      "kind": "assetBundle",
+      "octoId": 5474,
+      "names": [
+        "weapon/wp_014/wp_014_103_002.unity3d"
+      ],
+      "objectName": "wGCMvQ",
+      "sourcePath": ".local/weapon-costume-fallbacks/417747434D7651_59d78d4fd0e53640cc548b453f39cc0f.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_103_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m103-p101",
+      "kind": "assetBundle",
+      "octoId": 5475,
+      "names": [
+        "weapon/wp_014/wp_014_103_101.unity3d"
+      ],
+      "objectName": "wiPzY1",
+      "sourcePath": ".local/weapon-costume-fallbacks/417769507A5931_12b96726c0e501d799616b9b2dc44672.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_103_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m151-p001",
+      "kind": "assetBundle",
+      "octoId": 5476,
+      "names": [
+        "weapon/wp_014/wp_014_151_001.unity3d"
+      ],
+      "objectName": "w5I3ga",
+      "sourcePath": ".local/weapon-costume-fallbacks/41773549336761_9b1fa1b5b985c4a78613a53f8e00d6d8.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_151_001.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_001.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m151-p002",
+      "kind": "assetBundle",
+      "octoId": 5477,
+      "names": [
+        "weapon/wp_014/wp_014_151_002.unity3d"
+      ],
+      "objectName": "w2hEWs",
+      "sourcePath": ".local/weapon-costume-fallbacks/41773268455773_5492c8d50e789f91a9f364ccb6c2e7c6.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_151_002.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_101_002.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
+    },
+    {
+      "id": "weapon-costume-fallback-k014-m151-p101",
+      "kind": "assetBundle",
+      "octoId": 5478,
+      "names": [
+        "weapon/wp_014/wp_014_151_101.unity3d"
+      ],
+      "objectName": "wYtAbs",
+      "sourcePath": ".local/weapon-costume-fallbacks/41775974416273_f460d957936db422e27309941811ad87.bundle",
+      "logicalName": "Unity AssetBundle weapon/wp_014/wp_014_151_101.unity3d",
+      "description": "Physically independent same-kicker, same-prop costume fallback cloned from weapon/wp_014/wp_014_001_101.unity3d; CAB and container key are unique; built by scripts/add_weapon_costume_aliases.py"
     }
   ]
 }

@@ -62,6 +62,14 @@ Rules learned the hard way:
 
 ## DIAG probe sets (attack, warp, bombs, reconnect)
 
+* `patch-il2cpp-endpoints.py` — async scene-state probes. HomeScene emits `8399` at initial state `-1`, then
+  `8400+state` on each `PreBeginAsync.MoveNext` entry; `8420`/`8421` bracket the state-machine pointer low/high
+  halves. TitleScene uses `8459`, `8460+state`, and pointer markers `8480`/`8481`. Join each pointer pair and read
+  the pending state at object offset `+0x10` while the spinner is visible. These mid-function hooks are after the
+  prologue saves LR; their caves replay the displaced state load and branch to the original continuation after
+  logging. The scene-transition probe emits `8500+state` and pointer markers `8520`/`8521` from
+  `GRE.SceneManager.<_ChangeSceneAsync>d__33.MoveNext`; state 7 awaits `LoadSceneAsync`, state 8 awaits
+  `PreBeginSceneAsync`. A `ret` after a cave's `bl` logger would return into the cave, not the MoveNext caller.
 * `scripts/re/attack_diag_caves.py` — KFDIAG 8100-8600: combo index of every swing (`8100+n`), target lost (`8200`),
   search-distance result (`8300/8301`), the four `IsAttack` angle checks with |delta| and limit (`8320-8323`),
   `IsAttack` true (`8310`), and which "in" animation played (`8400/8500/8600 + combo`). Minimal caves in the dead
