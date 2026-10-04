@@ -1473,16 +1473,9 @@ public sealed partial class DemoSessionApi
         {
             userPlayer,
             userDiscDeckList,
-            userCapsuleList = new[]
-            {
-                new
-                {
-                    slotNumber = 1,
-                    capsuleId = 5010001,
-                    completeDatetime = "2026-10-01 00:00:00",
-                    openTimeSecond = 3600
-                }
-            },
+            // No capsules are granted: tapping the old placeholder (5010001) softlocked the client, since
+            // /capsule/open and /capsule/immediateOpen are stubs with no real drops.
+            userCapsuleList = Array.Empty<object>(),
             // The shop's disc/kicker scrollers (Colorful.ShopDiscScroller._data : List<GachaGroupInfo>) are filled
             // from these two lists through GachaGroupListInfo(ResponseGachaGroup[]); serving them empty left the
             // scroller with a data list shorter than the cell range EnhancedScroller._Resize walks and GetCellHeight
