@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+# Remote half of .github/workflows/deploy-vps-main.yml. Runs as the configured SSH user; Docker access
+# must be available without sudo. Arguments are supplied by the workflow and are not secrets.
+set -Eeuo pipefail
+
+if [[ $# -ne 10 ]]; then
+  echo "usage: deploy-vps-ci.sh APP_DIR SHA ARCHIVE API PHOTON CDN FARM SITE CADDY FULL" >&2
+  exit 2
+fi
+
+app_dir=$1
+release_sha=$2
+archive=$3
+deploy_api=$4
+deploy_photon=$5
+deploy_cdn=$6
+rebuild_farm=$7
+sync_site=$8
+deploy_caddy=$9
+full_deploy=${10}
+
+[[ "$app_dir" == /* ]] || { echo "VPS_APP_DIR must be an absolute path" >&2; exit 2; }
+[[ "$app_dir" != "/" && -d "$app_dir" ]] || { echo "VPS_APP_DIR must be an existing application directory" >&2; exit 2; }
+[[ "$release_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "invalid commit SHA" >&2; exit 2; }
+[[ "$archive" == "/tmp/kf-vps-$release_sha.tar.gz" && -f "$archive" ]] || { echo "release archive path is invalid or missing" >&2; exit 2; }
+for flag in "$deploy_api" "$deploy_photon" "$deploy_cdn" "$rebuild_farm" "$sync_site" "$deploy_caddy" "$full_deploy"; do
+  [[ "$flag" == true || "$flag" == false ]] || { echo "invalid component flag" >&2; exit 2; }
+done
+cleanup_upload() { rm -f -- "$archive"; }
+trap cleanup_upload EXIT
+
+command -v docker >/dev/null || { echo "Docker is required on the VPS" >&2; exit 1; }
+command -v rsync >/dev/null || { echo "rsync is required on the VPS" >&2; exit 1; }
+command -v flock >/dev/null || { echo "flock is required on the VPS" >&2; exit 1; }
+command -v curl >/dev/null || { echo "curl is required on the VPS" >&2; exit 1; }
+
+[[ -f "$app_dir/.env" ]] || { echo "missing persistent $app_dir/.env" >&2; exit 1; }
+[[ -d "$app_dir/.local" ]] || { echo "missing persistent $app_dir/.local resource directory" >&2; exit 1; }
+
+ci_dir="$app_dir/.ci"
+releases_dir="$ci_dir/releases"
+mkdir -p "$releases_dir"
+exec 9>"$ci_dir/deploy.lock"
+flock -n 9 || { echo "another VPS deployment is already running" >&2; exit 1; }
+
+state_file="$ci_dir/current-sha"
+previous_sha=""
+if [[ -f "$state_file" ]]; then
+  IFS= read -r previous_sha < "$state_file" || true
+fi
+if [[ "$previous_sha" == "$release_sha" ]]; then
+  echo "commit $release_sha is already deployed"
+  exit 0
+fi
+previous_release=""
+if [[ "$previous_sha" =~ ^[0-9a-f]{40}$ && -d "$releases_dir/$previous_sha" ]]; then
+  previous_release="$releases_dir/$previous_sha"
+else
+  # The first CI run may replace a manually maintained checkout. Keep a source-only snapshot so a
+  # failed first rollout can restore those files without copying .env, .local, player data, or assets.
+  previous_release="$releases_dir/.pre-ci-$release_sha"
+  if [[ ! -f "$previous_release/.kf-managed-files" ]]; then
+    rm -rf -- "$previous_release"
+    mkdir -p "$previous_release"
+    rsync -a --checksum \
+      --exclude='.git' --exclude='/.env' --exclude='/.local' --exclude='/.ci' \
+      --exclude='/data' --exclude='/captures' --exclude='/logs' --exclude='/certs' \
+      --exclude='/deploy/.env' --exclude='/appsettings.Local.json' \
+      --exclude='/config/fixtures.local' \
+      "$app_dir/" "$previous_release/"
+    find "$previous_release" -type f -o -type l | sed "s#^$previous_release/##" | sort > "$previous_release/.kf-managed-files"
+  fi
+  if [[ ! -f "$ci_dir/deployed-files" ]]; then
+    cp -- "$previous_release/.kf-managed-files" "$ci_dir/deployed-files"
+  fi
+fi
+
+release_dir="$releases_dir/$release_sha"
+rm -rf -- "$release_dir"
+mkdir -p "$release_dir"
+tar -xzf "$archive" --no-same-owner --no-same-permissions -C "$release_dir"
+[[ -f "$release_dir/.kf-managed-files" ]] || { echo "release archive is missing its file manifest" >&2; exit 1; }
+ln -s "$app_dir/.local" "$release_dir/.local"
+
+assets_root=$(python3 - "$app_dir/.env" "$app_dir" <<'PY'
+import pathlib
+import sys
+
+env_path = pathlib.Path(sys.argv[1])
+app = pathlib.Path(sys.argv[2]).resolve()
+value = None
+for raw in env_path.read_text(encoding="utf-8").splitlines():
+    line = raw.strip()
+    if line.startswith("export "):
+        line = line[7:].lstrip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    key, item = line.split("=", 1)
+    if key.strip() == "KF_ASSETS_PATH":
+        item = item.strip()
+        if len(item) >= 2 and item[0] == item[-1] and item[0] in "\"'":
+            item = item[1:-1]
+        value = item
+        break
+root = pathlib.Path(value).expanduser() if value else app.parent / "Kick-Flight-Assets"
+if not root.is_absolute():
+    # The checked-in example is relative to deploy/, the directory containing the Compose file.
+    root = app / "deploy" / root
+print(root.resolve())
+PY
+)
+[[ -d "$assets_root" ]] || { echo "configured sibling assets directory is missing" >&2; exit 1; }
+
+# All checks run against the staged release before any live repository files or CDN paths change.
+python3 "$release_dir/scripts/build-cdn-tree.py" \
+  --assets-root "$assets_root" --repo-root "$release_dir" --verify-all-enabled --dry-run
+
+backup_dir="$assets_root/.cdn-rollback-$release_sha"
+activated=false
+source_sync_started=false
+rollback_on_error() {
+  status=$?
+  trap - EXIT ERR
+  cleanup_upload
+  if [[ $status -ne 0 && "$activated" == true ]]; then
+    echo "deployment failed; restoring the prior source tree and CDN where available" >&2
+    cdn_restored=false
+    if [[ -d "$backup_dir" ]]; then
+      python3 "$release_dir/scripts/build-cdn-tree.py" \
+        --assets-root "$assets_root" --restore-backup "$backup_dir" || true
+      cdn_restored=true
+    fi
+    if [[ "$source_sync_started" == true && -n "$previous_release" && -d "$previous_release" ]]; then
+      sync_release "$previous_release" || true
+      compose_from_app up -d --build || true
+    elif [[ "$cdn_restored" == true ]]; then
+      compose_from_app restart cdn || true
+    fi
+  fi
+  exit "$status"
+}
+
+sync_release() {
+  local source_dir=$1
+  local new_manifest="$source_dir/.kf-managed-files"
+  local old_manifest="$ci_dir/deployed-files"
+  if [[ -f "$old_manifest" ]]; then
+    while IFS= read -r old_path; do
+      [[ -n "$old_path" ]] || continue
+      case "/$old_path/" in
+        *"/../"*|*"//"*|*"/.env/"*|*"/.local/"*|*"/.ci/"*|*"/data/"*|*"/captures/"*|*"/logs/"*|*"/certs/"*) continue ;;
+      esac
+      if ! grep -Fqx -- "$old_path" "$new_manifest"; then
+        rm -f -- "$app_dir/$old_path"
+        parent=$(dirname -- "$app_dir/$old_path")
+        while [[ "$parent" != "$app_dir" && "$parent" == "$app_dir"/* ]]; do
+          rmdir --ignore-fail-on-non-empty -- "$parent" 2>/dev/null || true
+          parent=$(dirname -- "$parent")
+        done
+      fi
+    done < "$old_manifest"
+  fi
+  rsync -a --checksum \
+    --exclude='.git' --exclude='/.env' --exclude='/.local' --exclude='/.ci' \
+    --exclude='/data' --exclude='/captures' --exclude='/logs' --exclude='/certs' \
+    --exclude='/deploy/.env' --exclude='/appsettings.Local.json' \
+    --exclude='/config/fixtures.local' \
+    "$source_dir/" "$app_dir/"
+  cp -- "$new_manifest" "$old_manifest.tmp"
+  mv -f -- "$old_manifest.tmp" "$old_manifest"
+}
+
+compose_from_app() {
+  (
+    cd "$app_dir"
+    KF_ASSETS_PATH="$assets_root" docker compose \
+      --env-file "$app_dir/.env" --project-name deploy \
+      -f "$app_dir/deploy/docker-compose.vps.external-db.yml" "$@"
+  )
+}
+if [[ "$rebuild_farm" == true ]]; then
+  [[ ! -e "$backup_dir" ]] || { echo "stale CDN rollback directory exists; inspect it before retrying" >&2; exit 1; }
+  trap rollback_on_error EXIT ERR
+  activated=true
+  python3 "$release_dir/scripts/build-cdn-tree.py" \
+    --assets-root "$assets_root" --repo-root "$release_dir" --verify-all-enabled \
+    --atomic --backup-dir "$backup_dir"
+fi
+
+trap rollback_on_error EXIT ERR
+activated=true
+source_sync_started=true
+sync_release "$release_dir"
+
+compose_from_app config --quiet
+if [[ "$full_deploy" == true ]]; then
+  compose_from_app up -d --build
+  if [[ "$deploy_api" == true ]]; then
+    compose_from_app restart cdn grpc
+  fi
+else
+  if [[ "$deploy_photon" == true ]]; then
+    compose_from_app build photon
+    compose_from_app up -d --no-deps photon
+  fi
+  if [[ "$deploy_api" == true ]]; then
+    compose_from_app build api
+    compose_from_app up -d --no-deps api
+  fi
+  if [[ "$deploy_cdn" == true ]]; then
+    compose_from_app build cdn
+    compose_from_app up -d --no-deps cdn
+  fi
+  if [[ "$deploy_api" == true ]]; then
+    # nginx caches the API container address at startup; gRPC has the same upstream behavior.
+    compose_from_app restart cdn grpc
+  elif [[ "$rebuild_farm" == true ]]; then
+    compose_from_app restart cdn
+  fi
+  if [[ "$deploy_caddy" == true ]]; then
+    compose_from_app up -d --no-deps --force-recreate caddy
+  fi
+fi
+
+http_port=$(python3 - "$app_dir/.env" <<'PY'
+import sys
+port = "18080"
+for raw in open(sys.argv[1], encoding="utf-8"):
+    line = raw.strip()
+    if line.startswith("KF_HTTP_PORT="):
+        port = line.split("=", 1)[1].strip().strip("\"'") or port
+        break
+print(port)
+PY
+)
+[[ "$http_port" =~ ^[0-9]{1,5}$ ]] || { echo "invalid KF_HTTP_PORT" >&2; exit 1; }
+ready=false
+for attempt in {1..60}; do
+  if curl --fail --silent --show-error --max-time 15 "http://127.0.0.1:$http_port/health/ready" >/dev/null 2>&1; then
+    ready=true
+    break
+  fi
+  sleep 2
+done
+[[ "$ready" == true ]] || { echo "VPS readiness smoke check failed" >&2; exit 1; }
+
+read -r cdn_path cdn_sha < <(python3 - "$app_dir/config/resources/catalog.json" <<'PY'
+import json
+import sys
+for item in json.load(open(sys.argv[1], encoding="utf-8"))["resources"]:
+    path = item.get("requestPath", "")
+    if item.get("enabled", True) and path.startswith("/cdn/"):
+        print(path, item["sha256"])
+        break
+else:
+    raise SystemExit("catalog has no enabled CDN path")
+PY
+)
+smoke_file=$(mktemp)
+curl --fail --silent --show-error --max-time 30 \
+  "http://127.0.0.1:$http_port$cdn_path" -o "$smoke_file"
+actual_sha=$(sha256sum "$smoke_file" | cut -d ' ' -f 1)
+rm -f -- "$smoke_file"
+[[ "$actual_sha" == "$cdn_sha" ]] || { echo "served CDN checksum does not match catalog" >&2; exit 1; }
+
+if [[ "$sync_site" == true ]]; then
+  expected_site=$(sha256sum "$app_dir/deploy/site/index.html" | cut -d ' ' -f 1)
+  curl --fail --silent --show-error --max-time 30 "http://127.0.0.1:$http_port/" -o "$smoke_file"
+  actual_site=$(sha256sum "$smoke_file" | cut -d ' ' -f 1)
+  rm -f -- "$smoke_file"
+  [[ "$actual_site" == "$expected_site" ]] || { echo "served website checksum does not match deploy/site/index.html" >&2; exit 1; }
+fi
+
+rm -rf -- "$backup_dir"
+if [[ "$previous_release" == "$releases_dir/.pre-ci-$release_sha" ]]; then
+  rm -rf -- "$previous_release"
+fi
+printf '%s\n' "$release_sha" > "$state_file.tmp"
+mv -f -- "$state_file.tmp" "$state_file"
+activated=false
+cleanup_upload
+trap - EXIT ERR
+echo "deployed main commit $release_sha; API/Photon/CDN/Caddy readiness and CDN checksum passed"
