@@ -213,41 +213,93 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
-    public async Task Fixed_window_starts_at_first_entry_and_later_joins_do_not_extend_it()
+    public void Default_window_is_twenty_seconds_and_first_join_increment_is_five()
     {
         var service = CreateService(fastWindow: false);
 
-        // The shipped default gives humans ten seconds from the first entry to join the room.
         if (Environment.GetEnvironmentVariable("KF_MATCH_WINDOW_SECONDS") is null)
         {
-            Assert.Equal(10.0, service.MatchWindow.TotalSeconds, 3);
+            Assert.Equal(20.0, service.MatchWindow.TotalSeconds, 3);
+        }
+        if (Environment.GetEnvironmentVariable("KF_MATCH_JOIN_INCREMENT_SECONDS") is null)
+        {
+            Assert.Equal(5.0, service.JoinIncrementBaseSeconds, 3);
+        }
+    }
+
+    [Fact]
+    public void Join_increments_are_5_then_half_a_second_less_per_human_for_44_5_total()
+    {
+        var service = CreateService(fastWindow: false);
+        service.JoinIncrementBaseSeconds = 5.0;
+
+        Assert.Equal(0, service.JoinIncrementSeconds(1), 3);
+        double[] expected = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0];
+        for (var humans = 2; humans <= 8; humans++)
+        {
+            Assert.Equal(expected[humans - 2], service.JoinIncrementSeconds(humans), 3);
         }
 
-        // An accelerated integration check proves later joins don't reset or extend a room's deadline.
-        service.MatchWindow = TimeSpan.FromSeconds(2);
+        var total = 20.0 + Enumerable.Range(2, 7).Sum(service.JoinIncrementSeconds);
+        Assert.Equal(44.5, total, 3);
+
+        service.JoinIncrementBaseSeconds = 0;
+        Assert.Equal(0, Enumerable.Range(1, 8).Sum(service.JoinIncrementSeconds), 3);
+    }
+
+    [Theory]
+    [InlineData("KF_MATCH_WINDOW_SECONDS", "7.5")]
+    [InlineData("KF_MATCH_JOIN_INCREMENT_SECONDS", "3")]
+    [InlineData("KF_MATCH_WINDOW_SECONDS", "0")]
+    [InlineData("KF_MATCH_JOIN_INCREMENT_SECONDS", "0")]
+    public void Environment_overrides_configure_window_and_increment(string variable, string value)
+    {
+        var previous = Environment.GetEnvironmentVariable(variable);
+        try
+        {
+            Environment.SetEnvironmentVariable(variable, value);
+            var service = CreateService(fastWindow: false);
+            var parsed = double.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+            if (variable == "KF_MATCH_WINDOW_SECONDS")
+            {
+                Assert.Equal(parsed, service.MatchWindow.TotalSeconds, 3);
+            }
+            else
+            {
+                Assert.Equal(parsed, service.JoinIncrementBaseSeconds, 3);
+                Assert.Equal(parsed == 0 ? 0 : parsed, service.JoinIncrementSeconds(2), 3);
+            }
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(variable, previous);
+        }
+    }
+
+    [Fact]
+    public async Task Each_join_moves_the_deadline_and_the_window_task_honours_it()
+    {
+        var service = CreateService(fastWindow: false);
+        service.MatchWindow = TimeSpan.FromSeconds(1);
+        service.JoinIncrementBaseSeconds = 1.0; // second human +1 s, third +0.9 s
+
         var (_, ticket1) = service.RegisterEntry("1000001", "Player 0001", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
         var (_, ticket2) = service.RegisterEntry("1000002", "Player 0002", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
-        var (_, ticket3) = service.RegisterEntry("1000003", "Player 0003", 3, 1, 1, [3010001, 3010002, 3010003, 3010004]);
         using var cancellation1 = new CancellationTokenSource();
         using var cancellation2 = new CancellationTokenSource();
-        using var cancellation3 = new CancellationTokenSource();
-        var writer1 = new CollectingWriter(expectedCount: 5, cancellation1);
-        var writer2 = new CollectingWriter(expectedCount: 4, cancellation2);
-        var writer3 = new CollectingWriter(expectedCount: 3, cancellation3);
+        var writer1 = new CollectingWriter(expectedCount: 4, cancellation1);
+        var writer2 = new CollectingWriter(expectedCount: 3, cancellation2);
 
         var stream1 = service.StreamAssignmentsAsync(ticket1, writer1, cancellation1.Token);
         await writer1.FirstWrite;
-        await Task.Delay(200);
+        await Task.Delay(300);
         var stream2 = service.StreamAssignmentsAsync(ticket2, writer2, cancellation2.Token);
-        await writer2.FirstWrite;
-        await Task.Delay(200);
-        var stream3 = service.StreamAssignmentsAsync(ticket3, writer3, cancellation3.Token);
 
-        await Task.WhenAll(writer1.WaitForExpectedWritesAsync(), writer2.WaitForExpectedWritesAsync(), writer3.WaitForExpectedWritesAsync());
+        await Task.WhenAll(writer1.WaitForExpectedWritesAsync(), writer2.WaitForExpectedWritesAsync());
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream1);
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream2);
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream3);
 
+        // Base 1 s + 1 s for the second human = ~2 s after the first entry, not the original 1 s.
         var fullRosterWrite = writer1.Responses
             .Select((response, index) => (response, index))
             .First(item => Roster(item.response.Assignment).Count == 8);
@@ -553,8 +605,9 @@ public sealed class BattleMatchmakingTests
 
         if (fastWindow)
         {
-            // Still a real fixed deadline, only short for the streaming tests.
+            // Still a real deadline, only short for the streaming tests; joins do not extend it here.
             service.MatchWindow = TimeSpan.FromSeconds(1);
+            service.JoinIncrementBaseSeconds = 0;
         }
 
         return service;

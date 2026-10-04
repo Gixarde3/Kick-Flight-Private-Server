@@ -281,10 +281,29 @@ public sealed class BattleMatchmakingService
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;
 
-    // How long a room stays open for more humans. This is a fixed deadline from the first entry; later joins
-    // update waiting clients' rosters but do not move the deadline. Bots fill the empty slots after it expires.
+    // How long a room stays open for more humans. The first entry opens this base window and every human that
+    // joins extends the deadline (JoinIncrementSeconds); bots fill the empty slots after it expires.
+    // KF_MATCH_WINDOW_SECONDS=0 disables the window (start as soon as a second human appears).
     public TimeSpan MatchWindow { get; set; } =
-        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 10.0));
+        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 20.0));
+
+    /// <summary>
+    /// Seconds the second human adds to the window; each later join adds a tenth of this less: 5, 4.5, 4, ...
+    /// Tune with KF_MATCH_JOIN_INCREMENT_SECONDS; 0 means joins do not extend the window.
+    /// </summary>
+    public double JoinIncrementBaseSeconds { get; set; } =
+        ParseMatchConfiguration("KF_MATCH_JOIN_INCREMENT_SECONDS", 5.0);
+
+    /// <summary>
+    /// How much a join extends the window, counting the joiner: 5 s for the second human, then half a second
+    /// less each time (4.5, 4, ... 2 s for the eighth), so eight humans total 20 + 5 + 4.5 + ... + 2 = 44.5 s.
+    /// </summary>
+    public double JoinIncrementSeconds(int humansInRoom)
+    {
+        if (humansInRoom < 2) return 0;
+        var step = JoinIncrementBaseSeconds / 10.0;
+        return Math.Max(0, JoinIncrementBaseSeconds - step * (humansInRoom - 2));
+    }
 
     private static double ParseMatchConfiguration(string variable, double fallback)
     {
@@ -334,8 +353,8 @@ public sealed class BattleMatchmakingService
     }
 
     /// <summary>
-    /// Waits out the room's fixed window. The deadline is re-read after each delay so cancellation/finalization
-    /// can be observed; joins do not move it.
+    /// Waits out the room's window. Task.Delay cannot be extended, so the deadline is re-read after each delay:
+    /// that is what lets a join push the end of the window further away.
     /// </summary>
     private async Task RunMatchWindowAsync(ActiveBattleRoom room)
     {
@@ -432,7 +451,7 @@ public sealed class BattleMatchmakingService
 
             if (openRoom is not null)
             {
-                // The third, fourth, … human lands in the first player's room while its fixed window is open.
+                // The second, third, ... human lands in the first player's room while its window is open.
                 room = openRoom;
                 joinedExistingRoom = true;
                 var humansBefore = room.HumanPlayers.Count;
@@ -446,8 +465,14 @@ public sealed class BattleMatchmakingService
 
                 if (room.HumanPlayers.Count > humansBefore)
                 {
+                    // Each human that really joined (not a re-attach) pushes the deadline out.
+                    for (var count = humansBefore + 1; count <= room.HumanPlayers.Count; count++)
+                    {
+                        room.WindowDeadline += TimeSpan.FromSeconds(JoinIncrementSeconds(count));
+                    }
+
                     _logger.LogInformation(
-                        "Human {UserId} joined room {BattleId} ({Humans} human(s) waiting); deadline remains {Deadline:O}",
+                        "Human {UserId} joined room {BattleId} ({Humans} human(s) waiting); deadline now {Deadline:O}",
                         playerSession.UserId, room.BattleId, room.HumanPlayers.Count, room.WindowDeadline);
                 }
                 else
@@ -481,7 +506,7 @@ public sealed class BattleMatchmakingService
 
         if (!joinedExistingRoom)
         {
-            // Only the stream that opened the room starts its fixed-deadline clock.
+            // Only the stream that opened the room starts the window task; it follows deadline moves.
             _ = RunMatchWindowAsync(room);
         }
 
