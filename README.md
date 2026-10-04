@@ -1,159 +1,114 @@
-# Kick-Flight Private Server — bootstrap local
+# Kick Flight: The Fenix Returns
 
-Repositorio independiente para preservar y reconstruir, de forma local, el protocolo de arranque de Kick-Flight 2.11.0. No contiene la APK, assets protegidos, credenciales históricas ni código copiado de la aplicación.
+Servidor privado de comunidad para **Kick-Flight 2.11.0**. Este repositorio contiene la API compatible con el cliente, el servidor Photon basado en LuxonServer, los datos de juego editables y las herramientas para preparar el CDN y una APK parcheada.
 
-El estado actual es un arnés .NET 8 ejecutable y probado. Intercepta los tres hosts first-party, registra observaciones redacted y sólo responde con fixtures locales. La ejecución real confirmó y aceptó dos contratos mínimos: `POST /boot/index` con GRE/D2C (AES-256-CBC/PKCS7) y `GET /v1/list/12345/0` con una base Octo protobuf vacía. La APK alcanza la pantalla `TAP START` de la versión 2.11.0.
+La instancia pública corre en una VM de OCI. Docker Compose levanta la API, Photon, el CDN y la landing; la persistencia de jugadores usa PostgreSQL administrado por Neon. Caddy publica la web por HTTPS en `kick-flight-fenix.us.ci`.
 
-## Montarlo desde cero en tus propias máquinas
+## Instancia pública
 
-Lo que sigue es el arranque rápido del arnés local, que sigue siendo válido para
-desarrollo. Si lo que quieres es **levantar una copia completa** (API,
-PostgreSQL, CDN de assets, servidor Photon y cliente parcheado) en tus propias
-máquinas, empieza por ahí y no por aquí:
+- Sitio y descarga: [kick-flight-fenix.us.ci](https://kick-flight-fenix.us.ci/)
+- APK Android 2.11.0: [descargar](https://kick-flight-fenix.us.ci/apk/KickFlight-2.11.0-remote-kickflightsg.apk)
+- Estado de la API: [health/ready](https://kick-flight-fenix.us.ci/health/ready)
 
-| documento | para qué |
-| --- | --- |
-| [docs/RECREATE_FROM_SCRATCH.md](docs/RECREATE_FROM_SCRATCH.md) | la guía de punta a punta, en fases, con lo que **no** está en el repositorio |
-| [docs/ENVIRONMENT_REFERENCE.md](docs/ENVIRONMENT_REFERENCE.md) | todas las claves de configuración y variables de entorno, una por una |
-| [deploy/README.md](deploy/README.md) | el despliegue concreto del autor (TrueNAS + nginx + PostgreSQL) |
+La APK ya apunta a esta instancia. Tras instalarla, el primer inicio requiere internet para bajar los recursos del juego desde el CDN. Las partidas usan Photon; la API y Photon son servicios separados dentro de la pila.
 
-Los documentos de la era del arnés de arranque (`PHASE1_*`, `HOME_DEMO_STATUS.md`,
-`CONTINUATION_PROMPT_*`) se conservan por trazabilidad histórica, pero describen
-un estado anterior del proyecto: no cubren Photon, ni PostgreSQL, ni el
-despliegue en contenedores.
+## Arquitectura desplegada
 
-## Inicio rápido del servidor
+```text
+Cliente Android
+  ├─ HTTPS :443 ──> Caddy ──> Nginx
+  │                              ├─ landing
+  │                              ├─ /cdn/ ──> bundles del juego
+  │                              └─ API HTTP, incluida la descarga de APK ──> ASP.NET Core
+  ├─ gRPC :18081 ──> Nginx gRPC ──> API
+  └─ Photon TCP/UDP ──> LuxonServer
 
-### macOS (APK directa, sin proxy ni CA)
+API ── TLS ──> PostgreSQL en Neon
+```
 
-Con `config/apk-direct-server.local.json` apuntando a la IP actual del Mac:
+La VM OCI ejecuta los contenedores definidos en [`deploy/docker-compose.vps.external-db.yml`](deploy/docker-compose.vps.external-db.yml). Nginx entrega la landing y los bundles; reenvía las rutas HTTP del juego y la descarga de la APK a la API. Caddy termina HTTPS para `kick-flight-fenix.us.ci`. El modo de base externa omite el contenedor PostgreSQL local y lee `DATABASE_URL` del entorno; la documentación de despliegue usa Neon como proveedor.
+
+El cliente llega a Photon por los puertos TCP/UDP configurados para NameServer, MasterServer y GameServer. El puerto público de gRPC pasa por un proxy Nginx dedicado. La base de datos no se publica desde la VM.
+
+La portada está en [`deploy/site/index.html`](deploy/site/index.html) y ofrece español e inglés. Recuerda la selección en el navegador; si todavía no hay una selección guardada, usa el idioma del navegador y la sugerencia regional disponible. Los textos del juego están en `config/masters_translation.json` y se mantienen con `scripts/generate_translations.py`; esa tabla es independiente del idioma de la landing.
+
+## Desarrollo local
+
+Se necesita el SDK de .NET 8 para compilar y ejecutar la API. Inicializa también el submódulo de Photon:
 
 ```bash
+git submodule update --init --recursive
+```
+
+Para levantar el servidor directo local, prepara la configuración ignorada por Git a partir del ejemplo y cambia `serverBaseUrl` por una dirección HTTP accesible desde el teléfono o emulador:
+
+```bash
+cp config/apk-direct-server.example.json config/apk-direct-server.local.json
 ./scripts/run-direct.sh
 ```
 
-El backend queda en `18080`. Para volver a firmar la APK parcheada al cambiar de
-IP y regenerar el catálogo:
+El servidor usa el puerto indicado en esa URL. Los scripts de configuración local, proxy Android, Compose de desarrollo y solución de problemas están descritos en [`docs/RECREATE_FROM_SCRATCH.md`](docs/RECREATE_FROM_SCRATCH.md), [`docs/ENVIRONMENT_REFERENCE.md`](docs/ENVIRONMENT_REFERENCE.md) y [`docs/ANDROID_SETUP.md`](docs/ANDROID_SETUP.md).
+
+Para compilar la API y ejecutar las pruebas del repositorio:
 
 ```bash
-SERVER_BASE_URL=http://IP_DEL_MAC:18080 ./scripts/build-direct-apk.sh
-python3 scripts/build-title-resource-catalog.py
+dotnet test KickFlight.PrivateServer.sln --nologo
+python3 tests/test_teamtype.py
 ```
 
-Con Android visible por ADB, instala el artefacto generado:
+## APK y recursos
+
+El cliente Android se obtiene parcheando una APK base de Kick-Flight 2.11.0; no se compila desde el código fuente del juego. Para producir una APK local se requieren esa APK base, un keystore propio y las herramientas de Android indicadas en [`docs/RECREATE_FROM_SCRATCH.md`](docs/RECREATE_FROM_SCRATCH.md). Los archivos protegidos, los assets originales y los artefactos locales no se distribuyen en este repositorio.
+
+El endpoint del servidor y el host Photon quedan grabados en la APK al construirla. `scripts/build-direct-apk.sh` prepara y firma el cliente; `KF_PHOTON=1` y `KF_PHOTON_HOST` activan y configuran Photon para una compilación remota. La guía [`deploy/VPS.md`](deploy/VPS.md) detalla el artefacto publicado y sus rutas.
+
+Los recursos se definen en `config/resources/catalog.json`. `scripts/build-title-resource-catalog.py` actualiza el catálogo del juego y `scripts/update-apk-catalog-sha.py` registra el hash de la APK. `scripts/build-cdn-tree.py` reconstruye el árbol completo `/cdn/` a partir del catálogo y de los assets preparados localmente; la carpeta de assets debe existir fuera del repositorio. Revisa los argumentos y el destino antes de ejecutarlo, porque cada ejecución reemplaza el árbol CDN de salida.
+
+## Despliegue
+
+La configuración que representa el despliegue actual es la de VM con PostgreSQL externo:
 
 ```bash
-adb install -r .local/artifacts/KickFlight-2.11.0-direct-IP_DEL_MAC-18080.apk
+docker compose --env-file .env \
+  --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml up -d --build
 ```
 
-Consulta [docs/MACOS_HOTEL_SETUP.md](docs/MACOS_HOTEL_SETUP.md) para redes de
-hotspot y acceso desde otro equipo.
+`DATABASE_URL` y los valores de host se suministran desde archivos de entorno locales ignorados por Git. No pegues credenciales en comandos compartidos ni las agregues al repositorio. El Compose alternativo [`deploy/docker-compose.vps.yml`](deploy/docker-compose.vps.yml) incluye un PostgreSQL local para instalaciones que no usen Neon.
 
-### Windows
+La guía [`deploy/VPS.md`](deploy/VPS.md) cubre la VM, reglas de red, la base externa, Caddy, la landing y el orden para generar la APK, el catálogo y el CDN. Incluye los endpoints de salud y comandos para operar el stack.
 
-```powershell
-.\scripts\check-prerequisites.ps1
-.\scripts\run-local.ps1 -HttpPort 8080
-```
+### CI/CD
 
-Health checks: `http://localhost:8080/health/live` y `http://localhost:8080/health/ready`.
+El workflow [`deploy-vps-main.yml`](.github/workflows/deploy-vps-main.yml) despliega únicamente en `push` a `main`. Omite eventos atrasados si el commit ya no es la punta de `main` y serializa los despliegues. Se activa cuando el workflow y sus cambios llegan a `main`; no se ejecuta en pull requests ni tiene ejecución manual.
 
-Para la captura Android HTTPS se usan dos procesos:
+El despliegue selecciona los servicios según los archivos cambiados: API, Photon, CDN y Caddy se reconstruyen cuando corresponde; cambios en `deploy/site/` sincronizan la landing; cambios de `config/`, `content/` o generadores marcados fuerzan la reconstrucción de la pila y del árbol CDN. Cambios de Compose, GeoIP o gRPC fuerzan la pila completa. El workflow hace checkout recursivo de submódulos y compila las imágenes en la VM.
 
-```powershell
-.\scripts\run-local.ps1 -HttpPort 18080 -EnableCapture
-.\scripts\run-android-capture-proxy.ps1 -ListenPort 8080
-```
+En GitHub, el environment `production` necesita estos secretos y variables:
 
-Para ejecutarlos en segundo plano y conservar toda la salida en `.local/session-logs/`:
+| Tipo | Nombre |
+| --- | --- |
+| Secret | `VPS_SSH_PRIVATE_KEY` |
+| Secret | `VPS_KNOWN_HOSTS` |
+| Variable | `VPS_HOST` |
+| Variable | `VPS_USER` |
+| Variable | `VPS_APP_DIR` (ruta absoluta) |
+| Variable opcional | `VPS_SSH_PORT` (por defecto `22`) |
 
-```powershell
-.\scripts\start-logged-services.ps1
-.\scripts\get-logged-services.ps1 -Tail 50
-.\scripts\stop-logged-services.ps1
-```
+La VM debe tener Docker Compose, `rsync`, `flock`, `curl` y Python 3. El usuario SSH debe ejecutar Docker sin `sudo`. Antes del primer despliegue, prepara en `VPS_APP_DIR` el `.env` de producción y el directorio persistente `.local/`, además del árbol de assets `octo_sorted/`; el workflow no sube estos datos ni crea la VM, Neon o sus reglas de red. `DATABASE_URL` permanece en el `.env` del host, nunca en GitHub. Consulta [la guía de despliegue](deploy/VPS.md) para preparar y verificar ese estado.
 
-Cada inicio crea archivos separados para `stdout` y `stderr`; el archivo
-`.local/session-logs/kickflight-services.json` identifica la sesión activa y
-las rutas exactas de sus logs. La parada conserva los logs para diagnóstico.
+Antes del cambio, valida todas las fuentes habilitadas del catálogo. Después comprueba `/health/ready`, el SHA-256 de un recurso servido por `/cdn/` y, si cambió el sitio, el SHA-256 de la landing servida. Ante un fallo, intenta restaurar el código y árbol CDN previos y vuelve a construir y levantar el stack. No revierte migraciones ni datos de Neon. El workflow comprueba salud de runtime; las pruebas de .NET y Python se ejecutan aparte con los comandos de desarrollo de arriba.
 
-Para una APK generada en modo directo no hace falta proxy ni CA:
+## Estructura
 
-```powershell
-.\scripts\update-direct-server-ip.ps1 -Apply
-.\scripts\build-direct-apk.ps1
-.\scripts\configure-direct-firewall.ps1 -Apply # PowerShell como administrador
-.\scripts\start-logged-services.ps1 -Mode Direct -DirectClientHost 192.168.1.34
-```
+| Ruta | Contenido |
+| --- | --- |
+| `src/KickFlight.BootstrapApi/` | API .NET 8, sesiones, estado del jugador, datos de juego y matchmaking gRPC |
+| `submodules/luxonserver/` | servidor de partidas Photon/LuxonServer |
+| `config/` | masters, fixtures y catálogo de recursos |
+| `content/` | bundles y archivos generados para el cliente |
+| `scripts/` | build de APK, datos, CDN, despliegue y herramientas de diagnóstico |
+| `deploy/` | Compose, Caddy, Nginx, Photon y landing pública |
+| `docs/` | configuración, despliegue, Android y documentación de ingeniería inversa |
 
-La URL usada por el generador se define en
-`config/apk-direct-server.local.json`. El servidor directo sólo acepta el host
-LAN configurado y continúa sin tener ninguna ruta upstream.
-En el teléfono se deja el proxy Wi-Fi en `Ninguno`; la APK directa utiliza HTTP
-LAN y no necesita la CA de mitmproxy.
-
-## Recursos y CDN local
-
-Las respuestas pequeñas del backend se mantienen en `config/fixtures/`. Los
-bundles, audio, vídeo y otros archivos grandes se registran por separado en
-`config/resources/catalog.json`; el servidor los entrega por streaming, admite
-rangos HTTP y verifica el SHA-256 antes de publicar cada entrada.
-
-Para listar las rutas que el cliente pidió y todavía no existen:
-
-```powershell
-.\scripts\analyze-missing-requests.ps1
-```
-
-Para añadir un recurso conservando el archivo en su ubicación actual:
-
-```powershell
-.\scripts\add-resource.ps1 -Id recurso-001 -RequestPath /cdn/recurso.bundle `
-  -FilePath C:\ruta\recurso.bundle -LogicalName "Nombre por identificar" `
-  -Description "Descripción del contenido"
-```
-
-Con `-Copy`, el script copia el archivo a `content/resources/`. El catálogo se
-recarga automáticamente; no hace falta recompilar ni reiniciar el servidor.
-
-`update-direct-server-ip.ps1` usa por defecto el adaptador activo con gateway.
-Para una zona móvil puede indicarse su nombre con `-InterfaceAlias` y el script
-actualizará la URL conservando el puerto existente.
-
-### Generación Automática de APK y Servidor (macOS / Linux)
-
-Para detectar la IP automáticamente, parchear y firmar el APK, e iniciar el servidor en un solo paso:
-
-```bash
-./run-apk.sh
-```
-
-Opciones:
-- `./run-apk.sh` : Detecta automáticamente tu IP Wi-Fi/Ethernet, parchea el APK y arranca el servidor.
-- `./run-apk.sh --build-only` : Solo genera y firma el APK sin arrancar el servidor.
-- `./run-apk.sh 192.168.1.50` : Fuerza una IP específica si tienes múltiples adaptadores.
-
-El APK generado se guarda en:
-`.local/artifacts/KickFlight-2.11.0-direct-<IP>-18080.apk`
-
-Si hay un dispositivo Android conectado por USB, `adb install -r` lo instala automáticamente.
-
-Después se aplica el proxy del emulador con `configure-android-proxy.ps1`. La instalación y retirada de la CA se explican en [docs/ANDROID_SETUP.md](docs/ANDROID_SETUP.md). El proxy TLS responde localmente a todo host no permitido y reescribe exclusivamente los tres hosts first-party a `127.0.0.1:18080`; no existe ruta de forward a Grenge.
-
-## Pruebas
-
-Requiere el SDK de .NET 8 en el `PATH` (`dotnet --version`); no hay ninguna copia
-de `dotnet` dentro del repositorio.
-
-```powershell
-dotnet test .\KickFlight.PrivateServer.sln --nologo
-python tests\test_teamtype.py
-```
-
-Las pruebas de la API usan un host en proceso contra una base de datos de
-descarte, así que no tocan tus partidas guardadas.
-
-Consulta [docs/PHASE1_RESULT.md](docs/PHASE1_RESULT.md) para el resultado observado,
-[docs/HOME_DEMO_STATUS.md](docs/HOME_DEMO_STATUS.md) para el contrato estático y
-el siguiente paso hacia Home, y [PRESERVATION_POLICY.md](PRESERVATION_POLICY.md)
-para los límites del repositorio.
+Los archivos de trabajo como `.env`, la APK base, el keystore, los bundles grandes y los artefactos bajo `.local/` deben mantenerse fuera del control de versiones. [`PRESERVATION_POLICY.md`](PRESERVATION_POLICY.md) describe los límites del repositorio y [`docs/PHOTON_SERVER.md`](docs/PHOTON_SERVER.md) documenta el servidor Photon.

@@ -1,5 +1,7 @@
 namespace KickFlight.BootstrapApi.PlayerStore;
 
+using Npgsql;
+
 // Picks the store. A connection string means PostgreSQL; no connection string means the JSON files.
 //
 // The fallback is not a second production path: it exists so `dotnet test` and a local `start-server.bat`
@@ -9,11 +11,14 @@ namespace KickFlight.BootstrapApi.PlayerStore;
 public static class PlayerStoreFactory
 {
     public const string ConnectionStringKey = "PlayerStore:ConnectionString";
+    public const string DatabaseUrlKey = "PlayerStore:DatabaseUrl";
 
     public static IPlayerStore Create(IServiceProvider services, IConfiguration configuration)
     {
-        var connectionString = configuration[ConnectionStringKey]
-            ?? configuration.GetConnectionString("KickFlight");
+        var databaseUrl = configuration[DatabaseUrlKey];
+        var connectionString = !string.IsNullOrWhiteSpace(databaseUrl)
+            ? ConvertDatabaseUrl(databaseUrl)
+            : configuration[ConnectionStringKey] ?? configuration.GetConnectionString("KickFlight");
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
@@ -28,5 +33,40 @@ public static class PlayerStoreFactory
         return new PostgresPlayerStore(
             services.GetRequiredService<ILogger<PostgresPlayerStore>>(),
             connectionString);
+    }
+
+    private static string ConvertDatabaseUrl(string databaseUrl)
+    {
+        if (!Uri.TryCreate(databaseUrl, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != "postgres" && uri.Scheme != "postgresql"))
+        {
+            throw new InvalidOperationException(
+                $"{DatabaseUrlKey} must be a postgres:// or postgresql:// URL.");
+        }
+
+        var userInfo = uri.UserInfo.Split(':', 2);
+        if (userInfo.Length != 2 || string.IsNullOrWhiteSpace(uri.Host))
+        {
+            throw new InvalidOperationException(
+                $"{DatabaseUrlKey} must include a host, username, and password.");
+        }
+
+        var database = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/'));
+        if (string.IsNullOrWhiteSpace(database))
+        {
+            throw new InvalidOperationException($"{DatabaseUrlKey} must include a database name.");
+        }
+
+        var builder = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.IsDefaultPort ? 5432 : uri.Port,
+            Database = database,
+            Username = Uri.UnescapeDataString(userInfo[0]),
+            Password = Uri.UnescapeDataString(userInfo[1]),
+            SslMode = SslMode.Require
+        };
+
+        return builder.ConnectionString;
     }
 }

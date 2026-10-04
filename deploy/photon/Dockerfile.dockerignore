@@ -1,0 +1,12 @@
+**
+!submodules
+!submodules/luxonserver
+!submodules/luxonserver/**
+submodules/luxonserver/.git
+submodules/luxonserver/build
+submodules/luxonserver/vcpkg/buildtrees
+submodules/luxonserver/vcpkg/packages
+submodules/luxonserver/vcpkg/downloads
+!deploy
+!deploy/photon
+!deploy/photon/**

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffe243">
+  <meta name="description" content="Kick Flight: The Fenix Returns. Descarga la APK para Android y vuelve a la arena.">
+  <title>Kick Flight: The Fenix Returns</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --yellow: #ffe243;
+      --black: #171719;
+      --white: #fffdf6;
+      --max: 1040px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--black);
+      background: var(--yellow);
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Franklin Gothic Medium", system-ui, sans-serif;
+      line-height: 1.35;
+    }
+    a { color: inherit; }
+    .wrap { width: min(var(--max), calc(100% - 36px)); margin-inline: auto; }
+    .topbar {
+      position: relative;
+      background-color: var(--yellow);
+      background-image: repeating-linear-gradient(135deg, rgba(23,23,25,.10) 0 2px, transparent 2px 11px);
+      border-bottom: 4px solid var(--black);
+    }
+    .topbar-inner { min-height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: inline-flex; align-items: center; padding: 7px 10px; background: var(--black); text-decoration: none; }
+    .brand img { display: block; width: clamp(128px, 20vw, 172px); height: auto; }
+    .menu-mark { width: 44px; height: 44px; display: grid; place-content: center; gap: 6px; border: 2px solid var(--black); background: var(--yellow); transform: rotate(-4deg); }
+    .menu-mark span { display: block; width: 21px; height: 3px; background: var(--black); }
+    .topbar-actions { display: flex; align-items: center; gap: 14px; }
+    .language-picker { display: inline-flex; border: 2px solid var(--black); background: var(--white); }
+    .language-picker button { min-width: 39px; min-height: 36px; padding: 0 8px; border: 0; color: var(--black); background: transparent; font: 900 .77rem/1 system-ui,sans-serif; cursor: pointer; }
+    .language-picker button[aria-pressed="true"] { color: var(--white); background: var(--black); }
+    .language-picker button:focus-visible { outline: 3px solid var(--black); outline-offset: 3px; }
+    .hero { padding-block: 34px 42px; text-align: center; }
+    .hero-kicker { margin: 0 0 11px; font-size: .82rem; font-weight: 900; letter-spacing: .19em; text-transform: uppercase; }
+    h1 { max-width: 780px; margin: 0 auto; font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; font-size: clamp(2.7rem, 9vw, 6rem); font-style: italic; font-weight: 950; line-height: .91; letter-spacing: -.035em; text-transform: uppercase; }
+    h1 span { display: block; }
+    h1 span:last-child { margin-top: 7px; font-size: .62em; letter-spacing: .015em; }
+    .hero-cta { margin-top: 26px; }
+    .band { position: relative; width: min(var(--max), calc(100% - 28px)); margin: 0 auto 22px; padding: 9px 20px 10px; color: var(--white); background: var(--black); clip-path: polygon(2% 0,100% 0,98% 100%,0 100%); transform: skewX(-5deg); }
+    .band h2 { margin: 0; font-size: clamp(1.55rem, 5vw, 2.2rem); font-style: italic; font-weight: 900; line-height: 1; letter-spacing: .045em; text-transform: uppercase; transform: skewX(5deg); }
+    .visuals { padding: 8px 0 42px; }
+    .visuals-intro { margin: -7px 0 18px; font: 600 .91rem/1.5 system-ui, sans-serif; }
+    .official-showcase { display: grid; grid-template-columns: minmax(0,1fr); justify-items: center; }
+    .title-shot { margin: 0 auto; width: min(100%,320px); padding: 8px; background: var(--black); box-shadow: 6px 6px 0 var(--white); }
+    .title-shot img { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: cover; object-position: center; background: var(--black); }
+    .title-shot figcaption { padding: 8px 4px 1px; color: var(--white); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+    .ai-content { padding: 8px 0 45px; }
+    .ai-disclaimer { margin: -7px 0 18px; padding: 12px 14px; border-left: 5px solid var(--black); background: var(--white); font: 600 .87rem/1.5 system-ui, sans-serif; }
+    .ai-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+    .ai-card { min-width: 0; margin: 0; padding: 6px; border: 2px solid var(--black); background: var(--white); text-align: center; }
+    .ai-card img { display: block; width: min(100%,200px); margin-inline: auto; aspect-ratio: 200 / 162; object-fit: contain; background: var(--yellow); }
+    .ai-card figcaption { padding: 7px 2px 2px; font-size: .74rem; font-weight: 900; line-height: 1.2; text-transform: uppercase; }
+    .download { padding: 7px 0 45px; }
+    .download-card { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 20px; padding: clamp(20px, 4vw, 35px); background: var(--white); border: 3px solid var(--black); box-shadow: 7px 7px 0 var(--black); }
+    .project-name { margin: 0 0 7px; font-size: .88rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .download-card h3 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.5rem); font-style: italic; line-height: 1; text-transform: uppercase; }
+    .download-info { margin: 11px 0 0; font-size: .85rem; font-weight: 800; }
+    .button { min-height: 58px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; padding: 0 21px; color: var(--white); background: var(--black); border: 3px solid var(--black); box-shadow: 4px 4px 0 #fff; font-size: 1.02rem; font-weight: 900; text-decoration: none; text-transform: uppercase; transition: transform .15s ease, box-shadow .15s ease; }
+    .button:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #fff; }
+    .button:focus-visible, .brand:focus-visible { outline: 3px solid var(--black); outline-offset: 4px; box-shadow: 0 0 0 7px var(--yellow); }
+    .button svg { width: 21px; height: 21px; flex: none; }
+    .install { padding: 0 0 56px; }
+    .install-card { padding: 18px 20px; border: 3px solid var(--black); background: rgba(255,255,255,.52); font-family: system-ui, sans-serif; font-size: .96rem; font-weight: 600; }
+    .install-card p { margin: 0; }
+    .install-card strong { font-weight: 900; }
+    footer { padding: 17px 0 24px; border-top: 3px solid var(--black); font-family: system-ui, sans-serif; font-size: .72rem; font-weight: 700; text-align: center; }
+    .geo-credit { display: inline-block; margin-top: 6px; font-size: .65rem; font-weight: 600; }
+    .geo-credit a { text-underline-offset: 2px; }
+    @media (max-width: 620px) {
+      .wrap { width: calc(100% - 30px); }
+      .topbar-inner { min-height: 70px; }
+      .hero { padding-block: 29px 33px; }
+      .hero-kicker { font-size: .68rem; letter-spacing: .14em; }
+      h1 { font-size: clamp(2.45rem, 12vw, 4.2rem); }
+      h1 span:last-child { font-size: .57em; }
+      .hero-cta { margin-top: 22px; }
+      .hero-cta .button { width: min(100%, 430px); }
+      .band { margin-bottom: 17px; padding: 8px 15px; }
+      .visuals { padding-bottom: 34px; }
+      .official-showcase { grid-template-columns: minmax(0,1fr); }
+      .title-shot { width: min(74%,320px); }
+      .ai-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+      .ai-card figcaption { font-size: .7rem; }
+      .ai-content { padding-bottom: 36px; }
+      .download { padding-bottom: 37px; }
+      .download-card { grid-template-columns: minmax(0,1fr); gap: 20px; padding: 19px; }
+      .download-card h3 { font-size: clamp(1.55rem, 7vw, 2.05rem); }
+      .button { width: 100%; padding-inline: 12px; font-size: .91rem; }
+      .install { padding-bottom: 40px; }
+      .install-card { padding: 15px; font-size: .88rem; }
+    }
+    @media (max-width: 360px) {
+      .wrap { width: calc(100% - 24px); }
+      .hero-kicker { font-size: .61rem; }
+      h1 { font-size: 2.35rem; }
+      h1 span:last-child { font-size: .55em; }
+      .download-card { padding: 15px; }
+      .button { font-size: .84rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *,*::before,*::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#inicio" aria-label="Kick Flight, inicio" data-i18n-aria="brandAria"><img src="/assets/kick-flight-logo.png" alt="Kick-Flight" data-i18n-alt="logoAlt"></a>
+      <div class="topbar-actions">
+        <div class="language-picker" role="group" aria-label="Language / Idioma" data-i18n-aria="languagePickerAria">
+          <button type="button" data-language="es" aria-pressed="true">ES</button>
+          <button type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+        <div class="menu-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </header>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="hero-kicker" data-i18n="heroKicker">Descarga para Android</p>
+      <h1 id="page-title"><span>Kick Flight:</span><span>The Fenix Returns</span></h1>
+      <div class="hero-cta"><a class="button" href="/apk/KickFlight-2.11.0-remote-kickflightsg.apk"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 16.5v2A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="heroDownload">Descargar APK para Android</span></a></div>
+    </section>
+    <section class="visuals" aria-labelledby="visuals-title">
+      <div class="band"><h2 id="visuals-title" data-i18n="visualsTitle">Imágenes del juego</h2></div>
+      <div class="wrap">
+        <p class="visuals-intro" data-i18n="visualsIntro">Captura de la pantalla de título de Kick Flight, versión 2.11.0.</p>
+        <div class="official-showcase">
+          <figure class="title-shot"><img src="/assets/kick-flight-title-screen.png" alt="Captura real de la pantalla de título de Kick Flight, versión 2.11.0" data-i18n-alt="titleScreenAlt" loading="lazy"><figcaption data-i18n="titleScreenCaption">Pantalla de título · Versión 2.11.0</figcaption></figure>
+        </div>
+      </div>
+    </section>
+    <section class="ai-content" aria-labelledby="ai-title">
+      <div class="band"><h2 id="ai-title" data-i18n="aiTitle">Contenido AI</h2></div>
+      <div class="wrap">
+        <p class="ai-disclaimer" data-i18n="aiDisclaimer">Estos 11 retratos para skins faltantes se generaron con IA a partir de referencias de Kick Flight. Son recreaciones de la comunidad, no arte oficial de Grenge. Este proyecto fan no está afiliado a Grenge.</p>
+        <div class="ai-grid" aria-label="Retratos de personajes generados con IA" data-i18n-aria="aiGridAria">
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_001_022.png" alt="Retrato generado con IA de Tsubame con traje navideño" data-i18n-alt="aiTsubameAlt" loading="lazy"><figcaption data-i18n="aiTsubame">Tsubame · traje 22</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_002_022.png" alt="Retrato generado con IA de Ruriha con traje de reno" data-i18n-alt="aiRurihaAlt" loading="lazy"><figcaption data-i18n="aiRuriha">Ruriha · traje 22</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_003_022.png" alt="Retrato generado con IA de Coco con traje navideño" data-i18n-alt="aiCocoAlt" loading="lazy"><figcaption data-i18n="aiCoco">Coco · traje 22</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_003_052.png" alt="Retrato generado con IA de Coco, traje 52" data-i18n-alt="aiCoco52Alt" loading="lazy"><figcaption data-i18n="aiCoco52">Coco · traje 52</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_006_022.png" alt="Retrato generado con IA de Pitophy, traje 22" data-i18n-alt="aiPitophyAlt" loading="lazy"><figcaption data-i18n="aiPitophy">Pitophy · traje 22</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_008_052.png" alt="Retrato generado con IA de Anna, traje 52" data-i18n-alt="aiAnnaAlt" loading="lazy"><figcaption data-i18n="aiAnna">Anna · traje 52</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_011_051.png" alt="Retrato generado con IA de Diatrius, traje 51" data-i18n-alt="aiDiatriusAlt" loading="lazy"><figcaption data-i18n="aiDiatrius">Diatrius · traje 51</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_012_022.png" alt="Retrato generado con IA de BuzzyBig con traje de árbol navideño" data-i18n-alt="aiBuzzyAlt" loading="lazy"><figcaption data-i18n="aiBuzzy">BuzzyBig · traje 22</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_014_002.png" alt="Retrato generado con IA de Sid, traje 2" data-i18n-alt="aiSid2Alt" loading="lazy"><figcaption data-i18n="aiSid2">Sid · traje 2</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_014_003.png" alt="Retrato generado con IA de Sid, traje 3" data-i18n-alt="aiSid3Alt" loading="lazy"><figcaption data-i18n="aiSid3">Sid · traje 3</figcaption></figure>
+          <figure class="ai-card"><img src="/assets/ai-thumbnail_pc_014_051.png" alt="Retrato generado con IA de Sid, traje 51" data-i18n-alt="aiSid51Alt" loading="lazy"><figcaption data-i18n="aiSid51">Sid · traje 51</figcaption></figure>
+        </div>
+      </div>
+    </section>
+    <section class="download" id="descargar" aria-labelledby="download-title">
+      <div class="band"><h2 id="download-title" data-i18n="downloadTitle">Descarga</h2></div>
+      <div class="wrap download-card">
+        <div>
+          <p class="project-name">Kick Flight: The Fenix Returns</p>
+          <h3 data-i18n="downloadHeadline">Vuelve a volar.</h3>
+          <p class="download-info" data-i18n="downloadInfo">Android · Versión 2.11.0 · ≈150 MB</p>
+        </div>
+        <a class="button" href="/apk/KickFlight-2.11.0-remote-kickflightsg.apk">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 16.5v2A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="downloadButton">Descargar APK</span>
+        </a>
+      </div>
+    </section>
+    <section class="install" aria-labelledby="install-title">
+      <div class="band"><h2 id="install-title" data-i18n="installTitle">Instalación</h2></div>
+      <div class="wrap install-card"><p data-i18n="installCopy">La APK es el único archivo que necesitas. <strong data-i18n="installImportant">Conéctate a internet en el primer inicio</strong> para que el juego descargue sus recursos desde el CDN.</p></div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span data-i18n="footerProject">Proyecto comunitario no oficial · Kick Flight: The Fenix Returns</span><br><span data-i18n="footerCredits">Créditos a: Gixarde3 y TanukiFurHire.</span><br><a class="geo-credit" href="https://db-ip.com" rel="noopener noreferrer">IP Geolocation by DB-IP</a></div></footer>
+  <script>
+    const translations = {
+      es: {
+        description: "Kick Flight: The Fenix Returns. Descarga la APK para Android y vuelve a la arena.",
+        brandAria: "Kick Flight, inicio", logoAlt: "Kick-Flight", languagePickerAria: "Idioma / Language",
+        heroKicker: "Descarga para Android", heroDownload: "Descargar APK para Android",
+        visualsTitle: "Imágenes del juego", visualsIntro: "Captura de la pantalla de título de Kick Flight, versión 2.11.0.",
+        titleScreenAlt: "Captura real de la pantalla de título de Kick Flight, versión 2.11.0", titleScreenCaption: "Pantalla de título · Versión 2.11.0",
+        aiTitle: "Contenido AI", aiDisclaimer: "Estos 11 retratos para skins faltantes se generaron con IA a partir de referencias de Kick Flight. Son recreaciones de la comunidad, no arte oficial de Grenge. Este proyecto fan no está afiliado a Grenge.",
+        aiGridAria: "Retratos de personajes generados con IA",
+        aiTsubameAlt: "Retrato generado con IA de Tsubame con traje navideño", aiTsubame: "Tsubame · traje 22",
+        aiRurihaAlt: "Retrato generado con IA de Ruriha con traje de reno", aiRuriha: "Ruriha · traje 22",
+        aiCocoAlt: "Retrato generado con IA de Coco con traje navideño", aiCoco: "Coco · traje 22",
+        aiCoco52Alt: "Retrato generado con IA de Coco, traje 52", aiCoco52: "Coco · traje 52",
+        aiPitophyAlt: "Retrato generado con IA de Pitophy, traje 22", aiPitophy: "Pitophy · traje 22",
+        aiAnnaAlt: "Retrato generado con IA de Anna, traje 52", aiAnna: "Anna · traje 52",
+        aiDiatriusAlt: "Retrato generado con IA de Diatrius, traje 51", aiDiatrius: "Diatrius · traje 51",
+        aiBuzzyAlt: "Retrato generado con IA de BuzzyBig con traje de árbol navideño", aiBuzzy: "BuzzyBig · traje 22",
+        aiSid2Alt: "Retrato generado con IA de Sid, traje 2", aiSid2: "Sid · traje 2",
+        aiSid3Alt: "Retrato generado con IA de Sid, traje 3", aiSid3: "Sid · traje 3",
+        aiSid51Alt: "Retrato generado con IA de Sid, traje 51", aiSid51: "Sid · traje 51",
+        downloadTitle: "Descarga", downloadHeadline: "Vuelve a volar.", downloadInfo: "Android · Versión 2.11.0 · ≈150 MB", downloadButton: "Descargar APK",
+        installTitle: "Instalación", installCopy: "La APK es el único archivo que necesitas. Conéctate a internet en el primer inicio para que el juego descargue sus recursos desde el CDN.", installImportant: "Conéctate a internet en el primer inicio",
+        footerProject: "Proyecto comunitario no oficial · Kick Flight: The Fenix Returns", footerCredits: "Créditos a: Gixarde3 y TanukiFurHire."
+      },
+      en: {
+        description: "Kick Flight: The Fenix Returns. Download the Android APK and return to the arena.",
+        brandAria: "Kick Flight, home", logoAlt: "Kick-Flight", languagePickerAria: "Language / Idioma",
+        heroKicker: "Download for Android", heroDownload: "Download Android APK",
+        visualsTitle: "In-game image", visualsIntro: "Kick Flight title-screen capture from version 2.11.0.",
+        titleScreenAlt: "Real capture of the Kick Flight title screen, version 2.11.0", titleScreenCaption: "Title screen · Version 2.11.0",
+        aiTitle: "AI Content", aiDisclaimer: "These 11 portraits for missing skins were generated with AI from Kick Flight references. They are community recreations, not official Grenge artwork. This fan project is not affiliated with Grenge.",
+        aiGridAria: "AI-generated character portraits",
+        aiTsubameAlt: "AI-generated portrait of Tsubame in a holiday outfit", aiTsubame: "Tsubame · outfit 22",
+        aiRurihaAlt: "AI-generated portrait of Ruriha in a reindeer outfit", aiRuriha: "Ruriha · outfit 22",
+        aiCocoAlt: "AI-generated portrait of Coco in a holiday outfit", aiCoco: "Coco · outfit 22",
+        aiCoco52Alt: "AI-generated portrait of Coco, outfit 52", aiCoco52: "Coco · outfit 52",
+        aiPitophyAlt: "AI-generated portrait of Pitophy, outfit 22", aiPitophy: "Pitophy · outfit 22",
+        aiAnnaAlt: "AI-generated portrait of Anna, outfit 52", aiAnna: "Anna · outfit 52",
+        aiDiatriusAlt: "AI-generated portrait of Diatrius, outfit 51", aiDiatrius: "Diatrius · outfit 51",
+        aiBuzzyAlt: "AI-generated portrait of BuzzyBig in a Christmas tree outfit", aiBuzzy: "BuzzyBig · outfit 22",
+        aiSid2Alt: "AI-generated portrait of Sid, outfit 2", aiSid2: "Sid · outfit 2",
+        aiSid3Alt: "AI-generated portrait of Sid, outfit 3", aiSid3: "Sid · outfit 3",
+        aiSid51Alt: "AI-generated portrait of Sid, outfit 51", aiSid51: "Sid · outfit 51",
+        downloadTitle: "Download", downloadHeadline: "Fly again.", downloadInfo: "Android · Version 2.11.0 · ≈150 MB", downloadButton: "Download APK",
+        installTitle: "Installation", installCopy: "The APK is the only file you need. Connect to the internet on first launch so the game can download its resources from the CDN.", installImportant: "Connect to the internet on first launch",
+        footerProject: "Unofficial community project · Kick Flight: The Fenix Returns", footerCredits: "Credits to: Gixarde3 and TanukiFurHire."
+      }
+    };
+    function setLanguage(language, persist = true) {
+      const lang = language === "en" ? "en" : "es";
+      const copy = translations[lang];
+      document.documentElement.lang = lang;
+      document.title = "Kick Flight: The Fenix Returns";
+      document.querySelector('meta[name="description"]').content = copy.description;
+      document.querySelectorAll("[data-i18n]").forEach(node => {
+        const key = node.dataset.i18n;
+        if (key === "installCopy") {
+          node.innerHTML = `${copy.installCopy.split(copy.installImportant)[0]}<strong>${copy.installImportant}</strong>${copy.installCopy.split(copy.installImportant)[1]}`;
+        } else if (copy[key] !== undefined) node.textContent = copy[key];
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach(node => { node.alt = copy[node.dataset.i18nAlt]; });
+      document.querySelectorAll("[data-i18n-aria]").forEach(node => { node.setAttribute("aria-label", copy[node.dataset.i18nAria]); });
+      document.querySelectorAll("[data-language]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.language === lang)));
+      if (persist) { try { localStorage.setItem("kickflight-language", lang); } catch (_) {} }
+    }
+    document.querySelectorAll("[data-language]").forEach(button => button.addEventListener("click", () => setLanguage(button.dataset.language)));
+    function browserFallbackLanguage() {
+      const browserLanguage = (navigator.languages && navigator.languages[0]) || navigator.language || "es";
+      return browserLanguage.toLowerCase().startsWith("en") ? "en" : "es";
+    }
+    let savedLanguage = null;
+    try { savedLanguage = localStorage.getItem("kickflight-language"); } catch (_) {}
+    if (savedLanguage === "es" || savedLanguage === "en") {
+      setLanguage(savedLanguage, false);
+    } else {
+      setLanguage(browserFallbackLanguage(), false);
+      fetch("/__locale", { headers: { Accept: "text/plain" } })
+        .then(response => response.ok ? response.text() : Promise.reject(new Error("Locale endpoint unavailable")))
+        .then(value => {
+          const geoLanguage = value.trim().toLowerCase();
+          if (geoLanguage === "es" || geoLanguage === "en") setLanguage(geoLanguage, false);
+        })
+        .catch(() => {});
+    }
+  </script>
+</body>
+</html>

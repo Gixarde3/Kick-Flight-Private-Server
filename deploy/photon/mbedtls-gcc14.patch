@@ -1,0 +1,10 @@
+From: Debian MbedTLS 3.6.6 patch 100-fix-gcc14-build.patch (backported to 3.6.5)
+Origin: https://sources.debian.org/patches/mbedtls/3.6.6-0.1~deb13u1/100-fix-gcc14-build.patch/
+Bug: https://github.com/Mbed-TLS/mbedtls/issues/9003
+Rationale: GCC 14 incorrectly diagnoses the byte-at-a-time tail after an exact SIMD-sized block.
+
+--- a/library/common.h
++++ b/library/common.h
+@@ -190 +190 @@
+-#if defined(__IAR_SYSTEMS_ICC__)
++#if defined(__IAR_SYSTEMS_ICC__) || (defined(MBEDTLS_COMPILER_IS_GCC) && MBEDTLS_GCC_VERSION >= 140100)

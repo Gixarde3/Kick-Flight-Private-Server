@@ -1,0 +1,308 @@
+# Kick-Flight en OCI con Docker Compose
+
+La instancia actual corre en una VM de OCI: Docker Compose ejecuta la API .NET, Luxon/Photon, Nginx para el
+CDN y la landing, Caddy para HTTPS y un proxy Nginx para gRPC. Los datos de jugadores viven en PostgreSQL
+externo de Neon. Usa `deploy/docker-compose.vps.external-db.yml` para esta topología. El archivo
+`deploy/docker-compose.vps.yml` mantiene la variante alternativa con PostgreSQL local. Las imágenes se
+construyen en la arquitectura de la VM.
+
+## Requisitos
+
+- Una VM Linux con Docker Engine y Docker Compose v2.24.4 o posterior (el override de base externa usa `!override`).
+- IPv4 pública estable o un nombre DNS que apunte a ella.
+- Puertos TCP 80 y 443 para la página con HTTPS automático; además 18080, 18081, 5055, 5056 y 5058.
+  Abre también UDP 5055, 5056 y 5058.
+- Para la configuración completa de Luxon, abrir TCP y UDP 27000–27002 también.
+- Almacenamiento persistente para `.local/` y el árbol `Kick-Flight-Assets/` con los bundles del cliente.
+
+Los puertos 18080 (API/CDN) y 18081 (gRPC) usan TCP. Photon requiere UDP y TCP: el NameServer anuncia
+Master/Game y el cliente puede usar ambos transportes. La API solo queda en la red privada de Compose. El
+puerto público 18081 termina en nginx, que solo reenvía `/openmatch.Frontend/GetAssignments`; otras rutas,
+incluidas `/diag`, reciben 404. `/diag`, `/gym` y `/gym/*` también se bloquean en el frontend HTTP.
+El servicio Caddy escucha en 80/443 en el host y reenvía las peticiones al CDN existente en 18080. Caddy
+obtiene y renueva automáticamente el certificado de Let's Encrypt para `kick-flight-fenix.us.ci`; conserva
+certificados y estado en los volúmenes Docker `caddy-data` y `caddy-config`. El DNS A del dominio debe
+apuntar a la IP pública del VPS y el firewall de OCI y el del host deben permitir TCP 80/443.
+La portada pública se sirve desde `deploy/site/index.html` en `/` mediante el contenedor `cdn`; usa la ruta
+actual `/apk/KickFlight-2.11.0-remote-kickflightsg.apk` para descargar la APK. En una instalación limpia, la
+APK es el único archivo que se instala manualmente; el primer arranque descarga los recursos del juego desde
+el CDN del VPS, por lo que se requiere conexión a internet.
+
+## Despliegue automático desde `main`
+
+El workflow [`.github/workflows/deploy-vps-main.yml`](../.github/workflows/deploy-vps-main.yml) se ejecuta
+solo con `push` a `main`; no corre para pull requests y no tiene disparador manual. Serializa despliegues y
+omite un evento si su SHA ya no es la punta de `origin/main`. Usa el environment de GitHub Actions llamado
+`production`. Cuando el SHA `before` no está disponible, trata el cambio como despliegue completo.
+
+### Preparar el host una vez
+
+El workflow entrega código y fuente de Photon, pero no aprovisiona la VM, Neon, DNS, firewall, secretos,
+APK, assets ni bundles fuera del repositorio. Antes de habilitarlo:
+
+1. Instala Docker Engine con el plugin Docker Compose v2, `rsync`, `flock`, `curl`, Python 3 y herramientas
+   estándar de Linux (`bash`, `tar`, `find`, `grep`, `sha256sum`). El usuario SSH de despliegue debe poder
+   ejecutar Docker sin `sudo`, escribir en `VPS_APP_DIR` y crear/reemplazar el directorio `cdn/` dentro del
+   árbol de assets.
+2. Crea el directorio absoluto que se configurará como `VPS_APP_DIR`. Ahí se conservan `.env`, `.local/`,
+   `.ci/`, el estado de Compose y los datos locales que el despliegue no administra.
+3. Crea `VPS_APP_DIR/.env` con `DATABASE_URL` de Neon (PostgreSQL con `sslmode=require`), `KF_PUBLIC_HOST`
+   sin esquema ni puerto, `KF_HTTP_PORT` (normalmente `18080`) y, si los assets viven en otra ruta,
+   `KF_ASSETS_PATH` con su ruta absoluta. Protege este archivo en el host y no lo subas a Git ni a GitHub.
+4. Prepara `VPS_APP_DIR/.local/` con todos los archivos requeridos por las entradas habilitadas de
+   `config/resources/catalog.json`. En el catálogo de esta versión son 36 fuentes: la APK remota y 35 bundles
+   de fallback. El workflow nunca copia `.local/`.
+5. Prepara el árbol de assets con `octo_sorted/`. Por defecto está en `Kick-Flight-Assets/`, hermano del
+   checkout; para otra ubicación define `KF_ASSETS_PATH` en `.env`. El workflow tampoco copia estos assets.
+
+El workflow puede hacer el primer despliegue de código dentro de ese directorio ya preparado, pero no puede
+crear estos archivos o recuperar los assets protegidos. Para usarlo sobre una instalación manual existente,
+apunta `VPS_APP_DIR` a la raíz que ya contiene `.env`, `.local/` y los assets externos. La primera ejecución
+guarda una copia solo del código administrado para poder recuperarlo si falla el rollout.
+
+### Configurar GitHub
+
+Crea o usa el environment **`production`** del repositorio. Agrega ahí los siguientes secretos y variables:
+
+| Tipo | Nombre | Valor |
+| --- | --- | --- |
+| Secret | `VPS_SSH_PRIVATE_KEY` | Clave privada SSH con acceso al host |
+| Secret | `VPS_KNOWN_HOSTS` | Entrada `known_hosts` verificada para `VPS_HOST` |
+| Variable | `VPS_HOST` | DNS o dirección IP de la VM |
+| Variable | `VPS_USER` | Usuario SSH con acceso a Docker y al directorio de la aplicación |
+| Variable | `VPS_APP_DIR` | Ruta absoluta al directorio de la aplicación |
+| Variable opcional | `VPS_SSH_PORT` | Puerto SSH; usa `22` si se omite |
+
+SSH usa verificación estricta de host (`StrictHostKeyChecking=yes`); la entrada configurada en
+`VPS_KNOWN_HOSTS` debe coincidir con el host y, para un puerto distinto de 22, con el formato
+`[host]:puerto`. `DATABASE_URL` y el resto de la configuración de producción permanecen en el `.env` de la
+VM, no como secretos de GitHub.
+
+### Qué despliega
+
+El workflow compara el SHA enviado con el cambio respecto al commit anterior y despliega solo componentes
+afectados. Empaqueta el contenido versionado y el submódulo recursivo de Photon; deja fuera `.env`, `.local/`,
+datos de jugadores, certificados, capturas, logs y el árbol externo de assets. Las imágenes se compilan en
+la VM y el proyecto de Compose se fija como `deploy`.
+
+| Cambios en | Acción |
+| --- | --- |
+| `src/`, `Dockerfile` o archivos Docker de raíz | Construye y reinicia la API; reinicia también los proxies HTTP y gRPC para resolver la nueva dirección del contenedor |
+| El submódulo LuxonServer, `.gitmodules` o `deploy/photon/` | Construye y reinicia Photon |
+| `deploy/nginx/` o `deploy/nginx.vps.conf` | Construye y reinicia el CDN |
+| `deploy/site/` | Sincroniza la landing y verifica su respuesta servida |
+| `deploy/caddy/` | Recrea Caddy |
+| `config/`, `content/`, scripts generadores registrados, Compose, GeoIP o configuración gRPC | Despliegue completo; cuando corresponde, reconstruye todo el árbol CDN |
+
+`config/resources/catalog.json`, los cambios bajo `content/` y los generadores de catálogo fuerzan también
+la reconstrucción del farm CDN. La verificación previa exige que **cada fuente habilitada** del catálogo
+exista y coincida con su SHA-256, incluidas las entradas de APK que viven bajo `.local/`. El constructor
+prepara el árbol nuevo al lado del actual y lo intercambia atómicamente, conservando el árbol anterior
+durante el smoke check.
+
+### Validación y recuperación
+
+Antes de arrancar servicios, el script comprueba la configuración de Compose. Al final espera que
+`/health/ready` responda, descarga una entrada habilitada de `/cdn/` y compara su SHA-256 con el catálogo;
+si cambió `deploy/site/`, también compara el HTML servido con `deploy/site/index.html`. Un fallo restaura el
+árbol CDN anterior cuando hubo rebuild, sincroniza la versión de código previa e intenta volver a construir y
+levantar Compose. Es una recuperación de código y archivos estáticos; **no revierte migraciones, esquema ni
+datos de Neon**.
+
+El workflow no ejecuta `dotnet test` ni la suite Python: la comprobación de automatización es de configuración
+y salud del servicio desplegado. Ejecuta esas pruebas por separado antes de integrar cambios a `main`.
+
+### Primer arranque manual y operación
+
+El workflow no sustituye la preparación de la VM ni de los archivos persistentes. Para revisar una
+instalación desde un checkout preparado, desde la raíz del repositorio ejecuta primero la validación de
+Compose y catálogo; configura `KF_ASSETS_PATH` en `.env` si la ruta no es la hermana predeterminada:
+
+```sh
+docker compose --env-file .env --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml config --quiet
+python3 scripts/build-cdn-tree.py --assets-root /ruta/absoluta/Kick-Flight-Assets \
+  --repo-root . --verify-all-enabled --dry-run
+python3 scripts/build-cdn-tree.py --assets-root /ruta/absoluta/Kick-Flight-Assets \
+  --repo-root . --verify-all-enabled --atomic
+docker compose --env-file .env --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml up -d --build
+curl -fsS http://127.0.0.1:18080/health/ready
+```
+
+Para una instalación Neon, usa siempre el mismo proyecto `deploy` al operar manualmente y desde Actions; de
+lo contrario Compose creará una segunda pila. La configuración del host, APK, catálogo y assets está en las
+secciones siguientes. El despliegue selectivo normal se hace con un `push` que actualice el workflow en
+`main`; para revertir una versión, revierte el commit en `main` y deja que el workflow despliegue ese commit.
+
+## Preparar catálogo, APK y assets
+
+El endpoint `/health/ready` comprueba el catálogo entero: cada ruta `sourcePath` debe existir y coincidir con
+su SHA-256. En el catálogo actual hay **36 fuentes bajo `.local/`**: la APK
+`.local/KickFlight-2.11.0-remote-kickflightsg.apk` y 35 bundles generados en
+`.local/weapon-costume-fallbacks/`. Por eso copiar únicamente `octo_sorted/` no deja listo el release.
+
+Prepara junto al checkout la carpeta `Kick-Flight-Assets/octo_sorted/` con los bundles que corresponden al
+catálogo y a `config/`/`content/`. Los sourcePaths del proyecto y los generadores de fallback resuelven esa
+ruta como una carpeta hermana del repositorio. El árbol suele ser alrededor de 1 GB. Si lo guardas en otro
+lugar, crea el enlace relativo `../Kick-Flight-Assets` hacia esa carpeta para los generadores y define la
+misma ubicación en `KF_ASSETS_PATH`.
+
+```sh
+git submodule update --init --recursive
+mkdir -p ../Kick-Flight-Assets
+# Copia/sincroniza aquí el directorio octo_sorted con los bundles fuente del juego.
+```
+
+Los generadores de bundles requieren Python 3 y UnityPy 1.25.3. La APK también se debe compilar con los
+requisitos de `scripts/build-direct-apk.sh`: `base.apk` original, Java, apktool 3.0.3 y Android build-tools
+35.0.0. Para ARM64 puedes preparar los assets/APK en otra máquina y sincronizar los resultados junto con el
+checkout; el Compose compila Luxon en la arquitectura nativa del VPS.
+
+Genera una APK de producción con el endpoint público del VPS y el Photon NameServer. El **nombre de salida
+debe conservarse**: lo usa la entrada actual del catálogo.
+
+```sh
+KF_PUBLIC_HOST="$(awk -F= '$1=="KF_PUBLIC_HOST" {print $2}' .env)"
+KF_HTTP_PORT="$(awk -F= '$1=="KF_HTTP_PORT" {print $2}' .env)"
+SERVER_BASE_URL="http://${KF_PUBLIC_HOST}:${KF_HTTP_PORT}" \
+KF_PHOTON=1 \
+KF_PHOTON_HOST="${KF_PUBLIC_HOST}" \
+OUTPUT_APK=.local/KickFlight-2.11.0-remote-kickflightsg.apk \
+scripts/build-direct-apk.sh
+```
+
+Ahora regenera el catálogo **después** de producir la APK. Este paso calcula su SHA-256 actual, vuelve a
+crear los 35 clones físicos de arma desde los donantes de `octo_sorted/`, y ejecuta los generadores de
+miniaturas que forman parte del catálogo. Así los hashes fijados en `catalog.json` coinciden con los bytes
+que se servirán. Antes, incrementa `revision` en `title-minimum.json` y añade la revisión anterior a
+`fromRevisions`. El builder no incrementa esa versión: sin el cambio, los clientes con la revisión anterior
+podrían reutilizar los recursos cacheados y no descargar las fuentes actualizadas.
+
+```sh
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+path = Path("config/resources/title-minimum.json")
+title = json.loads(path.read_text(encoding="utf-8"))
+previous = int(title["revision"])
+title["revision"] = previous + 1
+title["fromRevisions"] = sorted(set(title.get("fromRevisions", [])) | {previous})
+path.write_text(json.dumps(title, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+print(f"Octo title revision: {previous} -> {title['revision']}; added fromRevision {previous}")
+PY
+python3 -m venv .local/assets-venv
+.local/assets-venv/bin/pip install UnityPy==1.25.3
+.local/assets-venv/bin/python scripts/build-title-resource-catalog.py \
+  --server-base-url "http://${KF_PUBLIC_HOST}:${KF_HTTP_PORT}"
+python3 scripts/update-apk-catalog-sha.py
+python3 scripts/build-cdn-tree.py --assets-root "$(realpath ../Kick-Flight-Assets)" \
+  --repo-root . --verify-all-enabled --dry-run
+python3 scripts/build-cdn-tree.py --assets-root "$(realpath ../Kick-Flight-Assets)" \
+  --repo-root . --verify-all-enabled --atomic
+```
+
+`build-title-resource-catalog.py` actualiza las filas CDN administradas, pero no toca las filas `apk-*`.
+Por eso `update-apk-catalog-sha.py` va después de generar el catálogo: actualiza el hash de la APK recién
+compilada en `config/resources/catalog.json`. Sin ese paso, `/health/ready` rechaza el catálogo aunque el
+archivo de la APK exista.
+
+`build-title-resource-catalog.py` selecciona ese entorno para ejecutar `scripts/add_weapon_costume_aliases.py`
+y `scripts/build-kicker-skin-thumbnail-bundles.py`; ambos toman los assets fuente del árbol configurado en
+el catálogo. Para no compilar el APK en el VPS, copia a ese mismo checkout el artefacto con el nombre exacto,
+el catálogo/fixtures regenerados y los bundles generados bajo `.local/` antes de levantar Compose.
+
+El API lee `config/`, `content/` y `.local/` en modo solo lectura. En la configuración actual, las cuentas y
+el progreso se guardan en Neon; no hay un contenedor ni volumen PostgreSQL local. La variante local guarda
+los datos en `postgres-data`. Ninguna de las dos configuraciones publica el puerto 5432.
+
+## Variante alternativa: PostgreSQL local
+
+Esta sección es para instalaciones que prefieren correr PostgreSQL en la VM. La instancia actual usa Neon
+y el `.env` del directorio raíz, descrito en [Usar Neon u otro PostgreSQL externo](#usar-neon-u-otro-postgresql-externo).
+
+```sh
+cp deploy/.env.vps.example deploy/.env
+openssl rand -hex 32
+```
+
+Edita `deploy/.env`: asigna a `KF_PUBLIC_HOST` la IPv4 pública o el DNS, sin `http://` ni puerto, y pega el
+secreto aleatorio en `KF_DB_PASSWORD`. Si guardas los assets en otra ubicación, cambia `KF_ASSETS_PATH` a
+una ruta absoluta. El archivo `.env` contiene una credencial y no debe publicarse.
+
+La dirección se aplica en dos sitios: Luxon responde a los clientes con esa IP/DNS para los endpoints de
+Photon; la API permite ese host en las peticiones del juego. La API prueba la salud de Photon usando el DNS
+interno de Compose `photon`, así que no depende de que el VPS pueda hacer hairpin hacia su propia IP pública.
+
+## Construir e iniciar
+
+```sh
+docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml config
+docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml up -d --build
+docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml ps
+```
+
+La primera compilación de Luxon descarga dependencias y puede tardar varios minutos. PostgreSQL debe estar
+healthy antes de que arranque la API; Photon también debe estar healthy. Nginx espera a que la API esté
+healthy. La API aplica migraciones de la base de datos al iniciar.
+
+### Usar Neon u otro PostgreSQL externo
+
+Si PostgreSQL vive fuera del VPS, usa `deploy/docker-compose.vps.external-db.yml`. Este modo levanta API,
+Photon, CDN y gRPC, y conecta la API al `DATABASE_URL` del `.env` en la raíz del directorio de aplicación.
+Ese mismo `.env` debe definir `KF_PUBLIC_HOST` y puede definir `KF_HTTP_PORT` (por defecto `18080`) y
+`KF_ASSETS_PATH` (absoluta; por defecto, `Kick-Flight-Assets/` junto al directorio de aplicación). La URL estándar
+`postgresql://usuario:contraseña@host/base?sslmode=require` se convierte a parámetros de Npgsql al iniciar;
+la conexión exige TLS. No copies la URL a `deploy/.env` ni a un archivo versionado.
+
+Desde la raíz del repositorio:
+
+```sh
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.external-db.yml config
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.external-db.yml up -d --build
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.external-db.yml ps
+```
+
+El archivo externo omite el contenedor PostgreSQL local y su volumen; no combines este modo con
+`docker-compose.vps.yml`. Conserva los montajes de `config/`, `content/`, `.local/` y `Kick-Flight-Assets`:
+el API los necesita para validar el catálogo y servir las fuentes. Los bundles grandes pueden migrarse después
+a un CDN externo; habrá que actualizar las URL del catálogo y comprobar `/health/ready` antes de retirar ese
+montaje.
+
+En el firewall del proveedor y el firewall del sistema abre los puertos de la tabla anterior. No abras
+5432, 8080 ni 5088. 5088 es el panel web de Luxon y no hace falta para jugar.
+
+## Crear una APK para este VPS
+
+La dirección del servidor queda parcheada dentro del cliente; configurar Compose no cambia una APK anterior.
+Usa el flujo de generación anterior antes de construir CDN y desplegar. Si cambias `KF_HTTP_PORT`, se
+actualiza el valor usado para `SERVER_BASE_URL`. Mantén `KF_DIAG`, `KF_NRE_LR` y otras variables de
+diagnóstico desactivadas para el release. La ruta `/apk/remote` sirve la APK con el nombre de catálogo.
+
+## Comprobar y operar
+
+```sh
+curl -m 15 -fsS https://kick-flight-fenix.us.ci/health/ready
+curl -m 15 -fsS http://127.0.0.1:18080/health/ready
+curl -i http://127.0.0.1:18080/diag  # debe devolver 404
+docker compose --env-file .env --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml logs --tail=100
+cat .ci/current-sha  # commit desplegado por el workflow, si ya corrió
+```
+
+`/health/ready` comprueba el catálogo, fixtures y conectividad con Photon. La prueba real es instalar la APK
+en un teléfono fuera de la red del VPS, descargar recursos, iniciar batalla, jugar hasta el resultado y
+reiniciar el stack comprobando que la misma cuenta conserve su progreso.
+
+Para detener y volver a iniciar los contenedores sin borrar datos:
+
+```sh
+docker compose --env-file .env --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml down
+docker compose --env-file .env --project-name deploy \
+  -f deploy/docker-compose.vps.external-db.yml up -d
+```
+
+Evita `down -v` si quieres conservar los volúmenes de Caddy y GeoIP. Con la variante PostgreSQL local,
+`down -v` también borra la base de jugadores; en el modo Neon, los datos siguen en Neon.
