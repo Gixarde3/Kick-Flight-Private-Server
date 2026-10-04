@@ -24,6 +24,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app .
 
+# Used by the container healthcheck in both the VPS and NAS Compose deployments.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV KF_REPO_ROOT=/srv/repo \
     ASPNETCORE_CONTENTROOT=/srv/repo \
     HttpPort=8080 \

@@ -1,8 +1,33 @@
-# The image only needs src/. Everything else is either mounted at runtime (config/, content/, the assets
-# tree) or irrelevant to the build.
+# The default build context excludes everything. The API Dockerfile has a dedicated smaller allowlist;
+# the Photon Dockerfile selectively adds its source subtree below.
 *
 !src/
 !src/**
+
+# The optional VPS Photon image builds the Luxon submodule from source. Include only that source subtree;
+# local build products and package-manager caches are deliberately excluded from every Docker context.
+!submodules/
+!submodules/luxonserver/
+!submodules/luxonserver/**
+submodules/luxonserver/build/
+submodules/luxonserver/build/**
+submodules/luxonserver/vcpkg/buildtrees/
+submodules/luxonserver/vcpkg/buildtrees/**
+submodules/luxonserver/vcpkg/packages/
+submodules/luxonserver/vcpkg/packages/**
+submodules/luxonserver/vcpkg/downloads/
+submodules/luxonserver/vcpkg/downloads/**
+**/.git
+**/.git/**
+
+# Photon, the Nginx GeoIP module image, and the DB-IP updater need only their own deploy subtrees.
+!deploy/
+!deploy/photon/
+!deploy/photon/**
+!deploy/nginx/
+!deploy/nginx/**
+!deploy/geoip/
+!deploy/geoip/**
 
 # Player saves: mounted at runtime, never baked in.
 src/KickFlight.BootstrapApi/data/

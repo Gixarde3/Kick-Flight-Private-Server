@@ -63,7 +63,11 @@ Thumbs.db
 appsettings.Local.json
 config/fixtures.local/
 config/apk-direct-server.local.json
+deploy/.env
 .codebase-memory/
 octo_cache.tar
 # DeepSeek handoff rounds
 handoff/
+
+# Local environment secrets
+/.env

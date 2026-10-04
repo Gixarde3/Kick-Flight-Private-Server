@@ -1,0 +1,9 @@
+# The API Dockerfile builds only src/. Its context stays small even though the root
+# .dockerignore also admits Luxon source for the separate Photon Dockerfile.
+*
+!src/
+!src/**
+src/KickFlight.BootstrapApi/data/
+**/bin/
+**/obj/
+**/*.user

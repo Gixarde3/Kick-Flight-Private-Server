@@ -1,0 +1,49 @@
+# External PostgreSQL mode (for example Neon). Reuses the VPS services and mounts from
+# docker-compose.vps.yml while omitting its local postgres container and its dependency.
+# Start this file on its own; do not combine it with docker-compose.vps.yml.
+
+services:
+  geoip-db:
+    extends:
+      file: docker-compose.vps.yml
+      service: geoip-db
+
+  photon:
+    extends:
+      file: docker-compose.vps.yml
+      service: photon
+
+  api:
+    extends:
+      file: docker-compose.vps.yml
+      service: api
+    environment:
+      PlayerStore__DatabaseUrl: ${DATABASE_URL:?Set DATABASE_URL to a postgres:// URL in the root .env}
+      PlayerStore__ConnectionString: ""
+    depends_on: !override
+      photon:
+        condition: service_healthy
+
+  cdn:
+    extends:
+      file: docker-compose.vps.yml
+      service: cdn
+
+  caddy:
+    extends:
+      file: docker-compose.vps.yml
+      service: caddy
+
+  grpc:
+    extends:
+      file: docker-compose.vps.yml
+      service: grpc
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  geoip-data:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,23 @@
+Servers:
+  NameServer:
+    - port: 5058
+      external_address: ${KF_PUBLIC_HOST}:5058
+    - port: 27000
+      external_address: ${KF_PUBLIC_HOST}:27000
+
+  MasterServer:
+    - port: 5055
+      external_address: ${KF_PUBLIC_HOST}:5055
+    - port: 27001
+      external_address: ${KF_PUBLIC_HOST}:27001
+
+  GameServer:
+    - port: 5056
+      external_address: ${KF_PUBLIC_HOST}:5056
+    - port: 27002
+      external_address: ${KF_PUBLIC_HOST}:27002
+
+EnableIPv6: false
+MaxConnections: 100
+MaxGamePeers: 0
+TickTimeBudget: 100000

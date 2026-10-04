@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 35,
+  "revision": 36,
   "fromRevisions": [
     0,
     1,
@@ -38,7 +38,8 @@
     32,
     33,
     34,
-    35
+    35,
+    36
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [

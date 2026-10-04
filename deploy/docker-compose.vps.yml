@@ -1,0 +1,177 @@
+# Complete single-host deployment for a public VPS. Copy .env.vps.example to .env and set both required values.
+# The existing root docker-compose.yml is kept as the developer/local setup.
+
+services:
+  geoip-db:
+    build:
+      context: ..
+      dockerfile: deploy/geoip/Dockerfile
+    image: kickflight/geoip-db:alpine-3.23
+    restart: unless-stopped
+    volumes:
+      - geoip-data:/var/lib/geoip
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /var/lib/geoip/dbip-country.mmdb && mmdblookup --file /var/lib/geoip/dbip-country.mmdb --ip 1.1.1.1 country iso_code >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+      start_period: 180s
+    networks: [backend]
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kickflight
+      POSTGRES_DB: kickflight
+      POSTGRES_PASSWORD: ${KF_DB_PASSWORD:-}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kickflight -d kickflight"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks: [backend]
+
+  photon:
+    build:
+      context: ..
+      dockerfile: deploy/photon/Dockerfile
+    restart: unless-stopped
+    environment:
+      KF_PUBLIC_HOST: ${KF_PUBLIC_HOST:?Set KF_PUBLIC_HOST to the VPS public IPv4 or DNS name}
+    volumes:
+      - ./photon/config.yml.template:/etc/luxon/config.yml.template:ro
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        envsubst < /etc/luxon/config.yml.template > /etc/luxon/config.yml
+        exec /usr/local/bin/luxon_server
+    ports:
+      - "5055:5055/tcp"
+      - "5055:5055/udp"
+      - "5056:5056/tcp"
+      - "5056:5056/udp"
+      - "5058:5058/tcp"
+      - "5058:5058/udp"
+      - "27000:27000/tcp"
+      - "27000:27000/udp"
+      - "27001:27001/tcp"
+      - "27001:27001/udp"
+      - "27002:27002/tcp"
+      - "27002:27002/udp"
+    healthcheck:
+      # Luxon runs as PID 1; this catches an exited server process before dependent services start.
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    networks: [backend]
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      HttpPort: "8080"
+      GrpcPort: "18081"
+      KF_REPO_ROOT: /srv/repo
+      PlayerStore__ConnectionString: Host=postgres;Port=5432;Database=kickflight;Username=kickflight;Password=${KF_DB_PASSWORD:-}
+      PhotonServer__Enabled: "true"
+      # This value is for health checks from the API container. Photon itself advertises KF_PUBLIC_HOST to clients.
+      PhotonServer__Host: photon
+      PhotonServer__MasterServerPort: "5055"
+      PhotonServer__GameServerPort: "5056"
+      PhotonServer__NameServerPort: "5058"
+      Harness__DirectClientHosts__0: ${KF_PUBLIC_HOST:?Set KF_PUBLIC_HOST in .env}
+      Harness__DirectClientHosts__1: kick-flight-fenix.us.ci
+      Harness__PersistCaptures: "false"
+    volumes:
+      - ../config:/srv/repo/config:ro
+      - ../content:/srv/repo/content:ro
+      - ../.local:/srv/repo/.local:ro
+      - ${KF_ASSETS_PATH:-../../Kick-Flight-Assets}:/srv/Kick-Flight-Assets:ro
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      photon:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    networks: [backend]
+
+  cdn:
+    build:
+      context: ..
+      dockerfile: deploy/nginx/Dockerfile
+    image: kickflight/nginx-geoip:alpine-3.23
+    restart: unless-stopped
+    ports:
+      - "${KF_HTTP_PORT:-18080}:18080/tcp"
+    volumes:
+      - ${KF_ASSETS_PATH:-../../Kick-Flight-Assets}:/assets:ro
+      - ./site:/usr/share/nginx/html:ro
+      - ./nginx.vps.conf:/etc/nginx/nginx.conf:ro
+      - geoip-data:/var/lib/geoip:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks: [backend]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    # Host networking lets Caddy proxy to the existing public 18080 mapping
+    # without changing/recreating the API, Photon, or CDN network.
+    network_mode: host
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      cdn:
+        condition: service_healthy
+
+  grpc:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "18081:18081/tcp"
+    volumes:
+      - ./nginx.grpc.vps.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks: [backend]
+
+volumes:
+  postgres-data:
+  geoip-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  backend:
+    driver: bridge
