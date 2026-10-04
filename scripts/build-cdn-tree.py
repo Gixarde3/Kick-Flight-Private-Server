@@ -247,6 +247,9 @@ def main() -> int:
         raise
 
     if args.atomic:
+        # mkdtemp creates mode 0700 by default. The nginx worker must be able to
+        # traverse the activated CDN directory after it is exchanged into place.
+        os.chmod(stage_dir, 0o755)
         backup_dir = Path(args.backup_dir).resolve() if args.backup_dir else None
         if backup_dir and os.path.lexists(backup_dir):
             shutil.rmtree(stage_dir)
