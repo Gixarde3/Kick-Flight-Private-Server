@@ -38,6 +38,15 @@ Build with `KF_DIAG=1` to include `DIAG_PATCHES_ARM64` from `patch-il2cpp-endpoi
 4xx RoomState per UpdateState tick, 6xx `_enableAi` store, 700 AIPlayerEngine.Start, plus the return addresses of
 every NRE raise). Resolve addresses with `/proc/<pid>/maps` (low 32 bits of the logged value minus the module base).
 
+Spectator member selection probes (2026-09-29): `9101` enters the member-icon callback
+`SpectatorInfoPresenter.<>c__DisplayClass7_0.<Initialize>b__1`, `9102` enters
+`GameManager.InitializeSpectatorPlayer`, and `9103` enters `GameManager.SetMainPlayer`. These fixed values
+contain no account data. If a tap produces no `9101`, the Unity button callback did not fire; `9101` without
+`9102` means the callback took its replay branch; `9102` without `9103` means `InitializeSpectatorPlayer`
+returned before setting the target (for example, its spectator gate or null-object guard). `9103` confirms the
+selected player reached the manager setter. Their caves occupy the free tail `0x13CE5A4..0x13CE624` of the entry-stubbed
+`UpdateIdleTypeRate` body, after the production costume refresh cave.
+
 Rules learned the hard way:
 
 - Never call `UnityEngine.Debug.Log*` from patched code on the x86_64 AVD: its stack-trace capture walks the
@@ -46,12 +55,21 @@ Rules learned the hard way:
 - Function-entry hooks must use `b` (a `bl` clobbers the caller's LR before the prologue saves it) and the cave
   jumps back to entry+4 after re-executing the displaced instruction. Mid-function hooks may use `bl`+`ret`.
 - Free dead code for caves: body of `PlayerBoneController.SetDisplayAngles` (0x13BC318-0x13BC3A8) and
-  `GameManager.GetMenuType` (0x1570EB0-0x15710A4); both are stubbed at their entry by existing patches and
-  nothing branches into them (verified). `HomeSummonModelController.SetModel` (0x159D1BC-0x159DAB0, entry-stubbed)
+  `GameManager.GetMenuType` (0x1570EB0-0x15710A4); the latter's entry branches to a compatibility cave that returns
+  menu type 6 only for Photon `TeamColorType=2` (spectator) and 0 otherwise. Nothing branches into the body (verified).
+  `HomeSummonModelController.SetModel` (0x159D1BC-0x159DAB0, entry-stubbed)
   holds the production bot-special-skill cave from 0x159D200 (376 bytes); the rest of its body is free.
 
 ## DIAG probe sets (attack, warp, bombs, reconnect)
 
+* `patch-il2cpp-endpoints.py` — async scene-state probes. HomeScene emits `8399` at initial state `-1`, then
+  `8400+state` on each `PreBeginAsync.MoveNext` entry; `8420`/`8421` bracket the state-machine pointer low/high
+  halves. TitleScene uses `8459`, `8460+state`, and pointer markers `8480`/`8481`. Join each pointer pair and read
+  the pending state at object offset `+0x10` while the spinner is visible. These mid-function hooks are after the
+  prologue saves LR; their caves replay the displaced state load and branch to the original continuation after
+  logging. The scene-transition probe emits `8500+state` and pointer markers `8520`/`8521` from
+  `GRE.SceneManager.<_ChangeSceneAsync>d__33.MoveNext`; state 7 awaits `LoadSceneAsync`, state 8 awaits
+  `PreBeginSceneAsync`. A `ret` after a cave's `bl` logger would return into the cave, not the MoveNext caller.
 * `scripts/re/attack_diag_caves.py` — KFDIAG 8100-8600: combo index of every swing (`8100+n`), target lost (`8200`),
   search-distance result (`8300/8301`), the four `IsAttack` angle checks with |delta| and limit (`8320-8323`),
   `IsAttack` true (`8310`), and which "in" animation played (`8400/8500/8600 + combo`). Minimal caves in the dead
@@ -84,7 +102,9 @@ Rules learned the hard way:
   forced the DIAG build to stub it and so no summon model ever loaded: Leorex/MOVE/TRAP froze the kicker in the
   skill state and it never respawned). `UpdateIdleTypeRate` (0x13CE3E0-0x13CE7C8): DIAG attack probes at
   0x13CE3E0-0x13CE4B0, the **production** bat-bomb TrapInfo cave (`BatAbilityParameter..ctor` tail, 60 bytes) at
-  0x13CE500-0x13CE540 (64 bytes); DIAG bomb probes (`bomb_diag_caves.py`, 9001-9041) at 0x13CE540-0x13CE7B0.
+  0x13CE500-0x13CE540 (64 bytes); the **production** guarded unlimited-costume archive refresh cave now occupies
+  0x13CE540-0x13CE5A4. The former Jay bomb DIAG probes (9001-9041) were retired and their hooks removed; the
+  historical generator exits instead of writing caves into that reserved range.
   `HomeSummonModelController.SetModel` tail 0x159DA48-0x159DA78 holds the production bat-bomb HitInfo fallback cave
   (0x159DA78-0x159DAB0 free).
 * `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).

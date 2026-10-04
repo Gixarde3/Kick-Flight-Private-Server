@@ -52,6 +52,51 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
+    public async Task A_second_room_can_reach_stage_three_while_the_first_room_stream_is_still_active()
+    {
+        var service = CreateService();
+        service.MatchWindow = TimeSpan.FromMilliseconds(50);
+
+        var (_, firstTicket) = service.RegisterEntry("1000001", "First room", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (_, secondTicket) = service.RegisterEntry("1000002", "Second room", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+
+        using var firstCancellation = new CancellationTokenSource();
+        using var secondCancellation = new CancellationTokenSource();
+        // A single client receives Stage 1, Stage 2, and Stage 3. Keep each stream alive until the test cancels it.
+        var firstWriter = new CollectingWriter(expectedCount: 4, firstCancellation);
+        var secondWriter = new CollectingWriter(expectedCount: 4, secondCancellation);
+        var firstStream = service.StreamAssignmentsAsync(firstTicket, firstWriter, firstCancellation.Token);
+        Task? secondStream = null;
+
+        try
+        {
+            var firstFinal = await firstWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.NotEmpty(firstFinal.Assignment.Connection);
+            Assert.False(firstStream.IsCompleted);
+
+            // Room one has finalized and left _pendingRoom, but its Stage 3 acknowledgement stream is still active.
+            secondStream = service.StreamAssignmentsAsync(secondTicket, secondWriter, secondCancellation.Token);
+            var secondFinal = await secondWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.NotEmpty(secondFinal.Assignment.Connection);
+            Assert.NotEqual(firstFinal.Assignment.Connection, secondFinal.Assignment.Connection);
+            Assert.False(firstStream.IsCompleted);
+            Assert.False(secondStream.IsCompleted);
+        }
+        finally
+        {
+            firstCancellation.Cancel();
+            secondCancellation.Cancel();
+        }
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => firstStream);
+        if (secondStream is not null)
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => secondStream);
+        }
+    }
+
+    [Fact]
     public async Task Three_humans_share_the_first_room_instead_of_opening_a_second_one()
     {
         var service = CreateService();
@@ -172,10 +217,10 @@ public sealed class BattleMatchmakingTests
     {
         var service = CreateService(fastWindow: false);
 
-        // The shipped default gives humans one minute from the first entry to join the room.
+        // The shipped default gives humans ten seconds from the first entry to join the room.
         if (Environment.GetEnvironmentVariable("KF_MATCH_WINDOW_SECONDS") is null)
         {
-            Assert.Equal(60.0, service.MatchWindow.TotalSeconds, 3);
+            Assert.Equal(10.0, service.MatchWindow.TotalSeconds, 3);
         }
 
         // An accelerated integration check proves later joins don't reset or extend a room's deadline.
@@ -208,6 +253,295 @@ public sealed class BattleMatchmakingTests
             .First(item => Roster(item.response.Assignment).Count == 8);
         var elapsed = writer1.WriteTimes[fullRosterWrite.index] - writer1.WriteTimes[0];
         Assert.InRange(elapsed.TotalSeconds, 1.8, 2.8);
+    }
+
+    [Fact]
+    public async Task Complete_teams_stay_together_and_2_plus_2_plus_2_fills_to_four_per_side()
+    {
+        var roster = await RunPartyMatchAsync([2, 2, 2]);
+
+        Assert.Equal(8, roster.Count);
+        Assert.Equal(2, roster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+        Assert.Equal(4, roster.Count(entry => entry.GetProperty("teamType").GetInt32() == 0));
+        Assert.Equal(4, roster.Count(entry => entry.GetProperty("teamType").GetInt32() == 1));
+        AssertEachPartyIsOnOneSide(roster, new[] { 2, 2, 2 });
+    }
+
+    [Fact]
+    public async Task Three_player_and_two_player_teams_stay_together_and_bots_fill_the_open_slots()
+    {
+        var roster = await RunPartyMatchAsync([3, 2]);
+
+        Assert.Equal(8, roster.Count);
+        Assert.Equal(3, roster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+        Assert.InRange(roster.Count(entry => entry.GetProperty("teamType").GetInt32() == 0), 3, 4);
+        Assert.InRange(roster.Count(entry => entry.GetProperty("teamType").GetInt32() == 1), 3, 4);
+        AssertEachPartyIsOnOneSide(roster, new[] { 3, 2 });
+    }
+
+    [Fact]
+    public async Task Unpartitionable_three_plus_three_plus_two_starts_oldest_six_and_requeues_last_team()
+    {
+        var service = CreateService();
+        var parties = new[] { 3, 3, 2 };
+        var tickets = new List<(string partyId, string userId, string ticket)>();
+        var userNumber = 0;
+        foreach (var (size, partyIndex) in parties.Select((size, index) => (size, index)))
+        {
+            var partyId = $"party-{partyIndex}";
+            for (var member = 0; member < size; member++)
+            {
+                var userId = $"{++userNumber:0000000}";
+                var (_, ticket) = service.RegisterEntry(userId, $"Player {userId}", 1, 1, 1,
+                    [3010001, 3010002, 3010003, 3010004], partyId);
+                tickets.Add((partyId, userId, ticket));
+            }
+        }
+
+        var cancellations = tickets.Select(_ => new CancellationTokenSource()).ToList();
+        var writers = cancellations.Select(cancellation => new CollectingWriter(100, cancellation)).ToList();
+        var streams = new List<Task>();
+        try
+        {
+            for (var i = 0; i < tickets.Count; i++)
+            {
+                var stream = service.StreamAssignmentsAsync(tickets[i].ticket, writers[i], cancellations[i].Token);
+                streams.Add(stream);
+                await writers[i].FirstWrite;
+            }
+
+            var finalAssignments = await Task.WhenAll(writers.Select(writer =>
+                writer.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(12))));
+            var firstBattle = finalAssignments[0].Assignment.Connection;
+            var nextBattle = finalAssignments[6].Assignment.Connection;
+            Assert.NotEmpty(firstBattle);
+            Assert.NotEmpty(nextBattle);
+            Assert.NotEqual(firstBattle, nextBattle);
+            Assert.All(finalAssignments.Take(6), item => Assert.Equal(firstBattle, item.Assignment.Connection));
+            Assert.All(finalAssignments.Skip(6), item => Assert.Equal(nextBattle, item.Assignment.Connection));
+
+            var firstRoster = Roster(finalAssignments[0].Assignment);
+            Assert.Equal(6, firstRoster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0));
+            Assert.Equal(2, firstRoster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+            AssertEachPartyIsOnOneSide(firstRoster, new[] { 3, 3 });
+
+            var secondRoster = Roster(finalAssignments[6].Assignment);
+            Assert.Equal(2, secondRoster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0));
+            Assert.Equal(6, secondRoster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+            AssertEachPartyIsOnOneSide(secondRoster, new[] { 2 }, startingUserNumber: 6);
+        }
+        finally
+        {
+            foreach (var cancellation in cancellations) cancellation.Cancel();
+        }
+
+        await Task.WhenAll(streams.Select(async stream =>
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream)));
+        foreach (var cancellation in cancellations) cancellation.Dispose();
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task Team_code_and_tickets_keep_membership_and_wait_for_host_entry(int battleRuleId)
+    {
+        var service = CreateService();
+        var host = service.CreateTeam("1000001", "Host", 1, 110, battleRuleId,
+            [3010001, 3010002, 3010003, 3010004], "2563");
+        var guest = service.JoinTeam(host.MatchmakingTeamId, "1000002", "Guest", 2, 120,
+            [3010001, 3010002, 3010003, 3010004]);
+
+        Assert.NotNull(guest);
+        Assert.NotEqual(host.TicketId, guest!.TicketId);
+        Assert.NotEqual(host.BattleEntryId, guest.BattleEntryId);
+        var recruiting = Assert.Single(service.GetTeams([host.MatchmakingTeamId]));
+        Assert.Equal("2563", recruiting.Code);
+        Assert.Equal(battleRuleId, recruiting.BattleRuleId);
+        Assert.Equal(new[] { 110, 120 }, recruiting.KickerCostumeIdList);
+
+        using var hostCancellation = new CancellationTokenSource();
+        using var guestCancellation = new CancellationTokenSource();
+        var hostWriter = new CollectingWriter(100, hostCancellation);
+        var guestWriter = new CollectingWriter(100, guestCancellation);
+        var hostStream = service.StreamAssignmentsAsync(host.TicketId, hostWriter, hostCancellation.Token);
+        var guestStream = service.StreamAssignmentsAsync(guest.TicketId, guestWriter, guestCancellation.Token);
+
+        await Task.Delay(150);
+        Assert.False(hostWriter.FinalAssignment.IsCompleted);
+        Assert.False(guestWriter.FinalAssignment.IsCompleted);
+        Assert.False(service.StartTeam(host.MatchmakingTeamId, "1000999", ["1000001", "1000002"]));
+
+        Assert.True(service.StartTeam(host.MatchmakingTeamId, "1000001", ["1000001", "1000002"]));
+        var final = await Task.WhenAll(
+            hostWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8)),
+            guestWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8)));
+        Assert.Equal(final[0].Assignment.Connection, final[1].Assignment.Connection);
+        Assert.True(service.StartTeam(host.MatchmakingTeamId, "1000001", ["1000001", "1000002"]));
+
+        var roster = Roster(final[0].Assignment);
+        var humanTeams = roster
+            .Where(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0)
+            .ToDictionary(entry => entry.GetProperty("userId").GetString()!,
+                entry => entry.GetProperty("teamType").GetInt32(), StringComparer.Ordinal);
+        Assert.Equal(humanTeams["1000001"], humanTeams["1000002"]);
+
+        hostCancellation.Cancel();
+        guestCancellation.Cancel();
+        await Task.WhenAll(
+            Assert.ThrowsAnyAsync<OperationCanceledException>(() => hostStream),
+            Assert.ThrowsAnyAsync<OperationCanceledException>(() => guestStream));
+    }
+
+    [Fact]
+    public async Task Recruiting_snapshots_are_safe_while_members_join()
+    {
+        var service = CreateService();
+        var host = service.CreateTeam("1000001", "Host", 1, 110, 1,
+            [3010001, 3010002, 3010003, 3010004], "2563");
+        var joins = Enumerable.Range(2, 3).Select(number => Task.Run(() =>
+            service.JoinTeam(host.MatchmakingTeamId, $"100000{number}", $"Player {number}", number,
+                110 + number, [3010001, 3010002, 3010003, 3010004]))).ToArray();
+        var polls = Enumerable.Range(0, 250).Select(_ => Task.Run(() =>
+        {
+            var snapshot = Assert.Single(service.GetTeams([host.MatchmakingTeamId]));
+            Assert.InRange(snapshot.KickerCostumeIdList.Count, 1, 4);
+            Assert.Equal("2563", snapshot.Code);
+            return snapshot.KickerCostumeIdList.Count;
+        })).ToArray();
+
+        await Task.WhenAll(joins.Cast<Task>().Concat(polls));
+        var final = Assert.Single(service.GetTeams([host.MatchmakingTeamId]));
+        Assert.Equal(4, final.KickerCostumeIdList.Count);
+    }
+
+    [Fact]
+    public async Task Team_stays_together_when_remaining_slots_fill_with_solos_and_bots()
+    {
+        var service = CreateService();
+        var host = service.CreateTeam("1000001", "Host", 1, 110, 1,
+            [3010001, 3010002, 3010003, 3010004], "2563");
+        var guest = service.JoinTeam(host.MatchmakingTeamId, "1000002", "Guest", 2, 120,
+            [3010001, 3010002, 3010003, 3010004]);
+        Assert.NotNull(guest);
+        Assert.True(service.StartTeam(host.MatchmakingTeamId, "1000001", ["1000001", "1000002"]));
+
+        var entries = new List<(string UserId, string Ticket)>
+        {
+            ("1000001", host.TicketId),
+            ("1000002", guest!.TicketId)
+        };
+        for (var index = 3; index <= 5; index++)
+        {
+            var userId = $"100000{index}";
+            var (_, ticket) = service.RegisterEntry(userId, $"Solo {index}", index, 110 + index, 1,
+                [3010001, 3010002, 3010003, 3010004]);
+            entries.Add((userId, ticket));
+        }
+
+        var cancellations = entries.Select(_ => new CancellationTokenSource()).ToList();
+        var writers = cancellations.Select(cancellation => new CollectingWriter(100, cancellation)).ToList();
+        var streams = new List<Task>();
+        try
+        {
+            for (var index = 0; index < entries.Count; index++)
+            {
+                streams.Add(service.StreamAssignmentsAsync(entries[index].Ticket, writers[index], cancellations[index].Token));
+                await writers[index].FirstWrite;
+            }
+
+            var finals = await Task.WhenAll(writers.Select(writer =>
+                writer.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8))));
+            Assert.All(finals, item => Assert.Equal(finals[0].Assignment.Connection, item.Assignment.Connection));
+            var roster = Roster(finals[0].Assignment);
+            Assert.Equal(5, roster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0));
+            Assert.Equal(3, roster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+            var humansById = roster.Where(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0)
+                .ToDictionary(entry => entry.GetProperty("userId").GetString()!,
+                    entry => entry.GetProperty("teamType").GetInt32(), StringComparer.Ordinal);
+            Assert.Equal(humansById["1000001"], humansById["1000002"]);
+            Assert.Equal(entries.Count, humansById.Count);
+        }
+        finally
+        {
+            foreach (var cancellation in cancellations) cancellation.Cancel();
+            try
+            {
+                await Task.WhenAll(streams.Select(async stream =>
+                    await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream)));
+            }
+            finally
+            {
+                foreach (var cancellation in cancellations) cancellation.Dispose();
+            }
+        }
+    }
+
+    private static async Task<List<JsonElement>> RunPartyMatchAsync(int[] partySizes)
+    {
+        var service = CreateService();
+        var tickets = new List<(string PartyId, string UserId, string Ticket)>();
+        var index = 0;
+        foreach (var (size, partyIndex) in partySizes.Select((size, partyIndex) => (size, partyIndex)))
+        {
+            var partyId = $"party-{partyIndex}";
+            for (var member = 0; member < size; member++)
+            {
+                var userId = $"{++index:0000000}";
+                var (_, ticket) = service.RegisterEntry(userId, $"Player {userId}", 1, 1, 1,
+                    [3010001, 3010002, 3010003, 3010004], partyId);
+                tickets.Add((partyId, userId, ticket));
+            }
+        }
+
+        var cancellations = tickets.Select(_ => new CancellationTokenSource()).ToList();
+        var writers = cancellations.Select(cancellation => new CollectingWriter(100, cancellation)).ToList();
+        var streams = new List<Task>();
+        try
+        {
+            for (var i = 0; i < tickets.Count; i++)
+            {
+                streams.Add(service.StreamAssignmentsAsync(tickets[i].Ticket, writers[i], cancellations[i].Token));
+                await writers[i].FirstWrite;
+            }
+
+            var assignments = await Task.WhenAll(writers.Select(writer =>
+                writer.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8))));
+            Assert.All(assignments, item => Assert.Equal(assignments[0].Assignment.Connection, item.Assignment.Connection));
+            return Roster(assignments[0].Assignment);
+        }
+        finally
+        {
+            foreach (var cancellation in cancellations) cancellation.Cancel();
+            try
+            {
+                await Task.WhenAll(streams.Select(async stream =>
+                    await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream)));
+            }
+            finally
+            {
+                foreach (var cancellation in cancellations) cancellation.Dispose();
+            }
+        }
+    }
+
+    private static void AssertEachPartyIsOnOneSide(
+        List<JsonElement> roster, int[] partySizes, int startingUserNumber = 0)
+    {
+        var humanTeams = roster
+            .Where(entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0)
+            .ToDictionary(entry => entry.GetProperty("userId").GetString()!,
+                entry => entry.GetProperty("teamType").GetInt32(), StringComparer.Ordinal);
+        var nextUser = startingUserNumber;
+        foreach (var size in partySizes)
+        {
+            var teamTypes = Enumerable.Range(nextUser + 1, size)
+                .Select(userNumber => humanTeams[$"{userNumber:0000000}"])
+                .Distinct()
+                .ToList();
+            Assert.Single(teamTypes);
+            nextUser += size;
+        }
     }
 
     private static BattleMatchmakingService CreateService(bool fastWindow = true)
@@ -255,6 +589,7 @@ public sealed class BattleMatchmakingTests
         private readonly CancellationTokenSource _cancellation;
         private readonly TaskCompletionSource _firstWrite = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource _expectedWrites = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<GetAssignmentsResponse> _finalAssignment = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public CollectingWriter(int expectedCount, CancellationTokenSource cancellation)
         {
@@ -266,6 +601,7 @@ public sealed class BattleMatchmakingTests
         public List<GetAssignmentsResponse> Responses { get; } = [];
         public List<DateTimeOffset> WriteTimes { get; } = [];
         public Task FirstWrite => _firstWrite.Task;
+        public Task<GetAssignmentsResponse> FinalAssignment => _finalAssignment.Task;
 
         public async Task WaitForExpectedWritesAsync()
         {
@@ -285,6 +621,11 @@ public sealed class BattleMatchmakingTests
             Responses.Add(message);
             WriteTimes.Add(DateTimeOffset.UtcNow);
             _firstWrite.TrySetResult();
+            if (!string.IsNullOrEmpty(message.Assignment.Connection))
+            {
+                _finalAssignment.TrySetResult(message);
+            }
+
             if (Responses.Count >= _expectedCount)
             {
                 _expectedWrites.TrySetResult();

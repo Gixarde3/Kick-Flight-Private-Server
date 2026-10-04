@@ -1,4 +1,10 @@
-"""DIAG probes for Jay's passive bomb (BatBombTrapAction, 2026-09-20): does the timer fire, does the explosion RPC
+"""Retired DIAG probes for Jay's passive bomb (BatBombTrapAction, 2026-09-20).
+
+The old 9001–9041 caves occupied PlayerCharacter.UpdateIdleTypeRate at 0x13CE540–0x13CE7C8. That
+dead-code region now hosts BattleUtil.GetKickerCostumeId's guarded archive refresh in the production patch
+table. Do not regenerate or paste these entries into patch-il2cpp-endpoints.py.
+
+Historical notes: does the timer fire, does the explosion RPC
 apply, and what do the collision / effect lookups return.
 
   9001        AcceptAction: the 2 s timer fired (OnManagedUpdate -> AcceptAction -> Trap.AcceptAction RPC)
@@ -56,6 +62,7 @@ bl LOG
 
 
 def main():
+    raise SystemExit("Retired: 0x13CE540–0x13CE7C8 is reserved for the production unlimited-costume refresh cave.")
     lib = open(LIB, "rb").read()
     entries = []
     region, addr = 0, REGIONS[0][0]

@@ -1,0 +1,16 @@
+[
+  { "id": 1, "kickerAiParameterId": 1, "kickerAiDiscDeckId": 1 },
+  { "id": 2, "kickerAiParameterId": 2, "kickerAiDiscDeckId": 1 },
+  { "id": 3, "kickerAiParameterId": 3, "kickerAiDiscDeckId": 1 },
+  { "id": 4, "kickerAiParameterId": 4, "kickerAiDiscDeckId": 1 },
+  { "id": 5, "kickerAiParameterId": 5, "kickerAiDiscDeckId": 1 },
+  { "id": 6, "kickerAiParameterId": 6, "kickerAiDiscDeckId": 1 },
+  { "id": 7, "kickerAiParameterId": 7, "kickerAiDiscDeckId": 1 },
+  { "id": 8, "kickerAiParameterId": 8, "kickerAiDiscDeckId": 1 },
+  { "id": 9, "kickerAiParameterId": 9, "kickerAiDiscDeckId": 1 },
+  { "id": 10, "kickerAiParameterId": 10, "kickerAiDiscDeckId": 1 },
+  { "id": 11, "kickerAiParameterId": 11, "kickerAiDiscDeckId": 1 },
+  { "id": 12, "kickerAiParameterId": 12, "kickerAiDiscDeckId": 1 },
+  { "id": 13, "kickerAiParameterId": 13, "kickerAiDiscDeckId": 1 },
+  { "id": 14, "kickerAiParameterId": 14, "kickerAiDiscDeckId": 1 }
+]

@@ -1,10 +1,14 @@
 using System.Net;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using Grpc.Core;
 using KickFlight.BootstrapApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenMatch;
 using Xunit;
 
 namespace KickFlight.BootstrapApi.Tests;
@@ -90,6 +94,214 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         Assert.Equal(0, discarded.GetProperty("userGear").GetProperty("gearId").GetInt32());
         Assert.Equal(0, ReadPendingGearId(session));
         Assert.Equal(gearId, FindCostume(discarded, costumeId).GetProperty("gearId2").GetInt32());
+    }
+
+    [Theory]
+    [InlineData(1, 0)] // regular and the app revision observed in the runtime request
+    [InlineData(4, 27)] // ranked BattleRule row and a nonzero asset revision
+    public async Task Team_endpoints_return_recruiting_data_and_ticket_streams_wait_for_host_entry(
+        int battleRuleId, int appAssetRevision)
+    {
+        var host = await CreateSessionAsync();
+        var guest = await CreateSessionAsync();
+        host.Client.DefaultRequestHeaders.Add("x-app-asset-platform", "3");
+        host.Client.DefaultRequestHeaders.Add("x-app-asset-revision", appAssetRevision.ToString(CultureInfo.InvariantCulture));
+        var created = await PostAsync(host, "/battle/teamCreate", new
+        {
+            battleRuleId,
+            code = "2563",
+            userPingList = Array.Empty<object>()
+        });
+        var teamId = created.GetProperty("matchmakingTeamId").GetString()!;
+        var hostTicket = created.GetProperty("battleEntryTicketId").GetString()!;
+        Assert.False(string.IsNullOrEmpty(created.GetProperty("battleEntryId").GetString()));
+        var asset = Assert.Single(created.GetProperty("assetList").EnumerateArray());
+        Assert.Equal(3, asset.GetProperty("platform").GetInt32());
+        Assert.Equal(appAssetRevision, asset.GetProperty("revision").GetInt32());
+        Assert.Equal(JsonValueKind.Array, created.GetProperty("campaignList").ValueKind);
+
+        var joined = await PostAsync(guest, "/battle/teamJoin", new
+        {
+            matchmakingTeamId = teamId,
+            userPingList = Array.Empty<object>()
+        });
+        var guestTicket = joined.GetProperty("battleEntryTicketId").GetString()!;
+        Assert.False(string.IsNullOrEmpty(joined.GetProperty("battleEntryId").GetString()));
+        Assert.NotEqual(hostTicket, guestTicket);
+
+        var recruiting = await PostAsync(host, "/battle/teamRecruiting", new
+        {
+            matchmakingTeamIdList = new[] { teamId }
+        });
+        var team = Assert.Single(recruiting.GetProperty("matchmakingTeamList").EnumerateArray());
+        Assert.Equal(teamId, team.GetProperty("matchmakingTeamId").GetString());
+        Assert.Equal(battleRuleId, team.GetProperty("battleRuleId").GetInt32());
+        Assert.Equal("2563", team.GetProperty("code").GetString());
+        Assert.Equal(2, team.GetProperty("kickerCostumeIdList").GetArrayLength());
+
+        var matchmaking = _factory.Services.GetRequiredService<BattleMatchmakingService>();
+        matchmaking.MatchWindow = TimeSpan.FromMilliseconds(150);
+        using var hostCancellation = new CancellationTokenSource();
+        using var guestCancellation = new CancellationTokenSource();
+        var hostWriter = new TeamProbeWriter(hostCancellation);
+        var guestWriter = new TeamProbeWriter(guestCancellation);
+        var hostStream = matchmaking.StreamAssignmentsAsync(hostTicket, hostWriter, hostCancellation.Token);
+        var guestStream = matchmaking.StreamAssignmentsAsync(guestTicket, guestWriter, guestCancellation.Token);
+
+        await Task.Delay(150);
+        Assert.False(hostWriter.FinalAssignment.IsCompleted);
+        Assert.False(guestWriter.FinalAssignment.IsCompleted);
+
+        var entered = await PostAsync(host, "/battle/teamEntry", new
+        {
+            matchmakingTeamId = teamId,
+            userIdList = new[] { host.UserId, guest.UserId }
+        });
+        Assert.Equal(5, entered.GetProperty("matchmakingCancelWaitingTimeSecond").GetInt32());
+        Assert.False(entered.GetProperty("scf").GetBoolean());
+
+        var assignments = await Task.WhenAll(
+            hostWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8)),
+            guestWriter.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8)));
+        Assert.NotEmpty(assignments[0].Assignment.Connection);
+        Assert.Equal(assignments[0].Assignment.Connection, assignments[1].Assignment.Connection);
+        var battleJson = assignments[0].Assignment.Properties.Fields["battle"].StructValue.ToString();
+        using var battleDocument = JsonDocument.Parse(battleJson);
+        var humanTeams = battleDocument.RootElement.GetProperty("battlePlayerList").EnumerateArray()
+            .Where(player => player.GetProperty("kickerAiParameterId").GetInt32() == 0)
+            .ToDictionary(player => player.GetProperty("userId").GetString()!,
+                player => player.GetProperty("teamType").GetInt32(), StringComparer.Ordinal);
+        Assert.Equal(humanTeams[host.UserId], humanTeams[guest.UserId]);
+
+        // Retries of the exact teamEntry roster acknowledge the frozen start; a competing roster is rejected.
+        var competingRoster = await PostAsync(host, "/battle/teamEntry", new
+        {
+            matchmakingTeamId = teamId,
+            userIdList = new[] { host.UserId }
+        }, expectStatusZero: false);
+        Assert.Equal(JsonValueKind.Object, competingRoster.ValueKind);
+        await PostAsync(host, "/battle/teamEntry", new
+        {
+            matchmakingTeamId = teamId,
+            userIdList = new[] { host.UserId, guest.UserId }
+        });
+
+        hostCancellation.Cancel();
+        guestCancellation.Cancel();
+        await Task.WhenAll(
+            Assert.ThrowsAnyAsync<OperationCanceledException>(() => hostStream),
+            Assert.ThrowsAnyAsync<OperationCanceledException>(() => guestStream));
+    }
+
+    [Theory]
+    [InlineData(1, new[] { 2, 2, 2 })]
+    [InlineData(4, new[] { 3, 2 })]
+    public async Task Encrypted_team_endpoints_preserve_party_groups_in_shared_match(int battleRuleId, int[] partySizes)
+    {
+        var parties = new List<(string TeamId, List<DemoSession> Members, List<string> Tickets)>();
+        foreach (var size in partySizes)
+        {
+            var members = new List<DemoSession>();
+            for (var index = 0; index < size; index++) members.Add(await CreateSessionAsync());
+            var created = await PostAsync(members[0], "/battle/teamCreate", new
+            {
+                battleRuleId,
+                code = "2563",
+                userPingList = Array.Empty<object>()
+            });
+            var teamId = created.GetProperty("matchmakingTeamId").GetString()!;
+            var tickets = new List<string> { created.GetProperty("battleEntryTicketId").GetString()! };
+            foreach (var member in members.Skip(1))
+            {
+                var joined = await PostAsync(member, "/battle/teamJoin", new
+                {
+                    matchmakingTeamId = teamId,
+                    userPingList = Array.Empty<object>()
+                });
+                tickets.Add(joined.GetProperty("battleEntryTicketId").GetString()!);
+            }
+
+            var recruiting = await PostAsync(members[0], "/battle/teamRecruiting", new
+            {
+                matchmakingTeamIdList = new[] { teamId }
+            });
+            var listed = Assert.Single(recruiting.GetProperty("matchmakingTeamList").EnumerateArray());
+            Assert.Equal("2563", listed.GetProperty("code").GetString());
+            Assert.Equal(size, listed.GetProperty("kickerCostumeIdList").GetArrayLength());
+            parties.Add((teamId, members, tickets));
+        }
+
+        var matchmaking = _factory.Services.GetRequiredService<BattleMatchmakingService>();
+        matchmaking.MatchWindow = TimeSpan.FromSeconds(2);
+        var allMembers = parties.SelectMany(party => party.Members.Zip(party.Tickets,
+            (member, ticket) => (Member: member, Ticket: ticket))).ToList();
+        var cancellations = allMembers.Select(_ => new CancellationTokenSource()).ToList();
+        var writers = cancellations.Select(cancellation => new TeamProbeWriter(cancellation)).ToList();
+        var streams = new List<Task>();
+        try
+        {
+            for (var index = 0; index < allMembers.Count; index++)
+                streams.Add(matchmaking.StreamAssignmentsAsync(allMembers[index].Ticket, writers[index], cancellations[index].Token));
+
+            foreach (var (teamId, members, _) in parties)
+            {
+                var entered = await PostAsync(members[0], "/battle/teamEntry", new
+                {
+                    matchmakingTeamId = teamId,
+                    userIdList = members.Select(member => member.UserId).ToArray()
+                });
+                Assert.Equal(5, entered.GetProperty("matchmakingCancelWaitingTimeSecond").GetInt32());
+                Assert.False(entered.GetProperty("scf").GetBoolean());
+            }
+
+            var finalAssignments = await Task.WhenAll(writers.Select(writer =>
+                writer.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(8))));
+            var connection = finalAssignments[0].Assignment.Connection;
+            Assert.NotEmpty(connection);
+            Assert.All(finalAssignments, item => Assert.Equal(connection, item.Assignment.Connection));
+
+            var battleJson = finalAssignments[0].Assignment.Properties.Fields["battle"].StructValue.ToString();
+            using var battleDocument = JsonDocument.Parse(battleJson);
+            var roster = battleDocument.RootElement.GetProperty("battlePlayerList").EnumerateArray().ToList();
+            var expectedHumans = partySizes.Sum();
+            Assert.Equal(8, roster.Count);
+            Assert.Equal(expectedHumans, roster.Count(player => player.GetProperty("kickerAiParameterId").GetInt32() == 0));
+            Assert.Equal(8 - expectedHumans, roster.Count(player => player.GetProperty("kickerAiParameterId").GetInt32() > 0));
+            var humanTeams = roster.Where(player => player.GetProperty("kickerAiParameterId").GetInt32() == 0)
+                .ToDictionary(player => player.GetProperty("userId").GetString()!,
+                    player => player.GetProperty("teamType").GetInt32(), StringComparer.Ordinal);
+            foreach (var (_, members, _) in parties)
+            {
+                Assert.Single(members.Select(member => humanTeams[member.UserId]).Distinct());
+            }
+        }
+        finally
+        {
+            foreach (var cancellation in cancellations) cancellation.Cancel();
+            try
+            {
+                await Task.WhenAll(streams.Select(async stream =>
+                    await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream)));
+            }
+            finally
+            {
+                foreach (var cancellation in cancellations) cancellation.Dispose();
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Startup_announces_configured_grpc_port_and_keeps_default()
+    {
+        var defaultSession = await CreateSessionAsync();
+        var defaultStartup = await PostAsync(defaultSession, "/startup/index", null);
+        Assert.Equal(18081, defaultStartup.GetProperty("matchmakingFrontend").GetProperty("port").GetInt32());
+
+        using var configuredFactory = _factory.WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
+            config.AddInMemoryCollection(new Dictionary<string, string?> { ["GrpcPort"] = "18083" })));
+        var configuredSession = await CreateSessionAsync(configuredFactory);
+        var configuredStartup = await PostAsync(configuredSession, "/startup/index", null);
+        Assert.Equal(18083, configuredStartup.GetProperty("matchmakingFrontend").GetProperty("port").GetInt32());
     }
 
     [Fact]
@@ -418,9 +630,9 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         return await session.Client.SendAsync(request);
     }
 
-    private async Task<DemoSession> CreateSessionAsync()
+    private async Task<DemoSession> CreateSessionAsync(WebApplicationFactory<Program>? factory = null)
     {
-        var client = _factory.CreateClient();
+        var client = (factory ?? _factory).CreateClient();
         var key = Encoding.ASCII.GetBytes("0123456789abcdef0123456789abcdef");
         var payload = JsonSerializer.Serialize(new { hash = Encoding.ASCII.GetString(key), uuid = Guid.NewGuid().ToString("N") });
 
@@ -455,4 +667,23 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     }
 
     private sealed record DemoSession(HttpClient Client, byte[] Key, string UserId);
+
+    private sealed class TeamProbeWriter(CancellationTokenSource cancellation) : IServerStreamWriter<GetAssignmentsResponse>
+    {
+        private readonly TaskCompletionSource<GetAssignmentsResponse> _final =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public WriteOptions? WriteOptions { get; set; }
+        public Task<GetAssignmentsResponse> FinalAssignment => _final.Task;
+
+        public Task WriteAsync(GetAssignmentsResponse message)
+        {
+            if (!string.IsNullOrEmpty(message.Assignment.Connection))
+            {
+                _final.TrySetResult(message);
+                cancellation.Cancel();
+            }
+            return Task.CompletedTask;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 {
   "UserId": "1000010",
-  "UserName": "",
+  "UserName": "EmuDual4",
   "KickerId": 1,
   "KickerCostumeId": 2010101,
   "ActiveDeckNumber": 1,
@@ -703,6 +703,6 @@
     "KickerId": 0,
     "GearId": 0
   },
-  "HasName": false,
+  "HasName": true,
   "PlayerId": 1000010
 }

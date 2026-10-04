@@ -8,8 +8,19 @@ import base64
 import binascii
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
+
+
+def write_if_changed(path: Path, payload: bytes) -> bool:
+    """Avoid touching generated manifests/fixtures when their bytes are stable."""
+    if path.is_file() and path.read_bytes() == payload:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(payload)
+    return True
 
 
 def encode_varint(value: int) -> bytes:
@@ -82,6 +93,36 @@ def validate_data_message(payload: bytes) -> None:
         raise ValueError(f"Unexpected Octo.Proto.Data layout: {fields!r}")
 
 
+def with_data_state(payload: bytes, state: int) -> bytes:
+    """Replace Octo.Proto.Data.state while preserving all other encoded fields."""
+    output = bytearray()
+    offset = 0
+    copied_through = 0
+    replaced = False
+    while offset < len(payload):
+        field_start = offset
+        tag, offset = read_varint(payload, offset)
+        number, wire_type = tag >> 3, tag & 7
+        if wire_type == 0:
+            _, offset = read_varint(payload, offset)
+        elif wire_type == 2:
+            length, offset = read_varint(payload, offset)
+            offset += length
+        else:
+            raise ValueError(f"Unexpected wire type {wire_type} for Data field {number}")
+        if number == 9:
+            if wire_type != 0 or replaced:
+                raise ValueError("Expected exactly one varint Octo.Proto.Data.state field")
+            output.extend(payload[copied_through:field_start])
+            output.extend(field_varint(9, state))
+            copied_through = offset
+            replaced = True
+    if not replaced:
+        raise ValueError("Octo.Proto.Data.state field is missing")
+    output.extend(payload[copied_through:])
+    return bytes(output)
+
+
 # The client's initial download (DownloadScene -> ColorfulManager.GetUpdateResourceNames) only fetches the rows
 # tagged "common", "title" (+ "tutorial", "localize"); everything else is loaded on demand from the cache and a
 # miss is a native crash. Tag every row "common" so a fresh install downloads the whole catalogue up front and
@@ -136,6 +177,74 @@ def resolve_path(repo: Path, configured_path: str) -> Path:
     return candidate.resolve() if candidate.is_absolute() else (repo / candidate).resolve()
 
 
+def _unitypy_interpreter(repo: Path) -> Path:
+    """Select a Python that has the pinned bundle codec dependency."""
+    candidates = [Path(sys.executable)]
+    candidates.extend((
+        repo / ".local/assets-venv/bin/python",
+        repo / ".local/assets-venv/Scripts/python.exe",
+    ))
+    checked: set[str] = set()
+    for candidate in candidates:
+        # Preserve the venv symlink path: resolving it points at the base Python and drops venv site-packages.
+        executable = str(candidate.absolute())
+        if executable in checked or not candidate.is_file():
+            continue
+        checked.add(executable)
+        result = subprocess.run(
+            [executable, "-c", "import UnityPy; print(getattr(UnityPy, '__version__', 'unknown'))"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip() == "1.25.3":
+            return Path(executable)
+    raise SystemExit(
+        "Physical weapon fallbacks require UnityPy 1.25.3. Install it in "
+        ".local/assets-venv and run that environment's Python, or use the "
+        "same interpreter that already imports UnityPy 1.25.3."
+    )
+
+
+def materialize_weapon_costume_fallbacks(repo: Path, definition_path: Path) -> None:
+    """Generate weapon clones before the catalog reads title entries or clone sourcePaths.
+
+    The generator never calls this catalog builder, so this one-way subprocess cannot recurse.
+    Custom --definition builds remain isolated from the project's production title manifest.
+    """
+    default_definition = (repo / "config/resources/title-minimum.json").resolve()
+    if definition_path.resolve() != default_definition:
+        return
+    generator = repo / "scripts/add_weapon_costume_aliases.py"
+    if not generator.is_file():
+        raise SystemExit(f"Weapon fallback generator is missing: {generator}")
+    interpreter = _unitypy_interpreter(repo)
+    result = subprocess.run([str(interpreter), str(generator)], cwd=repo, check=False)
+    if result.returncode:
+        raise SystemExit(
+            "Could not generate physical weapon fallbacks before catalog build. "
+            "Check UnityPy 1.25.3 and restore the captured donor bundles from "
+            "the sibling Kick-Flight-Assets checkout."
+        )
+
+
+def materialize_kicker_skin_thumbnails(repo: Path, definition_path: Path) -> None:
+    """Build the durable generated kicker bundles before resolving catalog sources."""
+    default_definition = (repo / "config/resources/title-minimum.json").resolve()
+    if definition_path.resolve() != default_definition:
+        return
+    generator = repo / "scripts/build-kicker-skin-thumbnail-bundles.py"
+    if not generator.is_file():
+        raise SystemExit(f"Kicker thumbnail generator is missing: {generator}")
+    interpreter = _unitypy_interpreter(repo)
+    result = subprocess.run([str(interpreter), str(generator)], cwd=repo, check=False)
+    if result.returncode:
+        raise SystemExit(
+            "Could not generate kicker skin thumbnail bundles before catalog build. "
+            "Check all 11 final PNGs and UnityPy 1.25.3."
+        )
+
+
 def encode_data(*, octo_id: int, name: str, object_name: str, source: bytes) -> bytes:
     # Tags recovered from the native IL2CPP custom-attribute generators. They
     # deliberately differ from property declaration order: priority=6,
@@ -177,6 +286,8 @@ def main() -> None:
     server_host_path = resolve_path(repo, args.server_host_config)
     catalog_path = resolve_path(repo, args.catalog)
     fixtures_path = resolve_path(repo, args.fixtures)
+    materialize_weapon_costume_fallbacks(repo, definition_path)
+    materialize_kicker_skin_thumbnails(repo, definition_path)
     definition = json.loads(definition_path.read_text(encoding="utf-8-sig"))
 
     if args.server_base_url:
@@ -200,7 +311,11 @@ def main() -> None:
     resource_rows: list[tuple[int, int, str, int, bytes]] = []
     seen_names: set[str] = set()
     managed_catalog_entries: list[dict[str, object]] = []
-    next_alias_id = 1000
+    reserved_octo_ids = {int(entry["octoId"]) for entry in definition["entries"]}
+    if len(reserved_octo_ids) != len(definition["entries"]):
+        raise ValueError("title-minimum entries must have unique primary octoId values")
+    used_octo_ids: set[int] = set()
+    next_alias_id = max(reserved_octo_ids, default=0) + 1
 
     for entry_index, entry in enumerate(definition["entries"]):
         source_path = resolve_path(repo, entry["sourcePath"])
@@ -209,13 +324,21 @@ def main() -> None:
         md5 = hashlib.md5(source).hexdigest()
         emitted = 0
         for alias_index, name in enumerate(entry["names"]):
-            octo_id = entry["octoId"] if alias_index == 0 else next_alias_id
-            next_alias_id += alias_index > 0
             if is_removed(name):
                 continue
             if name in seen_names:  # e.g. common_se.awb is listed twice on the placeholder wave bank
                 continue
             seen_names.add(name)
+            if alias_index == 0:
+                octo_id = int(entry["octoId"])
+            else:
+                while next_alias_id in reserved_octo_ids or next_alias_id in used_octo_ids:
+                    next_alias_id += 1
+                octo_id = next_alias_id
+                next_alias_id += 1
+            if octo_id in used_octo_ids:
+                raise ValueError(f"duplicate Octo id {octo_id} for resource {name}")
+            used_octo_ids.add(octo_id)
             message = encode_data(
                 octo_id=octo_id,
                 name=name,
@@ -252,9 +375,14 @@ def main() -> None:
     for from_revision in definition.get("fromRevisions", [0]):
         database = field_varint(1, definition["revision"])
         if from_revision < definition["revision"]:
-            database += b"".join(field_bytes(2, item) for item in asset_messages)
+            # A fresh Octo database needs ADD. For any existing database, UPDATE
+            # both replaces same-name rows (including their id) and inserts
+            # names absent from that cache. Send the complete manifest so old
+            # caches converge regardless of which earlier revision they had.
+            state = 1 if from_revision == 0 else 2
+            database += b"".join(field_bytes(2, with_data_state(item, state)) for item in asset_messages)
             database += b"".join(field_string(3, tag) for tag in DOWNLOAD_TAG_NAMES)
-            database += b"".join(field_bytes(4, item) for item in resource_messages)
+            database += b"".join(field_bytes(4, with_data_state(item, state)) for item in resource_messages)
         # Octo calls SetUrls for every successfully decoded database, including
         # an up-to-date response with no asset delta. Omitting this field makes
         # the client overwrite its working CDN formats with an empty string.
@@ -275,7 +403,7 @@ def main() -> None:
         }
         suffix = "" if from_revision == 0 else f'-from-{from_revision}'
         fixture_path = fixtures_path / f'resource-list-{definition["assetVersion"]}{suffix}.json'
-        fixture_path.write_text(json.dumps(fixture, indent=2) + "\n", encoding="utf-8")
+        write_if_changed(fixture_path, (json.dumps(fixture, indent=2) + "\n").encode("utf-8"))
         fixture_paths.append(fixture_path)
 
     catalog = json.loads(catalog_path.read_text(encoding="utf-8-sig"))
@@ -283,7 +411,7 @@ def main() -> None:
     catalog["resources"] = [
         entry for entry in catalog.get("resources", []) if entry.get("requestPath") not in managed_paths
     ] + managed_catalog_entries
-    catalog_path.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_if_changed(catalog_path, (json.dumps(catalog, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
 
     print(f"Octo revision: {definition['revision']}")
     print(f"URL format:    {url_format}")

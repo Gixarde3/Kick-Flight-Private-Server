@@ -1,0 +1,20 @@
+[
+  { "id": 1, "battleRuleType": 1, "fieldId": 101, "sortOrder": 1 },
+  { "id": 2, "battleRuleType": 1, "fieldId": 301, "sortOrder": 2 },
+  { "id": 3, "battleRuleType": 1, "fieldId": 401, "sortOrder": 3 },
+  { "id": 4, "battleRuleType": 1, "fieldId": 601, "sortOrder": 4 },
+  { "id": 5, "battleRuleType": 1, "fieldId": 701, "sortOrder": 5 },
+  { "id": 6, "battleRuleType": 1, "fieldId": 901, "sortOrder": 6 },
+  { "id": 7, "battleRuleType": 2, "fieldId": 101, "sortOrder": 1 },
+  { "id": 8, "battleRuleType": 2, "fieldId": 301, "sortOrder": 2 },
+  { "id": 9, "battleRuleType": 2, "fieldId": 401, "sortOrder": 3 },
+  { "id": 10, "battleRuleType": 2, "fieldId": 601, "sortOrder": 4 },
+  { "id": 11, "battleRuleType": 2, "fieldId": 701, "sortOrder": 5 },
+  { "id": 12, "battleRuleType": 2, "fieldId": 901, "sortOrder": 6 },
+  { "id": 13, "battleRuleType": 3, "fieldId": 101, "sortOrder": 1 },
+  { "id": 14, "battleRuleType": 3, "fieldId": 301, "sortOrder": 2 },
+  { "id": 15, "battleRuleType": 3, "fieldId": 401, "sortOrder": 3 },
+  { "id": 16, "battleRuleType": 3, "fieldId": 601, "sortOrder": 4 },
+  { "id": 17, "battleRuleType": 3, "fieldId": 701, "sortOrder": 5 },
+  { "id": 18, "battleRuleType": 3, "fieldId": 901, "sortOrder": 6 }
+]

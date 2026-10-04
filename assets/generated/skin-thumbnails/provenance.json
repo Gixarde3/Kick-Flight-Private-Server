@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "asset": "thumbnail_pc_001_022.png",
+      "kicker_id": 1,
+      "kicker": "Tsubame",
+      "costume_id": 22,
+      "master_row_id": 2012201,
+      "generation_id": "exec-6d397526-2366-40e8-83dd-3eb9d2ce50d5",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-6d397526-2366-40e8-83dd-3eb9d2ce50d5.png",
+      "prompt_summary": "Create one game skin-selection portrait icon for Tsubame Christmas costume. Preserve original identity: smiling face, violet eyes, navy hair, goggles, angle and cel shading. Use the screenshot model costume: red Santa hat with white fur edge and coat/collar over a white T-shirt. Head-and-bust, landscape 200:162, transparent, no UI/frame/text/weapons.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_001_022.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_001_022.png",
+      "source_sha256": "4b67cb8090093a58c8d3bc5aab3ad8a39c8654a88f7776820a1fd871cf139244",
+      "final_png_sha256": "98f1b65e4ae2c0f952b644a46c1bdf5e7f2b9ef5216829874fa922e5c8d2463c",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha"
+    },
+    {
+      "asset": "thumbnail_pc_002_022.png",
+      "kicker_id": 2,
+      "kicker": "Ruriha",
+      "costume_id": 22,
+      "master_row_id": 2022201,
+      "generation_id": "exec-462130b0-54f2-41fd-a040-656a99f9f803",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-462130b0-54f2-41fd-a040-656a99f9f803.png",
+      "prompt_summary": "Create one transparent anime game skin-selection portrait for Ruriha reindeer Christmas costume. Preserve original teal hair, lime eyes, smile, tilted pose, sharp outline and cel shading. Use screenshot left costume: brown antler headband, ears, tan dress, cream fur collar, red-and-green bow and golden bell; replace yellow hood. Bust portrait, landscape 200:162, alpha, no UI/background blocks/frame/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_002_022.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_002_022.png",
+      "source_sha256": "2347b63aee70e14bfadc6c0747ccd1be5c7965191a47766cd3367b1b49452ddd",
+      "final_png_sha256": "53ce1996e7648635650c6882019a8bb853a27bc42bf087a2672ad7989ae8b559",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha"
+    },
+    {
+      "asset": "thumbnail_pc_003_022.png",
+      "kicker_id": 3,
+      "kicker": "Coco",
+      "costume_id": 22,
+      "master_row_id": 2032201,
+      "generation_id": "exec-945d851a-5ae3-4452-8ca8-2c9f7ce9e4a1",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-945d851a-5ae3-4452-8ca8-2c9f7ce9e4a1.png",
+      "prompt_summary": "Preserve Coco original green eyes, pink bob, surprised expression, head angle and cel shading. Use the screenshot left Christmas costume: red Santa hat with white fur, small gold holly/star, red jacket with high fur collar and dark button, white pom-poms, replacing green outfit; white gloved hand to head pose. Transparent bust portrait, 200:162, no UI/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_003_022.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_003_022.png",
+      "source_sha256": "9c9b33b905a828367d2b7be81814b94cbd2ef23354f4b9afad5ca66c83599117",
+      "final_png_sha256": "398bf815a731d3063d3ff6c394f756dc7f5e0b1037cff62cc6ec6682f8199d89",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha"
+    },
+    {
+      "asset": "thumbnail_pc_003_052.png",
+      "kicker_id": 3,
+      "kicker": "Coco",
+      "costume_id": 52,
+      "master_row_id": 2035201,
+      "generation_id": "exec-94068c5c-d9dd-43c9-8ad9-816279a3cea4",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-94068c5c-d9dd-43c9-8ad9-816279a3cea4.png",
+      "prompt_summary": "Coco 52: preserve green eyes, pink bob, upward tuft, surprised expression, head angle and cel shading. Based on the left model screenshot: bare head, dark indigo technical cropped jacket with high collar, lavender-gray top, cyan neck detail, gray upper-arm armor, dark armored glove with cyan accents; keep hand-to-head pose. Transparent bust portrait 200:162, no UI/text/invented logos/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_003_052.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_003_052.png",
+      "source_sha256": "fa86a6690c40dee7575a934a6b27cf040c720b081f9935f5f9ddcf851e8d80f3",
+      "final_png_sha256": "1377d32cf1a2abc90f07ed0e0a997ca8c9203f7b036cb77aed42cfb19c1c32b4",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Coco_standard_pc_003_001.png",
+        ".local/runtime-repro/white-skin-20261001/Coco_2035201-preview-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_006_022.png",
+      "kicker_id": 6,
+      "kicker": "Pitophy",
+      "costume_id": 22,
+      "master_row_id": 2062201,
+      "generation_id": "exec-7ad11263-215a-4f27-ad25-508f5feea95a",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-7ad11263-215a-4f27-ad25-508f5feea95a.png",
+      "prompt_summary": "Preserve Pitophy’s black cat face, yellow-green eyes, small smile and cel shading. Costume from screenshot: snowman hood with white cat ears and decorative coal eyes plus orange carrot nose above the real black face; brown top hat with red band and green holly; red-and-green scarf, white suit with dark buttons. Remove orange hood/goggles. Transparent bust portrait 200:162, no UI/frame/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_006_022.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_006_022.png",
+      "source_sha256": "8007cd48dd0c74353457360ace2cbb52486bffca287c02769c4e848444b76b1c",
+      "final_png_sha256": "4f23a5b7934b91a7299c32daba89a24316293c2f4b8446c5b9ee6c80603894a6",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Pitophy_standard_pc_006_001.png",
+        ".local/runtime-repro/white-skin-20261001/pitophy22-selected-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_014_002.png",
+      "kicker_id": 14,
+      "kicker": "Sid",
+      "costume_id": 2,
+      "master_row_id": 2140201,
+      "generation_id": "exec-f01219e9-bd6e-449f-a5f9-9d6721466119",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-f01219e9-bd6e-449f-a5f9-9d6721466119.png",
+      "prompt_summary": "Preserve Sid’s original face, narrow pale-green eyes, aloof expression, head angle, linework and cel shading. Costume: pale sage-gray beanie, gray-olive mask with light-gray filter, gray knit sweater, gray-green jacket with orange chest accent. Transparent bust portrait 200:162; no UI/frame/text/weapon/logos.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_014_002.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_014_002.png",
+      "source_sha256": "64e27c41da44bf245e7f27415d804573f3a611746b32a21876ff664fb7e02208",
+      "final_png_sha256": "abea966d26c19a264a80007a182221c46cc45483cabcf88758483c48e779a4f9",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Sid_standard_pc_014_001.png",
+        ".local/runtime-repro/white-skin-20261001/sid-slot2-relaunch-costumes-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_014_003.png",
+      "kicker_id": 14,
+      "kicker": "Sid",
+      "costume_id": 3,
+      "master_row_id": 2140301,
+      "generation_id": "exec-53e87dae-f25a-42a9-80f4-531c786f9514",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-53e87dae-f25a-42a9-80f4-531c786f9514.png",
+      "prompt_summary": "Preserve Sid’s original face, narrow pale-green eyes, aloof expression, head angle, linework and cel shading. No hat or mask; short tousled dark-olive hair and exposed calm face, black turtleneck, black tactical jacket with gray collar and lime accent. Transparent bust portrait 200:162; no UI/frame/text/weapon/logos.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_014_003.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_014_003.png",
+      "source_sha256": "4b0c057e64f6909685bc37a9055a2af7c2e937271fbfb887af4e263064a3d3d2",
+      "final_png_sha256": "15782e8f6030f66f1cfac2b2c98e2b9483fd61c0ded571bc73666c368cb3d837",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Sid_standard_pc_014_001.png",
+        ".local/sid3-relaunch-costumes-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_014_051.png",
+      "kicker_id": 14,
+      "kicker": "Sid",
+      "costume_id": 51,
+      "master_row_id": 2145101,
+      "generation_id": "exec-ae79b8d4-3656-4dc2-a69a-653feda54e5d",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-ae79b8d4-3656-4dc2-a69a-653feda54e5d.png",
+      "prompt_summary": "Preserve Sid’s original face, narrow pale-green eyes, aloof expression, head angle, linework and cel shading. Costume: deep-navy beanie, navy-purple mask with dark vents, navy turtleneck and jacket with lavender-gray lining and bright cyan accent. Transparent bust portrait 200:162; no UI/frame/text/weapon/logos.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_014_051.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_014_051.png",
+      "source_sha256": "8567f6d7a44789f0d95c73c756997113813c9458311d6860fd021babdec170d7",
+      "final_png_sha256": "3f07cec58007f696c86c1796d12a2e633cd805e42377eb004d859bea11c438c7",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Sid_standard_pc_014_001.png",
+        ".local/sid4-preview-720.png",
+        ".local/sid4-relaunch-costumes-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_008_052.png",
+      "kicker_id": 8,
+      "kicker": "Anna",
+      "costume_id": 52,
+      "master_row_id": 2085201,
+      "generation_id": "exec-6341ea9d-d789-4598-991c-445b0961ea92",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-6341ea9d-d789-4598-991c-445b0961ea92.png",
+      "prompt_summary": "Preserve Anna’s identity: long black hair, blue eyes, smile. Witch costume with navy wide-brim hat, cyan band and ornament; no visor or headset; cyan choker; off-shoulder navy lace dress. Transparent anime cel-shaded bust portrait 200:162; no UI/frame/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_008_052.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_008_052.png",
+      "source_sha256": "adf91c2d92e155c31d5e492e1de0129891063c97277a8f1c11ac557a11514f0f",
+      "final_png_sha256": "e1a52c77a5dbab385445960401b94edbdf9432036876cd7c44874a8d8f972b6c",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Anna_standard_pc_008_001.png",
+        ".local/runtime-repro/white-skin-20261001/Anna_2085201-preview-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_011_051.png",
+      "kicker_id": 11,
+      "kicker": "Diatrius",
+      "costume_id": 51,
+      "master_row_id": 2115101,
+      "generation_id": "exec-10131145-a0b4-458e-ad26-9aedc7aed61d",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-10131145-a0b4-458e-ad26-9aedc7aed61d.png",
+      "prompt_summary": "Preserve Diatrius’s blue oni head, horns, forehead bumps, yellow half-lidded eyes, stern expression and angle. Costume is heavy beveled silver/lavender-gray armor with indigo/cyan underlayer; no helmet. Transparent anime cel-shaded bust portrait 200:162; no UI/frame/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_011_051.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_011_051.png",
+      "source_sha256": "f5086e743485717afe4da404d0376ed369cf7320579e4b798d8e5b8a3b9f3dd2",
+      "final_png_sha256": "1a356e60e37c82814276397591570f270feb98b93b84edf913f159ff1bd006c2",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/Diatrius_standard_pc_011_001.png",
+        ".local/runtime-repro/white-skin-20261001/Diatrius_2115101-preview-720.png"
+      ]
+    },
+    {
+      "asset": "thumbnail_pc_012_022.png",
+      "kicker_id": 12,
+      "kicker": "BuzzyBig",
+      "costume_id": 22,
+      "master_row_id": 2122201,
+      "generation_id": "exec-a813612a-a418-47e5-a601-742210c0011f",
+      "generation_output_original": "/Users/marcochavez/.codex/generated_images/01a0f923-64bb-78b0-8f7c-672ba1f71a04/exec-a813612a-a418-47e5-a601-742210c0011f.png",
+      "prompt_summary": "Preserve Buzzy Big’s dark-brown face and cheerful confident expression. Costume has a green tree afro with yellow lights, black wire and gold star; silvery-white star-shaped sunglasses; green sweater with red bow, tinsel, bell and holly. Transparent anime cel-shaded bust portrait 200:162; no UI/frame/text/weapon.",
+      "source_dimensions": [
+        1393,
+        1129
+      ],
+      "source_has_alpha": true,
+      "final_dimensions": [
+        200,
+        162
+      ],
+      "final_has_alpha": true,
+      "source_path": "assets/generated/skin-thumbnails/source/thumbnail_pc_012_022.png",
+      "final_png_path": "assets/generated/skin-thumbnails/thumbnail_pc_012_022.png",
+      "source_sha256": "2fb780e23643162ecbbc1fb5ef89119e5ef3759fce827c7892c64315cc676888",
+      "final_png_sha256": "2f97107a9d72b6964acc485c39b3ba573bc12fc811361cd20b5afe11016c9f79",
+      "generation_tool": "GPT Image (built-in image generation)",
+      "generation_prompt_record_type": "faithful prompt summary provided by generation agent; not verbatim tool prompt",
+      "normalization": "Pillow ImageOps.contain with LANCZOS to 200x162 RGBA; no crop; preserve source alpha",
+      "references": [
+        ".local/missing-icons/references/BuzzyBig_standard_pc_012_001.png",
+        ".local/missing-icons/references/BuzzyBig_2122201-preview-720.png"
+      ]
+    }
+  ],
+  "available_style_reference_pngs": [
+    ".local/missing-icons/references/Tsubame_standard_pc_001_001.png",
+    ".local/missing-icons/references/Ruriha_standard_pc_002_001.png",
+    ".local/missing-icons/references/Coco_standard_pc_003_001.png",
+    ".local/missing-icons/references/Pitophy_standard_pc_006_001.png",
+    ".local/missing-icons/references/Anna_standard_pc_008_001.png",
+    ".local/missing-icons/references/Diatrius_standard_pc_011_001.png",
+    ".local/missing-icons/references/BuzzyBig_standard_pc_012_001.png",
+    ".local/missing-icons/references/Sid_standard_pc_014_001.png"
+  ],
+  "reference_note": "These are extracted standard-skin Texture2D originals (200x162) available locally for visual comparison; do not assume they were all attached as generation inputs."
+}

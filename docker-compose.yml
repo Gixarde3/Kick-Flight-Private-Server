@@ -33,10 +33,20 @@ services:
     environment:
       - HttpPort=18080
       - GrpcPort=18081
+      - KF_REPO_ROOT=/srv/repo
+      - Harness__DirectClientHosts__0=192.168.1.17
+      - Harness__DirectClientHosts__1=10.0.2.2
+      - PhotonServer__Enabled=true
       - PhotonServer__Host=luxon-server
       - PhotonServer__MasterServerPort=5055
       - PhotonServer__GameServerPort=5056
       - PhotonServer__NameServerPort=5058
+    volumes:
+      - ./config:/srv/repo/config
+      - ./content:/srv/repo/content
+      - ./data:/srv/repo/data
+      - ./.local:/srv/repo/.local:ro
+      - ../Kick-Flight-Assets:/srv/Kick-Flight-Assets:ro
     ports:
       - "18080:18080"
       - "18081:18081"

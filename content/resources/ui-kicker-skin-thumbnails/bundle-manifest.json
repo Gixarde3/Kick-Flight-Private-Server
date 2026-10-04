@@ -1,0 +1,2487 @@
+{
+  "skins": [
+    "001_022",
+    "002_022",
+    "003_022",
+    "003_052",
+    "006_022",
+    "008_052",
+    "011_051",
+    "012_022",
+    "014_002",
+    "014_003",
+    "014_051"
+  ],
+  "bundle_count": 44,
+  "integrated_title_minimum": true,
+  "resource_catalog_regenerated": false,
+  "output_dir": "/Users/marcochavez/Documents/variedad/Kick-Flight-Private-Server/content/resources/ui-kicker-skin-thumbnails",
+  "bundles": [
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_001_022.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_001_022",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_001_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_001_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_001_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_001_022",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "001_022",
+      "style": "direct",
+      "octo_id": 5400,
+      "object_name": "wpQhS1",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_001_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41777051685331_ae76b4e1cc844434bd1aa3ea715a2301.bundle",
+      "source_png_sha256": "98f1b65e4ae2c0f952b644a46c1bdf5e7f2b9ef5216829874fa922e5c8d2463c",
+      "bundle_sha256": "10fad664cf06fbd0f79ab0d75477c3bba0c1fe1c5d93d25a0f75f54d1199b083",
+      "bundle_bytes": 18884
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_001_022.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_001_022",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_001_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_001_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_001_022.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_001_022"
+      },
+      "skin_key": "001_022",
+      "style": "oblique",
+      "octo_id": 5401,
+      "object_name": "w8C5C8",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_001_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41773843354338_10efeeaa352bc0950405b4e0f4ae9393.bundle",
+      "source_png_sha256": "98f1b65e4ae2c0f952b644a46c1bdf5e7f2b9ef5216829874fa922e5c8d2463c",
+      "bundle_sha256": "3ab7d3004805b244524cf8c5b69df6a7c213d4eadba4e55cbe0ce4efddbfdb46",
+      "bundle_bytes": 55349
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_001_022.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_001_022",
+        "Sprite": {
+          "name": "thumbnail_pc_001_022",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_001_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_001_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_001_022.png"
+          ]
+        }
+      },
+      "skin_key": "001_022",
+      "style": "circle",
+      "octo_id": 5402,
+      "object_name": "wsjrQE",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_001_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177736A725145_32d131fed3ed0e91f4a46e385e2f5622.bundle",
+      "source_png_sha256": "98f1b65e4ae2c0f952b644a46c1bdf5e7f2b9ef5216829874fa922e5c8d2463c",
+      "bundle_sha256": "0f0d173b717509a7de37c33fb1289b395a0dc5182f0236a9aa93c716ce47906a",
+      "bundle_bytes": 18056
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_001_022.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_001_022",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_001_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_001_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_001_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_001_022",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "001_022",
+      "style": "r20",
+      "octo_id": 5403,
+      "object_name": "wCzvjP",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_001_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177437A766A50_63413213eebcd383fb4756b6f5301abe.bundle",
+      "source_png_sha256": "98f1b65e4ae2c0f952b644a46c1bdf5e7f2b9ef5216829874fa922e5c8d2463c",
+      "bundle_sha256": "d839fdcd3a53d156d6118c17fff8e33d61a4edd3f9ceb8fb41aedfb6006dbc6f",
+      "bundle_bytes": 39366
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_002_022.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_002_022",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_002_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_002_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_002_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_002_022",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "002_022",
+      "style": "direct",
+      "octo_id": 5404,
+      "object_name": "wCy6r7",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_002_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774379367237_9d0746e22b1ae928f49f9bd288e19e41.bundle",
+      "source_png_sha256": "53ce1996e7648635650c6882019a8bb853a27bc42bf087a2672ad7989ae8b559",
+      "bundle_sha256": "9d3ead6cde3fe22c2bdd48edbd3647ad18453f17fc967b99dbfa78a8022ad35f",
+      "bundle_bytes": 21004
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_002_022.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_002_022",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_002_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_002_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_002_022.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_002_022"
+      },
+      "skin_key": "002_022",
+      "style": "oblique",
+      "octo_id": 5405,
+      "object_name": "wtFOMN",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_002_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417774464F4D4E_689856e0a2c62422d11dec58620f5975.bundle",
+      "source_png_sha256": "53ce1996e7648635650c6882019a8bb853a27bc42bf087a2672ad7989ae8b559",
+      "bundle_sha256": "d0a7d6b198b5139ccfa9de576dca2f4ee4a98557a885c328b377438239e4d3ca",
+      "bundle_bytes": 66362
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_002_022.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_002_022",
+        "Sprite": {
+          "name": "thumbnail_pc_002_022",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_002_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_002_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_002_022.png"
+          ]
+        }
+      },
+      "skin_key": "002_022",
+      "style": "circle",
+      "octo_id": 5406,
+      "object_name": "wJxnLV",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_002_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774A786E4C56_93abcb35fe90c7300317efe7a9e1b142.bundle",
+      "source_png_sha256": "53ce1996e7648635650c6882019a8bb853a27bc42bf087a2672ad7989ae8b559",
+      "bundle_sha256": "9175eb44aa9a86114e82fbaf4db573cd8d059b086653c1d2b8537611c330011f",
+      "bundle_bytes": 20294
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_002_022.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_002_022",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_002_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_002_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_002_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_002_022",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "002_022",
+      "style": "r20",
+      "octo_id": 5407,
+      "object_name": "wcbSbZ",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_002_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177636253625A_b42e4d38e627b563c07ad1b57092193d.bundle",
+      "source_png_sha256": "53ce1996e7648635650c6882019a8bb853a27bc42bf087a2672ad7989ae8b559",
+      "bundle_sha256": "7fe630e73669f9b12386aed8faa63888a4009d2abba2ae1f49b1e46257085f11",
+      "bundle_bytes": 47747
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_003_022.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_022",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_003_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_003_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_003_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_003_022",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "003_022",
+      "style": "direct",
+      "octo_id": 5408,
+      "object_name": "wWBCyr",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41775742437972_6bf8f5a2e0ed62fc96b4ea82e9052fe2.bundle",
+      "source_png_sha256": "398bf815a731d3063d3ff6c394f756dc7f5e0b1037cff62cc6ec6682f8199d89",
+      "bundle_sha256": "bb0bf7004a6bc43848ff98f8592da034258cd60489274e9bad2b037b3e1f398c",
+      "bundle_bytes": 21214
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_003_022.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_003_022",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_003_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_003_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_003_022.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_003_022"
+      },
+      "skin_key": "003_022",
+      "style": "oblique",
+      "octo_id": 5409,
+      "object_name": "wHdlZG",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417748646C5A47_8542ddf7b4ea88cd4eeb1ae3ae1cf8f2.bundle",
+      "source_png_sha256": "398bf815a731d3063d3ff6c394f756dc7f5e0b1037cff62cc6ec6682f8199d89",
+      "bundle_sha256": "57b6b9a93e0cd9b3b6e95d4c7b3a547999945c0cf0f42ce5081d21396f72f693",
+      "bundle_bytes": 62875
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_003_022.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_022",
+        "Sprite": {
+          "name": "thumbnail_pc_003_022",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_003_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_003_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_003_022.png"
+          ]
+        }
+      },
+      "skin_key": "003_022",
+      "style": "circle",
+      "octo_id": 5410,
+      "object_name": "wH65vM",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177483635764D_1df3bdb47f4ff59085344b53ef774e93.bundle",
+      "source_png_sha256": "398bf815a731d3063d3ff6c394f756dc7f5e0b1037cff62cc6ec6682f8199d89",
+      "bundle_sha256": "3d4bfbc83190a0d30f3bc3e02132b8a38c513c1b243710a1b4f03e4f3cd5daae",
+      "bundle_bytes": 19651
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_003_022.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_022",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_003_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_003_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_003_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_003_022",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "003_022",
+      "style": "r20",
+      "octo_id": 5411,
+      "object_name": "wJFSF2",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774A46534632_fa359fd48300be60eb1213d4fdaf89de.bundle",
+      "source_png_sha256": "398bf815a731d3063d3ff6c394f756dc7f5e0b1037cff62cc6ec6682f8199d89",
+      "bundle_sha256": "0fa30e735ba60e542364bd347842c6af40c5fcc8b102dd9ade3ea4794094dd48",
+      "bundle_bytes": 43235
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_003_052.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_052",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_003_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_003_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_003_052.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_003_052",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "003_052",
+      "style": "direct",
+      "octo_id": 5412,
+      "object_name": "wGNPAB",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177474E504142_6c9816422dccf2e31ceab22e95213428.bundle",
+      "source_png_sha256": "1377d32cf1a2abc90f07ed0e0a997ca8c9203f7b036cb77aed42cfb19c1c32b4",
+      "bundle_sha256": "41e2cb3722ce6513bb54edd522a99c3fd5d43ad71a86064172b32b6faa5b2ec4",
+      "bundle_bytes": 20626
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_003_052.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_003_052",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_003_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_003_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_003_052.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_003_052"
+      },
+      "skin_key": "003_052",
+      "style": "oblique",
+      "octo_id": 5413,
+      "object_name": "wyfZct",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417779665A6374_7888c14ade733937701ccf417bbe6222.bundle",
+      "source_png_sha256": "1377d32cf1a2abc90f07ed0e0a997ca8c9203f7b036cb77aed42cfb19c1c32b4",
+      "bundle_sha256": "4ba4bfbe58f9f1db8b4acae6f09415d1502dfee60b8819ac5252798ef6b10776",
+      "bundle_bytes": 63163
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_003_052.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_052",
+        "Sprite": {
+          "name": "thumbnail_pc_003_052",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_003_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_003_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_003_052.png"
+          ]
+        }
+      },
+      "skin_key": "003_052",
+      "style": "circle",
+      "octo_id": 5414,
+      "object_name": "w3VDJE",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41773356444A45_78d0023117f14cc95bae75b51b800f85.bundle",
+      "source_png_sha256": "1377d32cf1a2abc90f07ed0e0a997ca8c9203f7b036cb77aed42cfb19c1c32b4",
+      "bundle_sha256": "7b14af05fa11761b40952a5195e905318625e909298c6c833b9f9e46a9ee6f36",
+      "bundle_bytes": 19792
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_003_052.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_003_052",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_003_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_003_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_003_052.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_003_052",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "003_052",
+      "style": "r20",
+      "octo_id": 5415,
+      "object_name": "wV0zLY",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_003_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417756307A4C59_cdecd2e06fb460030209e153ac361314.bundle",
+      "source_png_sha256": "1377d32cf1a2abc90f07ed0e0a997ca8c9203f7b036cb77aed42cfb19c1c32b4",
+      "bundle_sha256": "600abb8d77be62cace4cf2d88150a7dafe9f547a6d13340132f780c80f19245f",
+      "bundle_bytes": 45170
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_006_022.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_006_022",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_006_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_006_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_006_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_006_022",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "006_022",
+      "style": "direct",
+      "octo_id": 5416,
+      "object_name": "wKYAeH",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_006_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774B59416548_e8dc65a7959966fbe46ee729c915c665.bundle",
+      "source_png_sha256": "4f23a5b7934b91a7299c32daba89a24316293c2f4b8446c5b9ee6c80603894a6",
+      "bundle_sha256": "5feece7cededf63d319a058999137426ae410ad2c7abeef962aaa37e523dca8d",
+      "bundle_bytes": 16319
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_006_022.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_006_022",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_006_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_006_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_006_022.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_006_022"
+      },
+      "skin_key": "006_022",
+      "style": "oblique",
+      "octo_id": 5417,
+      "object_name": "wmwtcE",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_006_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776D77746345_058c57545888ddea86e772608c19004a.bundle",
+      "source_png_sha256": "4f23a5b7934b91a7299c32daba89a24316293c2f4b8446c5b9ee6c80603894a6",
+      "bundle_sha256": "51a9d78c26ffc60a24a99eea172e4ef42bec60888c6d30e5dbe2d75d3db9c35f",
+      "bundle_bytes": 45831
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_006_022.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_006_022",
+        "Sprite": {
+          "name": "thumbnail_pc_006_022",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_006_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_006_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_006_022.png"
+          ]
+        }
+      },
+      "skin_key": "006_022",
+      "style": "circle",
+      "octo_id": 5418,
+      "object_name": "wliz1j",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_006_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776C697A316A_a9fbe68cd1410c65938e490f67c3c9b4.bundle",
+      "source_png_sha256": "4f23a5b7934b91a7299c32daba89a24316293c2f4b8446c5b9ee6c80603894a6",
+      "bundle_sha256": "f9aec54e56340443a3bfb18e36bdf66f777f02b88e4020389c27aaadafb42cc2",
+      "bundle_bytes": 16180
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_006_022.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_006_022",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_006_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_006_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_006_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_006_022",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "006_022",
+      "style": "r20",
+      "octo_id": 5419,
+      "object_name": "wgUkjQ",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_006_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417767556B6A51_c4cdc0db1206d729cfbb9b572d57bf29.bundle",
+      "source_png_sha256": "4f23a5b7934b91a7299c32daba89a24316293c2f4b8446c5b9ee6c80603894a6",
+      "bundle_sha256": "703c173bf2884e3afc6396b7b67c2ea4ced54efb8e79ee520732657a78f113aa",
+      "bundle_bytes": 34514
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_008_052.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_008_052",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_008_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_008_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_008_052.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_008_052",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "008_052",
+      "style": "direct",
+      "octo_id": 5420,
+      "object_name": "wItDWv",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_008_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774974445776_a92b910a33c39a7098a78714ddc65d17.bundle",
+      "source_png_sha256": "e1a52c77a5dbab385445960401b94edbdf9432036876cd7c44874a8d8f972b6c",
+      "bundle_sha256": "42c963faee8a63b96d6ce8931dd8b406fd2666874bd14b58874618afefc40740",
+      "bundle_bytes": 19486
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_008_052.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_008_052",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_008_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_008_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_008_052.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_008_052"
+      },
+      "skin_key": "008_052",
+      "style": "oblique",
+      "octo_id": 5421,
+      "object_name": "wL1VkI",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_008_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774C31566B49_0139c2335f49027ce219cfd91c6b6a82.bundle",
+      "source_png_sha256": "e1a52c77a5dbab385445960401b94edbdf9432036876cd7c44874a8d8f972b6c",
+      "bundle_sha256": "95aa73140acc6fd70f387dfd77f442d8d1e4814ba5066659ad2938c1404fd32e",
+      "bundle_bytes": 57075
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_008_052.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_008_052",
+        "Sprite": {
+          "name": "thumbnail_pc_008_052",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_008_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_008_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_008_052.png"
+          ]
+        }
+      },
+      "skin_key": "008_052",
+      "style": "circle",
+      "octo_id": 5422,
+      "object_name": "wvumDH",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_008_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417776756D4448_1a70211b6d3edaaf6fe07bb683bed7de.bundle",
+      "source_png_sha256": "e1a52c77a5dbab385445960401b94edbdf9432036876cd7c44874a8d8f972b6c",
+      "bundle_sha256": "402f70fd184cfac4a2c5fba9fcd91b532290368a33fef7945d678afade9bf55e",
+      "bundle_bytes": 18762
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_008_052.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_008_052",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_008_052.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_008_052.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_008_052.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_008_052",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "008_052",
+      "style": "r20",
+      "octo_id": 5423,
+      "object_name": "wL4e20",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_008_052.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774C34653230_0feb527d969594da57062e17a84b78aa.bundle",
+      "source_png_sha256": "e1a52c77a5dbab385445960401b94edbdf9432036876cd7c44874a8d8f972b6c",
+      "bundle_sha256": "ff1983f4a6d1cb3371127ef60fa838e36bcb5a15367b3cbd02dd9f895e335768",
+      "bundle_bytes": 41453
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_011_051.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_011_051",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_011_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_011_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_011_051.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_011_051",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "011_051",
+      "style": "direct",
+      "octo_id": 5424,
+      "object_name": "wu1Co5",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_011_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41777531436F35_6b1f3375e63c2c247dea477acb3d3878.bundle",
+      "source_png_sha256": "1a356e60e37c82814276397591570f270feb98b93b84edf913f159ff1bd006c2",
+      "bundle_sha256": "1ca9d24aedf817194d9361256f33115cd6371d86882fbcb17fcb35e30cf24b49",
+      "bundle_bytes": 21643
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_011_051.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_011_051",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_011_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_011_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_011_051.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_011_051"
+      },
+      "skin_key": "011_051",
+      "style": "oblique",
+      "octo_id": 5425,
+      "object_name": "wtUiAO",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_011_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177745569414F_60decbc4bd06cd1c754d1895f63b489f.bundle",
+      "source_png_sha256": "1a356e60e37c82814276397591570f270feb98b93b84edf913f159ff1bd006c2",
+      "bundle_sha256": "f65e128ada2b2c8447e756aa5f850da91e88902c8553a86012c5be466ec93ff7",
+      "bundle_bytes": 65419
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_011_051.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_011_051",
+        "Sprite": {
+          "name": "thumbnail_pc_011_051",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_011_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_011_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_011_051.png"
+          ]
+        }
+      },
+      "skin_key": "011_051",
+      "style": "circle",
+      "octo_id": 5426,
+      "object_name": "wAlEs3",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_011_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177416C457333_e9f02b17f9507da4344609cb5fddeee7.bundle",
+      "source_png_sha256": "1a356e60e37c82814276397591570f270feb98b93b84edf913f159ff1bd006c2",
+      "bundle_sha256": "0dd6371b0d61faa75ccec1180a3cac3b40a2f3d7f12a832b09f8479df35bc600",
+      "bundle_bytes": 19414
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_011_051.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_011_051",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_011_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_011_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_011_051.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_011_051",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "011_051",
+      "style": "r20",
+      "octo_id": 5427,
+      "object_name": "wXU3hO",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_011_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177585533684F_6b60ea05dbbc208a96fcfa5e84ef92e3.bundle",
+      "source_png_sha256": "1a356e60e37c82814276397591570f270feb98b93b84edf913f159ff1bd006c2",
+      "bundle_sha256": "3a84dc327907118d1103eff775f11e62afa7b5bef6fae8ea28291d81eec1bf24",
+      "bundle_bytes": 43901
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_012_022.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_012_022",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_012_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_012_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_012_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_012_022",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "012_022",
+      "style": "direct",
+      "octo_id": 5428,
+      "object_name": "wFQWNT",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_012_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774651574E54_6e1b4b744e5eb9518cc41fff61613f92.bundle",
+      "source_png_sha256": "2f97107a9d72b6964acc485c39b3ba573bc12fc811361cd20b5afe11016c9f79",
+      "bundle_sha256": "0e32386b7bb1acb074fcaabc25e695438ad226a8198d6eab5d2db13ab049b8db",
+      "bundle_bytes": 21436
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_012_022.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_012_022",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_012_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_012_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_012_022.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_012_022"
+      },
+      "skin_key": "012_022",
+      "style": "oblique",
+      "octo_id": 5429,
+      "object_name": "wncLan",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_012_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776E634C616E_de943e373089da6e00ccffb803c16a61.bundle",
+      "source_png_sha256": "2f97107a9d72b6964acc485c39b3ba573bc12fc811361cd20b5afe11016c9f79",
+      "bundle_sha256": "dd98f2eef4fc6053cf172895e6a360ccfa062b1e5ce14525c5038c7c814471cd",
+      "bundle_bytes": 68511
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_012_022.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_012_022",
+        "Sprite": {
+          "name": "thumbnail_pc_012_022",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_012_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_012_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_012_022.png"
+          ]
+        }
+      },
+      "skin_key": "012_022",
+      "style": "circle",
+      "octo_id": 5430,
+      "object_name": "w7Cg84",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_012_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41773743673834_f5782d3704fa5645cdc6d6c1d270ad59.bundle",
+      "source_png_sha256": "2f97107a9d72b6964acc485c39b3ba573bc12fc811361cd20b5afe11016c9f79",
+      "bundle_sha256": "9430df7314df92131c03fe0f2ac6fa38956b9339af749090232504e0ad36122a",
+      "bundle_bytes": 20462
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_012_022.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_012_022",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_012_022.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_012_022.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_012_022.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_012_022",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "012_022",
+      "style": "r20",
+      "octo_id": 5431,
+      "object_name": "wMFG2t",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_012_022.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774D46473274_c4b250803df38791d2137380c7263e6d.bundle",
+      "source_png_sha256": "2f97107a9d72b6964acc485c39b3ba573bc12fc811361cd20b5afe11016c9f79",
+      "bundle_sha256": "6d5f4cec49ffd8c55141c525f3872956086532d82c62f317b08531291a4ac93c",
+      "bundle_bytes": 48382
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_014_002.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_002",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_014_002.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_002.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_002.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_002",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "014_002",
+      "style": "direct",
+      "octo_id": 5432,
+      "object_name": "w5UQs9",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_002.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41773555517339_6eff74de4f933a77bc6c6f561b46d67b.bundle",
+      "source_png_sha256": "abea966d26c19a264a80007a182221c46cc45483cabcf88758483c48e779a4f9",
+      "bundle_sha256": "2a1d642f890d2d2602bf5e12d3617bbc991315bb3ed9a26966cdf5634e3ab9a0",
+      "bundle_bytes": 17313
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_014_002.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_014_002",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_014_002.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_002.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_002.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_014_002"
+      },
+      "skin_key": "014_002",
+      "style": "oblique",
+      "octo_id": 5433,
+      "object_name": "whQUpB",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_002.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776851557042_16524b8894481f2cb3d71f0c9aaa85fb.bundle",
+      "source_png_sha256": "abea966d26c19a264a80007a182221c46cc45483cabcf88758483c48e779a4f9",
+      "bundle_sha256": "c3b6f1c3aeeb654c330a0dcdea4812c0f5dd28ca6770b1da64ad7f8ead788609",
+      "bundle_bytes": 51362
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_014_002.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_002",
+        "Sprite": {
+          "name": "thumbnail_pc_014_002",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_014_002.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_002.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_002.png"
+          ]
+        }
+      },
+      "skin_key": "014_002",
+      "style": "circle",
+      "octo_id": 5434,
+      "object_name": "wRzY0f",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_002.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177527A593066_92efbc75ce8a18cbb93742f012db469c.bundle",
+      "source_png_sha256": "abea966d26c19a264a80007a182221c46cc45483cabcf88758483c48e779a4f9",
+      "bundle_sha256": "1b3c14813e081d1c340f327b1d9ad50cb915c8ed4c25cb95f72998d8935bb8f3",
+      "bundle_bytes": 16974
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_014_002.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_002",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_014_002.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_002.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_002.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_002",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "014_002",
+      "style": "r20",
+      "octo_id": 5435,
+      "object_name": "wCHu3F",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_002.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41774348753346_af82fccbbc1366c1f8726fa0036bffc2.bundle",
+      "source_png_sha256": "abea966d26c19a264a80007a182221c46cc45483cabcf88758483c48e779a4f9",
+      "bundle_sha256": "816d88de784c39f9c4f990c13d18d1d3aa2bf962c39c868e3a13ecab198daba2",
+      "bundle_bytes": 37114
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_014_003.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_003",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_014_003.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_003.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_003.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_003",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "014_003",
+      "style": "direct",
+      "octo_id": 5436,
+      "object_name": "wwxM9V",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_003.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417777784D3956_50c6bf0ba730ea32dca248c5bbfe019c.bundle",
+      "source_png_sha256": "15782e8f6030f66f1cfac2b2c98e2b9483fd61c0ded571bc73666c368cb3d837",
+      "bundle_sha256": "aef8147b2312ce02fd2f9a1a4d19b99a51402abf1d58c799a967de3ffd20076c",
+      "bundle_bytes": 16628
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_014_003.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_014_003",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_014_003.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_003.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_003.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_014_003"
+      },
+      "skin_key": "014_003",
+      "style": "oblique",
+      "octo_id": 5437,
+      "object_name": "wker4F",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_003.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776B65723446_7d857fb9d45f477e4db267d24ac6b26f.bundle",
+      "source_png_sha256": "15782e8f6030f66f1cfac2b2c98e2b9483fd61c0ded571bc73666c368cb3d837",
+      "bundle_sha256": "9d06b5bf2db94e8b4cfbde46fbf0026321ab427e709d9f19e93c378a49ecdb72",
+      "bundle_bytes": 46682
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_014_003.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_003",
+        "Sprite": {
+          "name": "thumbnail_pc_014_003",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_014_003.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_003.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_003.png"
+          ]
+        }
+      },
+      "skin_key": "014_003",
+      "style": "circle",
+      "octo_id": 5438,
+      "object_name": "wjVPMx",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_003.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41776A56504D78_afeecafd2121ad9888833cd95d001441.bundle",
+      "source_png_sha256": "15782e8f6030f66f1cfac2b2c98e2b9483fd61c0ded571bc73666c368cb3d837",
+      "bundle_sha256": "901c4dccd375f02d1efdb41ffaf6e3184027f95df680e30c55846666163a3f97",
+      "bundle_bytes": 16046
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_014_003.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_003",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_014_003.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_003.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_003.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_003",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "014_003",
+      "style": "r20",
+      "octo_id": 5439,
+      "object_name": "w6THo2",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_003.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41773654486F32_187c13867996581dbdedf81c907f5b64.bundle",
+      "source_png_sha256": "15782e8f6030f66f1cfac2b2c98e2b9483fd61c0ded571bc73666c368cb3d837",
+      "bundle_sha256": "38f3ac89deec22f0d1b2971ee569bc270e6cc16d3d3beb156b8c3aed54ec79b7",
+      "bundle_bytes": 34159
+    },
+    {
+      "logical_name": "ui/kicker/thumbnail_pc_014_051.unity3d",
+      "texture": {
+        "width": 116,
+        "height": 77,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_051",
+        "AssetBundle": {
+          "name": "ui/kicker/thumbnail_pc_014_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/thumbnail_pc_014_051.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_051",
+          "rect": [
+            116.0,
+            77.0
+          ],
+          "texture_path_id": -7022453035412404418
+        }
+      },
+      "skin_key": "014_051",
+      "style": "direct",
+      "octo_id": 5440,
+      "object_name": "wQ07qH",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41775130377148_4e190d8fbd43ecaecf7de70679e6e8f7.bundle",
+      "source_png_sha256": "3f07cec58007f696c86c1796d12a2e633cd805e42377eb004d859bea11c438c7",
+      "bundle_sha256": "5daa6ff6d2375258a61b499c3e25534aaa8b59c6d71834f74ae9892a6cc9ff91",
+      "bundle_bytes": 17500
+    },
+    {
+      "logical_name": "ui/kicker/oblique/thumbnail_pc_014_051.unity3d",
+      "texture": {
+        "width": 200,
+        "height": 162,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "contain",
+        "alpha_mask": "source_alpha",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Sprite": {
+          "name": "thumbnail_pc_014_051",
+          "rect": [
+            200.0,
+            162.0
+          ],
+          "texture_path_id": 4041500217596568945
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/oblique/thumbnail_pc_014_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/oblique/thumbnail_pc_014_051.png"
+          ]
+        },
+        "Texture2D": "thumbnail_pc_014_051"
+      },
+      "skin_key": "014_051",
+      "style": "oblique",
+      "octo_id": 5441,
+      "object_name": "wwsmmC",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/417777736D6D43_a5bb8e4a842190d1c5c4ddca3a8caac9.bundle",
+      "source_png_sha256": "3f07cec58007f696c86c1796d12a2e633cd805e42377eb004d859bea11c438c7",
+      "bundle_sha256": "a509b0e2968b4b379a6d54bd01741c420c36517c3a2e0e566b465c73c1623fbd",
+      "bundle_bytes": 51032
+    },
+    {
+      "logical_name": "ui/kicker/circle/thumbnail_pc_014_051.unity3d",
+      "texture": {
+        "width": 76,
+        "height": 76,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-circle-mask",
+        "alpha_mask": "circle",
+        "background_fill": "transparent"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_051",
+        "Sprite": {
+          "name": "thumbnail_pc_014_051",
+          "rect": [
+            76.0,
+            76.0
+          ],
+          "texture_path_id": -3045938657663160008
+        },
+        "AssetBundle": {
+          "name": "ui/kicker/circle/thumbnail_pc_014_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/circle/thumbnail_pc_014_051.png"
+          ]
+        }
+      },
+      "skin_key": "014_051",
+      "style": "circle",
+      "octo_id": 5442,
+      "object_name": "wYHetT",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/41775948657454_afe6eb8c1b4fc35d1e11629dde3475c3.bundle",
+      "source_png_sha256": "3f07cec58007f696c86c1796d12a2e633cd805e42377eb004d859bea11c438c7",
+      "bundle_sha256": "72cfe0343b46fe0aada12b8003ca1e5bf9f1bb5859a1254e63eae1e1d6f18cf9",
+      "bundle_bytes": 16964
+    },
+    {
+      "logical_name": "ui/kicker/r20/thumbnail_pc_014_051.unity3d",
+      "texture": {
+        "width": 132,
+        "height": 132,
+        "source_format": 56,
+        "output_format": 4,
+        "mip_count": 1,
+        "alpha_extrema": [
+          0,
+          255
+        ],
+        "fit_policy": "cover-rounded-mask",
+        "alpha_mask": "rounded_rectangle_radius_20px",
+        "background_fill": "opaque_white_under_portrait"
+      },
+      "serialized_names": {
+        "Texture2D": "thumbnail_pc_014_051",
+        "AssetBundle": {
+          "name": "ui/kicker/r20/thumbnail_pc_014_051.unity3d",
+          "containers": [
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_051.png",
+            "assets/colorful/assetbundleresources/ui/kicker/r20/thumbnail_pc_014_051.png"
+          ]
+        },
+        "Sprite": {
+          "name": "thumbnail_pc_014_051",
+          "rect": [
+            132.0,
+            132.0
+          ],
+          "texture_path_id": -626591606681562211
+        }
+      },
+      "skin_key": "014_051",
+      "style": "r20",
+      "octo_id": 5443,
+      "object_name": "w7zRvK",
+      "source_png": "assets/generated/skin-thumbnails/thumbnail_pc_014_051.png",
+      "bundle_path": "content/resources/ui-kicker-skin-thumbnails/4177377A52764B_1cd4777b48d1b40b2e6f1385d504f9fd.bundle",
+      "source_png_sha256": "3f07cec58007f696c86c1796d12a2e633cd805e42377eb004d859bea11c438c7",
+      "bundle_sha256": "96d51b4b853ede02ebc339a670ea9138439d07c20c2b65cf9a41486b7727f112",
+      "bundle_bytes": 37288
+    }
+  ],
+  "title_minimum_entries_preview": [
+    {
+      "id": "kicker-skin-thumb-001-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5400,
+      "names": [
+        "ui/kicker/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wpQhS1",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41777051685331_ae76b4e1cc844434bd1aa3ea715a2301.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5401,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "w8C5C8",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773843354338_10efeeaa352bc0950405b4e0f4ae9393.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5402,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wsjrQE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177736A725145_32d131fed3ed0e91f4a46e385e2f5622.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-001-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5403,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_001_022.unity3d"
+      ],
+      "objectName": "wCzvjP",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177437A766A50_63413213eebcd383fb4756b6f5301abe.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_001_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Tsubame costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5404,
+      "names": [
+        "ui/kicker/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wCy6r7",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774379367237_9d0746e22b1ae928f49f9bd288e19e41.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5405,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wtFOMN",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417774464F4D4E_689856e0a2c62422d11dec58620f5975.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5406,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wJxnLV",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774A786E4C56_93abcb35fe90c7300317efe7a9e1b142.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-002-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5407,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_002_022.unity3d"
+      ],
+      "objectName": "wcbSbZ",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177636253625A_b42e4d38e627b563c07ad1b57092193d.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_002_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Ruriha costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5408,
+      "names": [
+        "ui/kicker/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wWBCyr",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775742437972_6bf8f5a2e0ed62fc96b4ea82e9052fe2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5409,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wHdlZG",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417748646C5A47_8542ddf7b4ea88cd4eeb1ae3ae1cf8f2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5410,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wH65vM",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177483635764D_1df3bdb47f4ff59085344b53ef774e93.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5411,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_003_022.unity3d"
+      ],
+      "objectName": "wJFSF2",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774A46534632_fa359fd48300be60eb1213d4fdaf89de.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_003_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-direct",
+      "kind": "assetBundle",
+      "octoId": 5412,
+      "names": [
+        "ui/kicker/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wGNPAB",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177474E504142_6c9816422dccf2e31ceab22e95213428.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-oblique",
+      "kind": "assetBundle",
+      "octoId": 5413,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wyfZct",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417779665A6374_7888c14ade733937701ccf417bbe6222.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-circle",
+      "kind": "assetBundle",
+      "octoId": 5414,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "w3VDJE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773356444A45_78d0023117f14cc95bae75b51b800f85.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-003-052-r20",
+      "kind": "assetBundle",
+      "octoId": 5415,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_003_052.unity3d"
+      ],
+      "objectName": "wV0zLY",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417756307A4C59_cdecd2e06fb460030209e153ac361314.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_003_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Coco costume 52 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5416,
+      "names": [
+        "ui/kicker/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wKYAeH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774B59416548_e8dc65a7959966fbe46ee729c915c665.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5417,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wmwtcE",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776D77746345_058c57545888ddea86e772608c19004a.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5418,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wliz1j",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776C697A316A_a9fbe68cd1410c65938e490f67c3c9b4.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-006-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5419,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_006_022.unity3d"
+      ],
+      "objectName": "wgUkjQ",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417767556B6A51_c4cdc0db1206d729cfbb9b572d57bf29.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_006_022.unity3d",
+      "description": "Generated skin-selection thumbnail for Pitophy costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-direct",
+      "kind": "assetBundle",
+      "octoId": 5420,
+      "names": [
+        "ui/kicker/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wItDWv",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774974445776_a92b910a33c39a7098a78714ddc65d17.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-oblique",
+      "kind": "assetBundle",
+      "octoId": 5421,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wL1VkI",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774C31566B49_0139c2335f49027ce219cfd91c6b6a82.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-circle",
+      "kind": "assetBundle",
+      "octoId": 5422,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wvumDH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417776756D4448_1a70211b6d3edaaf6fe07bb683bed7de.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-008-052-r20",
+      "kind": "assetBundle",
+      "octoId": 5423,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_008_052.unity3d"
+      ],
+      "objectName": "wL4e20",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774C34653230_0feb527d969594da57062e17a84b78aa.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_008_052.unity3d",
+      "description": "Generated skin-selection thumbnail for Anna costume 52 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-direct",
+      "kind": "assetBundle",
+      "octoId": 5424,
+      "names": [
+        "ui/kicker/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wu1Co5",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41777531436F35_6b1f3375e63c2c247dea477acb3d3878.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-oblique",
+      "kind": "assetBundle",
+      "octoId": 5425,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wtUiAO",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177745569414F_60decbc4bd06cd1c754d1895f63b489f.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-circle",
+      "kind": "assetBundle",
+      "octoId": 5426,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wAlEs3",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177416C457333_e9f02b17f9507da4344609cb5fddeee7.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-011-051-r20",
+      "kind": "assetBundle",
+      "octoId": 5427,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_011_051.unity3d"
+      ],
+      "objectName": "wXU3hO",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177585533684F_6b60ea05dbbc208a96fcfa5e84ef92e3.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_011_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Diatrius costume 51 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-direct",
+      "kind": "assetBundle",
+      "octoId": 5428,
+      "names": [
+        "ui/kicker/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wFQWNT",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774651574E54_6e1b4b744e5eb9518cc41fff61613f92.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-oblique",
+      "kind": "assetBundle",
+      "octoId": 5429,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wncLan",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776E634C616E_de943e373089da6e00ccffb803c16a61.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-circle",
+      "kind": "assetBundle",
+      "octoId": 5430,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "w7Cg84",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773743673834_f5782d3704fa5645cdc6d6c1d270ad59.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-012-022-r20",
+      "kind": "assetBundle",
+      "octoId": 5431,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_012_022.unity3d"
+      ],
+      "objectName": "wMFG2t",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774D46473274_c4b250803df38791d2137380c7263e6d.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_012_022.unity3d",
+      "description": "Generated skin-selection thumbnail for BuzzyBig costume 22 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-direct",
+      "kind": "assetBundle",
+      "octoId": 5432,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "w5UQs9",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773555517339_6eff74de4f933a77bc6c6f561b46d67b.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-oblique",
+      "kind": "assetBundle",
+      "octoId": 5433,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "whQUpB",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776851557042_16524b8894481f2cb3d71f0c9aaa85fb.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-circle",
+      "kind": "assetBundle",
+      "octoId": 5434,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "wRzY0f",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177527A593066_92efbc75ce8a18cbb93742f012db469c.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-002-r20",
+      "kind": "assetBundle",
+      "octoId": 5435,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_002.unity3d"
+      ],
+      "objectName": "wCHu3F",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41774348753346_af82fccbbc1366c1f8726fa0036bffc2.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_002.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 2 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-direct",
+      "kind": "assetBundle",
+      "octoId": 5436,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wwxM9V",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417777784D3956_50c6bf0ba730ea32dca248c5bbfe019c.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-oblique",
+      "kind": "assetBundle",
+      "octoId": 5437,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wker4F",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776B65723446_7d857fb9d45f477e4db267d24ac6b26f.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-circle",
+      "kind": "assetBundle",
+      "octoId": 5438,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "wjVPMx",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41776A56504D78_afeecafd2121ad9888833cd95d001441.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-003-r20",
+      "kind": "assetBundle",
+      "octoId": 5439,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_003.unity3d"
+      ],
+      "objectName": "w6THo2",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41773654486F32_187c13867996581dbdedf81c907f5b64.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_003.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 3 (r20) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-direct",
+      "kind": "assetBundle",
+      "octoId": 5440,
+      "names": [
+        "ui/kicker/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wQ07qH",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775130377148_4e190d8fbd43ecaecf7de70679e6e8f7.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (direct) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-oblique",
+      "kind": "assetBundle",
+      "octoId": 5441,
+      "names": [
+        "ui/kicker/oblique/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wwsmmC",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/417777736D6D43_a5bb8e4a842190d1c5c4ddca3a8caac9.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/oblique/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (oblique) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-circle",
+      "kind": "assetBundle",
+      "octoId": 5442,
+      "names": [
+        "ui/kicker/circle/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "wYHetT",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/41775948657454_afe6eb8c1b4fc35d1e11629dde3475c3.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/circle/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (circle) from durable RGBA PNG source."
+    },
+    {
+      "id": "kicker-skin-thumb-014-051-r20",
+      "kind": "assetBundle",
+      "octoId": 5443,
+      "names": [
+        "ui/kicker/r20/thumbnail_pc_014_051.unity3d"
+      ],
+      "objectName": "w7zRvK",
+      "sourcePath": "content/resources/ui-kicker-skin-thumbnails/4177377A52764B_1cd4777b48d1b40b2e6f1385d504f9fd.bundle",
+      "logicalName": "Unity AssetBundle ui/kicker/r20/thumbnail_pc_014_051.unity3d",
+      "description": "Generated skin-selection thumbnail for Sid costume 51 (r20) from durable RGBA PNG source."
+    }
+  ]
+}

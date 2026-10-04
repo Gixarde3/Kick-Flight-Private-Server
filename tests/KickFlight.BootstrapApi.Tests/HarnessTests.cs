@@ -93,7 +93,8 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal("application/x-protobuf", response.Content.Headers.ContentType?.MediaType);
         var body = await response.Content.ReadAsByteArrayAsync();
         Assert.True(body.Length > 300);
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        var title = ReadTitleResourceDefinition();
+        AssertOctoRevision(body, title.Revision);
         var protobufText = Encoding.UTF8.GetString(body);
         Assert.Contains("ui/localize/en/title/title_logo.unity3d", protobufText);
         Assert.Contains("7pXtSo", protobufText);
@@ -114,39 +115,49 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
     }
 
     [Fact]
-    public async Task Octo_revision_one_can_update_to_the_reconstructed_title_database()
+    public async Task Octo_supported_old_revision_can_update_to_the_reconstructed_title_database()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/1");
+        var title = ReadTitleResourceDefinition();
+        var fromRevision = title.FromRevisions.First(revision => revision < title.Revision);
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{fromRevision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Octo revision 26
+        AssertOctoRevision(body, title.Revision);
     }
 
     [Fact]
     public async Task Octo_current_revision_preserves_the_url_format()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/15");
+        var title = ReadTitleResourceDefinition();
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{title.Revision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await _factory.CreateClient().SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
+        AssertOctoRevision(body, title.Revision);
         Assert.Contains("/cdn/{o}", Encoding.UTF8.GetString(body));
     }
 
     [Fact]
-    public async Task Octo_revision_twenty_receives_the_current_database_and_future_revision_is_not_fallback()
+    public async Task Octo_supported_old_revision_receives_current_database_and_future_revision_is_not_fallback()
     {
+        var title = ReadTitleResourceDefinition();
+        var fromRevision = title.FromRevisions.First(revision => revision < title.Revision);
         var client = _factory.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/20");
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{fromRevision}");
         request.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var response = await client.SendAsync(request);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsByteArrayAsync();
-        Assert.Equal(new byte[] { 0x08, 0x1A }, body[..2]); // Current database revision 26
+        AssertOctoRevision(body, title.Revision);
 
-        using var futureRequest = new HttpRequestMessage(HttpMethod.Get, "/v1/list/12345/27");
+        using var futureRequest = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/list/{title.AssetVersion}/{title.Revision + 1}");
         futureRequest.Headers.Host = "kickflight-resource-api.grenge.jp";
         using var futureResponse = await client.SendAsync(futureRequest);
         Assert.Equal(HttpStatusCode.NotFound, futureResponse.StatusCode);
@@ -672,12 +683,82 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Contains(startDoc.RootElement.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
     }
 
+    [Fact]
+    public async Task Second_battle_start_succeeds_before_first_battle_ends()
+    {
+        var client = _factory.CreateClient();
+        const string host = "kickflight-api.grenge.jp";
+        var sessionKeyBytes = Encoding.ASCII.GetBytes("0123456789abcdef0123456789abcdef");
+        var commonCodeBytes = Encoding.ASCII.GetBytes("1a837b9ee2ae11a07a0f529a4cd4b61c");
+
+        var authPayload = JsonSerializer.Serialize(new { hash = Encoding.ASCII.GetString(sessionKeyBytes), uuid = Guid.NewGuid().ToString("N") });
+        using var authRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/index")
+        {
+            Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(authPayload), commonCodeBytes, new byte[16]))
+        };
+        authRequest.Headers.Host = host;
+        using var authResponse = await client.SendAsync(authRequest);
+        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
+        var accessToken = authResponse.Headers.GetValues("x-app-access-token").Single();
+
+        async Task<JsonElement> StartBattle(string battleId, int ruleId)
+        {
+            var payload = JsonSerializer.Serialize(new { battleId, battleRuleId = ruleId });
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/battle/start")
+            {
+                Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(payload), sessionKeyBytes, new byte[16]))
+            };
+            request.Headers.Host = host;
+            request.Headers.Add("x-app-access-token", accessToken);
+            using var response = await client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("0", response.Headers.GetValues("x-app-status-code").Single());
+            return JsonDocument.Parse(D2CCodec.Decode(await response.Content.ReadAsByteArrayAsync(), sessionKeyBytes)).RootElement.Clone();
+        }
+
+        // Battle A remains active while the server starts battle B under a separate id and rule.
+        var battleA = await StartBattle($"battle-a-{Guid.NewGuid():N}", ruleId: 3);
+        var battleB = await StartBattle($"battle-b-{Guid.NewGuid():N}", ruleId: 1);
+        Assert.Equal(2, battleA.GetProperty("guardianParameter").GetProperty("id").GetInt32());
+        Assert.Equal(1, battleB.GetProperty("guardianParameter").GetProperty("id").GetInt32());
+        Assert.Contains(battleA.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
+        Assert.Contains(battleB.GetProperty("fieldId").GetInt32(), BattleMatchmakingService.FieldPool);
+
+        using var endRequest = new HttpRequestMessage(HttpMethod.Post, "/battle/end")
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>())
+        };
+        endRequest.Headers.Host = host;
+        endRequest.Headers.Add("x-app-access-token", accessToken);
+        using var endResponse = await client.SendAsync(endRequest);
+        Assert.Equal(HttpStatusCode.OK, endResponse.StatusCode);
+        Assert.Equal("0", endResponse.Headers.GetValues("x-app-status-code").Single());
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "KickFlight.PrivateServer.sln")))
             directory = directory.Parent;
         return directory?.FullName ?? throw new DirectoryNotFoundException("Repository root not found.");
+    }
+
+    private static (int AssetVersion, int Revision, int[] FromRevisions) ReadTitleResourceDefinition()
+    {
+        using var document = JsonDocument.Parse(
+            File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), "config/resources/title-minimum.json")));
+        var title = document.RootElement;
+        return (
+            title.GetProperty("assetVersion").GetInt32(),
+            title.GetProperty("revision").GetInt32(),
+            title.GetProperty("fromRevisions").EnumerateArray().Select(revision => revision.GetInt32()).ToArray());
+    }
+
+    private static void AssertOctoRevision(ReadOnlySpan<byte> body, int expectedRevision)
+    {
+        var offset = 0;
+        Assert.Equal(8UL, ReadVarint(body, ref offset)); // Database.revision tag
+        Assert.Equal((ulong)expectedRevision, ReadVarint(body, ref offset));
     }
 
     private static (int Field, int WireType)[] ReadProtobufLayout(ReadOnlySpan<byte> payload)
