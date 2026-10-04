@@ -141,6 +141,7 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
 
         var matchmaking = _factory.Services.GetRequiredService<BattleMatchmakingService>();
         matchmaking.MatchWindow = TimeSpan.FromMilliseconds(150);
+        matchmaking.JoinIncrementBaseSeconds = 0;
         using var hostCancellation = new CancellationTokenSource();
         using var guestCancellation = new CancellationTokenSource();
         var hostWriter = new TeamProbeWriter(hostCancellation);
@@ -233,6 +234,7 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
 
         var matchmaking = _factory.Services.GetRequiredService<BattleMatchmakingService>();
         matchmaking.MatchWindow = TimeSpan.FromSeconds(2);
+        matchmaking.JoinIncrementBaseSeconds = 0;
         var allMembers = parties.SelectMany(party => party.Members.Zip(party.Tickets,
             (member, ticket) => (Member: member, Ticket: ticket))).ToList();
         var cancellations = allMembers.Select(_ => new CancellationTokenSource()).ToList();

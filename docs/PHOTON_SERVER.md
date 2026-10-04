@@ -42,13 +42,15 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
 ## Ventana de emparejamiento normal (2026-09-21)
 
 `/battle/entry` + el stream `openmatch.Frontend/GetAssignments` ya no emparejan exactamente a dos humanos: el primero
-abre una **ventana fija de 10 s** en la que pueden entrar más humanos, y al cerrarse se rellenan con bots los huecos.
+abre una **ventana de 20 s** que se extiende con cada join y en la que pueden entrar más humanos, y al cerrarse se rellenan con bots los huecos.
 La prioridad es que los humanos jueguen juntos; los bots son el relleno, no el disparador.
 
-* La ventana empieza con la primera entrada y no se extiende con los joins posteriores. Se puede cambiar sin recompilar
-  mediante `KF_MATCH_WINDOW_SECONDS` (default: `10`).
+* La ventana base empieza con la primera entrada (`KF_MATCH_WINDOW_SECONDS`, default `20`; `0` la desactiva). Cada humano
+  que entra a la sala abierta la extiende: el 2º +5 s, el 3º +4,5 s, el 4º +4 s … el 8º +2 s (`5 - 0,5 * (n - 2)`), así
+  que una sala llena suma 44,5 s. El primer incremento se cambia con `KF_MATCH_JOIN_INCREMENT_SECONDS` (default `5`;
+  `0` = los joins no extienden la ventana). Los equipos cuentan un join por humano.
 * Mientras la ventana siga abierta, el 2º, 3º… jugador entra **en la sala del primero** (`_pendingRoom`), nunca en
-  una sala nueva; sus clientes reciben el roster actualizado. Un `RunMatchWindowAsync` por sala espera el deadline fijo.
+  una sala nueva; sus clientes reciben el roster actualizado. Un `RunMatchWindowAsync` por sala relee el deadline tras cada espera, así que un join lo mueve sin cierres anticipados.
   Con 8 humanos (4 por equipo) la partida arranca sin esperar a que expire.
 * Etapas del stream con la ventana abierta: la Etapa 1 pasa a ser "los humanos que hay ya" (sin bots) y cada entrada
   se **retransmite** a los clientes que esperan para que vean llenarse las ranuras. La Etapa 2 (8 ranuras con bots) y
