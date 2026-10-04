@@ -273,7 +273,14 @@ if [[ "$sync_site" == true ]]; then
   [[ "$actual_site" == "$expected_site" ]] || { echo "served website checksum does not match deploy/site/index.html" >&2; exit 1; }
 fi
 
-rm -rf -- "$backup_dir"
+if [[ "$rebuild_farm" == true && -e "$backup_dir" ]]; then
+  [[ "$backup_dir" == "$assets_root/.cdn-rollback-$release_sha" && -d "$backup_dir" && ! -L "$backup_dir" ]] || {
+    echo "refusing to remove an unexpected CDN rollback path" >&2
+    exit 1
+  }
+  # The prior CDN tree can be root-owned; remove only this generated rollback directory.
+  sudo -n rm -rf -- "$backup_dir"
+fi
 if [[ "$previous_release" == "$releases_dir/.pre-ci-$release_sha" ]]; then
   rm -rf -- "$previous_release"
 fi
