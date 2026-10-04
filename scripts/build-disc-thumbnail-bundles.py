@@ -4,7 +4,7 @@ build-disc-thumbnail-bundles.py
 
 Builds placeholder ui/disc/thumbnail_3010NNN bundles for discs whose real thumbnail was never captured
 (3010045 Amun-Ra, 054 Scorpius, 096 Combat Turtle, 121 Solar Purr, 133 Pegasia): the art is cut out of a
-disc-detail card screenshot (../Disc_data/thumbnail_source/<discId>.png, the 551x292 card layout), stretched to
+disc-detail card screenshot (content/source/disc-thumbnails/<discId>.png, the 551x292 card layout), stretched to
 the thumbnail's arch and masked with the alpha of a captured thumbnail. The in-game UI draws the rarity frame,
 the top marker and the rarity badge over the sprite, so the card's own frame remnants stay hidden.
 
@@ -24,6 +24,7 @@ import argparse
 import hashlib
 import importlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -35,7 +36,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 octo = importlib.import_module("build-action-asset-bundles")
 
 TITLE_MINIMUM = REPO_ROOT / "config" / "resources" / "title-minimum.json"
-SOURCE_DIR = REPO_ROOT.parent / "Disc_data" / "thumbnail_source"
+SOURCE_DIR = Path(os.environ.get("KF_DISC_THUMBNAIL_SOURCE") or REPO_ROOT / "content" / "source" / "disc-thumbnails")
 OUTPUT_DIR = REPO_ROOT / "content" / "resources" / "ui-disc"
 DONOR = "ui/disc/thumbnail_3010001.unity3d"
 CARD_SIZE = (551, 292)
