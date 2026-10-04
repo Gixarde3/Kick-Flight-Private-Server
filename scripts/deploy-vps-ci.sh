@@ -160,7 +160,9 @@ sync_release() {
       fi
     done < "$old_manifest"
   fi
-  rsync -a --checksum \
+  # The deploy user cannot restore root-owned ownership/group metadata on the live tree.
+  # Preserve modes and timestamps while keeping ownership local to the host; this also covers rollback.
+  rsync -a --no-owner --no-group --checksum \
     --exclude='.git' --exclude='/.env' --exclude='/.local' --exclude='/.ci' \
     --exclude='/data' --exclude='/captures' --exclude='/logs' --exclude='/certs' \
     --exclude='/deploy/.env' --exclude='/appsettings.Local.json' \
