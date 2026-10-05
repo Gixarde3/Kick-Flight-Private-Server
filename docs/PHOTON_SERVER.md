@@ -42,13 +42,15 @@ poniendo nuestro API (`BattleMatchmakingService.BuildRoster`).
 ## Ventana de emparejamiento normal (2026-09-21)
 
 `/battle/entry` + el stream `openmatch.Frontend/GetAssignments` ya no emparejan exactamente a dos humanos: el primero
-abre una **ventana de 20 s** que se extiende con cada join y en la que pueden entrar más humanos, y al cerrarse se rellenan con bots los huecos.
+abre una ventana que se extiende con cada join y en la que pueden entrar más humanos, y al cerrarse se rellenan con bots los huecos. La API usa 20 s si no se configura; la composición VPS fija 120 s.
 La prioridad es que los humanos jueguen juntos; los bots son el relleno, no el disparador.
 
-* La ventana base empieza con la primera entrada (`KF_MATCH_WINDOW_SECONDS`, default `20`; `0` la desactiva). Cada humano
+* La ventana base empieza con la primera entrada (`KF_MATCH_WINDOW_SECONDS`, default de la API `20`; `0` la desactiva en entornos que configuren la API directamente). La composición VPS fija `120` segundos para que un `.env` antiguo no reduzca la espera. Cada humano
   que entra a la sala abierta la extiende: el 2º +5 s, el 3º +4,5 s, el 4º +4 s … el 8º +2 s (`5 - 0,5 * (n - 2)`), así
   que una sala llena suma 44,5 s. El primer incremento se cambia con `KF_MATCH_JOIN_INCREMENT_SECONDS` (default `5`;
   `0` = los joins no extienden la ventana). Los equipos cuentan un join por humano.
+* El proxy gRPC VPS mantiene `GetAssignments` abierto durante `300` segundos entre lecturas del upstream. Esto cubre la
+  ventana VPS de 120 s, los incrementos de hasta 24,5 s para ocho humanos y la espera de 2 s entre Etapa 2 y Etapa 3.
 * Mientras la ventana siga abierta, el 2º, 3º… jugador entra **en la sala del primero** (`_pendingRoom`), nunca en
   una sala nueva; sus clientes reciben el roster actualizado. Un `RunMatchWindowAsync` por sala relee el deadline tras cada espera, así que un join lo mueve sin cierres anticipados.
   Con 8 humanos (4 por equipo) la partida arranca sin esperar a que expire.
