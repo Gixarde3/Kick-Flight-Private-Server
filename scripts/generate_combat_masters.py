@@ -259,8 +259,9 @@ _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType"
 _RUSH_DISPLACE = {"distance": 1.5, "speed": 30.0, "rigorTime": 0.3, "directionType": 4}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
 KICKER_SKILL_EXTRAS = {
-    # Ruriha: backstep shot, ice bullets slow the target
-    20002: {"conditions": [(COND_SPEED_RATE, 4.0, 0.0, 0.6, TRIGGER_RECEIVE_DAMAGE)]},
+    # Ruriha: backstep shot, the ice bullets paralyse the target (ConditionActionController.CheckEnableMove blocks
+    # movement for 6 Paralysis). It used to be a SpeedRate 0.6 slow (play-test 2026-10: "slows instead of paralysing").
+    20002: {"conditions": [(COND_PARALYSIS, 2.0, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},
     # Coco: shock dive slams the target into the ground. HammerSkillAction.AttackEvent builds its DamageCollisionData
     # without a BlowOffInfo, but PlayerCharacter.GetDamageInfo hands the receiver the KickerSkillParameter (AttackType
     # KickerSkill), whose BlowOffInfo is this SkillBlowOff row -> PlayerStateBlowOff Down. It used to be a Stun row
