@@ -82,12 +82,12 @@
       "id": "apk-remote-kickflightsg",
       "enabled": true,
       "host": "10.0.2.2",
-      "requestPath": "/apk/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "requestPath": "/apk/KickFlight-2.11.1-remote.apk",
       "logicalName": "Remote-play APK download",
       "description": "Patched client for kickflightsg.ddns.net",
-      "sourcePath": ".local/KickFlight-2.11.0-remote-kickflightsg.apk",
+      "sourcePath": ".local/KickFlight-2.11.1-remote.apk",
       "contentType": "application/vnd.android.package-archive",
-      "sha256": "4a05b5df426830a73cbde7f26376b16ab271005f69a48e8a0fb57bf1e0ccc312"
+      "sha256": "f8951a73c607b1dd78ac1e334ca86bf17f26053ab8dbd07e5722e26723c99683"
     },
     {
       "id": "kicker-skin-thumb-001-022-direct",

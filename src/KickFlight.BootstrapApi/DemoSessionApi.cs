@@ -1522,7 +1522,9 @@ public sealed partial class DemoSessionApi
     private IResult? TryHandleHardMaintenance(HttpContext context, string path)
     {
         if (_maintenance.Current.Mode != MaintenanceMode.Hard) return null;
-        if (path is "/boot/index" or "/battle/end" or "/battle/result") return null;
+        // /auth/prepare carries no x-app-application-version (so a DIAG build could not be told apart there); /auth/index
+        // right after it is still refused for non-DIAG clients, so nobody logs in.
+        if (path is "/boot/index" or "/auth/prepare" or "/battle/end" or "/battle/result") return null;
 
         var clientVersion = context.Request.Headers["x-app-application-version"].ToString();
         if (_maintenance.IsBypassClient(clientVersion))
