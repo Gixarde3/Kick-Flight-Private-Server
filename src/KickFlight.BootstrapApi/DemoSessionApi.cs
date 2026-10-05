@@ -91,6 +91,30 @@ public sealed partial class DemoSessionApi
         InitializeMasters(environment.ContentRootPath);
     }
 
+    // Inline fallbacks for a checkout without config/ (InitializeMasters). Public so tests can validate the rules
+    // the client receives on that path too. Rules 7 (Crystal Scramble) and 8 (Flag Flight) are the matchType-2
+    // entries the hourly RankedModeRotation needs; they must stay byte-for-byte equivalent to
+    // config/masters_battle_rule.json.
+    public const string BattleRuleFallbackJson = """
+        [
+          {"id":1,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+          {"id":2,"name":"Flag Flight","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+          {"id":3,"name":"Rapid Ball","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+          {"id":4,"name":"Rapid Ball","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+          {"id":5,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
+          {"id":6,"name":"Kick-Flight Festival","seasonName":"","festivalName":"Kick-Flight Festival","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
+          {"id":7,"name":"Crystal Scramble","seasonName":"","festivalName":"","matchType":2,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+          {"id":8,"name":"Flag Flight","seasonName":"","festivalName":"","matchType":2,"battleRuleType":2,"regularMatchFlag":false,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"}
+        ]
+        """;
+
+    public const string BattleRuleFlagFlightScoreFallbackJson = """
+        [
+          {"id": 2, "battleRuleId": 2, "baseScore": 100, "goalCountScore": 100, "flagMoveScore": 10, "dropCountScore": 5, "flagMoveBackScore": 10, "killCountScore": 50, "killAssistCountScore": 25, "assistCountScore": 25, "specialSkillCountScore": 30, "winScoreCorrection": 1.5},
+          {"id": 8, "battleRuleId": 8, "baseScore": 100, "goalCountScore": 100, "flagMoveScore": 10, "dropCountScore": 5, "flagMoveBackScore": 10, "killCountScore": 50, "killAssistCountScore": 25, "assistCountScore": 25, "specialSkillCountScore": 30, "winScoreCorrection": 1.5}
+        ]
+        """;
+
     private void InitializeMasters(string contentRoot)
     {
         var kickerJson = LoadJson(contentRoot, "config/masters_kicker.json", """[{"id":1,"name":"Tsubame","shortName":"Tsubame","nameSpelling":"Tsubame","voiceActorName":"CV: Yuma Uchida"}]""");
@@ -165,16 +189,7 @@ public sealed partial class DemoSessionApi
         // FieldManager.GetGuardianInitialPosition, and FLD00101_1 (the crystal-rule variant) has exactly two
         // guardian points; the ball variants (rules 3/4) also spawn one guard per goal, which must be destroyed
         // before the team can score. The file is the source; the literal is only the fallback.
-        var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", """
-            [
-              {"id":1,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":2,"name":"Flag Flight","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":3,"name":"Rapid Ball","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":4,"name":"Rapid Ball","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":5,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
-              {"id":6,"name":"Kick-Flight Festival","seasonName":"","festivalName":"Kick-Flight Festival","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
-            ]
-            """);
+        var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", BattleRuleFallbackJson);
         _encryptedMasters["BattleRule"] = EncryptMaster(battleRuleJson);
         // id -> battleRuleType, read by /battle/start to pick the guardian for the requested rule. Parsed once here
         // because the request handler only sees the rule id, not its type.
@@ -667,7 +682,7 @@ public sealed partial class DemoSessionApi
         // TMasterBase.get_Item(battleRuleId) - by row *id*, with a hard-coded fallback to id 3 - so each row's id must
         // equal its battleRuleId (verified 2026-09-19: ids 1/2 kept the NRE, ids 3/4 fixed it).
         _encryptedMasters["BattleRuleRapidBallScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_rapid_ball_score.json", "[]"));
-        _encryptedMasters["BattleRuleFlagFlightScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_flag_flight_score.json", "[]"));
+        _encryptedMasters["BattleRuleFlagFlightScore"] = EncryptMaster(LoadJson(contentRoot, "config/masters_battle_rule_flag_flight_score.json", BattleRuleFlagFlightScoreFallbackJson));
 
         _encryptedMasters["Guardian"] = EncryptMaster("""
             [
@@ -1980,11 +1995,15 @@ public sealed partial class DemoSessionApi
             _logger.LogWarning("Failed to parse battle entry body: {Error}, using rule 1", ex.Message);
         }
 
-        if (RankedModeRotation.IsRankedRule(battleRuleId)
-            && battleRuleId != RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow()))
+        // A ranked request is only accepted while its hour block is active. The check happens before a ticket is
+        // issued: once an entry/room exists its stored rule is authoritative (battle start and result both read it),
+        // so crossing the boundary during matchmaking cannot strand a battle on the wrong mode. Non-ranked rules
+        // (and an undecodable body, which falls back to rule 1) are unaffected.
+        var activeRankedRuleId = RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow());
+        if (RankedModeRotation.IsRankedRule(battleRuleId) && battleRuleId != activeRankedRuleId)
         {
             _logger.LogInformation("Rejected stale ranked entry for {UserId}: requested rule={RuleId}, active rule={ActiveRuleId}",
-                state.UserId, battleRuleId, RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow()));
+                state.UserId, battleRuleId, activeRankedRuleId);
             return StatusError(context, key);
         }
 
@@ -2184,14 +2203,43 @@ public sealed partial class DemoSessionApi
             _logger.LogWarning("Failed to parse battle result body: {Error}", ex.Message);
         }
 
-        var battleRuleId = _matchmaking.GetBattleRuleIdForEntry(battleEntryId);
-        var battleRuleType = battleRuleId is { } id && RankedModeRotation.IsRankedRule(id)
-                             && _battleRuleTypeById.TryGetValue(id, out var parsedType)
-            ? parsedType
-            : RegularBattleRuleType;
+        // The entry ticket is the only thing that ties a result to the mode that was actually played. An entry id
+        // that was never issued (a stale/forged id, or a body we could not decode) must not be attributed to the
+        // casual ladder, so the rank is left untouched rather than silently moved by a result we cannot place.
+        // A body without any entry id (the custom battle result shape) keeps the historical casual handling.
+        var entryRuleId = _matchmaking.GetBattleRuleIdForEntry(battleEntryId);
+        int battleRuleType;
+        var applyProgression = true;
+        if (entryRuleId is { } ruleId)
+        {
+            if (_battleRuleTypeById.TryGetValue(ruleId, out var knownType))
+            {
+                battleRuleType = knownType;
+            }
+            else
+            {
+                applyProgression = false;
+                battleRuleType = RegularBattleRuleType;
+                _logger.LogWarning("Battle result for {UserId}: entry {BattleEntryId} has unknown rule {RuleId}",
+                    state.UserId, battleEntryId, ruleId);
+            }
+        }
+        else if (!string.IsNullOrEmpty(battleEntryId))
+        {
+            applyProgression = false;
+            battleRuleType = RegularBattleRuleType;
+            _logger.LogWarning("Battle result for {UserId}: unknown entry {BattleEntryId}, rank left unchanged",
+                state.UserId, battleEntryId);
+        }
+        else
+        {
+            battleRuleType = RegularBattleRuleType;
+        }
+
         var before = _playerStore.LoadRank(state.PlayerId, battleRuleType);
-        var after = RankProgression.Apply(before, won: true);
-        _playerStore.SaveRank(state.PlayerId, battleRuleType, after);
+        var after = applyProgression ? RankProgression.Apply(before, won: true) : before;
+        if (applyProgression)
+            _playerStore.SaveRank(state.PlayerId, battleRuleType, after);
 
         var rank = new { battleRuleType, battlePoint = after.BattlePoint, rank = after.Rank };
         var resp = new
@@ -2218,8 +2266,8 @@ public sealed partial class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-result";
-        _logger.LogInformation("Handled /battle/result for {UserId}: rule={RuleId} type={RuleType}",
-            state.UserId, battleRuleId, battleRuleType);
+        _logger.LogInformation("Handled /battle/result for {UserId}: entry={BattleEntryId} rule={RuleId} type={RuleType} ranked={Applied}",
+            state.UserId, battleEntryId, entryRuleId, battleRuleType, applyProgression);
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 

@@ -655,7 +655,7 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         using var scheduleResponse = await client.SendAsync(scheduleRequest);
         Assert.Equal(HttpStatusCode.OK, scheduleResponse.StatusCode);
         using var scheduleDoc = JsonDocument.Parse(D2CCodec.Decode(await scheduleResponse.Content.ReadAsByteArrayAsync(), commonCodeBytes));
-        Assert.Equal(24, scheduleDoc.RootElement.GetArrayLength());
+        Assert.Equal(48, scheduleDoc.RootElement.GetArrayLength());
         Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
             row.GetProperty("seasonMatchBattleRuleType").GetInt32() == 1
             && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.CrystalRuleId);
@@ -665,6 +665,9 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
             row.GetProperty("seasonMatchBattleRuleType").GetInt32() == 3
             && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.RapidBallRuleId);
+        Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
+            row.GetProperty("seasonMatchBattleRuleType").GetInt32() == -1
+            && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.CrystalRuleId);
 
         using var ruleFieldsRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRuleField");
         ruleFieldsRequest.Headers.Host = host;
