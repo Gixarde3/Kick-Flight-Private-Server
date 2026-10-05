@@ -106,9 +106,11 @@ Rules learned the hard way:
   0x13CE540-0x13CE5A4. The former Jay bomb DIAG probes (9001-9041) were retired and their hooks removed; the
   historical generator exits instead of writing caves into that reserved range.
   `HomeSummonModelController.SetModel` tail 0x159DA48-0x159DA78 holds the production bat-bomb HitInfo fallback cave
-  (0x159DA78-0x159DAB0 free).
+  (0x159DA78-0x159DAB0: DIAG reconnect probe 8992, not free in DIAG builds).
   `GameManager.<BeginAsync>b__4` (entry-stubbed, 0x1579AC8-0x1579B80): the **production** ready-gate cave at
   0x1579AD0-0x1579B14 and the **production** 3D-listener cave (`ObjectManager.ReceiveAddPlayer` tail ->
   `GameManager.SetListener(main player)`) at 0x1579B14-0x1579B74; 0x1579B74-0x1579B80 free. `<BeginAsync>b__1`
-  (0x1579948-0x157999C) is also entry-stubbed and unused; `b__3` holds the DIAG region G.
+  (entry-stubbed, 0x1579948-0x157999C) holds the **production** rush-pursuit follow-through cave at
+  0x1579948-0x1579984 (`scripts/re/rush_pursuit_cave.py`, hooked from `MoveAttackSkillAction.HitCallback` 0x145AC64);
+  0x1579984-0x157999C free. `b__3` holds the DIAG region G.
 * `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).

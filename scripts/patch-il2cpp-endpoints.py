@@ -2224,6 +2224,33 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("fd7b42a9"),
             "replacement": bytes.fromhex("b5e60514"),  # b #0x1579b14
         },
+        # Rush "pursuit" discs (2026-10-05): MoveAttackSkillAction skills with a SkillBlowOff row (10001 Leorex, 10013
+        # Boarush, 10014 Propedile, 10096 Combat Turtle, 10118 Airy). Retail HitCallback re-targets the dash to
+        # BlowOff.distance past the victim and parents the victim to the dasher (AcceptAttachCharacter) while
+        # PlayerStateBlowOff also pushes it that distance, so the charge stopped short and the victim flew past the
+        # dasher. Now (a) the victim is entrained: PlayerStateEntrained holds it within 2 units of the dasher for 0.5 s,
+        # then a short blow-off (masters _RUSH_PURSUIT); (b) the dash keeps its own end: the re-target distance is
+        # the remaining projected distance to the original _targetPos instead of |victim - dasher| + BlowOff.distance.
+        # Pierce/shield-break rush discs have no BlowOffInfo: HitCallback leaves before both patch sites matter and
+        # CanEntrained is false without a BlowOffInfo. Source and full RE notes: scripts/re/rush_pursuit_cave.py.
+        {
+            "description": "MoveAttackSkillAction.CreateCollider: DamageCollisionData IsEntrainedBlowOff = true (pursuit victims -> PlayerStateEntrained)",
+            "offset": 0x1459CD0,
+            "expected": bytes.fromhex("e4031f2a"),  # mov w4, wzr
+            "replacement": bytes.fromhex("24008052"),  # mov w4, #1
+        },
+        {
+            "description": "cave: MoveAttack pursuit hit keeps the original dash end (s8 = max(0, dot(_targetPos - pos, _forwardOnHit))), dead body of <BeginAsync>b__1",
+            "offset": 0x1579948,
+            "expected": bytes.fromhex("fd430091f30300aa740a40f9740000b5e0031faa246af297e00314aa04d3ff9760000036e8031f2a07000014680a40f9680000b5e0031faa1b6af297"),
+            "replacement": bytes.fromhex("704e41bd715241bd725641bd103a291e313a2a1e523a2b1e737a41bd747e41bd758241bd080a331e2822141f4822151ff003271e0849301ec0035fd6"),
+        },
+        {
+            "description": "MoveAttackSkillAction.HitCallback `fadd s8, s8, s12` (|victim - dasher| + BlowOff.distance) -> bl pursuit follow-through cave",
+            "offset": 0x145AC64,
+            "expected": bytes.fromhex("08292c1e"),
+            "replacement": bytes.fromhex("397b0494"),  # bl #0x1579948
+        },
         *_attack_interval_patches(),
         # Diagnostics: KF_DIAG=1 installs the full KFDIAG probe set (regions relocated out of LoadDeckSummonModel on
         # 2026-09-20 so disc pets still load); KF_RESULT_DIAG=1 installs only the isolated ResultManager/ResultScene

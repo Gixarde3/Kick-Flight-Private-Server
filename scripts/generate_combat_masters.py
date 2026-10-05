@@ -61,7 +61,7 @@ ONE_SHOT_FIXED_DAMAGE = 999999
 # Global displacement tuning (play-test 2026-10, confirmed 1.5). Applied when the rows are written, so the presets and
 # tables below keep their design values:
 #   KNOCKBACK_DISTANCE_SCALE    x every SkillBlowOff / SpecialSkillBlowOff `distance` (discs, kicker skills, specials,
-#                               bombs/turrets, Jay's bat bomb, the rush-disc pursuit carry). Basic attacks have no
+#                               bombs/turrets, Jay's bat bomb; not the rush-disc pursuit row). Basic attacks have no
 #                               blow-off (PlayerWeaponAttackInfo.get_BlowOffInfo returns null) and their knockBackFlag
 #                               stagger (PlayerStateKnockBack) moves nobody, so there is no distance to scale for them.
 #   DISPLACEMENT_HITSTUN_SCALE  x every blow-off `rigorTime` (the stun after landing: PlayerStateBlowOff.StateDuration =
@@ -75,8 +75,11 @@ DISPLACEMENT_HITSTUN_SCALE = 1.5
 
 
 def _blow_off_row(bo: dict) -> dict:
-    """distance / speed / rigorTime / directionType of a blow-off preset with the global scales applied."""
-    return {"distance": round(bo["distance"] * KNOCKBACK_DISTANCE_SCALE, 3), "speed": bo["speed"],
+    """distance / speed / rigorTime / directionType of a blow-off preset with the global scales applied.
+    A preset with "fixed_distance" (the rush pursuit) keeps its distance: it is a client-patch tuning value, not a
+    knockback."""
+    distance = bo["distance"] if bo.get("fixed_distance") else bo["distance"] * KNOCKBACK_DISTANCE_SCALE
+    return {"distance": round(distance, 3), "speed": bo["speed"],
             "rigorTime": round(bo["rigorTime"] * DISPLACEMENT_HITSTUN_SCALE, 3), "directionType": bo["directionType"]}
 
 
@@ -310,19 +313,20 @@ _KNOCK_UP = {"distance": 6.0, "speed": 20.0, "rigorTime": 0.5, "directionType": 
 _SLAM = {"distance": 6.0, "speed": 25.0, "rigorTime": 0.8, "directionType": 2}
 _KNOCK_AWAY = {"distance": 8.0, "speed": 25.0, "rigorTime": 0.5, "directionType": 4}
 _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType": 4}
-# Dash "pursuit" discs: MoveAttackSkillAction.HitCallback, when the skill has a BlowOffInfo, sets
-# BlowOffInfo.AttackerSpeedCoefficient from the dasher's speed and carries the victim along the dash (DamageInfo
-# IsEntrainedBlowOff) instead of passing through; DiscSkillParameter..ctor also only flags MoveAttack/FrontAttack hits
-# as shield-break when the skill has NO blow-off row and no heal row - exactly the card split "dash pierce attack &
-# shield break" (Giamoth, Jet Shark, Rush Blade, Assault Lance) vs "dash pursuit attack" (Leorex, Boarush, Propedile,
-# Combat Turtle, Airy).
-# On the pursuit hit (MoveAttackSkillAction.HitCallback) the dash is re-targeted to
-#   dasher + forward x (distance to the victim + BlowOff.distance)
-# at BlowOff.speed (OnUpdateForceMove: PlayerParameter.GetSpeed(1, speed) x AttackerSpeedCoefficient), and
-# IsEndForceMove waits for the skill to finish instead of the original forced-move end. So `distance` is how far the
-# dasher keeps driving the victim after contact. 1.5 made the charge stop dead on the target (play-test 2026-10:
-# Boarush / Leorex "stop after hitting instead of pushing the target back and following through").
-_RUSH_DISPLACE = {"distance": 6.0, "speed": 30.0, "rigorTime": 0.4, "directionType": 4}
+# Dash "pursuit" discs = MoveAttack (skillActionType 3) discs with a SkillBlowOff row: Leorex 10001, Boarush 10013,
+# Propedile 10014, Combat Turtle 10096, Airy 10118. DiscSkillParameter..ctor only flags MoveAttack/FrontAttack hits as
+# shield-break when the skill has NO blow-off row and no heal row - exactly the card split "dash pierce attack &
+# shield break" (Giamoth, Jet Shark, Rush Blade, Assault Lance) vs "dash pursuit attack".
+# Retail pursuit hit (MoveAttackSkillAction.HitCallback): the dash is re-targeted to |victim - dasher| + distance at
+# GetSpeed(1, speed) x AttackerSpeedCoefficient and the victim is parented to the dasher (AcceptAttachCharacter)
+# while PlayerStateBlowOff also pushes it `distance` along victim - dasher, so the charge stopped short and the victim
+# ended up to `distance` ahead of the dasher (play-test 2026-10). Two production client patches change that
+# (scripts/re/rush_pursuit_cave.py): the dash keeps its own end (EventItem.Distance; `distance` no longer moves the
+# dasher, `speed` is still its post-hit speed) and the victim is entrained (PlayerStateEntrained: held within 2 units
+# of the dasher for 0.5 s) before it hands over to this blow-off. So `distance` is only the final nudge off the
+# dasher; it stays > 0 (PlayerStateBlowOff divides by the blow-off time) and is NOT x KNOCKBACK_DISTANCE_SCALE.
+# rigorTime is the stun after it (x DISPLACEMENT_HITSTUN_SCALE like every other row).
+_RUSH_PURSUIT = {"distance": 1.0, "speed": 30.0, "rigorTime": 0.4, "directionType": 4, "fixed_distance": True}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
 COND_RESTRAINTED = 14   # RestraintedConditionAction: bound in place (movement disabled) until it expires
 ANNA_BIND_SECONDS = 3.0  # Anna's binding ray
@@ -460,11 +464,11 @@ _HIT = lambda ctype, secs, value=1.0, interval=0.0: (ctype, secs, interval, valu
 _POISON = lambda total, secs=10.0: _HIT(COND_POISON, secs, round(total / secs, 3), 1.0)
 DISC_EFFECTS = {
     # --- ATK(Rush) ---
-    10001: {"blow_off": _RUSH_DISPLACE},                                       # Leorex: high-speed dash pursuit
-    10013: {"blow_off": _RUSH_DISPLACE},                                       # Boarush: dash pursuit
-    10014: {"blow_off": _RUSH_DISPLACE},                                       # Propedile: dash pursuit
-    10096: {"blow_off": _RUSH_DISPLACE, "conditions": [_HIT(COND_ATTACK_RATE, 8.0, 0.7)]},  # Combat Turtle: pursuit + attack down 8 s
-    10118: {"blow_off": _RUSH_DISPLACE},                                       # Airy: dash pursuit
+    10001: {"blow_off": _RUSH_PURSUIT},                                       # Leorex: high-speed dash pursuit
+    10013: {"blow_off": _RUSH_PURSUIT},                                       # Boarush: dash pursuit
+    10014: {"blow_off": _RUSH_PURSUIT},                                       # Propedile: dash pursuit
+    10096: {"blow_off": _RUSH_PURSUIT, "conditions": [_HIT(COND_ATTACK_RATE, 8.0, 0.7)]},  # Combat Turtle: pursuit + attack down 8 s
+    10118: {"blow_off": _RUSH_PURSUIT},                                       # Airy: dash pursuit
     10108: {"heals": [(4, 0.2)]},                                              # Dragarmr: pierce + 20 % SS gauge on hit
     10132: {"heals": [(3, 1.0)]},                                              # Hellark: pierce + recovers 100 % of dealt damage
     # 10010 Giamoth / 10011 Jet Shark / 10012 Rush Blade / 10089 Assault Lance: pierce + shield break = no rows
