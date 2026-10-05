@@ -261,8 +261,11 @@ STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his 
 KICKER_SKILL_EXTRAS = {
     # Ruriha: backstep shot, ice bullets slow the target
     20002: {"conditions": [(COND_SPEED_RATE, 4.0, 0.0, 0.6, TRIGGER_RECEIVE_DAMAGE)]},
-    # Coco: shock dive, the shockwave stuns
-    20003: {"conditions": [(COND_STUN, 1.5, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},
+    # Coco: shock dive slams the target into the ground. HammerSkillAction.AttackEvent builds its DamageCollisionData
+    # without a BlowOffInfo, but PlayerCharacter.GetDamageInfo hands the receiver the KickerSkillParameter (AttackType
+    # KickerSkill), whose BlowOffInfo is this SkillBlowOff row -> PlayerStateBlowOff Down. It used to be a Stun row
+    # (play-test 2026-10: "stuns instead of slamming").
+    20003: {"blow_off": _SLAM},
     20005: {"conditions": [(COND_SILENT, 8.0, 0.0, 1.0, 5), (COND_SILENT, 8.0, 0.0, 1.0, 4)],
             "trap": {"trapType": 2, "duration": 8.0, "radius": 8.0, "effectValue": 0.0}},
     # Grenhawk: slow shot

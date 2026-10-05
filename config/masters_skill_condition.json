@@ -495,15 +495,6 @@
   "triggerType": 1
  },
  {
-  "id": 135,
-  "skillId": 20003,
-  "conditionType": 8,
-  "duration": 1.5,
-  "interval": 0.0,
-  "effectValue": 1.0,
-  "triggerType": 1
- },
- {
   "id": 136,
   "skillId": 20005,
   "conditionType": 9,

@@ -280,6 +280,14 @@
   "directionType": 2
  },
  {
+  "id": 135,
+  "skillId": 20003,
+  "distance": 6.0,
+  "speed": 25.0,
+  "rigorTime": 0.8,
+  "directionType": 2
+ },
+ {
   "id": 143,
   "skillId": 20011,
   "distance": 18.0,
