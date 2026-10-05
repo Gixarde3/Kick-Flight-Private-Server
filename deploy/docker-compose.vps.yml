@@ -80,7 +80,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       HttpPort: "8080"
-      KF_MATCH_WINDOW_SECONDS: ${KF_MATCH_WINDOW_SECONDS:-10.0}
+      KF_MATCH_WINDOW_SECONDS: "120.0"
       GrpcPort: "18081"
       KF_REPO_ROOT: /srv/repo
       PlayerStore__ConnectionString: Host=postgres;Port=5432;Database=kickflight;Username=kickflight;Password=${KF_DB_PASSWORD:-}
