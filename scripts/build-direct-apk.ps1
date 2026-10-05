@@ -72,6 +72,9 @@ try {
     & java -jar $apktool d -s $source -o $decoded
     if ($LASTEXITCODE -ne 0) { throw "Apktool decode failed with exit code $LASTEXITCODE." }
 
+    & python (Join-Path $repo 'scripts\set-apk-version.py') $decoded
+    if ($LASTEXITCODE -ne 0) { throw "Version stamp failed with exit code $LASTEXITCODE." }
+
     $previousForceGameScene = $env:KF_FORCE_GAME_SCENE
     $previousExperimentalAllocators = $env:KF_UNITY_EXPERIMENTAL_ALLOCATORS
     try {
