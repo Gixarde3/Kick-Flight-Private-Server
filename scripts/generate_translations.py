@@ -8,9 +8,10 @@ Translation master renders as an EMPTY string. The master we serve was hand-made
 = `skillCategoryType.<value>`) came out blank.
 
 Key sources (all merged here):
-  * docs/localize_keys.json - the `TranslationInfo._key` of the 1588 LocalizeText components in the APK's UI prefabs
-    (extracted from assets/bin/Data/data.unity3d with UnityPy: MonoBehaviours whose m_Script is LocalizeText 268 /
-    LocalizeTextMeshPro 544, length-prefixed strings that look like `section.name`);
+  * docs/localize_keys.json - the `TranslationInfo._key` of the LocalizeText / LocalizeTextMeshPro / SkewedText
+    components in the APK's UI prefabs (extracted from assets/bin/Data/data.unity3d with UnityPy: MonoBehaviours
+    whose m_Script is LocalizeText 268 / LocalizeTextMeshPro 544 / SkewedText 3281, length-prefixed strings that
+    look like `section.name`);
   * ENUM_KEYS - LocalizeManager.GetText(Enum) builds `<TypeName first-lower>.<ValueName first-lower>` for the 13 enums
     passed to it (PoseDirectionType, PresentListType, SortType, RoleType, MissionListType, GearColorType, ConditionType,
     WeaponType, SkillCategoryType, BattleRuleType, AttackDistanceType, AttackType, AttributeType);
@@ -105,6 +106,18 @@ TEXTS = {
     "setting.exitTrial": "Quit trial", "setting.exitTrialTitle": "Quit trial?", "setting.trialSettingTitle": "Trial settings",
     "setting.exitTutorial": "Quit tutorial", "setting.exitTutorialTitle": "Quit tutorial?",
     "setting.exitReplay": "Quit replay", "setting.exitReplayTitle": "Quit replay?",
+    # Trial settings window row labels (SkewedText components of TrialSettingWindow; were never extracted)
+    "setting.infinitySkill": "Infinite cooldowns", "setting.activeGuardian": "Guardian",
+    "setting.enemySpMax": "Fill enemy SP",
+    "setting.assistKickTurn": "Assist kick turn", "setting.flickSensitivity": "Flick sensitivity",
+    "setting.moveAttackFreeCurve": "Charge turn rate", "setting.swipeSensitivity": "Swipe sensitivity",
+    "setting.dominantHand": "Dominant hand", "setting.tapLockOn": "Tap lock-on",
+    "setting.reverseVerticalSwipe": "Reverse vertical swipe", "setting.reverseVerticalFlick": "Reverse vertical flick",
+    "setting.reverseHorizontalSwipe": "Reverse horizontal swipe", "setting.reverseHorizontalFlick": "Reverse horizontal flick",
+    "setting.graphicsAntiAliasing": "Anti-aliasing", "setting.graphicsBloom": "Bloom", "setting.graphicsBlur": "Blur",
+    "setting.graphicsDof": "Depth of field", "setting.graphicsResolutin": "Resolution",
+    "setting.graphicsShadow": "Shadows", "setting.graphicsStencil": "Stencil mask",
+    "setting.bgm": "BGM", "setting.se": "SE", "setting.voice": "Voice", "setting.vibration": "Vibration",
     "cacheClear.description": "Delete the downloaded game data. It will be downloaded again the next time you play.",
     "common.cacheClear": "Clear cache", "common.language": "Language", "common.languageChangeTitle": "Change language",
     "language.change": "Change language", "languageChangeConfirm.description": "Change the language? The game will restart.",

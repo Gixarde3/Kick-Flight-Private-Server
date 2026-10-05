@@ -5038,5 +5038,125 @@
   "id": 1008,
   "key": "weaponType.twoGuns",
   "text": "Twin guns"
+ },
+ {
+  "id": 1009,
+  "key": "setting.activeGuardian",
+  "text": "Guardian"
+ },
+ {
+  "id": 1010,
+  "key": "setting.assistKickTurn",
+  "text": "Assist kick turn"
+ },
+ {
+  "id": 1011,
+  "key": "setting.bgm",
+  "text": "BGM"
+ },
+ {
+  "id": 1012,
+  "key": "setting.dominantHand",
+  "text": "Dominant hand"
+ },
+ {
+  "id": 1013,
+  "key": "setting.enemySpMax",
+  "text": "Fill enemy SP"
+ },
+ {
+  "id": 1014,
+  "key": "setting.flickSensitivity",
+  "text": "Flick sensitivity"
+ },
+ {
+  "id": 1015,
+  "key": "setting.graphicsAntiAliasing",
+  "text": "Anti-aliasing"
+ },
+ {
+  "id": 1016,
+  "key": "setting.graphicsBloom",
+  "text": "Bloom"
+ },
+ {
+  "id": 1017,
+  "key": "setting.graphicsBlur",
+  "text": "Blur"
+ },
+ {
+  "id": 1018,
+  "key": "setting.graphicsDof",
+  "text": "Depth of field"
+ },
+ {
+  "id": 1019,
+  "key": "setting.graphicsResolutin",
+  "text": "Resolution"
+ },
+ {
+  "id": 1020,
+  "key": "setting.graphicsShadow",
+  "text": "Shadows"
+ },
+ {
+  "id": 1021,
+  "key": "setting.graphicsStencil",
+  "text": "Stencil mask"
+ },
+ {
+  "id": 1022,
+  "key": "setting.infinitySkill",
+  "text": "Infinite cooldowns"
+ },
+ {
+  "id": 1023,
+  "key": "setting.moveAttackFreeCurve",
+  "text": "Charge turn rate"
+ },
+ {
+  "id": 1024,
+  "key": "setting.reverseHorizontalFlick",
+  "text": "Reverse horizontal flick"
+ },
+ {
+  "id": 1025,
+  "key": "setting.reverseHorizontalSwipe",
+  "text": "Reverse horizontal swipe"
+ },
+ {
+  "id": 1026,
+  "key": "setting.reverseVerticalFlick",
+  "text": "Reverse vertical flick"
+ },
+ {
+  "id": 1027,
+  "key": "setting.reverseVerticalSwipe",
+  "text": "Reverse vertical swipe"
+ },
+ {
+  "id": 1028,
+  "key": "setting.se",
+  "text": "SE"
+ },
+ {
+  "id": 1029,
+  "key": "setting.swipeSensitivity",
+  "text": "Swipe sensitivity"
+ },
+ {
+  "id": 1030,
+  "key": "setting.tapLockOn",
+  "text": "Tap lock-on"
+ },
+ {
+  "id": 1031,
+  "key": "setting.vibration",
+  "text": "Vibration"
+ },
+ {
+  "id": 1032,
+  "key": "setting.voice",
+  "text": "Voice"
  }
 ]

@@ -10175,6 +10175,17 @@
 "font": 55
 },
 {
+"key": "setting.title",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/WindowBase/Title",
+"x": 60.0,
+"y": 83.2,
+"w": 960.0,
+"h": 80.0,
+"font": 0
+},
+{
 "key": "setting.exitTrialTitle",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10252,6 +10263,39 @@
 "font": 30
 },
 {
+"key": "setting.swipeSensitivity",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/SwipeSensitivity/Text",
+"x": -415.0,
+"y": 353.2,
+"w": 290.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.bgm",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/SoundSetting/BGM/Text",
+"x": -415.0,
+"y": 357.2,
+"w": 170.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.infinitySkill",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/TrialSetting/InfinitySkill/Text",
+"x": -415.0,
+"y": 357.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10318,6 +10362,50 @@
 "font": 42
 },
 {
+"key": "setting.flickSensitivity",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/FlickSensitivity/Text",
+"x": -415.0,
+"y": 503.2,
+"w": 290.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.enemySpMax",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/TrialSetting/MaxEnemySp/Text",
+"x": -415.0,
+"y": 507.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsResolutin",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/Resolution/Text",
+"x": -373.0,
+"y": 512.2,
+"w": 200.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.se",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/SoundSetting/SE/Text",
+"x": -415.0,
+"y": 516.9,
+"w": 170.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "setting.graphicsLow",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10360,6 +10448,39 @@
 "w": 150.0,
 "h": 50.0,
 "font": 30
+},
+{
+"key": "setting.dominantHand",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/RightHand/Text",
+"x": -415.0,
+"y": 653.2,
+"w": 490.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsBloom",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/Bloom/Text",
+"x": -373.0,
+"y": 656.6,
+"w": 600.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.activeGuardian",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/TrialSetting/ActiveGuardian/Text",
+"x": -415.0,
+"y": 657.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
 },
 {
 "key": "common.on",
@@ -10428,6 +10549,39 @@
 "font": 42
 },
 {
+"key": "setting.voice",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/SoundSetting/Voice/Text",
+"x": -415.0,
+"y": 677.0,
+"w": 170.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.tapLockOn",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/TapLockOn/Text",
+"x": -415.0,
+"y": 803.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsDof",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/DOF/Text",
+"x": -373.0,
+"y": 807.2,
+"w": 600.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10472,6 +10626,17 @@
 "font": 60
 },
 {
+"key": "setting.vibration",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/SoundSetting/Vibration/Text",
+"x": -415.0,
+"y": 837.0,
+"w": 700.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10492,6 +10657,28 @@
 "w": 100.0,
 "h": 100.0,
 "font": 60
+},
+{
+"key": "setting.reverseVerticalSwipe",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/ReverseVerticalSwipe/Text",
+"x": -415.0,
+"y": 953.2,
+"w": 490.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsAntiAliasing",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/AntiAliasing/Text",
+"x": -373.0,
+"y": 956.2,
+"w": 600.0,
+"h": 100.0,
+"font": 0
 },
 {
 "key": "common.on",
@@ -10538,6 +10725,28 @@
 "font": 42
 },
 {
+"key": "setting.reverseHorizontalSwipe",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/ReverseHorizontalSwipe/Text",
+"x": -415.0,
+"y": 1103.2,
+"w": 490.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsStencil",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/Stencil/Text",
+"x": -373.0,
+"y": 1107.2,
+"w": 600.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10580,6 +10789,28 @@
 "w": 150.0,
 "h": 70.0,
 "font": 42
+},
+{
+"key": "setting.reverseVerticalFlick",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/ReverseVerticalFlick/Text",
+"x": -415.0,
+"y": 1253.2,
+"w": 490.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsBlur",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/Blur/Text",
+"x": -373.0,
+"y": 1256.2,
+"w": 600.0,
+"h": 100.0,
+"font": 0
 },
 {
 "key": "common.on",
@@ -10626,6 +10857,28 @@
 "font": 42
 },
 {
+"key": "setting.reverseHorizontalFlick",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/ReverseHorizontalFlick/Text",
+"x": -415.0,
+"y": 1403.2,
+"w": 490.0,
+"h": 100.0,
+"font": 0
+},
+{
+"key": "setting.graphicsShadow",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/GraphicSetting/Shadow/Text",
+"x": -373.0,
+"y": 1404.2,
+"w": 600.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10670,6 +10923,17 @@
 "font": 42
 },
 {
+"key": "setting.assistKickTurn",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/AssistKickTurn/Text",
+"x": -415.0,
+"y": 1553.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
+},
+{
 "key": "common.on",
 "component": "LocalizeText",
 "screen": "TrialSettingWindow",
@@ -10690,6 +10954,17 @@
 "w": 100.0,
 "h": 100.0,
 "font": 60
+},
+{
+"key": "setting.moveAttackFreeCurve",
+"component": "SkewedText",
+"screen": "TrialSettingWindow",
+"path": "TrialSettingWindow/Base/Scroll View/Viewport/Content/BattleSetting/MoveAttackFreeCurve/Text",
+"x": -415.0,
+"y": 1703.2,
+"w": 700.0,
+"h": 100.0,
+"font": 0
 },
 {
 "key": "common.on",

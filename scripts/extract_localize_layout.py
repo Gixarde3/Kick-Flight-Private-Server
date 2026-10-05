@@ -2,8 +2,9 @@
 """Where every localized UI text sits: docs/localize_layout.json for the balance web UI's Text tab.
 
 Reads the APK's built-in Unity data (assets/bin/Data/data.unity3d of a decoded base.apk - .local/build/decoded after
-any .local/build.sh run, or --data <path>) with UnityPy, finds every LocalizeText / LocalizeTextMeshPro component
-(MonoBehaviours whose m_Script is MonoScript 268 / 544 in globalgamemanagers.assets), reads its TranslationInfo._key
+any .local/build.sh run, or --data <path>) with UnityPy, finds every LocalizeText / LocalizeTextMeshPro / SkewedText component
+(MonoBehaviours whose m_Script is MonoScript 268 / 544 / 3281 in globalgamemanagers.assets: LocalizeText,
+LocalizeTextMeshPro and the SkewedText label used by the setting windows), reads its TranslationInfo._key
 from the raw bytes (the MonoBehaviour typetree is stripped) and walks its RectTransform chain to compute an approximate
 rectangle in its root canvas. Unity's anchor maths is applied (anchorMin/Max, pivot, anchoredPosition, sizeDelta);
 roots with a stretched/zero size are assumed to be the 1080x1920 portrait canvas. Layout groups, scroll rects and
@@ -24,7 +25,7 @@ import UnityPy
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATA = ROOT / ".local" / "build" / "decoded" / "assets" / "bin" / "Data" / "data.unity3d"
 OUT = ROOT / "docs" / "localize_layout.json"
-LOCALIZE_SCRIPTS = {268: "LocalizeText", 544: "LocalizeTextMeshPro"}
+LOCALIZE_SCRIPTS = {268: "LocalizeText", 544: "LocalizeTextMeshPro", 3281: "SkewedText"}
 KEY_RE = re.compile(r"^[a-zA-Z][A-Za-z0-9]*\.[A-Za-z0-9_.]+$")
 CANVAS = (1080.0, 1920.0)
 
