@@ -270,12 +270,16 @@ def weapon_tables(kickers: list) -> dict[str, list]:
             # (CollisionDestroyType.Hit). With All it lives out its lifetime even after hitting, and
             # WeaponAttackActionBase.CallbackAttackCollisionDestroy(LifeTime) flags the swing as a miss, drops the
             # target and ResetComboCount() fires - every swing was hit 1 (2026-09-20 KFDIAG 8210 after each swing).
+            # The melee *AttackEvent picks CollisionInitializeInfo.MoveRadius instead of the radius whenever the
+            # attacker is moving (PlayerUpdateTransformInfo.IsMove), so moveRadius 0 made every swing thrown while
+            # chasing a zero-size sphere that could never hit (2026-10-05). Same size moving or standing.
+            radius = 0.8 if ranged else [2.5, 2.5, 3.0][count]
             collision.append({"id": rid, "kickerId": kid, "attackCount": count,
                               "collisionType": COL_SPHERE, "collisionHitType": COLHIT_ONE,
                               "hitLayer": HIT_LAYER_CHARACTERS,
-                              "radius": 0.8 if ranged else [2.5, 2.5, 3.0][count], "length": 0.0,
+                              "radius": radius, "length": 0.0,
                               "originCenterFlag": False, "scaleX": 1.0, "scaleY": 1.0, "scaleZ": 1.0,
-                              "moveRadius": 0.0})
+                              "moveRadius": radius})
             if ranged:
                 bullet.append({"id": rid, "kickerId": kid, "attackCount": count,
                                "distance": float(k.get("attackTargetSearchDistance", 15.0)) + 5.0,
