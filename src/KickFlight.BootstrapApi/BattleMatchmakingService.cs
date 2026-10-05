@@ -176,7 +176,24 @@ public sealed class BattleMatchmakingService
         public List<AssignmentSubscriber> Subscribers { get; } = [];
     }
 
-    private const string MatchmakingNeverExpires = "2030-01-01 00:00:00";
+    /// <summary>
+    /// How long after the room's deadline the client's countdown reaches 0. The client sends /battle/timeout once
+    /// its countdown hits 0 before the full roster arrives, and the window task only fires 50 ms after the
+    /// deadline, so this covers that plus clock drift (the client's "now" is extrapolated from x-app-datetime).
+    /// </summary>
+    private static readonly TimeSpan MatchmakingExpiryMargin = TimeSpan.FromSeconds(3);
+
+    /// <summary>
+    /// The matching countdown is clamp(ceil(expiry - server now), 0, 120) on the client
+    /// (NormalMatchingController.GetMatchingTime), and it keeps only the latest expiry it has seen. So send the real
+    /// deadline, never a far-future placeholder: a 2030 expiry pinned the timer at 120 and could not be lowered.
+    /// The client parses it with DateTimeOffset.TryParse, which reads a bare wall-clock string in the phone's own
+    /// zone (a UTC "now + X" was hours in the past on a UTC+8 phone and timed out, 2026-09-14), so the string
+    /// carries an explicit UTC designator.
+    /// </summary>
+    private static string MatchmakingExpiry(ActiveBattleRoom room) =>
+        (DateTime.SpecifyKind(room.WindowDeadline, DateTimeKind.Utc) + MatchmakingExpiryMargin)
+            .ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// 4v4: eight slots, so four humans per team is also the join cap. Shared by the join check and the bot fill;
@@ -285,7 +302,7 @@ public sealed class BattleMatchmakingService
     // joins extends the deadline (JoinIncrementSeconds); bots fill the empty slots after it expires.
     // KF_MATCH_WINDOW_SECONDS=0 disables the window (start as soon as a second human appears).
     public TimeSpan MatchWindow { get; set; } =
-        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 20.0));
+        TimeSpan.FromSeconds(ParseMatchConfiguration("KF_MATCH_WINDOW_SECONDS", 40.0));
 
     /// <summary>
     /// Seconds the second human adds to the window; each later join adds a tenth of this less: 5, 4.5, 4, ...
@@ -296,7 +313,7 @@ public sealed class BattleMatchmakingService
 
     /// <summary>
     /// How much a join extends the window, counting the joiner: 5 s for the second human, then half a second
-    /// less each time (4.5, 4, ... 2 s for the eighth), so eight humans total 20 + 5 + 4.5 + ... + 2 = 44.5 s.
+    /// less each time (4.5, 4, ... 2 s for the eighth), so eight humans total 40 + 5 + 4.5 + ... + 2 = 64.5 s.
     /// </summary>
     public double JoinIncrementSeconds(int humansInRoom)
     {
@@ -755,10 +772,9 @@ public sealed class BattleMatchmakingService
     {
         return new MatchingBattleInfo
         {
-            // Bare wall-clock string: the client reads it in its own time base, so a UTC "now + 30 min" is already
-            // hours in the past on a phone in UTC+8 and the very first roster update fails with "Timeout" (2026-09-14);
-            // the emulator only worked because its clock runs on UTC. Use the far-future default instead.
-            matchmakingExpirationDatetime = MatchmakingNeverExpires,
+            // Drives the client's countdown. Every join re-sends this roster to all waiting clients
+            // (BroadcastInterimRosterAsync), so they pick up the extended deadline.
+            matchmakingExpirationDatetime = MatchmakingExpiry(room),
             photonCloudRegionId = 1,
             battlePlayerList = BuildHumanEntries(room)
         };
@@ -917,7 +933,7 @@ public sealed class BattleMatchmakingService
         var humanEntries = BuildHumanEntries(selectedPlayers, humanTeams);
         var info = new MatchingBattleInfo
         {
-            matchmakingExpirationDatetime = MatchmakingNeverExpires,
+            matchmakingExpirationDatetime = MatchmakingExpiry(room),
             photonCloudRegionId = 1,
             battlePlayerList = [.. humanEntries]
         };

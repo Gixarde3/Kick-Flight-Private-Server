@@ -213,13 +213,13 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
-    public void Default_window_is_twenty_seconds_and_first_join_increment_is_five()
+    public void Default_window_is_forty_seconds_and_first_join_increment_is_five()
     {
         var service = CreateService(fastWindow: false);
 
         if (Environment.GetEnvironmentVariable("KF_MATCH_WINDOW_SECONDS") is null)
         {
-            Assert.Equal(20.0, service.MatchWindow.TotalSeconds, 3);
+            Assert.Equal(40.0, service.MatchWindow.TotalSeconds, 3);
         }
         if (Environment.GetEnvironmentVariable("KF_MATCH_JOIN_INCREMENT_SECONDS") is null)
         {
@@ -228,7 +228,7 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
-    public void Join_increments_are_5_then_half_a_second_less_per_human_for_44_5_total()
+    public void Join_increments_are_5_then_half_a_second_less_per_human_for_64_5_total()
     {
         var service = CreateService(fastWindow: false);
         service.JoinIncrementBaseSeconds = 5.0;
@@ -240,8 +240,8 @@ public sealed class BattleMatchmakingTests
             Assert.Equal(expected[humans - 2], service.JoinIncrementSeconds(humans), 3);
         }
 
-        var total = 20.0 + Enumerable.Range(2, 7).Sum(service.JoinIncrementSeconds);
-        Assert.Equal(44.5, total, 3);
+        var total = 40.0 + Enumerable.Range(2, 7).Sum(service.JoinIncrementSeconds);
+        Assert.Equal(64.5, total, 3);
 
         service.JoinIncrementBaseSeconds = 0;
         Assert.Equal(0, Enumerable.Range(1, 8).Sum(service.JoinIncrementSeconds), 3);
@@ -305,6 +305,38 @@ public sealed class BattleMatchmakingTests
             .First(item => Roster(item.response.Assignment).Count == 8);
         var elapsed = writer1.WriteTimes[fullRosterWrite.index] - writer1.WriteTimes[0];
         Assert.InRange(elapsed.TotalSeconds, 1.8, 2.8);
+    }
+
+    [Fact]
+    public async Task Expiry_is_the_real_utc_deadline_and_moves_out_with_each_join()
+    {
+        var service = CreateService(fastWindow: false);
+        service.MatchWindow = TimeSpan.FromSeconds(1);
+        service.JoinIncrementBaseSeconds = 1.0;
+
+        var (_, ticket1) = service.RegisterEntry("1000001", "Player 0001", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (_, ticket2) = service.RegisterEntry("1000002", "Player 0002", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var cancellation1 = new CancellationTokenSource();
+        using var cancellation2 = new CancellationTokenSource();
+        var writer1 = new CollectingWriter(expectedCount: 4, cancellation1);
+        var writer2 = new CollectingWriter(expectedCount: 3, cancellation2);
+
+        var opened = DateTimeOffset.UtcNow;
+        var stream1 = service.StreamAssignmentsAsync(ticket1, writer1, cancellation1.Token);
+        await writer1.FirstWrite;
+        var stream2 = service.StreamAssignmentsAsync(ticket2, writer2, cancellation2.Token);
+
+        await Task.WhenAll(writer1.WaitForExpectedWritesAsync(), writer2.WaitForExpectedWritesAsync());
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream1);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream2);
+
+        // Stage 1, the interim roster after the join, Stage 2: base 1 s + 3 s margin, then +1 s for the join.
+        var expiries = writer1.Responses.Take(3).Select(response => Expiry(response.Assignment)).ToList();
+        Assert.All(expiries, expiry => Assert.Equal(TimeSpan.Zero, expiry.Offset));
+        Assert.InRange((expiries[0] - opened).TotalSeconds, 3.0, 5.0);
+        Assert.InRange((expiries[1] - expiries[0]).TotalSeconds, 0.5, 1.5);
+        Assert.Equal(expiries[1], expiries[2]);
+        Assert.True(expiries[2] < opened.AddMinutes(1), "the client keeps the latest expiry, so it must never be far-future");
     }
 
     [Fact]
@@ -626,6 +658,16 @@ public sealed class BattleMatchmakingTests
             .EnumerateArray()
             .Select(entry => entry.Clone())
             .ToList();
+    }
+
+    private static DateTimeOffset Expiry(Assignment assignment)
+    {
+        var battleJson = assignment.Properties.Fields["battle"].StructValue.ToString();
+        using var document = JsonDocument.Parse(battleJson);
+        var raw = document.RootElement.GetProperty("matchmakingExpirationDatetime").GetString()!;
+        // The client uses DateTimeOffset.TryParse with default styles.
+        Assert.True(DateTimeOffset.TryParse(raw, out var expiry), $"unparseable expiry '{raw}'");
+        return expiry;
     }
 
     private static int Bots(Assignment assignment)
