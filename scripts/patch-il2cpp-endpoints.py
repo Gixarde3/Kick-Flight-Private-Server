@@ -2073,14 +2073,17 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
         # must own everything, otherwise e.g. AcceptCancelWarp (`if (!IsMine) return`) never ends the bots' warp-in
         # and AIPlayerEngine.ManagedUpdate parks in WaitForWarpOut forever. Cave lives in the dead body of the stubbed
         # ReplayManager.get_ReplayMode.
+        # 2026-10-06: Trial (BattleRuleInfo.IsTrial) gets MenuType.Trial = 4 again, as in the pristine method (TrialSettingWindow
+        # with the End button and the infinite-cooldown toggle). Pristine GetMenuType cannot be re-entered (its body holds
+        # production and DIAG caves), so the cave re-implements spectator -> 6, Trial -> 4, else 0. Source: scripts/re/menu_type_cave.py.
         {
-            "description": "cave: preserve current patched behavior for normal play, return spectator menu type 6 only for TeamColorType 2 (GetMyTeamType)",
+            "description": "cave: GetMenuType -> 6 for TeamColorType 2 (spectator), 4 for a Trial battle, else 0 (normal and custom battles unchanged)",
             "offset": 0x13CE4B0,
-            "expected": bytes.fromhex("a800083608d840b96800003529a3f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bd"),
-            "replacement": bytes.fromhex("fd7bbfa9fd0300919baa07941f080071c800805200019f1afd7bc1a8c0035fd6"),
+            "expected": bytes.fromhex("a800083608d840b96800003529a3f897a00240f9085c40f9e00313aae1031faa2dc1201e0a2d402d0c0940bda6af0094f40300aa540000b54117f997e00314aae1031faac6ff1d94041ca04ea01dad4e"),
+            "replacement": bytes.fromhex("fd7bbfa9fd0300919baa07941f08007160010054e0031faad4387894400100b4001841f9000100b4081840b91f910171a10000548000805204000014c000805202000014e0031f2afd7bc1a8c0035fd6"),
         },
         {
-            "description": "GameManager.GetMenuType entry: branch to spectator-aware compatibility cave (normal modes remain MenuType 0)",
+            "description": "GameManager.GetMenuType entry: branch to the spectator/Trial-aware cave (normal modes remain MenuType 0)",
             "offset": 0x1570EA8,
             "expected": bytes.fromhex("f44fbea9fd7b01a9"),
             "replacement": bytes.fromhex("8275f9171f2003d5"),  # b 0x13CE4B0; nop
