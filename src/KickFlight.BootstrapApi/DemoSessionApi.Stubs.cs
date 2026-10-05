@@ -28,9 +28,10 @@ public sealed partial class DemoSessionApi
     {
         switch (path)
         {
-            // Client telemetry; AnalysisResponseData carries no fields.
+            // Client telemetry; AnalysisResponseData carries no fields. Recorded by DemoSessionApi.Analysis.cs,
+            // which always returns the same empty success object and never lets a failure reach the client.
             case "/analysis/index":
-                return OkJson(context, key, "{}");
+                return await HandleAnalysisIndexAsync(context, state, key);
 
             // FollowStatus in every row below is the neutral 0 (none).
             case "/follow/search":
