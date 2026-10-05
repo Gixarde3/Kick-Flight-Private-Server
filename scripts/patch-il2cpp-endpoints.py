@@ -647,38 +647,6 @@ def _attack_interval_patches() -> list[dict[str, object]]:
     return out
 
 
-# Knockback hitstun. PlayerStateKnockBack (the stagger of a knockBackFlag hit: basic-attack combo finishers, special
-# skill hits) has no master data: UpdateAction counts `t = Min(t + dt, 0.5)` and returns to PlayerStateNormal once
-# t >= 0.5, both against the single `fmov s8, #0.5` at 0x17DA75C. It is scaled by the same DISPLACEMENT_HITSTUN_SCALE
-# the combat-master generator applies to every blow-off rigorTime, so one constant tunes all displacement hitstun.
-# The new value must be an fmov immediate (+-n/16 x 2^e, n 16..31, e -3..4: 0.75, 0.625, 1.0, 1.25 ... all fit).
-_KNOCKBACK_STATE_SECONDS = 0.5
-_KNOCKBACK_FMOV_AT = 0x17DA75C
-
-
-def _fmov_s8_imm(value: float) -> bytes:
-    import struct as _struct
-    for imm8 in range(256):
-        b6 = (imm8 >> 6) & 1
-        exp = ((b6 ^ 1) << 7) | (0x7C if b6 else 0) | ((imm8 >> 4) & 3)
-        bits = ((imm8 >> 7) << 31) | (exp << 23) | ((imm8 & 0xF) << 19)
-        if _struct.unpack("<f", _struct.pack("<I", bits))[0] == value:
-            return _struct.pack("<I", 0x1E201008 | (imm8 << 13))
-    raise SystemExit(f"knockback hitstun {value} s is not an fmov immediate; pick a scale that gives one (e.g. 1.25, 1.5, 2.0)")
-
-
-def _knockback_hitstun_patches() -> list[dict[str, object]]:
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from generate_combat_masters import DISPLACEMENT_HITSTUN_SCALE
-    seconds = _KNOCKBACK_STATE_SECONDS * DISPLACEMENT_HITSTUN_SCALE
-    if seconds == _KNOCKBACK_STATE_SECONDS:
-        return []
-    return [{"description": f"PlayerStateKnockBack hitstun {_KNOCKBACK_STATE_SECONDS} -> {seconds} s "
-                            f"(DISPLACEMENT_HITSTUN_SCALE {DISPLACEMENT_HITSTUN_SCALE})",
-             "offset": _KNOCKBACK_FMOV_AT, "expected": _fmov_s8_imm(_KNOCKBACK_STATE_SECONDS),
-             "replacement": _fmov_s8_imm(seconds)}]
-
-
 # Matchmaking flow. The offline set bridges matchmaking completion straight into a local (bot-filled) room and never
 # touches Photon; the Photon set joins the room on a LuxonServer after /battle/start. They cannot coexist in one
 # binary (whichever callback fires first wins, the other flow hangs in the lobby), so KF_PHOTON=1 selects the
@@ -2207,7 +2175,6 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "replacement": bytes.fromhex("bc56f897"),
         }] if READY_SCENE else []),
         *_attack_interval_patches(),
-        *_knockback_hitstun_patches(),
         # Diagnostics: KF_DIAG=1 installs the full KFDIAG probe set (regions relocated out of LoadDeckSummonModel on
         # 2026-09-20 so disc pets still load); KF_RESULT_DIAG=1 installs only the isolated ResultManager/ResultScene
         # trace with its own logger caves (the two are mutually exclusive, see the check below the lists).

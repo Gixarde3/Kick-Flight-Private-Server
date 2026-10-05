@@ -66,9 +66,10 @@ ONE_SHOT_FIXED_DAMAGE = 999999
 #                               stagger (PlayerStateKnockBack) moves nobody, so there is no distance to scale for them.
 #   DISPLACEMENT_HITSTUN_SCALE  x every blow-off `rigorTime` (the stun after landing: PlayerStateBlowOff.StateDuration =
 #                               base + rigorTime; launch, slam, push and the rush pursuit all go through it).
-#                               patch-il2cpp-endpoints.py imports it for the hard-coded 0.5 s of PlayerStateKnockBack
-#                               (basic-attack / special knockBackFlag hits) - that part is a CLIENT patch and needs an
-#                               APK rebuild. Pull-in has no stun column and no patch (PlayerStatePullIn constants).
+#                               The hard-coded 0.5 s of PlayerStateKnockBack (basic-attack / special knockBackFlag
+#                               hits, `fmov s8, #0.5` at 0x17DA75C) is NOT scaled: that would be a client patch and is
+#                               on hold until the data-only change is play-tested. Pull-in has no stun column
+#                               (PlayerStatePullIn constants).
 KNOCKBACK_DISTANCE_SCALE = 1.5
 DISPLACEMENT_HITSTUN_SCALE = 1.5
 
