@@ -83,6 +83,13 @@ DISC_SKILLS_WITH_SENSOR_COLLIDER = {10054}
 # MissTargetDirection, which is the "shoots backwards while dashing" of Pyronkey / Spunkle / Tigre. AutoMoveSkillAction
 # has no OnCreateCollider, so as type 22 they dashed and never fired (phone report 2026-09-20).
 DISC_ACTION_TYPE_OVERRIDES = {10027: 1, 10079: 1, 10112: 1}
+# Skill.targetAreaType picks the aim preview a kicker skill shows while its button is held: SkillActionBase.CreateTargetArea
+# kicks trigger (targetAreaType + 0/1/2) of the common target-area effect (EffectPath 0x15). TargetAreaType (metadata
+# constants): 0 None, 2 Cube, 5 Cylinder, 8 Sphere, 11 CylinderLong, 14 Plane, 17 Cone. Trigger 17/18 is also what
+# LaserSkillAction.get_TargetAreaTrigger hard-codes for Sid's statue placement, so a kicker skill served 17 previews
+# Sid's construct. PunchGloveSkillAction (Diatrius) sizes its preview from the kicker-skill collision EndScale and its
+# IsTargetInArea is SkillActionBase.IsInBox, i.e. a box: Cube.
+KICKER_SKILL_TARGET_AREA = {20011: 2}
 
 
 def load(name: str):
@@ -118,6 +125,10 @@ def remap_skill_ids(force: bool) -> tuple[list, list]:
             # Skill id 1 with skillType 3 is the guardian's eye laser (Guardian.skillId), left alone.
             row["id"] = KICKER_SKILL_BASE + row["id"]
             row["skillType"] = 2  # Kicker
+            changed = True
+        if row["skillType"] == 2 and row["id"] in KICKER_SKILL_TARGET_AREA \
+                and row.get("targetAreaType") != KICKER_SKILL_TARGET_AREA[row["id"]]:
+            row["targetAreaType"] = KICKER_SKILL_TARGET_AREA[row["id"]]
             changed = True
         # DiscSkillParameter.GetSkillAction only knows action types 1-8, 21, 22; KickerSkillParameter.GetSkillAction
         # only knows the weapon types 9-20, 23, 24. Anything else returns null and the skill state soft-locks

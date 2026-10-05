@@ -2135,7 +2135,7 @@
   "skillType": 2,
   "skillActionType": 16,
   "skillCategoryType": 0,
-  "targetAreaType": 17,
+  "targetAreaType": 2,
   "coolTime": 7,
   "range": 9.0,
   "speed": 18.0,
