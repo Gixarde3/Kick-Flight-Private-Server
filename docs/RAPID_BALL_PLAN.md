@@ -1,5 +1,17 @@
 # Rapid Ball (Bola rápida, `battleRuleType` 3) — feature plan (2026-09-19)
 
+## Ranked mode rotation (implemented 2026-10-05)
+
+Ranked (`matchType: 2`) now rotates in global UTC hour blocks: Crystal Scramble (rule 7) → Flag Flight
+(rule 8) → Rapid Ball (rule 4), repeating every three hours. `RankedModeRotation` generates a persistent 24-row
+JST schedule (8 windows per mode); JST is UTC+9, so its slots align with the global three-hour cycle. Entry
+requests carrying an expired ranked rule are rejected, while a ticket/room already created keeps its original
+rule through battle start and result.
+
+The hourly change is automatic and does not require a server restart. Restart the server once when deploying this
+implementation so it loads the updated code and rule masters; clients can use the full daily schedule without
+downloading a new schedule each hour.
+
 Goal: Bola rápida is selectable from the Home mode switch and a solo match vs bots plays end to end on the
 client: GameScene renders the ball variant of the arena, balls spawn at the field's own spawn points, each goal
 holds a revivable Guardian (6 HP steps) that must be destroyed before the team can score, bots play the mode,

@@ -21,6 +21,7 @@ builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<MaintenanceState>();
 builder.Services.AddSingleton<ClientUpdateState>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
 // Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
