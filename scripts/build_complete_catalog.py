@@ -209,6 +209,7 @@ def main() -> None:
                     # add es and en aliases
                     names.append(name.replace("localize/zh/", "localize/es/"))
                     names.append(name.replace("localize/zh/", "localize/en/"))
+                    names.append(name.replace("localize/zh/", "localize/ja/"))
 
                 entries.append({
                     "id": f"unity-bundle-{octo_id_counter}",

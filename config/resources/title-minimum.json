@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 36,
+  "revision": 37,
   "fromRevisions": [
     0,
     1,
@@ -39,7 +39,8 @@
     33,
     34,
     35,
-    36
+    36,
+    37
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [
@@ -2747,7 +2748,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052029.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052029.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052029.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052029.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052029.unity3d"
       ],
       "objectName": "0CLzyC",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4130434C7A7943_92af62f9b540c0459f284cd8b8eca528.bundle",
@@ -2977,7 +2979,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052027.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052027.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052027.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052027.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052027.unity3d"
       ],
       "objectName": "0XRqE2",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41305852714532_f66993a5a041cd186297c0d5dd3ffbf5.bundle",
@@ -3003,7 +3006,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051008.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051008.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051008.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051008.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051008.unity3d"
       ],
       "objectName": "0dsyTi",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41306473795469_d0ca933878ed17b0fd24393804b50ca3.bundle",
@@ -3185,7 +3189,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052046.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052046.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052046.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052046.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052046.unity3d"
       ],
       "objectName": "15l5Ks",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4131356C354B73_f4242e524f07dc8e37962838f58ae730.bundle",
@@ -3283,7 +3288,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052050.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052050.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052050.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052050.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052050.unity3d"
       ],
       "objectName": "1BxflR",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41314278666C52_a01f8b89ffd9be58c8140a64210f0228.bundle",
@@ -3417,7 +3423,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051004.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051004.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051004.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051004.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051004.unity3d"
       ],
       "objectName": "1P4AiG",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41315034416947_f43ffa83eea072a8da7ec7c9a62c967b.bundle",
@@ -3491,7 +3498,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052037.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052037.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052037.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052037.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052037.unity3d"
       ],
       "objectName": "1hZyCk",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4131685A79436B_abdaf17a3c483ed580c9d97cc966571c.bundle",
@@ -3517,7 +3525,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052024.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052024.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052024.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052024.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052024.unity3d"
       ],
       "objectName": "1hyo1r",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/413168796F3172_f8b58584df3daaa3e1925d7657df400b.bundle",
@@ -3651,7 +3660,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052047.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052047.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052047.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052047.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052047.unity3d"
       ],
       "objectName": "1tJMvH",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4131744A4D7648_0b6ec8248d8255dbc651f827a4d979a8.bundle",
@@ -4685,7 +4695,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052044.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052044.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052044.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052044.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052044.unity3d"
       ],
       "objectName": "3sXiPP",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41337358695050_683cbd8d7d77082887e8b24bdb49a382.bundle",
@@ -5143,7 +5154,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051009.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051009.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051009.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051009.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051009.unity3d"
       ],
       "objectName": "4pZ4cr",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4134705A346372_4380e32171ff8b65e78dad4976a5b432.bundle",
@@ -5901,7 +5913,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052019.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052019.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052019.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052019.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052019.unity3d"
       ],
       "objectName": "6K9gpn",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41364B3967706E_a99e52f64ba45e569408a51cd9c416ca.bundle",
@@ -5975,7 +5988,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052018.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052018.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052018.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052018.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052018.unity3d"
       ],
       "objectName": "6Y8Oiv",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/413659384F6976_e890b3fd312954137eefa5a798313bf3.bundle",
@@ -6373,7 +6387,8 @@
       "names": [
         "ui/localize/zh/atlas/in_game_03.unity3d",
         "ui/localize/es/atlas/in_game_03.unity3d",
-        "ui/localize/en/atlas/in_game_03.unity3d"
+        "ui/localize/en/atlas/in_game_03.unity3d",
+        "ui/localize/ja/atlas/in_game_03.unity3d"
       ],
       "objectName": "7ZaZkA",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41375A615A6B41_1e8485d395d8717704b51f541b2ed138.bundle",
@@ -6654,7 +6669,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052056.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052056.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052056.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052056.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052056.unity3d"
       ],
       "objectName": "81BLQb",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/413831424C5162_43588a439aa8446979643732604b7ebe.bundle",
@@ -6668,7 +6684,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052040.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052040.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052040.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052040.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052040.unity3d"
       ],
       "objectName": "86l16L",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4138366C31364C_4ce047e513ef23188718a9b1b1f60b12.bundle",
@@ -6718,7 +6735,8 @@
       "names": [
         "effect/localize/zh/ui/ef_ui_008/ef_ui_008.unity3d",
         "effect/localize/es/ui/ef_ui_008/ef_ui_008.unity3d",
-        "effect/localize/en/ui/ef_ui_008/ef_ui_008.unity3d"
+        "effect/localize/en/ui/ef_ui_008/ef_ui_008.unity3d",
+        "effect/localize/ja/ui/ef_ui_008/ef_ui_008.unity3d"
       ],
       "objectName": "8A5L0v",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/413841354C3076_3245e16de398564951b2207884ea8115.bundle",
@@ -7308,7 +7326,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052004.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052004.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052004.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052004.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052004.unity3d"
       ],
       "objectName": "9Nrbtu",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41394E72627475_dfbfb6e56f7195c96e183919845a7a9d.bundle",
@@ -7466,7 +7485,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052063.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052063.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052063.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052063.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052063.unity3d"
       ],
       "objectName": "9eh894",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41396568383934_f21117f251ae170c4744a1cfc62d357c.bundle",
@@ -7924,7 +7944,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051012.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051012.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051012.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051012.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051012.unity3d"
       ],
       "objectName": "AmAqPC",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41416D41715043_24d474f9ee421ce712e00b6a44d979c7.bundle",
@@ -7938,7 +7959,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052053.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052053.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052053.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052053.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052053.unity3d"
       ],
       "objectName": "AmaKS2",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41416D614B5332_3e806d6cef3f213db49d0acffdbd54ca.bundle",
@@ -9008,7 +9030,8 @@
       "names": [
         "ui/localize/zh/atlas/out_game_00.unity3d",
         "ui/localize/es/atlas/out_game_00.unity3d",
-        "ui/localize/en/atlas/out_game_00.unity3d"
+        "ui/localize/en/atlas/out_game_00.unity3d",
+        "ui/localize/ja/atlas/out_game_00.unity3d"
       ],
       "objectName": "D4DcY7",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41443444635937_f4815d4372006a612f3ba83a82bc029b.bundle",
@@ -9046,7 +9069,8 @@
       "names": [
         "ui/localize/zh/tips/tips_14.unity3d",
         "ui/localize/es/tips/tips_14.unity3d",
-        "ui/localize/en/tips/tips_14.unity3d"
+        "ui/localize/en/tips/tips_14.unity3d",
+        "ui/localize/ja/tips/tips_14.unity3d"
       ],
       "objectName": "D7C8HA",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41443743384841_7b81f30b9834fe8421ef0c33c68b157b.bundle",
@@ -9072,7 +9096,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052008.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052008.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052008.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052008.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052008.unity3d"
       ],
       "objectName": "D83zGR",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414438337A4752_ef0489fa7a3ccccc29fddf94f64ae819.bundle",
@@ -9242,7 +9267,8 @@
       "names": [
         "ui/localize/zh/banner/gacha/banner_gacha_101.unity3d",
         "ui/localize/es/banner/gacha/banner_gacha_101.unity3d",
-        "ui/localize/en/banner/gacha/banner_gacha_101.unity3d"
+        "ui/localize/en/banner/gacha/banner_gacha_101.unity3d",
+        "ui/localize/ja/banner/gacha/banner_gacha_101.unity3d"
       ],
       "objectName": "DPtML3",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414450744D4C33_0f66bdf6cc57a5a68160bacd828d0d30.bundle",
@@ -9280,7 +9306,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052059.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052059.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052059.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052059.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052059.unity3d"
       ],
       "objectName": "DS2D6O",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4144533244364F_998bf306dfab629cedbed00898760b2e.bundle",
@@ -9342,7 +9369,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051006.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051006.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051006.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051006.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051006.unity3d"
       ],
       "objectName": "DWtlWP",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414457746C5750_fc9818dc8055b50690fa5753eefa3ebd.bundle",
@@ -10472,7 +10500,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052048.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052048.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052048.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052048.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052048.unity3d"
       ],
       "objectName": "GaJkP9",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4147614A6B5039_dfb1f42f79d4723072c6d0a3fef4b12f.bundle",
@@ -10594,7 +10623,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051011.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051011.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051011.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051011.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051011.unity3d"
       ],
       "objectName": "GsY5YL",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4147735935594C_34c92169082541ef6fa7aa790b68f57b.bundle",
@@ -10896,7 +10926,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051007.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051007.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051007.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051007.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051007.unity3d"
       ],
       "objectName": "HjZvC1",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41486A5A764331_d2b3acdf46a6476f3e2fc554a5afa2d1.bundle",
@@ -11654,7 +11685,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052049.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052049.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052049.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052049.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052049.unity3d"
       ],
       "objectName": "JZ3h0p",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414A5A33683070_035f42e8c75b3b6a8003051bfbd81347.bundle",
@@ -11752,7 +11784,8 @@
       "names": [
         "ui/localize/zh/tips/tips_10.unity3d",
         "ui/localize/es/tips/tips_10.unity3d",
-        "ui/localize/en/tips/tips_10.unity3d"
+        "ui/localize/en/tips/tips_10.unity3d",
+        "ui/localize/ja/tips/tips_10.unity3d"
       ],
       "objectName": "Jiwf4A",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414A6977663441_b774daf76c9a9c597ea07e6c0db9145c.bundle",
@@ -12126,7 +12159,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052038.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052038.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052038.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052038.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052038.unity3d"
       ],
       "objectName": "KePEbw",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414B6550456277_9d92c92dac1ea88d5fdc0e27fe1a3772.bundle",
@@ -13124,7 +13158,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052017.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052017.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052017.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052017.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052017.unity3d"
       ],
       "objectName": "N2YjCT",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414E32596A4354_435c545156deee911e7b271165538c80.bundle",
@@ -13198,7 +13233,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052003.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052003.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052003.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052003.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052003.unity3d"
       ],
       "objectName": "N9WVCQ",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414E3957564351_23bdde62dc6e5b843ec0fe7427219d83.bundle",
@@ -13464,7 +13500,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052006.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052006.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052006.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052006.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052006.unity3d"
       ],
       "objectName": "NgGiKX",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414E6747694B58_1fdbb14d3ad1dea6b5b9b7dbd7a5c337.bundle",
@@ -13598,7 +13635,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051003.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051003.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051003.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051003.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051003.unity3d"
       ],
       "objectName": "OFO64u",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414F464F363475_77db5873f405f84587fecd74689b6674.bundle",
@@ -13828,7 +13866,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052041.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052041.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052041.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052041.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052041.unity3d"
       ],
       "objectName": "OjIY0V",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/414F6A49593056_0a7f86d40ebb53a07a418c8b430a5e34.bundle",
@@ -14106,7 +14145,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052010.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052010.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052010.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052010.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052010.unity3d"
       ],
       "objectName": "PQk1l9",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4150516B316C39_169de2984b91a2cf2a74264a41a485d7.bundle",
@@ -14144,7 +14184,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052007.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052007.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052007.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052007.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052007.unity3d"
       ],
       "objectName": "PROigL",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4150524F69674C_6dd81f67aafa7fed521a0d0fd889654e.bundle",
@@ -14410,7 +14451,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052013.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052013.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052013.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052013.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052013.unity3d"
       ],
       "objectName": "Px5HcE",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41507835486345_d7d42a3a60a96177366b219f504e8391.bundle",
@@ -14652,7 +14694,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052061.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052061.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052061.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052061.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052061.unity3d"
       ],
       "objectName": "QbrY7d",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41516272593764_cdc1bd2eb30aeeeb5f80d05d738cc9e3.bundle",
@@ -15506,7 +15549,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052057.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052057.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052057.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052057.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052057.unity3d"
       ],
       "objectName": "SWdndN",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415357646E644E_463887d147b3ddacae5dc4d8e99bb350.bundle",
@@ -15532,7 +15576,8 @@
       "names": [
         "ui/localize/zh/tips/tips_13.unity3d",
         "ui/localize/es/tips/tips_13.unity3d",
-        "ui/localize/en/tips/tips_13.unity3d"
+        "ui/localize/en/tips/tips_13.unity3d",
+        "ui/localize/ja/tips/tips_13.unity3d"
       ],
       "objectName": "SY0MS5",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415359304D5335_bb74db5971ed90520a344507a696cc9d.bundle",
@@ -16014,7 +16059,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052034.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052034.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052034.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052034.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052034.unity3d"
       ],
       "objectName": "TY9ccX",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41545939636358_ce9348afe3c96b6a534a80b1e1d0ee4c.bundle",
@@ -16340,7 +16386,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052051.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052051.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052051.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052051.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052051.unity3d"
       ],
       "objectName": "UQk19l",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4155516B31396C_8c2b92765c7d154c721d48161cd277ab.bundle",
@@ -16918,7 +16965,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052052.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052052.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052052.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052052.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052052.unity3d"
       ],
       "objectName": "VnQPJu",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41566E51504A75_2dd4f8543cb45b0673165e8d4282b6ce.bundle",
@@ -17688,7 +17736,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052033.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052033.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052033.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052033.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052033.unity3d"
       ],
       "objectName": "XBEyU2",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41584245795532_3f086287236b9fa8391e1f7df377c757.bundle",
@@ -18098,7 +18147,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052020.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052020.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052020.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052020.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052020.unity3d"
       ],
       "objectName": "XtbHuN",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4158746248754E_9e02a4a250aea5fd2080e7fc8ba7998d.bundle",
@@ -18196,7 +18246,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052032.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052032.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052032.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052032.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052032.unity3d"
       ],
       "objectName": "YBBdZt",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41594242645A74_533ee7400f0c59e161651067f0585286.bundle",
@@ -18582,7 +18633,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052009.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052009.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052009.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052009.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052009.unity3d"
       ],
       "objectName": "Z03Cms",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A3033436D73_c84febb6c7e139810323c0f5a13aafdd.bundle",
@@ -18836,7 +18888,8 @@
       "names": [
         "ui/localize/zh/stamp/tab/thumbnail_text.unity3d",
         "ui/localize/es/stamp/tab/thumbnail_text.unity3d",
-        "ui/localize/en/stamp/tab/thumbnail_text.unity3d"
+        "ui/localize/en/stamp/tab/thumbnail_text.unity3d",
+        "ui/localize/ja/stamp/tab/thumbnail_text.unity3d"
       ],
       "objectName": "ZYHryl",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A594872796C_0fb73cadca3d0a7d741afcd2a57d92d7.bundle",
@@ -18934,7 +18987,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052012.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052012.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052012.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052012.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052012.unity3d"
       ],
       "objectName": "ZlLHsx",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A6C4C487378_c0955773fca29bb498825f2465ffd6ea.bundle",
@@ -18984,7 +19038,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052026.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052026.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052026.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052026.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052026.unity3d"
       ],
       "objectName": "Zp3a8C",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A7033613843_66ccff27ba97a579a0a2a0907b194c28.bundle",
@@ -19022,7 +19077,8 @@
       "names": [
         "ui/localize/zh/tips/tips_02.unity3d",
         "ui/localize/es/tips/tips_02.unity3d",
-        "ui/localize/en/tips/tips_02.unity3d"
+        "ui/localize/en/tips/tips_02.unity3d",
+        "ui/localize/ja/tips/tips_02.unity3d"
       ],
       "objectName": "ZsPAp2",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A7350417032_c295a1bdcd56951d610c44149382dd8b.bundle",
@@ -19048,7 +19104,8 @@
       "names": [
         "ui/localize/zh/banner/gacha/banner_gacha_000.unity3d",
         "ui/localize/es/banner/gacha/banner_gacha_000.unity3d",
-        "ui/localize/en/banner/gacha/banner_gacha_000.unity3d"
+        "ui/localize/en/banner/gacha/banner_gacha_000.unity3d",
+        "ui/localize/ja/banner/gacha/banner_gacha_000.unity3d"
       ],
       "objectName": "Zssg3a",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/415A7373673361_b5a561d2e9ce1de235ca4ec891a0fad8.bundle",
@@ -19326,7 +19383,8 @@
       "names": [
         "font/localize/zh/font.unity3d",
         "font/localize/es/font.unity3d",
-        "font/localize/en/font.unity3d"
+        "font/localize/en/font.unity3d",
+        "font/localize/ja/font.unity3d"
       ],
       "objectName": "aExw6m",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4161457877366D_5b1630a9640c20a132829ad1d7821900.bundle",
@@ -19388,7 +19446,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051002.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051002.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051002.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051002.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051002.unity3d"
       ],
       "objectName": "aGlZyQ",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4161476C5A7951_ac1d6558e32605c3f8f076f2a6a0099c.bundle",
@@ -20554,7 +20613,8 @@
       "names": [
         "ui/localize/zh/atlas/in_game_00.unity3d",
         "ui/localize/es/atlas/in_game_00.unity3d",
-        "ui/localize/en/atlas/in_game_00.unity3d"
+        "ui/localize/en/atlas/in_game_00.unity3d",
+        "ui/localize/ja/atlas/in_game_00.unity3d"
       ],
       "objectName": "ci2pIa",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41636932704961_4eba375610ed081777cec3870d6cd07b.bundle",
@@ -20880,7 +20940,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052022.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052022.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052022.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052022.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052022.unity3d"
       ],
       "objectName": "dLpzP4",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41644C707A5034_aaddf5861af7dc739f675abc5615593b.bundle",
@@ -20930,7 +20991,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052054.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052054.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052054.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052054.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052054.unity3d"
       ],
       "objectName": "dUYosJ",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416455596F734A_579288a5d0dd1260f79b7bd23f995010.bundle",
@@ -21052,7 +21114,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052028.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052028.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052028.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052028.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052028.unity3d"
       ],
       "objectName": "dsiKwA",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416473694B7741_d22d813359ca7e25f9a89c1328ce92b2.bundle",
@@ -21246,7 +21309,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052055.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052055.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052055.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052055.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052055.unity3d"
       ],
       "objectName": "eWF5Je",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41655746354A65_6e5c1ce86053469475f9eb93bf5b9abd.bundle",
@@ -21764,7 +21828,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051014.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051014.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051014.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051014.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051014.unity3d"
       ],
       "objectName": "fTPjSC",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416654506A5343_cc76a441d65c09024560ec8a94eda46c.bundle",
@@ -22018,7 +22083,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051001.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051001.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051001.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051001.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051001.unity3d"
       ],
       "objectName": "g2TJWX",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416732544A5758_4b2d692c0635adda2a1c8d3ea33e2cf8.bundle",
@@ -22548,7 +22614,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052025.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052025.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052025.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052025.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052025.unity3d"
       ],
       "objectName": "h1gsDq",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41683167734471_7172bdc134c147fe789408daa38fa911.bundle",
@@ -23282,7 +23349,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052011.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052011.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052011.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052011.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052011.unity3d"
       ],
       "objectName": "izLKlh",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41697A4C4B6C68_0327845bc8652e0f34d79244f73a9a98.bundle",
@@ -24388,7 +24456,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051005.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051005.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051005.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051005.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051005.unity3d"
       ],
       "objectName": "kwaYfF",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416B7761596646_ebf2b61ba06cc092d01ecec3eab082d5.bundle",
@@ -24678,7 +24747,8 @@
       "names": [
         "ui/localize/zh/tips/tips_07.unity3d",
         "ui/localize/es/tips/tips_07.unity3d",
-        "ui/localize/en/tips/tips_07.unity3d"
+        "ui/localize/en/tips/tips_07.unity3d",
+        "ui/localize/ja/tips/tips_07.unity3d"
       ],
       "objectName": "lXbkmT",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416C58626B6D54_2b8cd076c9b23e22897c7ea87c59f584.bundle",
@@ -25136,7 +25206,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052060.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052060.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052060.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052060.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052060.unity3d"
       ],
       "objectName": "mauOPR",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416D61754F5052_183c9ddd9229265867a9311a0e940451.bundle",
@@ -25786,7 +25857,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051015.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051015.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051015.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051015.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051015.unity3d"
       ],
       "objectName": "oAyLfc",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416F41794C6663_a9d23ac1111fab9465e94a6c06c58d89.bundle",
@@ -25836,7 +25908,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052015.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052015.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052015.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052015.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052015.unity3d"
       ],
       "objectName": "oC7C1r",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416F4337433172_571402de49f566018de661c8adc85921.bundle",
@@ -26066,7 +26139,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052030.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052030.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052030.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052030.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052030.unity3d"
       ],
       "objectName": "oWpNei",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416F57704E6569_283405c4bbc0af453e7acbb914c69472.bundle",
@@ -26128,7 +26202,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052045.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052045.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052045.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052045.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052045.unity3d"
       ],
       "objectName": "odxUfZ",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416F647855665A_fbeffb4520d44c86a242293f36519db7.bundle",
@@ -26286,7 +26361,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052016.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052016.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052016.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052016.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052016.unity3d"
       ],
       "objectName": "oxoP4H",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/416F786F503448_d65bd945b0f3516776f61fa08a77386c.bundle",
@@ -26600,7 +26676,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052001.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052001.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052001.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052001.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052001.unity3d"
       ],
       "objectName": "pW188O",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4170573138384F_202f663c5bd9dff0d0a69e78302d7aff.bundle",
@@ -26734,7 +26811,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052021.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052021.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052021.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052021.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052021.unity3d"
       ],
       "objectName": "pg0mwb",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/417067306D7762_7bb71096b6708b60387c990b6801f4a6.bundle",
@@ -27084,7 +27162,8 @@
       "names": [
         "ui/localize/zh/atlas/in_game_02.unity3d",
         "ui/localize/es/atlas/in_game_02.unity3d",
-        "ui/localize/en/atlas/in_game_02.unity3d"
+        "ui/localize/en/atlas/in_game_02.unity3d",
+        "ui/localize/ja/atlas/in_game_02.unity3d"
       ],
       "objectName": "qSWQLD",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41715357514C44_0b82a69dc6181ea4a8f5f53360e0eacb.bundle",
@@ -27362,7 +27441,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052043.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052043.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052043.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052043.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052043.unity3d"
       ],
       "objectName": "r9YGtv",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41723959477476_fe7df2c820cce631501e6c7dc12d00bf.bundle",
@@ -27472,7 +27552,8 @@
       "names": [
         "ui/localize/zh/tips/tips_01.unity3d",
         "ui/localize/es/tips/tips_01.unity3d",
-        "ui/localize/en/tips/tips_01.unity3d"
+        "ui/localize/en/tips/tips_01.unity3d",
+        "ui/localize/ja/tips/tips_01.unity3d"
       ],
       "objectName": "rJn9fu",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41724A6E396675_72ead4690b103ab753f7216794bba7ba.bundle",
@@ -27810,7 +27891,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052035.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052035.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052035.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052035.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052035.unity3d"
       ],
       "objectName": "rqP9a6",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41727150396136_c4f15f15b1af8232a787e5b298c3dfac.bundle",
@@ -27836,7 +27918,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051013.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051013.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051013.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051013.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051013.unity3d"
       ],
       "objectName": "rvQEag",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41727651456167_02e364028b997e2791eefae6a5ecc9f2.bundle",
@@ -27982,7 +28065,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6051010.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6051010.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6051010.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6051010.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6051010.unity3d"
       ],
       "objectName": "s6Oujb",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4173364F756A62_ab5d1ef09462dda750c20caf176f841d.bundle",
@@ -28068,7 +28152,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052058.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052058.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052058.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052058.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052058.unity3d"
       ],
       "objectName": "sHrpoG",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41734872706F47_aedc08b2c577017f2b70b4aa24719713.bundle",
@@ -28322,7 +28407,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052062.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052062.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052062.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052062.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052062.unity3d"
       ],
       "objectName": "syEFMD",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41737945464D44_7a8ce617d20477eacee9d417e0c3708b.bundle",
@@ -28372,7 +28458,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052031.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052031.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052031.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052031.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052031.unity3d"
       ],
       "objectName": "t4sXzE",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41743473587A45_f543a16e0e1d9fc03556fa7894052481.bundle",
@@ -28434,7 +28521,8 @@
       "names": [
         "ui/localize/zh/atlas/in_game_01.unity3d",
         "ui/localize/es/atlas/in_game_01.unity3d",
-        "ui/localize/en/atlas/in_game_01.unity3d"
+        "ui/localize/en/atlas/in_game_01.unity3d",
+        "ui/localize/ja/atlas/in_game_01.unity3d"
       ],
       "objectName": "tDAbh6",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41744441626836_79c276faa4061b5835628b11a0073aba.bundle",
@@ -29720,7 +29808,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052014.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052014.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052014.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052014.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052014.unity3d"
       ],
       "objectName": "w4XFMS",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41773458464D53_956c24c5ed6afe2c62bb5cda896e3637.bundle",
@@ -30166,7 +30255,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052023.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052023.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052023.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052023.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052023.unity3d"
       ],
       "objectName": "x9dE4V",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41783964453456_8b47fd258ad54925558bff6cadbbde3b.bundle",
@@ -30396,7 +30486,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052042.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052042.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052042.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052042.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052042.unity3d"
       ],
       "objectName": "xfwvpe",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41786677767065_4210a6255c6f87bbe19e673698c8e12e.bundle",
@@ -30818,7 +30909,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052002.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052002.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052002.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052002.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052002.unity3d"
       ],
       "objectName": "ygxAVp",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/41796778415670_0362fb6a1f142be8b5c22021702c29d2.bundle",
@@ -30940,7 +31032,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052039.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052039.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052039.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052039.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052039.unity3d"
       ],
       "objectName": "yyokV1",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/4179796F6B5631_675cf681d97138cdf87b715052bcd871.bundle",
@@ -31194,7 +31287,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052036.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052036.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052036.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052036.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052036.unity3d"
       ],
       "objectName": "zcEmFb",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/417A63456D4662_9975f4858222a95429371b151d2a19f6.bundle",
@@ -31352,7 +31446,8 @@
       "names": [
         "ui/localize/zh/stamp/thumbnail_stamp_6052005.unity3d",
         "ui/localize/es/stamp/thumbnail_stamp_6052005.unity3d",
-        "ui/localize/en/stamp/thumbnail_stamp_6052005.unity3d"
+        "ui/localize/en/stamp/thumbnail_stamp_6052005.unity3d",
+        "ui/localize/ja/stamp/thumbnail_stamp_6052005.unity3d"
       ],
       "objectName": "zwZB9E",
       "sourcePath": "../Kick-Flight-Assets/octo_sorted/3_unity_bundles/417A775A423945_c88ee7fed641b0ec0307c368ffbab01c.bundle",

@@ -357,7 +357,8 @@ for base_name, zh_path in atlas_map.items():
         names = [
             f"ui/localize/zh/atlas/{base_name}.unity3d",
             f"ui/localize/es/atlas/{base_name}.unity3d",
-            f"ui/localize/en/atlas/{base_name}.unity3d"
+            f"ui/localize/en/atlas/{base_name}.unity3d",
+            f"ui/localize/ja/atlas/{base_name}.unity3d"
         ]
         if obj in entries_by_obj:
             for n in names:
