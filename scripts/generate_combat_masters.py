@@ -31,7 +31,7 @@ HIT_SLASH_S, HIT_SLASH_M, HIT_SLASH_L = 4, 5, 6
 HIT_BLOW_S, HIT_BLOW_M, HIT_BLOW_L = 7, 8, 9
 HIT_GUN_S, HIT_GUN_M, HIT_GUN_L = 10, 11, 12
 COL_BOX, COL_SPHERE, COL_CAPSULE, COL_CYLINDER = 0, 1, 2, 3
-COLHIT_ONE, COLHIT_ALL = 0, 1
+COLHIT_ONE, COLHIT_ALL, COLHIT_ALL_REHIT = 0, 1, 2
 BONE_RIGHT_HAND, BONE_COMMON = 0, 9
 # WeaponType
 WT_SWORD, WT_TWO_GUNS, WT_HAMMER, WT_THROWING_STAR, WT_DRONE, WT_ROCKET, WT_GUN, WT_PUNCH_GLOVE = range(8)
@@ -680,7 +680,11 @@ SPECIAL_SKILL_DATA = {
     WT_SWORD:          {"duration": TSUBAME_SS_ACTIVE_SECONDS,
                         "conditions": [(COND_SPEED_RATE, _TSUBAME_SS_CONDITION_SECONDS, 0.0, 1.2),
                                        (13, _TSUBAME_SS_CONDITION_SECONDS, 0.0, 1.0)],
-                        "collision": {"collisionType": COL_SPHERE, "radius": 4.0, "length": 0.0},
+                        # AllAndRehit: with All, CollisionBase.HitAll keeps every target in AlreadyHitColliders for the
+                        # collider's whole life, so each enemy was launched once per special. With 2 a target that
+                        # leaves the tornado is dropped from that list and is hit again on re-entry, rate-limited by
+                        # BlowoffColliderConditionAction.IsIgnoreHit (1 s per target).
+                        "collision": {"collisionType": COL_SPHERE, "radius": 4.0, "length": 0.0, "hitType": COLHIT_ALL_REHIT},
                         "blow_off": {"distance": 6.0, "speed": 20.0, "rigorTime": 0.5, "directionType": 1}},         # 1 = Up
     WT_TWO_GUNS:       {"duration": 10.0, "conditions": [(COND_REGENERATION, 10.0, 1.0, 0.05)]},                      # allies regen 5 %/s
     # Coco: tornado trap that sucks enemies in (Inhale condition on enter; speed/min range from the APK HammerMaster,
