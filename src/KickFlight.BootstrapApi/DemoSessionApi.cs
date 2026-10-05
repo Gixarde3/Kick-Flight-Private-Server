@@ -1051,7 +1051,12 @@ public sealed partial class DemoSessionApi
             return await HandleBattleResultAsync(context, state, key);
         }
 
-        if (path == "/battle/cancel" || path == "/battle/teamCancel" || path == "/matching/cancel")
+        if (path == "/battle/cancel")
+        {
+            return await HandleBattleCancelAsync(context, state, key);
+        }
+
+        if (path == "/battle/teamCancel" || path == "/matching/cancel")
         {
             context.Response.Headers["x-app-status-code"] = "0";
             return BinaryJson("{}", key);
@@ -1890,6 +1895,9 @@ public sealed partial class DemoSessionApi
 
         var resp = new
         {
+            // NormalMatchingController.SendCancel returns early while BattleEntryId is empty, so without this id the
+            // matching screen's back button does nothing.
+            battleEntryId,
             battleEntryTicketId = ticketId,
             matchmakingCancelWaitingTimeSecond = 5,
             campaignList = Array.Empty<object>(),
@@ -1900,6 +1908,36 @@ public sealed partial class DemoSessionApi
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-entry";
         _logger.LogInformation("Handled /battle/entry for {UserId}: ticket={TicketId}", state.UserId, ticketId);
         return BinaryJson(JsonSerializer.Serialize(resp), key);
+    }
+
+    private async Task<IResult?> HandleBattleCancelAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        // BattleCancelRequest { battleEntryId }. Answer {} with status 0 whatever happens: on success the client
+        // changes scene back, and an error here would strand it on the matching screen. CancelEntry leaves a room
+        // that already closed its window alone, so a late cancel cannot break a battle that is starting.
+        var body = await ReadBodyAsync(context.Request);
+        var battleEntryId = "";
+        try
+        {
+            using var document = JsonDocument.Parse(D2CCodec.Decode(body, key));
+            if (document.RootElement.ValueKind == JsonValueKind.Object)
+                TryReadString(document.RootElement, "battleEntryId", out battleEntryId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not decode /battle/cancel body for {UserId}: {Error}", state.UserId, ex.Message);
+        }
+
+        var cancelled = _matchmaking.CancelEntry(battleEntryId);
+        if (!cancelled)
+        {
+            _logger.LogInformation("Ignored /battle/cancel for {UserId}: entry '{BattleEntryId}' is unknown or already started",
+                state.UserId, battleEntryId);
+        }
+
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-cancel";
+        return BinaryJson("{}", key);
     }
 
     private async Task<IResult?> HandleBattleStartAsync(HttpContext context, SessionState state, byte[] key)

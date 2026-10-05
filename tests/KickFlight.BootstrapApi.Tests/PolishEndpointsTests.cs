@@ -599,6 +599,27 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         Assert.Equal("1", response.Headers.GetValues("x-app-status-code").Single());
     }
 
+    [Fact]
+    public async Task Battle_entry_returns_the_entry_id_and_cancel_always_answers_status_zero()
+    {
+        var session = await CreateSessionAsync();
+        var entry = await PostAsync(session, "/battle/entry", new { battleRuleId = 1 });
+        // NormalMatchingController.SendCancel does nothing while BattleEntryId is empty.
+        var battleEntryId = entry.GetProperty("battleEntryId").GetString();
+        Assert.False(string.IsNullOrEmpty(battleEntryId));
+        Assert.False(string.IsNullOrEmpty(entry.GetProperty("battleEntryTicketId").GetString()));
+
+        var cancelled = await PostAsync(session, "/battle/cancel", new { battleEntryId });
+        Assert.Equal(JsonValueKind.Object, cancelled.ValueKind);
+        Assert.Empty(cancelled.EnumerateObject());
+
+        // The entry is gone, and a repeated or unreadable cancel still lets the client leave the matching screen.
+        var matchmaking = _factory.Services.GetRequiredService<BattleMatchmakingService>();
+        Assert.False(matchmaking.CancelEntry(battleEntryId!));
+        await PostAsync(session, "/battle/cancel", new { battleEntryId });
+        await PostAsync(session, "/battle/cancel", null);
+    }
+
     // Names are unique, so a fixed one would collide with whatever a previous run left in the test output directory.
     private static string NewName() => "Kf" + Guid.NewGuid().ToString("N")[..6];
 

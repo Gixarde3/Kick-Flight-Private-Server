@@ -12,6 +12,7 @@ public sealed class BattleMatchmakingService
     private readonly ILogger<BattleMatchmakingService> _logger;
     private readonly IPhotonServerManager _photonManager;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByBattleEntryId = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, TeamLobby> _teamsById = new(StringComparer.Ordinal);
     private readonly object _teamLock = new();
@@ -264,6 +265,7 @@ public sealed class BattleMatchmakingService
         };
 
         _entriesByTicket[ticketId] = session;
+        _entriesByBattleEntryId[entryId] = session;
         _logger.LogInformation("Registered battle entry: user={UserId} ({UserName}), ticket={TicketId}, kicker={KickerId}, rule={RuleId}",
             userId, userName, ticketId, kickerId, battleRuleId);
 
@@ -297,6 +299,9 @@ public sealed class BattleMatchmakingService
 
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;
+
+    /// <summary>Tickets withdrawn with /battle/cancel; a stream still open for one never joins or re-queues. Guarded by _matchLock.</summary>
+    private readonly HashSet<string> _cancelledTickets = new(StringComparer.Ordinal);
 
     // How long a room stays open for more humans. The first entry opens this base window and every human that
     // joins extends the deadline (JoinIncrementSeconds); bots fill the empty slots after it expires.
@@ -399,6 +404,54 @@ public sealed class BattleMatchmakingService
         FinalizeRoom(room);
     }
 
+    /// <summary>
+    /// /battle/cancel, the matching screen's back button: withdraws a waiting human from its room right away instead of
+    /// when its GetAssignments stream ends, and drops the room with the last one. False (and nothing changes) for an
+    /// unknown entry or one already assigned to a room whose window closed: a battle that has its final roster, and
+    /// may already have sent Stage 3, is never taken apart from here.
+    /// </summary>
+    public bool CancelEntry(string battleEntryId)
+    {
+        if (string.IsNullOrWhiteSpace(battleEntryId)) return false;
+
+        lock (_matchLock)
+        {
+            if (!_entriesByBattleEntryId.TryGetValue(battleEntryId, out var session)) return false;
+            var ticketId = session.TicketId;
+            if (_roomsByBattleId.Values.Any(room => room.IsFinalized && room.AssignedTicketIds.Contains(ticketId)))
+                return false;
+
+            // Null when the stream has not attached yet (or an excluded party member is between rooms).
+            var openRoom = _roomsByBattleId.Values.FirstOrDefault(room =>
+                !room.IsFinalized && room.HumanPlayers.Any(player => player.TicketId == ticketId));
+
+            _entriesByBattleEntryId.TryRemove(battleEntryId, out _);
+            _entriesByTicket.TryRemove(ticketId, out _);
+            _cancelledTickets.Add(ticketId);
+
+            var humansLeft = 0;
+            if (openRoom is not null)
+            {
+                openRoom.HumanPlayers.RemoveAll(player => player.TicketId == ticketId);
+                humansLeft = openRoom.HumanPlayers.Count;
+                if (humansLeft == 0) DropRoom(openRoom);
+            }
+
+            _logger.LogInformation(
+                "Cancelled battle entry {BattleEntryId} for user {UserId} (room {BattleId}, {Humans} human(s) left)",
+                battleEntryId, session.UserId, openRoom?.BattleId ?? "none", humansLeft);
+            return true;
+        }
+    }
+
+    /// <summary>Forgets a room every waiting human left. Caller holds _matchLock.</summary>
+    private void DropRoom(ActiveBattleRoom room)
+    {
+        _roomsByBattleId.TryRemove(room.BattleId, out _);
+        if (ReferenceEquals(_pendingRoom, room)) _pendingRoom = null;
+        _logger.LogInformation("Room {BattleId} dropped: every waiting human left", room.BattleId);
+    }
+
     // ResolveAssignment/ResolveAssignmentAsync used to live here: the pre-stream matching path, unreachable since
     // GetAssignments took over (nothing in src/ or tests/ called it) and unable to compile without _pendingRoomTcs,
     // which the per-room window now owns.
@@ -464,6 +517,12 @@ public sealed class BattleMatchmakingService
 
         lock (_matchLock)
         {
+            if (_cancelledTickets.Contains(ticketId))
+            {
+                _logger.LogInformation("Ticket {TicketId} was cancelled; not joining a room", ticketId);
+                return;
+            }
+
             var openRoom = IsJoinable(_pendingRoom, playerSession) ? _pendingRoom : null;
 
             if (openRoom is not null)
@@ -554,8 +613,15 @@ public sealed class BattleMatchmakingService
 
             if (!room.AssignedTicketIds.Contains(ticketId))
             {
-                // Keep an indivisible party together for the next match when it does not fit this roster.
-                lock (_matchLock) room.Subscribers.Remove(subscriber);
+                // Keep an indivisible party together for the next match when it does not fit this roster. A human
+                // who cancelled while waiting lands here too (no longer in the roster) and simply ends its stream.
+                bool cancelled;
+                lock (_matchLock)
+                {
+                    room.Subscribers.Remove(subscriber);
+                    cancelled = _cancelledTickets.Contains(ticketId);
+                }
+                if (cancelled) return;
                 _logger.LogInformation(
                     "Re-queueing excluded party member {UserId} from room {BattleId}",
                     playerSession.UserId, room.BattleId);
@@ -587,22 +653,18 @@ public sealed class BattleMatchmakingService
         }
         finally
         {
-            // Leaving the matching screen destroys the GetAssignments stream, and /battle/cancel never reaches this
-            // service: a stream that ends before its room starts is the only sign that a waiting human withdrew.
-            // Drop them, and drop the room with the last one.
+            // Leaving the matching screen destroys the GetAssignments stream: a stream that ends before its room
+            // starts means the waiting human withdrew. Drop them, and drop the room with the last one. After a
+            // /battle/cancel (CancelEntry) they are already gone, so only remove/drop when this stream still had a slot.
             lock (_matchLock)
             {
                 room.Subscribers.Remove(subscriber);
 
-                if (!room.IsFinalized)
+                if (!room.IsFinalized
+                    && room.HumanPlayers.RemoveAll(player => player.TicketId == ticketId) > 0
+                    && room.HumanPlayers.Count == 0)
                 {
-                    room.HumanPlayers.RemoveAll(player => player.TicketId == ticketId);
-                    if (room.HumanPlayers.Count == 0)
-                    {
-                        _roomsByBattleId.TryRemove(room.BattleId, out _);
-                        if (ReferenceEquals(_pendingRoom, room)) _pendingRoom = null;
-                        _logger.LogInformation("Room {BattleId} dropped: every waiting human left", room.BattleId);
-                    }
+                    DropRoom(room);
                 }
             }
         }

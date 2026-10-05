@@ -213,6 +213,96 @@ public sealed class BattleMatchmakingTests
     }
 
     [Fact]
+    public async Task Cancel_removes_the_only_human_and_drops_the_room_so_the_next_entry_opens_a_new_one()
+    {
+        var service = CreateService();
+        service.MatchWindow = TimeSpan.FromSeconds(30);
+
+        var (entryId, ticket) = service.RegisterEntry("1000001", "Leaver", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var leaverCancellation = new CancellationTokenSource();
+        var leaverWriter = new CollectingWriter(expectedCount: 10, leaverCancellation);
+        var leaverStream = service.StreamAssignmentsAsync(ticket, leaverWriter, leaverCancellation.Token);
+        await leaverWriter.FirstWrite;
+
+        Assert.True(service.CancelEntry(entryId));
+
+        // The dropped room is no longer pending: the next human waits alone in a fresh room instead of joining it.
+        var (_, nextTicket) = service.RegisterEntry("1000002", "Next", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var nextCancellation = new CancellationTokenSource();
+        var nextWriter = new CollectingWriter(expectedCount: 10, nextCancellation);
+        var nextStream = service.StreamAssignmentsAsync(nextTicket, nextWriter, nextCancellation.Token);
+        await nextWriter.FirstWrite;
+        Assert.Equal("1000002", Assert.Single(Roster(nextWriter.Responses[0].Assignment)).GetProperty("userId").GetString());
+        Assert.Single(leaverWriter.Responses); // no interim roster reached the leaver
+
+        // The leaver's stream ending afterwards (the client left the scene) finds nothing left to remove.
+        leaverCancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => leaverStream);
+        nextCancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => nextStream);
+    }
+
+    [Fact]
+    public async Task Cancel_removes_one_human_and_the_rest_of_the_room_still_starts_without_them()
+    {
+        var service = CreateService();
+
+        var (stayerEntry, stayerTicket) = service.RegisterEntry("1000001", "Stayer", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        var (leaverEntry, leaverTicket) = service.RegisterEntry("1000002", "Leaver", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var stayerCancellation = new CancellationTokenSource();
+        using var leaverCancellation = new CancellationTokenSource();
+        // Stage 1, the leaver's join, Stage 2, Stage 3.
+        var stayerWriter = new CollectingWriter(expectedCount: 4, stayerCancellation);
+        var leaverWriter = new CollectingWriter(expectedCount: 10, leaverCancellation);
+
+        var stayerStream = service.StreamAssignmentsAsync(stayerTicket, stayerWriter, stayerCancellation.Token);
+        await stayerWriter.FirstWrite;
+        var leaverStream = service.StreamAssignmentsAsync(leaverTicket, leaverWriter, leaverCancellation.Token);
+        await leaverWriter.FirstWrite;
+
+        Assert.True(service.CancelEntry(leaverEntry));
+        Assert.False(service.CancelEntry(leaverEntry)); // a repeated back press is harmless
+        Assert.False(service.CancelEntry("be-unknown"));
+
+        await stayerWriter.WaitForExpectedWritesAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stayerStream);
+        var roster = Roster(stayerWriter.Responses[^1].Assignment);
+        Assert.Equal(8, roster.Count);
+        Assert.Equal("1000001", Assert.Single(roster, entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0)
+            .GetProperty("userId").GetString());
+
+        // The cancelled stream is woken by the window closing and ends quietly: no re-queue, no room of its own.
+        await leaverStream.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.All(leaverWriter.Responses, response => Assert.Empty(response.Assignment.Connection));
+        Assert.False(service.CancelEntry(stayerEntry)); // the stayer is in a started battle now
+    }
+
+    [Fact]
+    public async Task Cancel_after_the_window_closed_is_a_no_op_and_the_assignment_still_replays()
+    {
+        var service = CreateService();
+
+        var (entryId, ticket) = service.RegisterEntry("1000001", "Late", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        using var cancellation = new CancellationTokenSource();
+        // More than Stage 1-3, so the stream is still holding its Stage 3 acknowledgement when the cancel arrives.
+        var writer = new CollectingWriter(expectedCount: 4, cancellation);
+        var stream = service.StreamAssignmentsAsync(ticket, writer, cancellation.Token);
+        var final = await writer.FinalAssignment.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.False(service.CancelEntry(entryId));
+        Assert.False(service.CancelEntry(entryId));
+        cancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream);
+
+        using var replayCancellation = new CancellationTokenSource();
+        var replayWriter = new CollectingWriter(expectedCount: 1, replayCancellation);
+        var replayStream = service.StreamAssignmentsAsync(ticket, replayWriter, replayCancellation.Token);
+        await replayWriter.WaitForExpectedWritesAsync();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => replayStream);
+        Assert.Equal(final.Assignment.Connection, replayWriter.Responses[0].Assignment.Connection);
+    }
+
+    [Fact]
     public void Default_window_is_forty_seconds_and_first_join_increment_is_five()
     {
         var service = CreateService(fastWindow: false);
