@@ -73,12 +73,15 @@ public sealed partial class DemoSessionApi
     private readonly List<int> _gearIdList = [];                 // Gear master row ids, the pool gear/create rolls from
     private readonly ILogger<DemoSessionApi> _logger;
     private readonly BattleMatchmakingService _matchmaking;
+    private readonly MaintenanceState _maintenance;
 
     public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
-        BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration)
+        BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration,
+        MaintenanceState maintenance)
     {
         _logger = logger;
         _matchmaking = matchmaking;
+        _maintenance = maintenance;
         _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
         _grpcPort = configuration.GetValue("GrpcPort", 18081);
@@ -858,6 +861,9 @@ public sealed partial class DemoSessionApi
 
         if (!HttpMethods.IsPost(context.Request.Method)) return null;
 
+        var maintenanceResult = TryHandleHardMaintenance(context, path);
+        if (maintenanceResult is not null) return maintenanceResult;
+
         if (path == "/auth/index") return await HandleAuthAsync(context);
 
         var accessToken = context.Request.Headers["x-app-access-token"].ToString();
@@ -1443,6 +1449,31 @@ public sealed partial class DemoSessionApi
         return JsonSerializer.Serialize(data);
     }
 
+    /// <summary>
+    /// Hard maintenance: every POST answers HTTP 503 with a plaintext {"error":{"code":"1000",...}} body, which the
+    /// client shows as TitleMaintenanceWindow (our title/message on the Title scene, the Translation texts
+    /// error.maintenanceTitle/Description elsewhere, then back to Title). That covers /auth/index and /battle/entry, so
+    /// nobody logs in or queues. Let through: /boot/index, so the client still reaches the title screen; /battle/end
+    /// and /battle/result, so matches already running finish and keep their results. /user/online (every 600 s, empty
+    /// callbacks) gets 401 instead, which silently sends an idle player back to Title. Null = handle normally.
+    /// </summary>
+    private IResult? TryHandleHardMaintenance(HttpContext context, string path)
+    {
+        if (_maintenance.Current.Mode != MaintenanceMode.Hard) return null;
+        if (path is "/boot/index" or "/battle/end" or "/battle/result") return null;
+
+        if (path == "/user/online")
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.Headers["x-app-status-code"] = "1";
+            return Results.Empty;
+        }
+
+        _logger.LogInformation("Maintenance: refused {Path} with 503", path);
+        return Results.Text(_maintenance.BuildHardErrorJson(), "application/json", Encoding.UTF8,
+            StatusCodes.Status503ServiceUnavailable);
+    }
+
     private string BuildHomeJson(SessionState state)
     {
         NormalizeCostume(state);
@@ -1518,7 +1549,8 @@ public sealed partial class DemoSessionApi
             battleTeamPhotonCloudRegionIdList = new[] { 1 },
             teamBattleCampaign = (object?)null,
             userTeamBattleCampaignList = Array.Empty<object>(),
-            userNoticeList = Array.Empty<object>()
+            // One notice window per entry, shown each time Home is entered: the maintenance warning, when it is on.
+            userNoticeList = _maintenance.BuildUserNoticeList()
         };
 
         return JsonSerializer.Serialize(data);

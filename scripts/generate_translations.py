@@ -56,6 +56,9 @@ ENUM_KEYS = {
 }
 
 TEXTS = {
+    # TitleMaintenanceWindow outside the Title scene (a 503 maintenance answer from the API)
+    "error.maintenanceTitle": "Maintenance",
+    "error.maintenanceDescription": "The server is under maintenance. Please try again in a few minutes.",
     # disc type labels (SkillCategoryTypeExtensions.GetName) and the disc list filter
     "skillCategoryType.attack": "ATK", "skillCategoryType.heal": "HEAL", "skillCategoryType.buff": "BUFF",
     "skillCategoryType.trap": "TRAP", "skillCategoryType.warp": "WARP", "skillCategoryType.move": "MOVE",

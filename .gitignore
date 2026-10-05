@@ -24,6 +24,8 @@ logs/
 *.db
 *.db-shm
 *.db-wal
+# Maintenance switch (MaintenanceState), written under the API content root
+**/data/maintenance.json*
 
 # Android packages and protected game assets
 *.apk

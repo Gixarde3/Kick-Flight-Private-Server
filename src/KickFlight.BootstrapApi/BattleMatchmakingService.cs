@@ -11,6 +11,7 @@ public sealed class BattleMatchmakingService
 {
     private readonly ILogger<BattleMatchmakingService> _logger;
     private readonly IPhotonServerManager _photonManager;
+    private readonly MaintenanceState? _maintenance;
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByTicket = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, BattleEntrySession> _entriesByBattleEntryId = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ActiveBattleRoom> _roomsByBattleId = new(StringComparer.Ordinal);
@@ -21,10 +22,12 @@ public sealed class BattleMatchmakingService
     // still-cached Photon room from the previous process.
     private int _battleCounter = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() % 1_000_000_000);
 
-    public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger, IPhotonServerManager photonManager)
+    public BattleMatchmakingService(ILogger<BattleMatchmakingService> logger, IPhotonServerManager photonManager,
+        MaintenanceState? maintenance = null)
     {
         _logger = logger;
         _photonManager = photonManager;
+        _maintenance = maintenance;
     }
 
     public sealed class BattleEntrySession
@@ -520,6 +523,14 @@ public sealed class BattleMatchmakingService
             if (_cancelledTickets.Contains(ticketId))
             {
                 _logger.LogInformation("Ticket {TicketId} was cancelled; not joining a room", ticketId);
+                return;
+            }
+
+            // gRPC does not pass through DemoSessionApi's 503: a ticket issued just before hard maintenance must not
+            // open or join a room either. Replays of rooms that already started (above) still go out.
+            if (_maintenance?.Current.Mode == MaintenanceMode.Hard)
+            {
+                _logger.LogInformation("Maintenance: ticket {TicketId} not matched", ticketId);
                 return;
             }
 

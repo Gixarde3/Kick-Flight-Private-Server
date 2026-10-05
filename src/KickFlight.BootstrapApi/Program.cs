@@ -19,6 +19,7 @@ builder.Services.AddSingleton<FixtureStore>();
 builder.Services.AddSingleton<ResourceCatalogStore>();
 builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
+builder.Services.AddSingleton<MaintenanceState>();
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
 // Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
@@ -51,6 +52,8 @@ var app = builder.Build();
 // this were left lazy, the first request would throw and /health/ready - which never touches the store - would
 // keep answering "ready" for a server that cannot serve a single player.
 app.Services.GetRequiredService<IPlayerStore>();
+// Loads data/maintenance.json now, so a restart during hard maintenance answers 503 from the first request.
+app.Services.GetRequiredService<MaintenanceState>();
 
 app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
@@ -60,6 +63,11 @@ app.MapGet("/health/live", () => Results.Json(new { status = "live" }));
 app.MapGet("/gym", () => Results.Json(new { gym = BattleMatchmakingService.GymEnabled, bots = BattleMatchmakingService.GymBotCount, usage = "/gym/on | /gym/off" }));
 app.MapGet("/gym/on", () => { BattleMatchmakingService.GymEnabled = true; return Results.Text("gym ON: next match = you vs 3 mannequin bots + harmless guardian"); });
 app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; return Results.Text("gym OFF: normal 4v4 bot matches"); });
+// Maintenance switch (MaintenanceState): loopback only, from inside the container, e.g.
+//   docker exec deploy-api-1 curl -s -X POST http://127.0.0.1:8080/admin/maintenance -d '{"mode":"hard"}'
+app.MapGet("/admin/maintenance", MaintenanceAdmin.Get);
+app.MapPost("/admin/maintenance", MaintenanceAdmin.PostAsync);
+app.Map("/admin/{**rest}", () => Results.NotFound());
 // The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
 // /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
 app.MapGet("/webview/information/index", () => Results.Content("""

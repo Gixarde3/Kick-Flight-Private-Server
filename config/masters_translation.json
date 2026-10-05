@@ -1062,7 +1062,7 @@
  {
   "id": 213,
   "key": "error.maintenanceDescription",
-  "text": "Maintenance"
+  "text": "The server is under maintenance. Please try again in a few minutes."
  },
  {
   "id": 214,
