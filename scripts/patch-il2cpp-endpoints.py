@@ -390,11 +390,17 @@ DIAG_PATCHES_ARM64: list[dict[str, object]] = [
     {"description": "DIAG hook: PlayerAnimator.PlayIdle entry -> 6250", "offset": 0x13ae9c4, "expected": bytes.fromhex("a80a5a39"), "replacement": bytes.fromhex("abbd0794")},
     {"description": "DIAG cave: PlayerAnimator.PlayIdle past bind-condition check -> 6251", "offset": 0x17332d4, "expected": bytes.fromhex("e0031faac583eb97e00314aafd7b42a9f44f41a9e10315aae2031faaf50743f8"), "replacement": bytes.fromhex("fd7bbea9e00b00f9600d83521a24f297e00b40f9fd7bc2a8b57e47f9c0035fd6")},
     {"description": "DIAG hook: PlayerAnimator.PlayIdle past bind-condition check -> 6251", "offset": 0x13aea18, "expected": bytes.fromhex("b57e47f9"), "replacement": bytes.fromhex("2f120e94")},
-    {"description": "DIAG: region G minimal caves in dead body of stubbed GameManager.<BeginAsync>b__3 — 6420/6421 Weapon.Initialize attach, 6410 NunchakuAction.Initialize, 6411 NunchakuAction.OnManagedLateUpdate", "offset": 0x1579a40, "expected": bytes.fromhex("fd430091948a01b088c25739f30300aae8000037487201b008ad47f9000140b9ecc0f197e803003288c21739740a40f9740000b5e0031faadd69f297e00314aabdd2ff9760000036e8031f2a0b000014730a40f9730000b5e0031faad469f29708720190081144f9e00313aa010140f941ab129408000052fd7b41a900010012"), "replacement": bytes.fromhex("fd7bbea9e00b00f9802283523f0af997e00b40f9fd7bc2a8f90300aac0035fd6fd7bbea9e00b00f9a0228352370af997e00b40f9fd7bc2a87c2a00f9c0035fd6fd7bbea9e00b00f9402183522f0af997e00b40f9fd7bc2a8fd430191c0035fd6fd7bbea9e00b00f960218352270af997e00b40f9fd7bc2a8f30300aac0035fd6")},
-    {"description": "DIAG hook: Weapon.Initialize: weapon parented to a bone -> 6420", "offset": 0x1818e64, "expected": bytes.fromhex("f90300aa"), "replacement": bytes.fromhex("f782f597")},
-    {"description": "DIAG hook: Weapon.Initialize: after attach (parent or not) -> 6421", "offset": 0x1818e84, "expected": bytes.fromhex("7c2a00f9"), "replacement": bytes.fromhex("f782f597")},
-    {"description": "DIAG hook: NunchakuAction.Initialize -> 6410", "offset": 0x13f8dfc, "expected": bytes.fromhex("fd430191"), "replacement": bytes.fromhex("21030694")},
-    {"description": "DIAG hook: NunchakuAction.OnManagedLateUpdate -> 6411", "offset": 0x13f9268, "expected": bytes.fromhex("f30300aa"), "replacement": bytes.fromhex("0e020694")},
+    {"description": "DIAG: region G cave 6420 Weapon.Initialize parented to a bone (moved 2026-10-06 out of <BeginAsync>b__3, now the production bounded player wait)", "offset": 0x159d1c0, "expected": bytes.fromhex("e923016dfc6f02a9fa6703a9f85f04a9f65705a9f44f06a9fd7b07a9fdc30191"), "replacement": bytes.fromhex("fd7bbea9e00b00f9802283525f7cf897e00b40f9fd7bc2a8f90300aac0035fd6")},
+    {"description": "DIAG: region G cave 6421 Weapon.Initialize after attach (moved 2026-10-06 out of <BeginAsync>b__3, now the production bounded player wait)", "offset": 0x159d1e0, "expected": bytes.fromhex("768901b0c81e5c39f403022af503012af30300aae8000037687701d0080d43f9"), "replacement": bytes.fromhex("fd7bbea9e00b00f9a0228352577cf897e00b40f9fd7bc2a87c2a00f9c0035fd6")},
+    {"description": "DIAG: region G cave 6410 NunchakuAction.Initialize (moved 2026-10-06 out of <BeginAsync>b__3, now the production bounded player wait)", "offset": 0x159d764, "expected": bytes.fromhex("e1031faa00b04794781a40f9780000b5e0031faa9ddaf197e00318aae1031faa"), "replacement": bytes.fromhex("fd7bbea9e00b00f940218352f67af897e00b40f9fd7bc2a8fd430191c0035fd6")},
+    {"description": "DIAG: region G cave 6411 NunchakuAction.OnManagedLateUpdate (moved 2026-10-06 out of <BeginAsync>b__3, now the production bounded player wait)", "offset": 0x1570ef8, "expected": bytes.fromhex("e0031faa5717fc9760000036e0031f3264000014487801d008e142f9000140f9"), "replacement": bytes.fromhex("fd7bbea9e00b00f960218352112df997e00b40f9fd7bc2a8f30300aac0035fd6")},
+    # Bounded BeginAsync player wait exit probe (scripts/re/begin_async_wait_cave.py): KFDIAG 9300 = players created,
+    # 9301 = 10 s timeout, 9302 = IsSkipBeginAcyncWait. The DIAG variant of the b__3 rewrite branches here from `fin`.
+    {"description": "DIAG cave: <BeginAsync>b__3 bounded player wait exit -> 9300 created / 9301 timed out / 9302 skip", "offset": 0x1570fb8, "expected": bytes.fromhex("e0031faa17ae7194f30300aa530000b5898cf297e00313aae1031faa810f7294f30300aa530000b5838cf297e00313aae1031faaa1900c94"), "replacement": bytes.fromhex("80010034a08a84529f0600f1c0000054e00314aa6af5ff9700000012898a84522005000bdb2cf997e0031f2ab622001420008052b4220014")},
+    {"description": "DIAG hook: Weapon.Initialize: weapon parented to a bone -> 6420", "offset": 0x1818e64, "expected": bytes.fromhex("f90300aa"), "replacement": bytes.fromhex("d710f697")},
+    {"description": "DIAG hook: Weapon.Initialize: after attach (parent or not) -> 6421", "offset": 0x1818e84, "expected": bytes.fromhex("7c2a00f9"), "replacement": bytes.fromhex("d710f697")},
+    {"description": "DIAG hook: NunchakuAction.Initialize -> 6410", "offset": 0x13f8dfc, "expected": bytes.fromhex("fd430191"), "replacement": bytes.fromhex("5a920694")},
+    {"description": "DIAG hook: NunchakuAction.OnManagedLateUpdate -> 6411", "offset": 0x13f9268, "expected": bytes.fromhex("f30300aa"), "replacement": bytes.fromhex("24df0594")},
     # Hitagi warp / SetVisible probes (scripts/re/warp_diag_caves.py)
     {"description": "DIAG cave: PlayerCharacter.SetVisible entry -> 7800+visible, 7810/7820/7830 + non-null(_modelCtr/EffectCtr/Weapons)", "offset": 0x159d420, "expected": bytes.fromhex("e0031faa72dbf197e00317aae1031faae8d70294e0031faa081ca04e6cdbf197e00317aae1031faae6d70294687701f0082545f9091ca04e000140f9089c44398800083608d840b9480000353d67f197e203271e001da84e211da94ee0031faaf0de1694081ca04e291ca14e4a1ca24e780000b5e0031faa55dbf197e00318aa001da84e211da94e421daa4ee1031faaaeb04794781640f9780000b5e0031faa4bdbf197e00318aae1031faad7053994f80300aa570100b4e00317aae1031faac8d70294e00317aae1031faa081ca04ec8d70294091ca04e0f000014e0031faa3bdbf197e00317aae1031faabdd70294e0031faa081ca04e35dbf197e00317aae1031faabbd70294e0031faa091ca04e2fdbf197e00317aae1031faab9d70294021ca04e"), "replacement": bytes.fromhex("ff0309d1fd7b00a9e00701a9e20f02a9e41703a9e61f04a9e82705a9ea2f06a9ec3707a9ee3f08a9f04709a9f25300f9e08705ade28f06ade49707ade69f08adf0c709adf2cf0aadf4d70badf6df0cadf8e70dadfaef0eadfcf70fadfeff10adf40300aa2000001201cf83520000010bae7bf89788b640f91f0100f1e0079f1a41d083520000010ba87bf89788ba40f91f0100f1e0079f1a81d183520000010ba27bf89788aa40f91f0100f1e0079f1ac1d283520000010b9c7bf897feff50adfcf74fadfaef4eadf8e74dadf6df4cadf4d74badf2cf4aadf0c749ade69f48ade49747ade28f46ade08745adf25340f9f04749a9ee3f48a9ec3747a9ea2f46a9e82745a9e61f44a9e41743a9e20f42a9e00741a9fd7b40a9ff030991f40300aac0035fd6")},
     {"description": "DIAG hook: PlayerCharacter.SetVisible entry -> 7800+visible, 7810/7820/7830 + non-null(_modelCtr/EffectCtr/Weapons)", "offset": 0x13c5c44, "expected": bytes.fromhex("f40300aa"), "replacement": bytes.fromhex("f75d0794")},
@@ -1109,11 +1115,24 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("f44fbea9fd7b01a9"),
             "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
         },
+        # Bounded player wait (2026-10-06). b__3 used to be stubbed to `return false` (no wait), so InitializeObject and
+        # InitializeUI (InGameUIPresenter.Initialize: PlayerLook/PlayerInfo/KillLog/TeamScore presenters, built once)
+        # ran before the remote players existed: missing lock-on icons / untargetable players, HUD placeholders and
+        # SetListener(null). Now WaitWhile(!IsSkipBeginAcyncWait && !IsCreatedPlayer && now < first poll + 10 s): the
+        # loading screen can no longer hang on a peer that never shows up. Source, register use and why the deadline
+        # lives in the display-class roomState int (rewritten by b__2/b__5) as float bits: scripts/re/begin_async_wait_cave.py.
+        # KF_DIAG builds use the variant whose `fin` branches to the 9300/9301/9302 exit probe.
         {
-            "description": "force GameManager.<BeginAsync>b__3 to return false (0) to bypass room property wait",
+            "description": "GameManager.<BeginAsync>b__3 rewritten in place: wait for IsCreatedPlayer, at most 10 s (realtimeSinceStartup)" + (" [DIAG exit probe]" if os.environ.get("KF_DIAG") == "1" else ""),
             "offset": 0x01579A38,
-            "expected": bytes.fromhex("f44fbea9fd7b01a9"),
-            "replacement": bytes.fromhex("00008052c0035fd6"),  # mov w0, #0; ret
+            "expected": bytes.fromhex("f44fbea9fd7b01a9fd430091948a01b088c25739f30300aae8000037487201b008ad47f9000140b9ecc0f197e803003288c21739740a40f9740000b5e0031faadd69f297e00314aabdd2ff9760000036e8031f2a0b000014730a40f9730000b5e0031faad469f29708720190081144f9e00313aa010140f941ab129408000052fd7b41a900010012f44fc2a8c0035fd6"),
+            "replacement": bytes.fromhex("f44fbea9fd7b01a9fd430091948a01b088c25739f30300aae8000037487201b008ad47f9000140b9ecc0f1972800805288c21739740a40f9e00314aac0d2ff97e0010037e00314aa08720190081144f9010140f94aab129420010037340080d2143b4894691a40b9611a40bd3f054071ebf6ff540020211ee0479f1a41ddff1700000012fd7b41a9f44fc2a8c0035fd6" if os.environ.get("KF_DIAG") == "1" else "f44fbea9fd7b01a9fd430091948a01b088c25739f30300aae8000037487201b008ad47f9000140b9ecc0f1972800805288c21739740a40f9e00314aac0d2ff97e0010037e00314aa08720190081144f9010140f94aab129420010037340080d2143b4894691a40b9611a40bd3f054071ebf6ff540020211ee0479f1a0000005200000012fd7b41a9f44fc2a8c0035fd6"),
+        },
+        {
+            "description": "bounded player wait: first poll stores the deadline (realtime + 10 s) in roomState, free tail of <BeginAsync>b__1",
+            "offset": 0x1579984,
+            "expected": bytes.fromhex("ead6ff9708000052fd7b41a900010012"),
+            "replacement": bytes.fromhex("0190241e0128211e611a00bd47000014"),
         },
         {
             "description": "force GameManager.<BeginAsync>b__4 to return false (0) to bypass room property wait",

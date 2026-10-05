@@ -112,5 +112,10 @@ Rules learned the hard way:
   `GameManager.SetListener(main player)`) at 0x1579B14-0x1579B74; 0x1579B74-0x1579B80 free. `<BeginAsync>b__1`
   (entry-stubbed, 0x1579948-0x157999C) holds the **production** rush-pursuit follow-through cave at
   0x1579948-0x1579984 (`scripts/re/rush_pursuit_cave.py`, hooked from `MoveAttackSkillAction.HitCallback` 0x145AC64);
-  0x1579984-0x157999C free. `b__3` holds the DIAG region G.
+  0x1579984-0x1579994 holds the **production** bounded-player-wait deadline store; 0x1579994-0x157999C free.
+  `<BeginAsync>b__3` (0x1579A38-0x1579AC8) is no longer dead: it is rewritten in place as the **production** bounded
+  player wait (`scripts/re/begin_async_wait_cave.py`, IsCreatedPlayer or 10 s). DIAG region G (6410/6411/6420/6421)
+  moved out of it on 2026-10-06 to `SetModel` 0x159D1C0-0x159D200 and 0x159D764-0x159D784 and the dead `GetMenuType`
+  body 0x1570EF8-0x1570F18; the wait's DIAG exit probe (9300 created / 9301 timeout / 9302 skip) sits at
+  0x1570FB8-0x1570FF0 (all four windows branch-swept: nothing outside the dead bodies lands in them).
 * `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).
