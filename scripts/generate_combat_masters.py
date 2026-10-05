@@ -112,6 +112,25 @@ DISC_ACTION_TYPE_OVERRIDES = {10027: 1, 10079: 1, 10112: 1}
 # Sid's construct. PunchGloveSkillAction (Diatrius) sizes its preview from the kicker-skill collision EndScale and its
 # IsTargetInArea is SkillActionBase.IsInBox, i.e. a box: Cube.
 KICKER_SKILL_TARGET_AREA = {20011: 2}
+# Kicker-skill cooldown (Skill.coolTime, seconds) by kickerId. The skill button reads the Skill row that
+# KickerParameter.skillId points at (20000 + kickerId), so this is the KS cooldown. Enforced here so a
+# regeneration of masters_skill.json keeps the tuning instead of dropping back to stale defaults.
+KICKER_SKILL_COOLDOWNS = {
+    1: 15,   # Tsubame
+    2: 15,   # Ruriha
+    3: 15,   # Coco
+    4: 25,   # Kite
+    5: 15,   # Owlbert
+    6: 10,   # Pitophy
+    7: 20,   # Grenhawk
+    8: 20,   # Anna
+    9: 20,   # Jay
+    10: 20,  # Yuyan
+    11: 15,  # Diatrius
+    12: 20,  # Buzzy Big
+    13: 35,  # Hitagi
+    14: 35,  # Sid
+}
 
 
 def load(name: str):
@@ -152,6 +171,11 @@ def remap_skill_ids(force: bool) -> tuple[list, list]:
                 and row.get("targetAreaType") != KICKER_SKILL_TARGET_AREA[row["id"]]:
             row["targetAreaType"] = KICKER_SKILL_TARGET_AREA[row["id"]]
             changed = True
+        if row["skillType"] == 2 and row["id"] - KICKER_SKILL_BASE in KICKER_SKILL_COOLDOWNS:
+            want_cd = KICKER_SKILL_COOLDOWNS[row["id"] - KICKER_SKILL_BASE]
+            if row.get("coolTime") != want_cd:
+                row["coolTime"] = want_cd
+                changed = True
         # DiscSkillParameter.GetSkillAction only knows action types 1-8, 21, 22; KickerSkillParameter.GetSkillAction
         # only knows the weapon types 9-20, 23, 24. Anything else returns null and the skill state soft-locks
         # (NullReferenceException in PlayerStateSkill.UpdateActionTargeting every frame).
