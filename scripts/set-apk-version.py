@@ -11,7 +11,12 @@ compares only the major.minor `\\d+\\.\\d+` part, so 2.11.0 and 2.11.1 still joi
 files (ReplayJsonFile/ReplayPlayFile.CompareAppVersion need the exact string, so replays saved by 2.11.0 stop being
 playable after the update). The Photon AppVersion comes from PhotonServerSettings, not from Application.version.
 
-    python3 scripts/set-apk-version.py <decoded dir> [--version-name 2.11.1] [--version-code 56]
+A "-diag" suffix (--diag; the build recipes pass it for KF_DIAG=1 builds) marks KFDIAG builds so the server can let
+them through hard maintenance on x-app-application-version. It is harmless on the client: IsRoomJoinable regexes out
+`\\d+\\.\\d+`, ReplayUtility.ParseAppVersionNumbers only String.Splits on '.' (no number parsing) and every other
+reader (User-Agent, title label, Octo ErrorReport, SRDebugger, IAP gameVersion) just displays or forwards the string.
+
+    python3 scripts/set-apk-version.py <decoded dir> [--diag] [--version-name 2.11.1] [--version-code 56]
 Defaults come from KF_VERSION_NAME / KF_VERSION_CODE, else the constants below.
 """
 import argparse
@@ -49,8 +54,10 @@ def main() -> int:
     parser.add_argument("decoded", type=Path, help="apktool output directory (contains apktool.yml)")
     parser.add_argument("--version-name", default=os.environ.get("KF_VERSION_NAME") or VERSION_NAME)
     parser.add_argument("--version-code", type=int, default=int(os.environ.get("KF_VERSION_CODE") or VERSION_CODE))
+    parser.add_argument("--diag", action="store_true", help='append "-diag" to versionName (KF_DIAG=1 builds)')
     args = parser.parse_args()
-    stamp(args.decoded, args.version_name, args.version_code)
+    name = f"{args.version_name}-diag" if args.diag else args.version_name
+    stamp(args.decoded, name, args.version_code)
     return 0
 
 

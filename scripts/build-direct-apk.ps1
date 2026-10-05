@@ -72,7 +72,9 @@ try {
     & java -jar $apktool d -s $source -o $decoded
     if ($LASTEXITCODE -ne 0) { throw "Apktool decode failed with exit code $LASTEXITCODE." }
 
-    & python (Join-Path $repo 'scripts\set-apk-version.py') $decoded
+    # versionName 2.11.1 (2.11.1-diag for KF_DIAG=1 builds, let through server maintenance) / versionCode 56
+    $versionFlags = @(if ($env:KF_DIAG -eq '1') { '--diag' })
+    & python (Join-Path $repo 'scripts\set-apk-version.py') $decoded @versionFlags
     if ($LASTEXITCODE -ne 0) { throw "Version stamp failed with exit code $LASTEXITCODE." }
 
     $previousForceGameScene = $env:KF_FORCE_GAME_SCENE

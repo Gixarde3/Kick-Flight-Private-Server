@@ -41,7 +41,10 @@ cleanup() {
 trap cleanup EXIT
 
 apktool d -f -s "$source_apk" -o "$work/decoded"
-python3 "$repo/scripts/set-apk-version.py" "$work/decoded"  # versionName 2.11.1 / versionCode 56
+# versionName 2.11.1 (2.11.1-diag for KF_DIAG=1 builds, so the server can let them through maintenance) / versionCode 56
+version_flag=""
+if [[ "${KF_DIAG:-}" == "1" ]]; then version_flag="--diag"; fi
+python3 "$repo/scripts/set-apk-version.py" "$work/decoded" ${version_flag:+"$version_flag"}
 sed -i '' 's|<application |<application android:debuggable="true" android:allowNativeHeapPointerTagging="false" android:largeHeap="true" |' "$work/decoded/AndroidManifest.xml"
 python3 "$repo/scripts/patch-il2cpp-endpoints.py" \
   --metadata "$work/decoded/assets/bin/Data/Managed/Metadata/global-metadata.dat" \
