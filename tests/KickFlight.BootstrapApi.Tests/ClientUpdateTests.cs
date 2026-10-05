@@ -96,6 +96,28 @@ public sealed class ClientUpdateTests : IClassFixture<ClientUpdateFixture>, IDis
     }
 
     [Fact]
+    public async Task Diag_suffix_is_compared_as_its_numeric_version()
+    {
+        // "2.11.1-diag" is 2.11.1: with that minimum it reaches the normal handler, not the 1400 window.
+        await SetAsync("2.11.1");
+        using (var same = await PostAsync(_factory.CreateClient(), "/boot/index", "2.11.1-diag"))
+        {
+            Assert.Equal(HttpStatusCode.OK, same.StatusCode);
+            Assert.Equal("0", same.Headers.GetValues("x-app-status-code").Single());
+        }
+
+        // A genuinely older DIAG build is still refused.
+        await SetAsync("2.11.2");
+        using (var older = await PostAsync(_factory.CreateClient(), "/boot/index", "2.11.1-diag"))
+        {
+            Assert.Equal(HttpStatusCode.OK, older.StatusCode);
+            Assert.Equal("1", older.Headers.GetValues("x-app-status-code").Single());
+            using var body = JsonDocument.Parse(await older.Content.ReadAsStringAsync());
+            Assert.Equal("1400", body.RootElement.GetProperty("error").GetProperty("code").GetString());
+        }
+    }
+
+    [Fact]
     public async Task Missing_header_treated_as_old_when_enabled()
     {
         await SetAsync("2.12.0");
@@ -149,6 +171,9 @@ public sealed class ClientUpdateTests : IClassFixture<ClientUpdateFixture>, IDis
             Assert.True(reloaded.IsOutdated("2.11.0-release"));
             Assert.False(reloaded.IsOutdated("2.12.0"));
             Assert.False(reloaded.IsOutdated("2.12.0+7f3a"));
+            // A DIAG build is exactly its numeric version.
+            Assert.False(reloaded.IsOutdated("2.12.0-diag"));
+            Assert.True(reloaded.IsOutdated("2.11.1-diag"));
 
             reloaded.Set("");
             Assert.Equal("", new ClientUpdateState(NullLogger<ClientUpdateState>.Instance, path).Current.MinimumVersion);

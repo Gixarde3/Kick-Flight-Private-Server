@@ -1500,12 +1500,21 @@ public sealed partial class DemoSessionApi
     /// error.maintenanceTitle/Description elsewhere, then back to Title). That covers /auth/index and /battle/entry, so
     /// nobody logs in or queues. Let through: /boot/index, so the client still reaches the title screen; /battle/end
     /// and /battle/result, so matches already running finish and keep their results. /user/online (every 600 s, empty
-    /// callbacks) gets 401 instead, which silently sends an idle player back to Title. Null = handle normally.
+    /// callbacks) gets 401 instead, which silently sends an idle player back to Title. A diagnostic build
+    /// (x-app-application-version ending in Maintenance:BypassVersionSuffix) is served normally on every path and each
+    /// bypass is logged once at Debug. Null = handle normally.
     /// </summary>
     private IResult? TryHandleHardMaintenance(HttpContext context, string path)
     {
         if (_maintenance.Current.Mode != MaintenanceMode.Hard) return null;
         if (path is "/boot/index" or "/battle/end" or "/battle/result") return null;
+
+        var clientVersion = context.Request.Headers["x-app-application-version"].ToString();
+        if (_maintenance.IsBypassClient(clientVersion))
+        {
+            _logger.LogDebug("Maintenance: bypassed for DIAG client {Version} on {Path}", clientVersion, path);
+            return null;
+        }
 
         if (path == "/user/online")
         {
@@ -1518,6 +1527,10 @@ public sealed partial class DemoSessionApi
         return Results.Text(_maintenance.BuildHardErrorJson(), "application/json", Encoding.UTF8,
             StatusCodes.Status503ServiceUnavailable);
     }
+
+    /// <summary>True when this request identifies itself as a diagnostic build (see MaintenanceState.IsBypassClient).</summary>
+    private bool IsDiagClient(HttpContext context) =>
+        _maintenance.IsBypassClient(context.Request.Headers["x-app-application-version"].ToString());
 
     private string BuildHomeJson(SessionState state)
     {
@@ -1756,7 +1769,8 @@ public sealed partial class DemoSessionApi
         NormalizeCostume(state);
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
         var entry = _matchmaking.CreateTeam(
-            state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck, code);
+            state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck, code,
+            isDiag: IsDiagClient(context));
         // TeamCreate is called before Photon joins the recruiting room. Echo the app-asset revision the client
         // already has; an empty list is interpreted as missing application data and sends it to the update/restart
         // flow before it reaches Photon.
@@ -1790,7 +1804,8 @@ public sealed partial class DemoSessionApi
         NormalizeCostume(state);
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
         var entry = _matchmaking.JoinTeam(
-            teamId, state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, deck);
+            teamId, state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, deck,
+            isDiag: IsDiagClient(context));
         if (entry is null) return StatusError(context, key);
 
         var response = new
@@ -1976,7 +1991,8 @@ public sealed partial class DemoSessionApi
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
         NormalizeCostume(state);
         var (battleEntryId, ticketId) = _matchmaking.RegisterEntry(
-            state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck);
+            state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck,
+            isDiag: IsDiagClient(context));
 
         var resp = new
         {

@@ -42,6 +42,11 @@ public sealed class BattleMatchmakingService
         public List<int> DeckDiscs { get; set; } = [];
         /// <summary>Stable matchmaking party identity. Null means the player queues alone.</summary>
         public string? PartyId { get; set; }
+        /// <summary>
+        /// True when the registering /battle/entry (or team) request carried the DIAG version suffix. Hard maintenance
+        /// matches these tickets instead of refusing them (see StreamAssignmentsCoreAsync).
+        /// </summary>
+        public bool IsDiag { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
@@ -62,12 +67,13 @@ public sealed class BattleMatchmakingService
         string MatchmakingTeamId, string Code, int BattleRuleId, IReadOnlyList<int> KickerCostumeIdList);
 
     public TeamMemberEntry CreateTeam(
-        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string code)
+        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string code,
+        bool isDiag = false)
     {
         lock (_teamLock)
         {
             var teamId = $"team-{Guid.NewGuid():N}"[..21];
-            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, teamId);
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, teamId, isDiag);
             var team = new TeamLobby
             {
                 MatchmakingTeamId = teamId,
@@ -82,7 +88,7 @@ public sealed class BattleMatchmakingService
     }
 
     public TeamMemberEntry? JoinTeam(
-        string teamId, string userId, string userName, int kickerId, int costumeId, List<int> deck)
+        string teamId, string userId, string userName, int kickerId, int costumeId, List<int> deck, bool isDiag = false)
     {
         lock (_teamLock)
         {
@@ -91,7 +97,7 @@ public sealed class BattleMatchmakingService
                 return new TeamMemberEntry(existing.BattleEntryId, existing.TicketId, team.MatchmakingTeamId);
             if (team.MembersByUserId.Count >= MaxPerTeam) return null;
 
-            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, team.BattleRuleId, deck, teamId);
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, team.BattleRuleId, deck, teamId, isDiag);
             team.MembersByUserId.Add(userId, member);
             return new TeamMemberEntry(member.BattleEntryId, member.TicketId, team.MatchmakingTeamId);
         }
@@ -242,14 +248,15 @@ public sealed class BattleMatchmakingService
 
     public (string battleEntryId, string ticketId) RegisterEntry(
         string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck,
-        string? partyId = null)
+        string? partyId = null, bool isDiag = false)
     {
-        var session = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, partyId);
+        var session = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, partyId, isDiag);
         return (session.BattleEntryId, session.TicketId);
     }
 
     private BattleEntrySession RegisterTeamMember(
-        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string? partyId)
+        string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string? partyId,
+        bool isDiag = false)
     {
         var entryId = $"be-{Guid.NewGuid():N}"[..12];
         var ticketId = $"ticket-{Guid.NewGuid():N}"[..16];
@@ -264,7 +271,8 @@ public sealed class BattleMatchmakingService
             KickerCostumeId = costumeId,
             BattleRuleId = battleRuleId,
             DeckDiscs = deck,
-            PartyId = string.IsNullOrWhiteSpace(partyId) ? null : partyId.Trim()
+            PartyId = string.IsNullOrWhiteSpace(partyId) ? null : partyId.Trim(),
+            IsDiag = isDiag
         };
 
         _entriesByTicket[ticketId] = session;
@@ -503,7 +511,8 @@ public sealed class BattleMatchmakingService
     public async Task StreamAssignmentsAsync(
         string ticketId,
         IServerStreamWriter<GetAssignmentsResponse> responseStream,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool isDiag = false)
     {
         // A cancelled ticket's stream, whether it attached before /battle/cancel or after, completes normally (gRPC
         // status OK, same as the excluded-party path) instead of waiting for a room it is no longer in.
@@ -521,7 +530,7 @@ public sealed class BattleMatchmakingService
 
         try
         {
-            await StreamAssignmentsCoreAsync(ticketId, responseStream, withdrawal.Token);
+            await StreamAssignmentsCoreAsync(ticketId, responseStream, withdrawal.Token, isDiag);
         }
         catch (OperationCanceledException) when (withdrawal.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
@@ -540,7 +549,8 @@ public sealed class BattleMatchmakingService
     private async Task StreamAssignmentsCoreAsync(
         string ticketId,
         IServerStreamWriter<GetAssignmentsResponse> responseStream,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool isDiag = false)
     {
         var playerSession = _entriesByTicket.TryGetValue(ticketId, out var registered)
             ? registered
@@ -592,11 +602,16 @@ public sealed class BattleMatchmakingService
             }
 
             // gRPC does not pass through DemoSessionApi's 503: a ticket issued just before hard maintenance must not
-            // open or join a room either. Replays of rooms that already started (above) still go out.
+            // open or join a room either. Replays of rooms that already started (above) still go out. A DIAG ticket
+            // (the registering /battle/entry carried the suffix, or the GetAssignments metadata did) keeps matching.
             if (_maintenance?.Current.Mode == MaintenanceMode.Hard)
             {
-                _logger.LogInformation("Maintenance: ticket {TicketId} not matched", ticketId);
-                return;
+                if (!playerSession.IsDiag && !isDiag)
+                {
+                    _logger.LogInformation("Maintenance: ticket {TicketId} not matched", ticketId);
+                    return;
+                }
+                _logger.LogDebug("Maintenance: DIAG ticket {TicketId} allowed to match", ticketId);
             }
 
             var openRoom = IsJoinable(_pendingRoom, playerSession) ? _pendingRoom : null;
@@ -701,7 +716,7 @@ public sealed class BattleMatchmakingService
                 _logger.LogInformation(
                     "Re-queueing excluded party member {UserId} from room {BattleId}",
                     playerSession.UserId, room.BattleId);
-                await StreamAssignmentsCoreAsync(ticketId, responseStream, cancellationToken);
+                await StreamAssignmentsCoreAsync(ticketId, responseStream, cancellationToken, isDiag);
                 return;
             }
 
@@ -1128,12 +1143,15 @@ public sealed class BattleMatchmakingService
 public sealed class OpenMatchFrontendService : Frontend.FrontendBase
 {
     private readonly BattleMatchmakingService _matchmaking;
+    private readonly MaintenanceState? _maintenance;
     private readonly ILogger<OpenMatchFrontendService> _logger;
 
-    public OpenMatchFrontendService(BattleMatchmakingService matchmaking, ILogger<OpenMatchFrontendService> logger)
+    public OpenMatchFrontendService(BattleMatchmakingService matchmaking, ILogger<OpenMatchFrontendService> logger,
+        MaintenanceState? maintenance = null)
     {
         _matchmaking = matchmaking;
         _logger = logger;
+        _maintenance = maintenance;
     }
 
     public override async Task GetAssignments(
@@ -1143,9 +1161,17 @@ public sealed class OpenMatchFrontendService : Frontend.FrontendBase
     {
         _logger.LogInformation("gRPC GetAssignments invoked for ticket {TicketId}", request.TicketId);
 
+        // The ticket's registering /battle/entry request is the authoritative DIAG signal, but the client may also
+        // repeat x-app-application-version as gRPC metadata; honour it when the ticket is one this process does not
+        // know (a demo ticket).
+        var version = context.RequestHeaders
+            .FirstOrDefault(entry => string.Equals(entry.Key, "x-app-application-version", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+        var isDiag = _maintenance?.IsBypassClient(version) == true;
+
         try
         {
-            await _matchmaking.StreamAssignmentsAsync(request.TicketId, responseStream, context.CancellationToken);
+            await _matchmaking.StreamAssignmentsAsync(request.TicketId, responseStream, context.CancellationToken, isDiag);
         }
         catch (OperationCanceledException)
         {

@@ -135,6 +135,109 @@ public sealed class MaintenanceTests : IClassFixture<MaintenanceFixture>, IDispo
     }
 
     [Fact]
+    public async Task Hard_mode_serves_diag_clients_normally_and_still_refuses_production_versions()
+    {
+        var session = await CreateSessionAsync();
+        await AdminAsync("POST", """{"mode":"hard","title":"Down","message":"Back soon"}""");
+
+        // A DIAG build (any casing) is served normally on the paths that would otherwise 503 / 401.
+        foreach (var path in new[] { "/home/index", "/battle/entry", "/user/online" })
+        {
+            using var response = await RawPostAsync(session, path, null, version: "2.11.1-DIAG");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("0", response.Headers.GetValues("x-app-status-code").Single());
+        }
+
+        // The production build and a versionless client still get hard maintenance.
+        using (var production = await RawPostAsync(session, "/home/index", null, version: "2.11.1"))
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, production.StatusCode);
+        using (var missing = await RawPostAsync(session, "/home/index", null))
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, missing.StatusCode);
+        using (var online = await RawPostAsync(session, "/user/online", null, version: "2.11.1"))
+            Assert.Equal(HttpStatusCode.Unauthorized, online.StatusCode);
+
+        await AdminAsync("POST", """{"mode":"off"}""");
+    }
+
+    [Fact]
+    public async Task Hard_mode_matches_a_diag_ticket_on_the_grpc_stream()
+    {
+        var maintenance = new MaintenanceState(NullLogger<MaintenanceState>.Instance,
+            Path.Combine(Path.GetTempPath(), $"kf-maintenance-{Guid.NewGuid():N}.json"));
+        try
+        {
+            maintenance.Set(MaintenanceMode.Hard, null, null);
+            var photon = new PhotonServerManager(Options.Create(new PhotonServerOptions { Enabled = false }),
+                NullLogger<PhotonServerManager>.Instance);
+            var matchmaking = new BattleMatchmakingService(NullLogger<BattleMatchmakingService>.Instance, photon, maintenance);
+            matchmaking.MatchWindow = TimeSpan.FromMilliseconds(50);
+            // Same setup as the plain-version refusal test above, but the registering /battle/entry was a DIAG build:
+            // the ticket must reach Stage 1 instead of being dropped.
+            var (_, ticket) = matchmaking.RegisterEntry("1000001", "Diag", 1, 1, 1,
+                [3010001, 3010002, 3010003, 3010004], isDiag: true);
+
+            using var cancellation = new CancellationTokenSource();
+            var writer = new CountingWriter();
+            var stream = matchmaking.StreamAssignmentsAsync(ticket, writer, cancellation.Token);
+            await writer.FirstWrite.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.True(writer.Count >= 1);
+            cancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stream);
+        }
+        finally
+        {
+            File.Delete(maintenance.FilePath);
+        }
+    }
+
+    [Fact]
+    public void Bypass_suffix_defaults_to_diag_and_is_configurable()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"kf-maintenance-{Guid.NewGuid():N}.json");
+        try
+        {
+            var defaulted = new MaintenanceState(NullLogger<MaintenanceState>.Instance, path);
+            Assert.Equal(MaintenanceState.DefaultBypassVersionSuffix, defaulted.BypassVersionSuffix);
+            Assert.True(defaulted.IsBypassClient("2.11.1-diag"));
+            Assert.True(defaulted.IsBypassClient("2.11.1-DIAG"));
+            Assert.True(defaulted.IsBypassClient("  2.11.1-Diag  "));
+            Assert.False(defaulted.IsBypassClient("2.11.1"));
+            Assert.False(defaulted.IsBypassClient("2.11.1-diagX"));
+            Assert.False(defaulted.IsBypassClient(null));
+            Assert.False(defaulted.IsBypassClient(""));
+
+            var canary = new MaintenanceState(NullLogger<MaintenanceState>.Instance, path, "-canary");
+            Assert.True(canary.IsBypassClient("2.11.1-canary"));
+            Assert.False(canary.IsBypassClient("2.11.1-diag"));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Bypass_version_suffix_is_read_from_configuration()
+    {
+        var stateFile = Path.Combine(Path.GetTempPath(), $"kf-maintenance-{Guid.NewGuid():N}.json");
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
+            .UseContentRoot(AppContext.BaseDirectory)
+            .UseSetting("Maintenance:FilePath", stateFile)
+            .UseSetting("Maintenance:BypassVersionSuffix", "-canary"));
+        try
+        {
+            var maintenance = factory.Services.GetRequiredService<MaintenanceState>();
+            Assert.Equal("-canary", maintenance.BypassVersionSuffix);
+            Assert.True(maintenance.IsBypassClient("2.11.1-canary"));
+            Assert.False(maintenance.IsBypassClient("2.11.1-diag"));
+        }
+        finally
+        {
+            File.Delete(stateFile);
+        }
+    }
+
+    [Fact]
     public async Task Admin_endpoint_only_answers_unforwarded_loopback_callers()
     {
         // No remote address at all, a remote one, and loopback carrying either proxy header (= came through nginx).
@@ -228,7 +331,7 @@ public sealed class MaintenanceTests : IClassFixture<MaintenanceFixture>, IDispo
             response.Headers.GetValues("x-app-user-id").Single());
     }
 
-    private static async Task<HttpResponseMessage> RawPostAsync(DemoSession session, string path, object? body)
+    private static async Task<HttpResponseMessage> RawPostAsync(DemoSession session, string path, object? body, string? version = null)
     {
         var json = body is null ? "{}" : JsonSerializer.Serialize(body);
         var request = new HttpRequestMessage(HttpMethod.Post, path)
@@ -236,6 +339,7 @@ public sealed class MaintenanceTests : IClassFixture<MaintenanceFixture>, IDispo
             Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(json), session.Key, new byte[16]))
         };
         request.Headers.Host = Host;
+        if (version is not null) request.Headers.TryAddWithoutValidation("x-app-application-version", version);
         return await session.Client.SendAsync(request);
     }
 
@@ -252,12 +356,16 @@ public sealed class MaintenanceTests : IClassFixture<MaintenanceFixture>, IDispo
 
     private sealed class CountingWriter : IServerStreamWriter<GetAssignmentsResponse>
     {
+        private readonly TaskCompletionSource _firstWrite = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
         public WriteOptions? WriteOptions { get; set; }
         public int Count { get; private set; }
+        public Task FirstWrite => _firstWrite.Task;
 
         public Task WriteAsync(GetAssignmentsResponse message)
         {
             Count++;
+            _firstWrite.TrySetResult();
             return Task.CompletedTask;
         }
     }

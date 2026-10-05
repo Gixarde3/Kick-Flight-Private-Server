@@ -26,6 +26,11 @@ public sealed record MaintenanceSnapshot(
 /// userNoticeList entry to /home/index, Hard makes DemoSessionApi answer the client's maintenance error. Set through the
 /// loopback-only /admin/maintenance endpoint and persisted to &lt;content root&gt;/data/maintenance.json (next to the JSON
 /// player store's data/users) so an API restart keeps it. Maintenance:FilePath overrides the location (tests).
+///
+/// In Hard mode a diagnostic client build still gets through: the client sends x-app-application-version, and a value
+/// ending in Maintenance:BypassVersionSuffix (default "-diag", case-insensitive) is served normally instead of the 503
+/// / 401. The gRPC matchmaking path learns the same thing from the ticket's registering /battle/entry request (and,
+/// when present, the gRPC metadata of the GetAssignments call itself).
 /// </summary>
 public sealed class MaintenanceState
 {
@@ -33,6 +38,7 @@ public sealed class MaintenanceState
     public const string DefaultWarningMessage =
         "The server will go down for maintenance shortly. Please finish your match.";
     public const string DefaultHardMessage = "The server is under maintenance. Please try again in a few minutes.";
+    public const string DefaultBypassVersionSuffix = "-diag";
 
     private static readonly JsonSerializerOptions FileJson = new() { WriteIndented = true };
 
@@ -43,18 +49,33 @@ public sealed class MaintenanceState
     public MaintenanceState(ILogger<MaintenanceState> logger, IWebHostEnvironment environment, IConfiguration configuration)
         : this(logger, configuration["Maintenance:FilePath"] is { Length: > 0 } configured
             ? configured
-            : Path.Combine(environment.ContentRootPath, "data", "maintenance.json"))
+            : Path.Combine(environment.ContentRootPath, "data", "maintenance.json"),
+            configuration["Maintenance:BypassVersionSuffix"])
     {
     }
 
-    public MaintenanceState(ILogger<MaintenanceState> logger, string filePath)
+    public MaintenanceState(ILogger<MaintenanceState> logger, string filePath, string? bypassVersionSuffix = null)
     {
         _logger = logger;
         FilePath = Path.GetFullPath(filePath);
+        BypassVersionSuffix = string.IsNullOrWhiteSpace(bypassVersionSuffix)
+            ? DefaultBypassVersionSuffix
+            : bypassVersionSuffix.Trim();
         Load();
     }
 
     public string FilePath { get; }
+
+    /// <summary>Suffix that marks a diagnostic build, e.g. the "-diag" in "2.11.1-diag". Never empty.</summary>
+    public string BypassVersionSuffix { get; }
+
+    /// <summary>
+    /// True when the client's x-app-application-version ends in the configured DIAG suffix (case-insensitive), i.e. a
+    /// diagnostic build allowed through Hard maintenance. A production version such as "2.11.1" never matches.
+    /// </summary>
+    public bool IsBypassClient(string? clientVersion) =>
+        !string.IsNullOrWhiteSpace(clientVersion)
+        && clientVersion.Trim().EndsWith(BypassVersionSuffix, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Immutable snapshot; read it once per request so mode and text stay consistent.</summary>
     public MaintenanceSnapshot Current
