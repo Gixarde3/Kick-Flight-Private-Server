@@ -666,10 +666,20 @@ def summon_table(skills: list) -> list:
 #   * ThrowingStar/RocketLauncher fire a SpecialSkillBullet (collision/hit for the impact).
 # Condition tuples: (conditionType, duration, interval, effectValue[, triggerType]).
 # Keyed by weaponType; values from the kickers' special-skill descriptions (masters_kicker_detail.json).
+# Tsubame's special. SwordSpecialSkillAction.ExecuteSkillEffect applies the trigger-3 rows during the cut-scene (the
+# SpecialSkill.duration it loads there is discarded), and BlowoffColliderConditionAction only spawns the tornado once
+# the player has left PlayerStateSpecialSkill (state 13), with lifetime = condition duration - elapsed time. The cut
+# therefore eats into the tornado: a 10 s row gave ~6 s in play (play-test 2026-10), i.e. the cut takes ~4 s. The
+# condition rows are served for ACTIVE + CUT seconds so the tornado and the speed buff last ACTIVE seconds after it.
+TSUBAME_SS_ACTIVE_SECONDS = 10.0
+TSUBAME_SS_CUT_SECONDS = 4.0
+_TSUBAME_SS_CONDITION_SECONDS = TSUBAME_SS_ACTIVE_SECONDS + TSUBAME_SS_CUT_SECONDS
 SPECIAL_SKILL_DATA = {
     # Tsubame: speed +20 % and a tornado around her (BlowoffColliderConditionAction builds a DamageCollisionData
     # from SpecialSkillCollision + GetSpecialSkillDamageInitInfo; the knock-up itself is the SpecialSkillBlowOff row)
-    WT_SWORD:          {"duration": 10.0, "conditions": [(COND_SPEED_RATE, 10.0, 0.0, 1.2), (13, 10.0, 0.0, 1.0)],
+    WT_SWORD:          {"duration": TSUBAME_SS_ACTIVE_SECONDS,
+                        "conditions": [(COND_SPEED_RATE, _TSUBAME_SS_CONDITION_SECONDS, 0.0, 1.2),
+                                       (13, _TSUBAME_SS_CONDITION_SECONDS, 0.0, 1.0)],
                         "collision": {"collisionType": COL_SPHERE, "radius": 4.0, "length": 0.0},
                         "blow_off": {"distance": 6.0, "speed": 20.0, "rigorTime": 0.5, "directionType": 1}},         # 1 = Up
     WT_TWO_GUNS:       {"duration": 10.0, "conditions": [(COND_REGENERATION, 10.0, 1.0, 0.05)]},                      # allies regen 5 %/s
