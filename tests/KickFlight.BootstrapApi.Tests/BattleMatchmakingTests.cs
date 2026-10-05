@@ -225,6 +225,9 @@ public sealed class BattleMatchmakingTests
         await leaverWriter.FirstWrite;
 
         Assert.True(service.CancelEntry(entryId));
+        // The client waits for its GetAssignments call to finish after the cancel: the stream must end on its own,
+        // cleanly and long before the 30 s window would have closed.
+        await leaverStream.WaitAsync(TimeSpan.FromSeconds(2));
 
         // The dropped room is no longer pending: the next human waits alone in a fresh room instead of joining it.
         var (_, nextTicket) = service.RegisterEntry("1000002", "Next", 2, 1, 1, [3010001, 3010002, 3010003, 3010004]);
@@ -235,9 +238,6 @@ public sealed class BattleMatchmakingTests
         Assert.Equal("1000002", Assert.Single(Roster(nextWriter.Responses[0].Assignment)).GetProperty("userId").GetString());
         Assert.Single(leaverWriter.Responses); // no interim roster reached the leaver
 
-        // The leaver's stream ending afterwards (the client left the scene) finds nothing left to remove.
-        leaverCancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => leaverStream);
         nextCancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => nextStream);
     }
@@ -261,6 +261,7 @@ public sealed class BattleMatchmakingTests
         await leaverWriter.FirstWrite;
 
         Assert.True(service.CancelEntry(leaverEntry));
+        await leaverStream.WaitAsync(TimeSpan.FromSeconds(2));
         Assert.False(service.CancelEntry(leaverEntry)); // a repeated back press is harmless
         Assert.False(service.CancelEntry("be-unknown"));
 
@@ -271,10 +272,41 @@ public sealed class BattleMatchmakingTests
         Assert.Equal("1000001", Assert.Single(roster, entry => entry.GetProperty("kickerAiParameterId").GetInt32() == 0)
             .GetProperty("userId").GetString());
 
-        // The cancelled stream is woken by the window closing and ends quietly: no re-queue, no room of its own.
-        await leaverStream.WaitAsync(TimeSpan.FromSeconds(5));
+        // The cancelled stream ended without an assignment: no re-queue, no room of its own.
         Assert.All(leaverWriter.Responses, response => Assert.Empty(response.Assignment.Connection));
         Assert.False(service.CancelEntry(stayerEntry)); // the stayer is in a started battle now
+    }
+
+    [Fact]
+    public async Task A_stream_that_attaches_after_the_cancel_completes_at_once_without_writes()
+    {
+        var service = CreateService();
+        service.MatchWindow = TimeSpan.FromSeconds(30);
+
+        var (entryId, ticket) = service.RegisterEntry("1000001", "Early leaver", 1, 1, 1, [3010001, 3010002, 3010003, 3010004]);
+        Assert.True(service.CancelEntry(entryId));
+
+        using var cancellation = new CancellationTokenSource();
+        var writer = new CollectingWriter(expectedCount: 10, cancellation);
+        await service.StreamAssignmentsAsync(ticket, writer, cancellation.Token).WaitAsync(TimeSpan.FromSeconds(2));
+        Assert.Empty(writer.Responses);
+    }
+
+    [Fact]
+    public async Task Cancel_ends_a_team_ticket_stream_still_waiting_for_the_host_entry()
+    {
+        var service = CreateService();
+        var member = service.CreateTeam("1000001", "Host", 1, 1, 1, [3010001, 3010002, 3010003, 3010004], "2563");
+
+        using var cancellation = new CancellationTokenSource();
+        var writer = new CollectingWriter(expectedCount: 10, cancellation);
+        var stream = service.StreamAssignmentsAsync(member.TicketId, writer, cancellation.Token);
+        await Task.Delay(100);
+        Assert.False(stream.IsCompleted); // parked until /battle/teamEntry
+
+        Assert.True(service.CancelEntry(member.BattleEntryId));
+        await stream.WaitAsync(TimeSpan.FromSeconds(2));
+        Assert.Empty(writer.Responses);
     }
 
     [Fact]

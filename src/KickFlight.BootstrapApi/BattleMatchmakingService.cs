@@ -306,6 +306,9 @@ public sealed class BattleMatchmakingService
     /// <summary>Tickets withdrawn with /battle/cancel; a stream still open for one never joins or re-queues. Guarded by _matchLock.</summary>
     private readonly HashSet<string> _cancelledTickets = new(StringComparer.Ordinal);
 
+    /// <summary>One token source per open GetAssignments stream, so CancelEntry can end it. Guarded by _matchLock.</summary>
+    private readonly Dictionary<string, List<CancellationTokenSource>> _streamsByTicket = new(StringComparer.Ordinal);
+
     // How long a room stays open for more humans. The first entry opens this base window and every human that
     // joins extends the deadline (JoinIncrementSeconds); bots fill the empty slots after it expires.
     // KF_MATCH_WINDOW_SECONDS=0 disables the window (start as soon as a second human appears).
@@ -417,6 +420,7 @@ public sealed class BattleMatchmakingService
     {
         if (string.IsNullOrWhiteSpace(battleEntryId)) return false;
 
+        List<CancellationTokenSource>? streams;
         lock (_matchLock)
         {
             if (!_entriesByBattleEntryId.TryGetValue(battleEntryId, out var session)) return false;
@@ -443,8 +447,24 @@ public sealed class BattleMatchmakingService
             _logger.LogInformation(
                 "Cancelled battle entry {BattleEntryId} for user {UserId} (room {BattleId}, {Humans} human(s) left)",
                 battleEntryId, session.UserId, openRoom?.BattleId ?? "none", humansLeft);
-            return true;
+            _streamsByTicket.Remove(ticketId, out streams);
         }
+
+        // End the ticket's open streams too. After the cancel succeeds the client keeps waiting for its GetAssignments
+        // call to finish before it leaves the matching screen; a stream left parked on the dropped room's window froze
+        // it there (2026-10-05). Cancelled outside the lock: the streams' own cleanup takes it.
+        foreach (var stream in streams ?? [])
+        {
+            try
+            {
+                stream.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // That stream already ended on its own.
+            }
+        }
+        return true;
     }
 
     /// <summary>Forgets a room every waiting human left. Caller holds _matchLock.</summary>
@@ -473,6 +493,43 @@ public sealed class BattleMatchmakingService
     };
 
     public async Task StreamAssignmentsAsync(
+        string ticketId,
+        IServerStreamWriter<GetAssignmentsResponse> responseStream,
+        CancellationToken cancellationToken)
+    {
+        // A cancelled ticket's stream, whether it attached before /battle/cancel or after, completes normally (gRPC
+        // status OK, same as the excluded-party path) instead of waiting for a room it is no longer in.
+        using var withdrawal = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        lock (_matchLock)
+        {
+            if (_cancelledTickets.Contains(ticketId))
+            {
+                _logger.LogInformation("Ticket {TicketId} was cancelled; ending its GetAssignments stream", ticketId);
+                return;
+            }
+            if (!_streamsByTicket.TryGetValue(ticketId, out var open)) _streamsByTicket[ticketId] = open = [];
+            open.Add(withdrawal);
+        }
+
+        try
+        {
+            await StreamAssignmentsCoreAsync(ticketId, responseStream, withdrawal.Token);
+        }
+        catch (OperationCanceledException) when (withdrawal.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Ended GetAssignments stream of cancelled ticket {TicketId}", ticketId);
+        }
+        finally
+        {
+            lock (_matchLock)
+            {
+                if (_streamsByTicket.TryGetValue(ticketId, out var open) && open.Remove(withdrawal) && open.Count == 0)
+                    _streamsByTicket.Remove(ticketId);
+            }
+        }
+    }
+
+    private async Task StreamAssignmentsCoreAsync(
         string ticketId,
         IServerStreamWriter<GetAssignmentsResponse> responseStream,
         CancellationToken cancellationToken)
@@ -636,7 +693,7 @@ public sealed class BattleMatchmakingService
                 _logger.LogInformation(
                     "Re-queueing excluded party member {UserId} from room {BattleId}",
                     playerSession.UserId, room.BattleId);
-                await StreamAssignmentsAsync(ticketId, responseStream, cancellationToken);
+                await StreamAssignmentsCoreAsync(ticketId, responseStream, cancellationToken);
                 return;
             }
 
