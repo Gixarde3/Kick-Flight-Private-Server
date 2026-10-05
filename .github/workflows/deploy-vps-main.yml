@@ -1,199 +1,144 @@
-name: Deploy VPS (main)
+name: Read VPS Photon diagnostics (read only)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      since:
+        description: "Start of the UTC log window (YYYY-MM-DDTHH:MM:SSZ)"
+        required: true
+        type: string
+        default: "2026-10-05T02:45:00Z"
+      until:
+        description: "End of the UTC log window (YYYY-MM-DDTHH:MM:SSZ)"
+        required: true
+        type: string
+        default: "2026-10-05T03:15:00Z"
 
 permissions:
   contents: read
 
 concurrency:
-  group: kick-flight-vps-main
+  group: kick-flight-vps-readonly-diagnostics
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy main to VPS
+  inspect:
+    name: Read production Photon and matchmaking logs
+    if: github.repository == 'gixakickflight/Kick-Flight-Private-Server' && github.ref == 'refs/heads/diag/vps-photon-logs-readonly'
     runs-on: ubuntu-24.04
     environment: production
+    timeout-minutes: 5
     steps:
-      - name: Check out main and recursive submodules
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Require the pushed commit to still be main
-        id: main_tip
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "$GITHUB_REF" == "refs/heads/main" ]] || { echo "Ref is not main" >&2; exit 1; }
-          [[ "$(git rev-parse HEAD)" == "$GITHUB_SHA" ]] || { echo "Checkout does not match event SHA" >&2; exit 1; }
-          git fetch --quiet origin main
-          latest_main="$(git rev-parse origin/main)"
-          [[ "$latest_main" == "$GITHUB_SHA" ]] || {
-            echo "Skipping stale main event; a newer main push will deploy the current tip"
-            echo "deployable=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          }
-          echo "deployable=true" >> "$GITHUB_OUTPUT"
-
-      - name: Detect deployment components
-        id: changes
-        if: steps.main_tip.outputs.deployable == 'true'
-        shell: bash
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-        run: |
-          set -euo pipefail
-          if [[ ! "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
-            printf '%s\n' 'deploy=true' 'api=true' 'photon=true' 'cdn=true' 'farm=true' 'site=true' 'caddy=true' 'full=true' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          python3 - "$BEFORE_SHA" "$GITHUB_SHA" >> "$GITHUB_OUTPUT" <<'PY'
-          import subprocess
-          import sys
-
-          before, after = sys.argv[1:]
-          changed = subprocess.check_output(["git", "diff", "--name-only", "-z", before, after]).decode().split("\0")
-          changed = [path for path in changed if path]
-          flags = {"deploy": False, "api": False, "photon": False, "cdn": False,
-                   "farm": False, "site": False, "caddy": False, "full": False}
-          generators = {
-              "scripts/build-cdn-tree.py", "scripts/build-title-resource-catalog.py",
-              "scripts/build-title-resource-catalog.ps1", "scripts/build_kicker_catalog.py",
-              "scripts/build_complete_catalog.py", "scripts/build-kicker-skin-thumbnail-bundles.py",
-              "scripts/add_weapon_costume_aliases.py",
-              "scripts/update-apk-catalog-sha.py",
-          }
-          for path in changed:
-              if path == ".gitmodules":
-                  flags["photon"] = True
-              if path.startswith("src/") or path in {"Dockerfile", ".dockerignore", "Dockerfile.dockerignore"}:
-                  flags["api"] = True
-              if path.startswith("config/") or path.startswith("content/"):
-                  flags["api"] = True
-                  flags["full"] = True
-              if path.startswith("content/") or path == "config/resources/catalog.json":
-                  flags["farm"] = True
-              if path == "submodules/luxonserver" or path.startswith("deploy/photon/"):
-                  flags["photon"] = True
-              if path.startswith("deploy/nginx/") or path == "deploy/nginx.vps.conf":
-                  flags["cdn"] = True
-              if path.startswith("deploy/site/"):
-                  flags["site"] = True
-              if path.startswith("deploy/caddy/"):
-                  flags["caddy"] = True
-              if path in {
-                  "deploy/docker-compose.vps.yml", "deploy/docker-compose.vps.external-db.yml",
-                  "deploy/nginx.grpc.vps.conf", "deploy/geoip/Dockerfile",
-              } or path.startswith("deploy/geoip/"):
-                  flags["full"] = True
-              if path in generators:
-                  flags["farm"] = True
-                  flags["api"] = True
-                  flags["full"] = True
-              if path == "scripts/build-cdn-tree.py":
-                  flags["cdn"] = True
-
-          if flags["full"]:
-              for component in ("api", "photon", "cdn", "site", "caddy", "farm"):
-                  flags[component] = True
-          flags["deploy"] = any(value for key, value in flags.items() if key != "deploy")
-          for key, value in flags.items():
-              print(f"{key}={'true' if value else 'false'}")
-          PY
-
-      - name: Stop when no deployed component changed
-        if: steps.main_tip.outputs.deployable == 'true' && steps.changes.outputs.deploy != 'true'
-        run: echo "No VPS runtime files changed; deployment skipped."
-
-      - name: Package repository sources without runtime secrets or large sibling assets
-        if: steps.main_tip.outputs.deployable == 'true' && steps.changes.outputs.deploy == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          payload="$RUNNER_TEMP/kf-vps-payload"
-          mkdir -p "$payload/tree/submodules/luxonserver"
-          git archive --format=tar "$GITHUB_SHA" | tar -xf - -C "$payload/tree"
-          rm -rf "$payload/tree/submodules/luxonserver"
-          mkdir -p "$payload/tree/submodules/luxonserver"
-          tar --exclude='.git' --exclude='*/.git' -C submodules/luxonserver -cf - . \
-            | tar -xf - -C "$payload/tree/submodules/luxonserver"
-          find "$payload/tree" -name '.env' -exec rm -rf -- {} +
-          rm -rf "$payload/tree/.local" "$payload/tree/captures" "$payload/tree/logs" \
-            "$payload/tree/certs" "$payload/tree/data/users" "$payload/tree/config/fixtures.local"
-          find "$payload/tree" -type f -o -type l | sed "s#^$payload/tree/##" | sort > "$payload/tree/.kf-managed-files"
-          tar -czf "$RUNNER_TEMP/kf-vps-release.tar.gz" -C "$payload/tree" .
-          rm -rf "$payload"
-
-      - name: Configure pinned SSH host verification
-        if: steps.main_tip.outputs.deployable == 'true' && steps.changes.outputs.deploy == 'true'
+      - name: Validate pinned SSH access and inspect runtime state
         shell: bash
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
           VPS_HOST: ${{ vars.VPS_HOST }}
-          VPS_SSH_PORT: ${{ vars.VPS_SSH_PORT }}
-        run: |
-          set -euo pipefail
-          [[ -n "$VPS_SSH_PRIVATE_KEY" ]] || { echo "Missing secret VPS_SSH_PRIVATE_KEY" >&2; exit 1; }
-          [[ -n "$VPS_KNOWN_HOSTS" ]] || { echo "Missing secret VPS_KNOWN_HOSTS" >&2; exit 1; }
-          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$RUNNER_TEMP/kf-vps-deploy-key"
-          chmod 600 "$RUNNER_TEMP/kf-vps-deploy-key"
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/kf-vps-known-hosts"
-          chmod 600 "$RUNNER_TEMP/kf-vps-known-hosts"
-          known_host="$VPS_HOST"
-          if [[ -n "$VPS_SSH_PORT" && "$VPS_SSH_PORT" != 22 ]]; then
-            known_host="[$VPS_HOST]:$VPS_SSH_PORT"
-          fi
-          ssh-keygen -F "$known_host" -f "$RUNNER_TEMP/kf-vps-known-hosts" >/dev/null || {
-            echo "VPS_KNOWN_HOSTS does not contain the configured VPS_HOST" >&2
-            exit 1
-          }
-
-      - name: Upload release and deploy selected services on the VPS
-        if: steps.main_tip.outputs.deployable == 'true' && steps.changes.outputs.deploy == 'true'
-        shell: bash
-        env:
-          VPS_HOST: ${{ vars.VPS_HOST }}
           VPS_USER: ${{ vars.VPS_USER }}
           VPS_APP_DIR: ${{ vars.VPS_APP_DIR }}
           VPS_SSH_PORT: ${{ vars.VPS_SSH_PORT }}
-          DEPLOY_API: ${{ steps.changes.outputs.api }}
-          DEPLOY_PHOTON: ${{ steps.changes.outputs.photon }}
-          DEPLOY_CDN: ${{ steps.changes.outputs.cdn }}
-          REBUILD_FARM: ${{ steps.changes.outputs.farm }}
-          SYNC_SITE: ${{ steps.changes.outputs.site }}
-          DEPLOY_CADDY: ${{ steps.changes.outputs.caddy }}
-          FULL_DEPLOY: ${{ steps.changes.outputs.full }}
+          LOG_SINCE: ${{ inputs.since }}
+          LOG_UNTIL: ${{ inputs.until }}
         run: |
           set -euo pipefail
-          [[ -n "$VPS_HOST" && -n "$VPS_USER" && -n "$VPS_APP_DIR" ]] || {
-            echo "Set repository variables VPS_HOST, VPS_USER, and VPS_APP_DIR" >&2
+          [[ -n "$VPS_SSH_PRIVATE_KEY" && -n "$VPS_KNOWN_HOSTS" ]] || {
+            echo "Missing production SSH secret" >&2
             exit 1
           }
-          [[ "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || { echo "VPS_HOST contains unsupported characters" >&2; exit 1; }
-          [[ "$VPS_USER" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "VPS_USER contains unsupported characters" >&2; exit 1; }
-          [[ "$VPS_APP_DIR" == /* ]] || { echo "VPS_APP_DIR must be absolute" >&2; exit 1; }
+          [[ "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] || { echo "Invalid VPS_HOST" >&2; exit 1; }
+          [[ "$VPS_USER" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "Invalid VPS_USER" >&2; exit 1; }
+          [[ "$VPS_APP_DIR" == /* && "$VPS_APP_DIR" != *$'\n'* ]] || { echo "Invalid VPS_APP_DIR" >&2; exit 1; }
+          [[ "$LOG_SINCE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || {
+            echo "Invalid UTC start timestamp" >&2; exit 1;
+          }
+          [[ "$LOG_UNTIL" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || {
+            echo "Invalid UTC end timestamp" >&2; exit 1;
+          }
+          since_epoch="$(date -u -d "$LOG_SINCE" +%s)"
+          until_epoch="$(date -u -d "$LOG_UNTIL" +%s)"
+          (( until_epoch > since_epoch && until_epoch - since_epoch <= 1800 )) || {
+            echo "Log window must be positive and at most 30 minutes" >&2; exit 1;
+          }
+
+          key_file="$RUNNER_TEMP/kf-vps-readonly-key"
+          hosts_file="$RUNNER_TEMP/kf-vps-readonly-known-hosts"
+          trap 'rm -f -- "$key_file" "$hosts_file"' EXIT
+          umask 077
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$key_file"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$hosts_file"
           port="${VPS_SSH_PORT:-22}"
-          [[ "$port" =~ ^[0-9]{1,5}$ ]] || { echo "VPS_SSH_PORT must be numeric" >&2; exit 1; }
-          remote="${VPS_USER}@${VPS_HOST}"
-          remote_archive="/tmp/kf-vps-${GITHUB_SHA}.tar.gz"
-          ssh_opts=(-i "$RUNNER_TEMP/kf-vps-deploy-key" -p "$port" -o BatchMode=yes -o IdentitiesOnly=yes
-            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/kf-vps-known-hosts")
-          scp_opts=(-i "$RUNNER_TEMP/kf-vps-deploy-key" -P "$port" -o BatchMode=yes -o IdentitiesOnly=yes
-            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/kf-vps-known-hosts")
-          scp "${scp_opts[@]}" "$RUNNER_TEMP/kf-vps-release.tar.gz" "$remote:$remote_archive"
+          [[ "$port" =~ ^[0-9]{1,5}$ ]] || { echo "Invalid VPS_SSH_PORT" >&2; exit 1; }
+          known_host="$VPS_HOST"
+          if [[ "$port" != 22 ]]; then known_host="[$VPS_HOST]:$port"; fi
+          ssh-keygen -F "$known_host" -f "$hosts_file" >/dev/null || {
+            echo "Pinned known-host entry does not match VPS_HOST" >&2; exit 1;
+          }
+
           printf -v q_app '%q' "$VPS_APP_DIR"
-          printf -v q_archive '%q' "$remote_archive"
-          printf -v q_sha '%q' "$GITHUB_SHA"
-          ssh "${ssh_opts[@]}" "$remote" \
-            "bash -s -- $q_app $q_sha $q_archive '$DEPLOY_API' '$DEPLOY_PHOTON' '$DEPLOY_CDN' '$REBUILD_FARM' '$SYNC_SITE' '$DEPLOY_CADDY' '$FULL_DEPLOY'" \
-            < scripts/deploy-vps-ci.sh
-          ssh "${ssh_opts[@]}" "$remote" "rm -f -- '$remote_archive'"
+          printf -v q_since '%q' "$LOG_SINCE"
+          printf -v q_until '%q' "$LOG_UNTIL"
+          ssh -i "$key_file" -p "$port" -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts_file" \
+            "$VPS_USER@$VPS_HOST" "bash -s -- $q_app $q_since $q_until" <<'REMOTE'
+          set -euo pipefail
+          app_dir="$1"
+          since="$2"
+          until="$3"
+          cd "$app_dir"
+          compose=(docker compose --env-file "$app_dir/.env" --project-name deploy \
+            -f "$app_dir/deploy/docker-compose.vps.external-db.yml")
+
+          echo "UTC window: $since .. $until"
+          echo "VPS clock: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for service in api grpc photon; do
+            if ! container="$("${compose[@]}" ps -q "$service" 2>/dev/null)"; then
+              echo "$service: compose status query failed"
+              exit 1
+            fi
+            if [[ -n "$container" ]]; then
+              if ! docker inspect --format '{{.Name}} status={{.State.Status}} started={{.State.StartedAt}} restarts={{.RestartCount}}' "$container" 2>/dev/null; then
+                echo "$service: container status query failed"
+                exit 1
+              fi
+            else
+              echo "$service: no running container found"
+            fi
+          done
+
+          if ! api="$("${compose[@]}" ps -q api 2>/dev/null)"; then
+            echo "api: compose status query failed"
+            exit 1
+          fi
+          if [[ -n "$api" ]]; then
+            if ! docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' "$api" 2>/dev/null \
+              | awk -F= '$1 == "KF_MATCH_WINDOW_SECONDS" { print "Effective " $1 "=" $2 }'; then
+              echo "api: selected environment value query failed"
+              exit 1
+            fi
+          fi
+          if ! grpc="$("${compose[@]}" ps -q grpc 2>/dev/null)"; then
+            echo "grpc: compose status query failed"
+            exit 1
+          fi
+          if [[ -n "$grpc" ]]; then
+            if ! nginx_config="$("${compose[@]}" exec -T grpc nginx -T 2>/dev/null)"; then
+              echo "grpc: selected nginx config query failed"
+              exit 1
+            fi
+            printf '%s\n' "$nginx_config" \
+              | sed -n '/location = \/openmatch.Frontend\/GetAssignments/,/}/p' \
+              | grep -E 'grpc_read_timeout' || true
+          fi
+
+          for service in photon api grpc; do
+            echo "--- selected $service log lines ---"
+            if ! "${compose[@]}" logs --no-color --timestamps --since "$since" --until "$until" "$service" 2>/dev/null \
+              | awk '{ line = tolower($0) }
+                line ~ /peer|game|battle-|room|master|join|leave|disconnect|timeout|connect|refused|reset|reliable|receive window|out.of.window|ack|stage[[:space:]123]|getassignments|matchmaking|roster|grpc|upstream|stream|expired|reject|closing|removed|stale|empty.room|error|warn|failed/ \
+                && line !~ /auth.?data|auth.?token|authorization|bearer|password|secret|token|ticket|private.?key|database.?url|database.?password|connection.?string|connection.?url|dsn|credential|email|user.?id|user.?name|player.?name|nickname|device.?id|session.?id|uuid|guid/ { print }'; then
+              echo "$service: selected log query failed"
+              exit 1
+            fi
+          done
+          REMOTE
