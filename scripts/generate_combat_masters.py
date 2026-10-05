@@ -64,13 +64,19 @@ ONE_SHOT_FIXED_DAMAGE = 999999
 #                               bombs/turrets, Jay's bat bomb, the rush-disc pursuit carry). Basic attacks have no
 #                               blow-off (PlayerWeaponAttackInfo.get_BlowOffInfo returns null) and their knockBackFlag
 #                               stagger (PlayerStateKnockBack) moves nobody, so there is no distance to scale for them.
+#   DISPLACEMENT_HITSTUN_SCALE  x every blow-off `rigorTime` (the stun after landing: PlayerStateBlowOff.StateDuration =
+#                               base + rigorTime; launch, slam, push and the rush pursuit all go through it).
+#                               patch-il2cpp-endpoints.py imports it for the hard-coded 0.5 s of PlayerStateKnockBack
+#                               (basic-attack / special knockBackFlag hits) - that part is a CLIENT patch and needs an
+#                               APK rebuild. Pull-in has no stun column and no patch (PlayerStatePullIn constants).
 KNOCKBACK_DISTANCE_SCALE = 1.5
+DISPLACEMENT_HITSTUN_SCALE = 1.5
 
 
 def _blow_off_row(bo: dict) -> dict:
     """distance / speed / rigorTime / directionType of a blow-off preset with the global scales applied."""
     return {"distance": round(bo["distance"] * KNOCKBACK_DISTANCE_SCALE, 3), "speed": bo["speed"],
-            "rigorTime": bo["rigorTime"], "directionType": bo["directionType"]}
+            "rigorTime": round(bo["rigorTime"] * DISPLACEMENT_HITSTUN_SCALE, 3), "directionType": bo["directionType"]}
 
 
 DISC_ID_BASE = 3010000    # disc ids are 3010001..; skill id = 10000 + n; summon/model id = n

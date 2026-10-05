@@ -4,7 +4,7 @@
   "specialSkillId": 1,
   "distance": 9.0,
   "speed": 20.0,
-  "rigorTime": 0.5,
+  "rigorTime": 0.75,
   "directionType": 1
  },
  {
@@ -12,7 +12,7 @@
   "specialSkillId": 3,
   "distance": 12.0,
   "speed": 30.0,
-  "rigorTime": 1.0,
+  "rigorTime": 1.5,
   "directionType": 2
  }
 ]
