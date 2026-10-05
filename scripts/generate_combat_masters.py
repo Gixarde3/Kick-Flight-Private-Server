@@ -323,10 +323,13 @@ _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType"
 # ended up to `distance` ahead of the dasher (play-test 2026-10). Two production client patches change that
 # (scripts/re/rush_pursuit_cave.py): the dash keeps its own end (EventItem.Distance; `distance` no longer moves the
 # dasher, `speed` is still its post-hit speed) and the victim is entrained (PlayerStateEntrained: held within 2 units
-# of the dasher for 0.5 s) before it hands over to this blow-off. So `distance` is only the final nudge off the
-# dasher; it stays > 0 (PlayerStateBlowOff divides by the blow-off time) and is NOT x KNOCKBACK_DISTANCE_SCALE.
-# rigorTime is the stun after it (x DISPLACEMENT_HITSTUN_SCALE like every other row).
-_RUSH_PURSUIT = {"distance": 1.0, "speed": 30.0, "rigorTime": 0.4, "directionType": 4, "fixed_distance": True}
+# of the dasher for 0.5 s) before it hands over to this blow-off. So `distance` is only the release push off the
+# dasher, along victim - dasher: PlayerStateEntrained ends with the victim on a 2.0-unit orbit around the dasher (radius
+# lerps to 2.0 in 0.25 s, 720 deg/s), and 1.0 here put it ~3 units away - the melee kickers' attackTargetSearchDistance
+# (3.0), so play-test 2026-10-06 saw victims "out of melee range" after Boarush / Combat Turtle. 0.1 leaves it at the
+# orbit radius. It stays > 0 (PlayerStateBlowOff.BeginAction sets CountTargetTime = distance / speed and divides by it)
+# and is NOT x KNOCKBACK_DISTANCE_SCALE. rigorTime is the stun after it (x DISPLACEMENT_HITSTUN_SCALE like every row).
+_RUSH_PURSUIT = {"distance": 0.1, "speed": 30.0, "rigorTime": 0.4, "directionType": 4, "fixed_distance": True}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
 COND_RESTRAINTED = 14   # RestraintedConditionAction: bound in place (movement disabled) until it expires
 ANNA_BIND_SECONDS = 3.0  # Anna's binding ray
