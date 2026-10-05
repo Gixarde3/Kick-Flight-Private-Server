@@ -39,12 +39,19 @@ ORIGINAL_LITERALS = {
     "https://kickflight-resource-api.grenge.jp": "base_url",
     "kickflight-api.grenge.jp/": "authority",
     "ns.exitgames.com": "photon_host",
+    "market://details?id={0}": "update_url",
 }
+# Forced-update window (NetworkManager.OpenErrorWindowOnFailed, ~0x31B82D4): the update button opens
+# String.Format(literal 9231, "jp.grenge.kickflight"). Literal 9231 is only materialised there (slot 0x43F5A10;
+# the store has no listing any more), so it points at the private server's download page instead. The URL has no
+# {0}, so String.Format returns it unchanged and ignores the package-name argument.
+UPDATE_PAGE_URL = os.environ.get("KF_UPDATE_URL", "https://kick-flight-fenix.us.ci/")
 LITERAL_INDEXES = {
     "https://colorful-api-octo-sb.grenge.jp": 2294,
     "https://kickflight-resource-api.grenge.jp": 2304,
     "kickflight-api.grenge.jp/": 9244,
     "ns.exitgames.com": 2039,
+    "market://details?id={0}": 9231,
 }
 
 # Ready scene. The "ponytail" patches (2026-09-07) skip the whole GameReadyScene intro cinematic (whose end is the
@@ -2440,6 +2447,10 @@ def patch_metadata(path: Path, base_url: str, authority: str, photon_host: str |
             # at a separately hosted LuxonServer (e.g. 51.79.241.70, 2026-09-21).
             parsed_host = urlsplit(base_url).hostname
             replacement = photon_host or (parsed_host if parsed_host else "10.0.2.2")
+        elif kind == "update_url":
+            if "{" in UPDATE_PAGE_URL or "}" in UPDATE_PAGE_URL:
+                raise ValueError("KF_UPDATE_URL must not contain braces (it goes through String.Format)")
+            replacement = UPDATE_PAGE_URL
         else:
             replacement = base_url
         encoded = replacement.encode("utf-8")
@@ -2458,6 +2469,8 @@ def patch_metadata(path: Path, base_url: str, authority: str, photon_host: str |
             accepted = current == original or current == "10.0.2.2" or (
                 len(current.split(".")) == 4
             )
+        elif kind == "update_url":
+            accepted = current == original or (current.startswith(("https://", "http://")) and "{" not in current)
         else:
             accepted = current == original or (
                 current.endswith("/")
