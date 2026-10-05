@@ -74,14 +74,16 @@ public sealed partial class DemoSessionApi
     private readonly ILogger<DemoSessionApi> _logger;
     private readonly BattleMatchmakingService _matchmaking;
     private readonly MaintenanceState _maintenance;
+    private readonly ClientUpdateState _clientUpdate;
 
     public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
         BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration,
-        MaintenanceState maintenance)
+        MaintenanceState maintenance, ClientUpdateState clientUpdate)
     {
         _logger = logger;
         _matchmaking = matchmaking;
         _maintenance = maintenance;
+        _clientUpdate = clientUpdate;
         _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
         _grpcPort = configuration.GetValue("GrpcPort", 18081);
@@ -861,6 +863,12 @@ public sealed partial class DemoSessionApi
 
         if (!HttpMethods.IsPost(context.Request.Method)) return null;
 
+        // An out-of-date client is stopped here, before auth and before any other handler: /boot/index is served
+        // from a fixture, so a gate inside this method is what catches it. The admin and health routes are mapped
+        // outside this catch-all, so they never reach here.
+        var updateResult = TryHandleForcedUpdate(context, path);
+        if (updateResult is not null) return updateResult;
+
         var maintenanceResult = TryHandleHardMaintenance(context, path);
         if (maintenanceResult is not null) return maintenanceResult;
 
@@ -1447,6 +1455,25 @@ public sealed partial class DemoSessionApi
         };
 
         return JsonSerializer.Serialize(data);
+    }
+
+    /// <summary>
+    /// Forced client update: when a minimum version is configured and the client's x-app-application-version is
+    /// older (or missing/unparsable), answer HTTP 200 with header x-app-status-code: 1 and a plaintext
+    /// {"error":{"code":"1400",...}} body. The client has no version comparison of its own; that answer makes it
+    /// show its forced-update window (button = hard-coded Play Store URL). It runs before auth, so it also catches a
+    /// client that logged in on an older build. Null = handle normally.
+    /// </summary>
+    private IResult? TryHandleForcedUpdate(HttpContext context, string path)
+    {
+        var clientVersion = context.Request.Headers["x-app-application-version"].ToString();
+        if (!_clientUpdate.IsOutdated(clientVersion)) return null;
+
+        _logger.LogInformation("Client update: refused {Path} from version {Version}", path,
+            string.IsNullOrWhiteSpace(clientVersion) ? "(missing)" : clientVersion);
+        context.Response.Headers["x-app-status-code"] = "1";
+        return Results.Text(_clientUpdate.BuildForcedUpdateJson(), "application/json", Encoding.UTF8,
+            StatusCodes.Status200OK);
     }
 
     /// <summary>

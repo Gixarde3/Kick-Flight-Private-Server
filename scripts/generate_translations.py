@@ -59,6 +59,9 @@ TEXTS = {
     # TitleMaintenanceWindow outside the Title scene (a 503 maintenance answer from the API)
     "error.maintenanceTitle": "Maintenance",
     "error.maintenanceDescription": "The server is under maintenance. Please try again in a few minutes.",
+    # Forced-update window (a 1400 answer from the API when x-app-application-version is below the minimum)
+    "error.title.forceUpdateToTitle": "Update required",
+    "error.message.forceUpdateToTitle": "A new version of Kick Flight is available. Download it from kick-flight-fenix.us.ci and install it to keep playing.",
     # disc type labels (SkillCategoryTypeExtensions.GetName) and the disc list filter
     "skillCategoryType.attack": "ATK", "skillCategoryType.heal": "HEAL", "skillCategoryType.buff": "BUFF",
     "skillCategoryType.trap": "TRAP", "skillCategoryType.warp": "WARP", "skillCategoryType.move": "MOVE",

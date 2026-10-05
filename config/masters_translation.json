@@ -892,7 +892,7 @@
  {
   "id": 179,
   "key": "error.title.forceUpdateToTitle",
-  "text": "Force Update To"
+  "text": "Update required"
  },
  {
   "id": 180,
@@ -997,7 +997,7 @@
  {
   "id": 200,
   "key": "error.message.forceUpdateToTitle",
-  "text": "Force Update To"
+  "text": "A new version of Kick Flight is available. Download it from kick-flight-fenix.us.ci and install it to keep playing."
  },
  {
   "id": 201,

@@ -20,6 +20,7 @@ builder.Services.AddSingleton<ResourceCatalogStore>();
 builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<MaintenanceState>();
+builder.Services.AddSingleton<ClientUpdateState>();
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
 // Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
@@ -54,6 +55,8 @@ var app = builder.Build();
 app.Services.GetRequiredService<IPlayerStore>();
 // Loads data/maintenance.json now, so a restart during hard maintenance answers 503 from the first request.
 app.Services.GetRequiredService<MaintenanceState>();
+// Loads data/client-update.json now, so a restart keeps the forced-update minimum from the first request.
+app.Services.GetRequiredService<ClientUpdateState>();
 
 app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
@@ -67,6 +70,10 @@ app.MapGet("/gym/off", () => { BattleMatchmakingService.GymEnabled = false; retu
 //   docker exec deploy-api-1 curl -s -X POST http://127.0.0.1:8080/admin/maintenance -d '{"mode":"hard"}'
 app.MapGet("/admin/maintenance", MaintenanceAdmin.Get);
 app.MapPost("/admin/maintenance", MaintenanceAdmin.PostAsync);
+// Forced client update (ClientUpdateState): same loopback-only switch, e.g.
+//   docker exec deploy-api-1 curl -s -X POST http://127.0.0.1:8080/admin/client-update -d '{"minimumVersion":"2.12.0"}'
+app.MapGet("/admin/client-update", ClientUpdateAdmin.Get);
+app.MapPost("/admin/client-update", ClientUpdateAdmin.PostAsync);
 app.Map("/admin/{**rest}", () => Results.NotFound());
 // The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
 // /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
