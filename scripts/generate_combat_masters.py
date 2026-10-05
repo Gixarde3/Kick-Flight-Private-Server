@@ -258,6 +258,8 @@ _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType"
 # distance is the extra shove after the dash: keep it ~1 body so the dasher ends in the victim's face.
 _RUSH_DISPLACE = {"distance": 1.5, "speed": 30.0, "rigorTime": 0.3, "directionType": 4}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
+COND_RESTRAINTED = 14   # RestraintedConditionAction: bound in place (movement disabled) until it expires
+ANNA_BIND_SECONDS = 3.0  # Anna's binding ray
 KICKER_SKILL_EXTRAS = {
     # Ruriha: backstep shot, the ice bullets paralyse the target (ConditionActionController.CheckEnableMove blocks
     # movement for 6 Paralysis). It used to be a SpeedRate 0.6 slow (play-test 2026-10: "slows instead of paralysing").
@@ -271,9 +273,14 @@ KICKER_SKILL_EXTRAS = {
             "trap": {"trapType": 2, "duration": 8.0, "radius": 8.0, "effectValue": 0.0}},
     # Grenhawk: slow shot
     20007: {"conditions": [(COND_SPEED_RATE, 5.0, 0.0, 0.4, TRIGGER_RECEIVE_DAMAGE)]},
-    # Anna: binding ray drags the target in (SkillPullIn row -> DamageInfo.PullInInfo -> PlayerCharacter.ApplyPullIn ->
-    # PlayerStatePullIn towards the attacker; a blow-off row on the same skill would take precedence and cancel it)
-    20008: {"pull_in": {"distance": 20.0, "speed": 30.0}},
+    # Anna: binding ray binds the target in place. Restrainted (14) on whoever the ray hits:
+    # RestraintedConditionAction.StartAction stops the victim's velocity and plays the restraint effect,
+    # ConditionActionController.CheckEnableMove keeps it from moving (6/8/14/16), and UpdateOperatingTime releases it
+    # early if the victim is knocked back / blown off / inhaled or the setter (Anna) dies. ExecuteIntervalAction would
+    # tick setter attack x effectValue every `interval` s (accumulator >= interval, so 0 = every frame); the interval is
+    # longer than the bind so it never ticks (no CommonConditionHit row for 14 is needed). It used to be a SkillPullIn
+    # row (play-test 2026-10: "drags enemies instead of binding them").
+    20008: {"conditions": [(COND_RESTRAINTED, ANNA_BIND_SECONDS, ANNA_BIND_SECONDS + 1.0, 0.0, TRIGGER_RECEIVE_DAMAGE)]},
     # Jay: BatSkillAction.OnBeginAction is only player.AcceptCondition(trigger 3 rows). Stealth (24,
     # StealthConditionAction) fades the model (BatAttackAction.PlayMaskFade), plays the condition effect and makes him
     # un-lock-on-able (ConditionActionController.EnableLockedOn) until the duration ends or he attacks / takes damage.
