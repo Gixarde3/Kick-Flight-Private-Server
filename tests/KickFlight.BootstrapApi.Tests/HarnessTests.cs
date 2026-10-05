@@ -646,6 +646,54 @@ public sealed class HarnessTests : IClassFixture<ServerTestHostFixture>
         Assert.Equal(1, rules[4].GetProperty("guardianAmount").GetInt32());
         Assert.Equal(1, rules[1].GetProperty("guardianAmount").GetInt32());
         Assert.Equal(50, rules[1].GetProperty("crystalAmount").GetInt32());
+        Assert.Equal((2, 1), (rules[7].GetProperty("matchType").GetInt32(), rules[7].GetProperty("battleRuleType").GetInt32()));
+        Assert.Equal((2, 2), (rules[8].GetProperty("matchType").GetInt32(), rules[8].GetProperty("battleRuleType").GetInt32()));
+        Assert.Equal("Rapid Ball", rules[4].GetProperty("name").GetString());
+
+        using var scheduleRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/RankerMatchBattleSchedule");
+        scheduleRequest.Headers.Host = host;
+        using var scheduleResponse = await client.SendAsync(scheduleRequest);
+        Assert.Equal(HttpStatusCode.OK, scheduleResponse.StatusCode);
+        using var scheduleDoc = JsonDocument.Parse(D2CCodec.Decode(await scheduleResponse.Content.ReadAsByteArrayAsync(), commonCodeBytes));
+        Assert.Equal(24, scheduleDoc.RootElement.GetArrayLength());
+        Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
+            row.GetProperty("seasonMatchBattleRuleType").GetInt32() == 1
+            && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.CrystalRuleId);
+        Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
+            row.GetProperty("seasonMatchBattleRuleType").GetInt32() == 2
+            && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.FlagRuleId);
+        Assert.Contains(scheduleDoc.RootElement.EnumerateArray(), row =>
+            row.GetProperty("seasonMatchBattleRuleType").GetInt32() == 3
+            && row.GetProperty("battleRuleId").GetInt32() == RankedModeRotation.RapidBallRuleId);
+
+        using var ruleFieldsRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/BattleRuleField");
+        ruleFieldsRequest.Headers.Host = host;
+        using var ruleFieldsResponse = await client.SendAsync(ruleFieldsRequest);
+        Assert.Equal(HttpStatusCode.OK, ruleFieldsResponse.StatusCode);
+        using var ruleFieldsDoc = JsonDocument.Parse(D2CCodec.Decode(await ruleFieldsResponse.Content.ReadAsByteArrayAsync(), commonCodeBytes));
+        var ruleFields = ruleFieldsDoc.RootElement.EnumerateArray().ToArray();
+        foreach (var rankedRuleId in new[] { RankedModeRotation.CrystalRuleId, RankedModeRotation.FlagRuleId })
+        {
+            Assert.Equal(
+                ruleFields.Where(row => row.GetProperty("battleRuleId").GetInt32() == 1).Select(row => row.GetProperty("fieldId").GetInt32()).Order().ToArray(),
+                ruleFields.Where(row => row.GetProperty("battleRuleId").GetInt32() == rankedRuleId).Select(row => row.GetProperty("fieldId").GetInt32()).Order().ToArray());
+        }
+
+        foreach (var (masterName, expectedRuleId) in new[]
+                 {
+                     ("BattleRuleScrambleScore", RankedModeRotation.CrystalRuleId),
+                     ("BattleRuleFlagFlightScore", RankedModeRotation.FlagRuleId)
+                 })
+        {
+            using var scoreRequest = new HttpRequestMessage(HttpMethod.Get, $"/demo-master/{masterName}");
+            scoreRequest.Headers.Host = host;
+            using var scoreResponse = await client.SendAsync(scoreRequest);
+            Assert.Equal(HttpStatusCode.OK, scoreResponse.StatusCode);
+            using var modeScoreDoc = JsonDocument.Parse(D2CCodec.Decode(await scoreResponse.Content.ReadAsByteArrayAsync(), commonCodeBytes));
+            Assert.Contains(modeScoreDoc.RootElement.EnumerateArray(), row =>
+                row.GetProperty("id").GetInt32() == expectedRuleId
+                && row.GetProperty("battleRuleId").GetInt32() == expectedRuleId);
+        }
 
         // 4. Row 2 is the weaker goal guardian /battle/start returns for the ball rules.
         using var getGuardianRequest = new HttpRequestMessage(HttpMethod.Get, "/demo-master/GuardianParameter");

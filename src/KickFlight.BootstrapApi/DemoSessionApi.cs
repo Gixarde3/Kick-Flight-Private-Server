@@ -36,8 +36,7 @@ public sealed partial class DemoSessionApi
     private static int TutorialStatus(SessionState state) =>
         state.HasName ? TutorialStatusComplete : TutorialStatusInputName;
 
-    // The regular ladder. Only this one is progressed today (see HandleBattleResultAsync); the other two rule
-    // types are reported at the same standing so the client's rank list has all three entries it expects.
+    // The three rule types have separate ranked standings. Casual results continue using the existing regular ladder.
     public const int RegularBattleRuleType = 1;
     private static readonly int[] RankedBattleRuleTypes = [1, 2, 3];
 
@@ -75,15 +74,17 @@ public sealed partial class DemoSessionApi
     private readonly BattleMatchmakingService _matchmaking;
     private readonly MaintenanceState _maintenance;
     private readonly ClientUpdateState _clientUpdate;
+    private readonly TimeProvider _timeProvider;
 
     public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
         BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration,
-        MaintenanceState maintenance, ClientUpdateState clientUpdate)
+        MaintenanceState maintenance, ClientUpdateState clientUpdate, TimeProvider timeProvider)
     {
         _logger = logger;
         _matchmaking = matchmaking;
         _maintenance = maintenance;
         _clientUpdate = clientUpdate;
+        _timeProvider = timeProvider;
         _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
         _grpcPort = configuration.GetValue("GrpcPort", 18081);
@@ -194,7 +195,13 @@ public sealed partial class DemoSessionApi
         }
 
         // every rule can be played on every arena of the pool (equal ratio); the server, not the client, draws the field
-        _encryptedMasters["BattleRuleField"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"fieldId":101,"ratio":16},{"id":2,"battleRuleId":1,"fieldId":301,"ratio":16},{"id":3,"battleRuleId":1,"fieldId":401,"ratio":16},{"id":4,"battleRuleId":1,"fieldId":601,"ratio":16},{"id":5,"battleRuleId":1,"fieldId":701,"ratio":16},{"id":6,"battleRuleId":1,"fieldId":901,"ratio":16},{"id":7,"battleRuleId":2,"fieldId":101,"ratio":16},{"id":8,"battleRuleId":2,"fieldId":301,"ratio":16},{"id":9,"battleRuleId":2,"fieldId":401,"ratio":16},{"id":10,"battleRuleId":2,"fieldId":601,"ratio":16},{"id":11,"battleRuleId":2,"fieldId":701,"ratio":16},{"id":12,"battleRuleId":2,"fieldId":901,"ratio":16},{"id":13,"battleRuleId":3,"fieldId":101,"ratio":16},{"id":14,"battleRuleId":3,"fieldId":301,"ratio":16},{"id":15,"battleRuleId":3,"fieldId":401,"ratio":16},{"id":16,"battleRuleId":3,"fieldId":601,"ratio":16},{"id":17,"battleRuleId":3,"fieldId":701,"ratio":16},{"id":18,"battleRuleId":3,"fieldId":901,"ratio":16},{"id":19,"battleRuleId":4,"fieldId":101,"ratio":16},{"id":20,"battleRuleId":4,"fieldId":301,"ratio":16},{"id":21,"battleRuleId":4,"fieldId":401,"ratio":16},{"id":22,"battleRuleId":4,"fieldId":601,"ratio":16},{"id":23,"battleRuleId":4,"fieldId":701,"ratio":16},{"id":24,"battleRuleId":4,"fieldId":901,"ratio":16},{"id":25,"battleRuleId":5,"fieldId":101,"ratio":16},{"id":26,"battleRuleId":5,"fieldId":301,"ratio":16},{"id":27,"battleRuleId":5,"fieldId":401,"ratio":16},{"id":28,"battleRuleId":5,"fieldId":601,"ratio":16},{"id":29,"battleRuleId":5,"fieldId":701,"ratio":16},{"id":30,"battleRuleId":5,"fieldId":901,"ratio":16},{"id":31,"battleRuleId":6,"fieldId":101,"ratio":16},{"id":32,"battleRuleId":6,"fieldId":301,"ratio":16},{"id":33,"battleRuleId":6,"fieldId":401,"ratio":16},{"id":34,"battleRuleId":6,"fieldId":601,"ratio":16},{"id":35,"battleRuleId":6,"fieldId":701,"ratio":16},{"id":36,"battleRuleId":6,"fieldId":901,"ratio":16}]""");
+        var battleRuleFieldRows = new List<object>();
+        var battleRuleFieldId = 1;
+        foreach (var battleRule in Enumerable.Range(1, 6).Append(RankedModeRotation.CrystalRuleId)
+                     .Append(RankedModeRotation.FlagRuleId))
+        foreach (var field in BattleMatchmakingService.FieldPool)
+            battleRuleFieldRows.Add(new { id = battleRuleFieldId++, battleRuleId = battleRule, fieldId = field, ratio = 16 });
+        _encryptedMasters["BattleRuleField"] = EncryptMaster(JsonSerializer.Serialize(battleRuleFieldRows));
         // Custom battle uses its own stage lookup. Only expose fields whose base scene and three rule variants
         // are present in the catalog; Trial field 801 has a single flat _100 variant and is not a custom stage.
         var customBattleRuleFieldJson = LoadJson(contentRoot, "config/masters_custom_battle_rule_field.json", """
@@ -254,14 +261,7 @@ public sealed partial class DemoSessionApi
             ]
             """);
         _encryptedMasters["RegularMatchBattleSchedule"] = EncryptMaster(regularMatchScheduleJson);
-        _encryptedMasters["RankerMatchBattleSchedule"] = EncryptMaster("""
-            [
-              {"id":1,"seasonMatchBattleRuleType":1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1},
-              {"id":2,"seasonMatchBattleRuleType":2,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1},
-              {"id":3,"seasonMatchBattleRuleType":3,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1},
-              {"id":4,"seasonMatchBattleRuleType":-1,"groupId":1,"startTime":"00:00:00","endTime":"23:59:59","battleRuleId":4,"sortOrder":1}
-            ]
-            """);
+        _encryptedMasters["RankerMatchBattleSchedule"] = EncryptMaster(RankedModeRotation.BuildScheduleJson());
         // Retail is rows 1..17 (rank 0..16): D, C, C⁺, B, B⁺, A, A⁺, S, S⁺1 … S⁺9 — one row per league badge the
         // client ships (ui/league/thumbnail_league_0 … _16, see config/resources/catalog.json). The rank glyphs are
         // resolved by index, so a short table shifts every name by one and the two top ranks have no sprite at all:
@@ -295,7 +295,7 @@ public sealed partial class DemoSessionApi
             """);
         _encryptedMasters["CapsuleCampaign"] = EncryptMaster("""[{"id":1,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59","coefficient":0.5}]""");
         _encryptedMasters["CapsuleDropCampaign"] = EncryptMaster("""[{"id":1,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"}]""");
-        _encryptedMasters["BattleRankingClass"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"name":"Class 1","minBattlePoint":0},{"id":2,"battleRuleId":2,"name":"Class 1","minBattlePoint":0},{"id":3,"battleRuleId":3,"name":"Class 1","minBattlePoint":0},{"id":4,"battleRuleId":4,"name":"Div.1","minBattlePoint":0},{"id":5,"battleRuleId":5,"name":"Div.1","minBattlePoint":0},{"id":6,"battleRuleId":6,"name":"Class 1","minBattlePoint":0}]""");
+        _encryptedMasters["BattleRankingClass"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"name":"Class 1","minBattlePoint":0},{"id":2,"battleRuleId":2,"name":"Class 1","minBattlePoint":0},{"id":3,"battleRuleId":3,"name":"Class 1","minBattlePoint":0},{"id":4,"battleRuleId":4,"name":"Div.1","minBattlePoint":0},{"id":5,"battleRuleId":5,"name":"Div.1","minBattlePoint":0},{"id":6,"battleRuleId":6,"name":"Class 1","minBattlePoint":0},{"id":7,"battleRuleId":7,"name":"Div.1","minBattlePoint":0},{"id":8,"battleRuleId":8,"name":"Div.1","minBattlePoint":0}]""");
         _encryptedMasters["HomeFieldSchedule"] = EncryptMaster("""[{"id":1,"fieldId":99999,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"}]""");
         _encryptedMasters["Festival"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"theme":"Kick-Flight Festival"}]""");
         _encryptedMasters["FestivalTeam"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"name":"Red Team","color":"#FF0000"},{"id":2,"battleRuleId":6,"name":"Blue Team","color":"#0000FF"}]""");
@@ -306,7 +306,9 @@ public sealed partial class DemoSessionApi
               {"id":3,"battleRuleId":3,"description":"without affecting your rank","subRuleName":"Fun Match","itemDecelerationMaxCount":0},
               {"id":4,"battleRuleId":4,"description":"Intense battles at S ranks","subRuleName":"Ranked Match","itemDecelerationMaxCount":0},
               {"id":5,"battleRuleId":5,"description":"Season 1","subRuleName":"Season Match","itemDecelerationMaxCount":0},
-              {"id":6,"battleRuleId":6,"description":"Festival Match","subRuleName":"Kick-Flight Festival","itemDecelerationMaxCount":0}
+              {"id":6,"battleRuleId":6,"description":"Festival Match","subRuleName":"Kick-Flight Festival","itemDecelerationMaxCount":0},
+              {"id":7,"battleRuleId":7,"description":"Intense battles at S ranks","subRuleName":"Ranked Match","itemDecelerationMaxCount":0},
+              {"id":8,"battleRuleId":8,"description":"Intense battles at S ranks","subRuleName":"Ranked Match","itemDecelerationMaxCount":0}
             ]
             """);
         _encryptedMasters["Capsule"] = EncryptMaster("""
@@ -610,13 +612,15 @@ public sealed partial class DemoSessionApi
             [
               {"id":1,"battleRuleId":1,"crystalDepositSpeedCoefficient":-0.1},
               {"id":2,"battleRuleId":5,"crystalDepositSpeedCoefficient":-0.1},
-              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":-0.1}
+              {"id":3,"battleRuleId":6,"crystalDepositSpeedCoefficient":-0.1},
+              {"id":4,"battleRuleId":7,"crystalDepositSpeedCoefficient":-0.1}
             ]
             """);
 
         var roleParams = new List<object>();
         int rId = 1;
-        for (int rule = 1; rule <= 6; rule++)
+        foreach (var rule in Enumerable.Range(1, 6).Append(RankedModeRotation.CrystalRuleId)
+                     .Append(RankedModeRotation.FlagRuleId))
         {
             for (int role = 1; role <= 4; role++)
             {
@@ -630,6 +634,20 @@ public sealed partial class DemoSessionApi
               {
                 "id": 1,
                 "battleRuleId": 1,
+                "baseScore": 100,
+                "stackedCountScore": 10,
+                "depositCount": 10,
+                "crystalCountScore": 10,
+                "dropCountScore": 10,
+                "killCountScore": 50,
+                "killAssistCountScore": 25,
+                "assistCountScore": 25,
+                "specialSkillCountScore": 30,
+                "winScoreCorrection": 1.5
+              },
+              {
+                "id": 7,
+                "battleRuleId": 7,
                 "baseScore": 100,
                 "stackedCountScore": 10,
                 "depositCount": 10,
@@ -1962,6 +1980,14 @@ public sealed partial class DemoSessionApi
             _logger.LogWarning("Failed to parse battle entry body: {Error}, using rule 1", ex.Message);
         }
 
+        if (RankedModeRotation.IsRankedRule(battleRuleId)
+            && battleRuleId != RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow()))
+        {
+            _logger.LogInformation("Rejected stale ranked entry for {UserId}: requested rule={RuleId}, active rule={ActiveRuleId}",
+                state.UserId, battleRuleId, RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow()));
+            return StatusError(context, key);
+        }
+
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
         NormalizeCostume(state);
         var (battleEntryId, ticketId) = _matchmaking.RegisterEntry(
@@ -2043,6 +2069,14 @@ public sealed partial class DemoSessionApi
             _logger.LogWarning("Failed to parse battle start body: {Error}, using rule 1", ex.Message);
             battleRuleId = 1;
             battleRuleType = 1;
+        }
+
+        // If a room exists, its selected rule is authoritative. The player may cross a schedule boundary while the
+        // matchmaking window is open; the already-created room must keep the original mode.
+        if (_matchmaking.GetRoomBattleRuleId(battleId) is { } roomRuleId)
+        {
+            battleRuleId = roomRuleId;
+            _battleRuleTypeById.TryGetValue(battleRuleId, out battleRuleType);
         }
 
         // GuardianParameterMaster is looked up by the id returned here (CallbackBattleStartSuccess), so a rule
@@ -2129,21 +2163,42 @@ public sealed partial class DemoSessionApi
     // ResultScene stuck on the score board.
     //
     // Rank is real here: the battle's outcome is applied to the player's persisted standing, so
-    // beforeUserBattleRank and userBattleRank differ and the result screen animates a change. Caveat: the
-    // outcome is not read out of the request yet - the body's shape was never decoded - so every completed
-    // battle is scored as a win, which matches what this handler already did with its rewards.
-    private Task<IResult?> HandleBattleResultAsync(HttpContext context, SessionState state, byte[] key)
+    // beforeUserBattleRank and userBattleRank differ and the result screen animates a change. The mode comes from
+    // the entry ticket, so a result never re-evaluates the hourly schedule.
+    private async Task<IResult?> HandleBattleResultAsync(HttpContext context, SessionState state, byte[] key)
     {
-        var before = _playerStore.LoadRank(state.PlayerId, RegularBattleRuleType);
-        var after = RankProgression.Apply(before, won: true);
-        _playerStore.SaveRank(state.PlayerId, RegularBattleRuleType, after);
+        var battleEntryId = "";
+        try
+        {
+            var body = await ReadBodyAsync(context.Request);
+            if (body.Length > 16)
+            {
+                using var document = JsonDocument.Parse(D2CCodec.Decode(body, key));
+                if (document.RootElement.TryGetProperty("battleEntryId", out var entryProp)
+                    && entryProp.ValueKind == JsonValueKind.String)
+                    battleEntryId = entryProp.GetString() ?? "";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to parse battle result body: {Error}", ex.Message);
+        }
 
-        var rank = new { battleRuleType = RegularBattleRuleType, battlePoint = after.BattlePoint, rank = after.Rank };
+        var battleRuleId = _matchmaking.GetBattleRuleIdForEntry(battleEntryId);
+        var battleRuleType = battleRuleId is { } id && RankedModeRotation.IsRankedRule(id)
+                             && _battleRuleTypeById.TryGetValue(id, out var parsedType)
+            ? parsedType
+            : RegularBattleRuleType;
+        var before = _playerStore.LoadRank(state.PlayerId, battleRuleType);
+        var after = RankProgression.Apply(before, won: true);
+        _playerStore.SaveRank(state.PlayerId, battleRuleType, after);
+
+        var rank = new { battleRuleType, battlePoint = after.BattlePoint, rank = after.Rank };
         var resp = new
         {
             userExp = 38500 + 800, // the user's total exp (see the static exp served at startup) plus this battle's reward
             userBattleRank = rank,
-            beforeUserBattleRank = new { battleRuleType = RegularBattleRuleType, battlePoint = before.BattlePoint, rank = before.Rank },
+            beforeUserBattleRank = new { battleRuleType, battlePoint = before.BattlePoint, rank = before.Rank },
             playerLevelUpRewardList = Array.Empty<object>(),
             receivedUserCapsuleList = Array.Empty<object>(),
             receivedUserItemList = Array.Empty<object>(),
@@ -2163,8 +2218,9 @@ public sealed partial class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-result";
-        _logger.LogInformation("Handled /battle/result for {UserId}", state.UserId);
-        return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
+        _logger.LogInformation("Handled /battle/result for {UserId}: rule={RuleId} type={RuleType}",
+            state.UserId, battleRuleId, battleRuleType);
+        return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
     private Task<IResult?> HandleBattleEndAsync(HttpContext context, SessionState state, byte[] key)

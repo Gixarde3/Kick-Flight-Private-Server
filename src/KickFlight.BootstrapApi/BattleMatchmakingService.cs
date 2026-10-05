@@ -308,6 +308,14 @@ public sealed class BattleMatchmakingService
         return _roomsByBattleId.TryGetValue(battleId, out var room) ? room.FieldId : null;
     }
 
+    /// <summary>The mode selected when this room was created; it remains authoritative across schedule changes.</summary>
+    public int? GetRoomBattleRuleId(string battleId) =>
+        _roomsByBattleId.TryGetValue(battleId, out var room) ? room.BattleRuleId : null;
+
+    /// <summary>The rule selected on entry, retained for result reporting after the room has started.</summary>
+    public int? GetBattleRuleIdForEntry(string battleEntryId) =>
+        _entriesByBattleEntryId.TryGetValue(battleEntryId, out var entry) ? entry.BattleRuleId : null;
+
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;
 
