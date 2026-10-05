@@ -2,9 +2,9 @@
  {
   "id": 1,
   "skillId": 10001,
-  "distance": 1.5,
+  "distance": 6.0,
   "speed": 30.0,
-  "rigorTime": 0.3,
+  "rigorTime": 0.4,
   "directionType": 4
  },
  {
@@ -18,17 +18,17 @@
  {
   "id": 6,
   "skillId": 10013,
-  "distance": 1.5,
+  "distance": 6.0,
   "speed": 30.0,
-  "rigorTime": 0.3,
+  "rigorTime": 0.4,
   "directionType": 4
  },
  {
   "id": 7,
   "skillId": 10014,
-  "distance": 1.5,
+  "distance": 6.0,
   "speed": 30.0,
-  "rigorTime": 0.3,
+  "rigorTime": 0.4,
   "directionType": 4
  },
  {
@@ -186,9 +186,9 @@
  {
   "id": 91,
   "skillId": 10096,
-  "distance": 1.5,
+  "distance": 6.0,
   "speed": 30.0,
-  "rigorTime": 0.3,
+  "rigorTime": 0.4,
   "directionType": 4
  },
  {
@@ -234,9 +234,9 @@
  {
   "id": 112,
   "skillId": 10118,
-  "distance": 1.5,
+  "distance": 6.0,
   "speed": 30.0,
-  "rigorTime": 0.3,
+  "rigorTime": 0.4,
   "directionType": 4
  },
  {

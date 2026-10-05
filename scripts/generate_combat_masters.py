@@ -266,8 +266,13 @@ _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType"
 # as shield-break when the skill has NO blow-off row and no heal row - exactly the card split "dash pierce attack &
 # shield break" (Giamoth, Jet Shark, Rush Blade, Assault Lance) vs "dash pursuit attack" (Leorex, Boarush, Propedile,
 # Combat Turtle, Airy).
-# distance is the extra shove after the dash: keep it ~1 body so the dasher ends in the victim's face.
-_RUSH_DISPLACE = {"distance": 1.5, "speed": 30.0, "rigorTime": 0.3, "directionType": 4}
+# On the pursuit hit (MoveAttackSkillAction.HitCallback) the dash is re-targeted to
+#   dasher + forward x (distance to the victim + BlowOff.distance)
+# at BlowOff.speed (OnUpdateForceMove: PlayerParameter.GetSpeed(1, speed) x AttackerSpeedCoefficient), and
+# IsEndForceMove waits for the skill to finish instead of the original forced-move end. So `distance` is how far the
+# dasher keeps driving the victim after contact. 1.5 made the charge stop dead on the target (play-test 2026-10:
+# Boarush / Leorex "stop after hitting instead of pushing the target back and following through").
+_RUSH_DISPLACE = {"distance": 6.0, "speed": 30.0, "rigorTime": 0.4, "directionType": 4}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
 COND_RESTRAINTED = 14   # RestraintedConditionAction: bound in place (movement disabled) until it expires
 ANNA_BIND_SECONDS = 3.0  # Anna's binding ray
