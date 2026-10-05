@@ -58,7 +58,22 @@ HIT_LAYER_CHARACTERS = 4864
 # is the value Hitagi's OneShotKiller branch in PlayerCharacter.AcceptDamageInfo hard-codes (0xF423F).
 ONE_SHOT_FIXED_DAMAGE = 999999
 
-DISC_ID_BASE = 3010000     # disc ids are 3010001..; skill id = 10000 + n; summon/model id = n
+# Global displacement tuning (play-test 2026-10, confirmed 1.5). Applied when the rows are written, so the presets and
+# tables below keep their design values:
+#   KNOCKBACK_DISTANCE_SCALE    x every SkillBlowOff / SpecialSkillBlowOff `distance` (discs, kicker skills, specials,
+#                               bombs/turrets, Jay's bat bomb, the rush-disc pursuit carry). Basic attacks have no
+#                               blow-off (PlayerWeaponAttackInfo.get_BlowOffInfo returns null) and their knockBackFlag
+#                               stagger (PlayerStateKnockBack) moves nobody, so there is no distance to scale for them.
+KNOCKBACK_DISTANCE_SCALE = 1.5
+
+
+def _blow_off_row(bo: dict) -> dict:
+    """distance / speed / rigorTime / directionType of a blow-off preset with the global scales applied."""
+    return {"distance": round(bo["distance"] * KNOCKBACK_DISTANCE_SCALE, 3), "speed": bo["speed"],
+            "rigorTime": bo["rigorTime"], "directionType": bo["directionType"]}
+
+
+DISC_ID_BASE = 3010000    # disc ids are 3010001..; skill id = 10000 + n; summon/model id = n
 DISC_SKILL_BASE = 10000
 BAT_BOMB_SKILL_ID = 40001
 BAT_BOMB_COEFFICIENT = 10.0  # Jay's death bomb: attack x 10 (generate_abilities.py design notes)
@@ -517,8 +532,7 @@ def _emit(sid: int, x: dict, nid: int, cond: list, heal: list, blow: list, pull:
         nid += 1
     if x.get("blow_off"):
         bo = x["blow_off"]
-        blow.append({"id": nid, "skillId": sid, "distance": bo["distance"], "speed": bo["speed"],
-                     "rigorTime": bo["rigorTime"], "directionType": bo["directionType"]})
+        blow.append({"id": nid, "skillId": sid, **_blow_off_row(bo)})
         nid += 1
     if x.get("pull_in"):
         pi = x["pull_in"]
@@ -774,8 +788,7 @@ def special_skill_tables(kickers: list) -> dict[str, list]:
                            "removeOnOwnerDeadFlag": True})
         if "blow_off" in data:
             bo = data["blow_off"]
-            blow.append({"id": sid, "specialSkillId": sid, "distance": bo["distance"], "speed": bo["speed"],
-                         "rigorTime": bo["rigorTime"], "directionType": bo["directionType"]})
+            blow.append({"id": sid, "specialSkillId": sid, **_blow_off_row(bo)})
         if "trap" in data:
             t = data["trap"]
             trap.append({"id": sid, "specialSkillId": sid, "trapType": t["trapType"], "duration": t["duration"],
