@@ -88,8 +88,8 @@ public sealed partial class DemoSessionApi
     private void InitializeMasters(string contentRoot)
     {
         var kickerJson = LoadJson(contentRoot, "config/masters_kicker.json", """[{"id":1,"name":"Tsubame","shortName":"Tsubame","nameSpelling":"Tsubame","voiceActorName":"CV: Yuma Uchida"}]""");
-        var costumeJson = LoadJson(contentRoot, "config/masters_kicker_costume.json", """[{"id":1,"kickerId":1,"costumeId":1,"costumeName":"Tsubame - Color estándar","sortOrder":1,"battleResultPositionSortOrder":1,"battleResultModelScale":1.0,"exclusiveFlag":false,"releaseDatetime":"2019-01-01 00:00:00"}]""");
-        var detailJson = LoadJson(contentRoot, "config/masters_kicker_detail.json", """[{"id":1,"kickerId":1,"kickerIntroductionText":"Veloz como el viento","kickerSkillName":"Corte Relámpago","kickerSkillShortText":"Ataque rápido","kickerSkillLongText":"Se lanza al frente","specialSkillName":"Torbellino","specialSkillShortText":"Tornado masivo","specialSkillLongText":"Crea un poderoso tornado","kickerAbilityName":"Paso Ligero","kickerAbilityShortText":"Velocidad","kickerAbilityLongText":"Más veloz con cristales","kickerDiscDistinctionText":"Combate aéreo","kickerGraphHpRate":0.8,"kickerGraphAttackRate":0.9,"kickerGraphSpeedRate":1.0,"age":18,"birthday":"1/1","height":"165cm","profileText":"Veloz como el viento"}]""");
+        var costumeJson = LoadJson(contentRoot, "config/masters_kicker_costume.json", """[{"id":1,"kickerId":1,"costumeId":1,"costumeName":"Tsubame - Standard Color","sortOrder":1,"battleResultPositionSortOrder":1,"battleResultModelScale":1.0,"exclusiveFlag":false,"releaseDatetime":"2019-01-01 00:00:00"}]""");
+        var detailJson = LoadJson(contentRoot, "config/masters_kicker_detail.json", """[{"id":1,"kickerId":1,"kickerIntroductionText":"Fast as the wind","kickerSkillName":"Sonic Rush","kickerSkillShortText":"Quick attack","kickerSkillLongText":"Dashes forward","specialSkillName":"Burst Glide","specialSkillShortText":"Massive tornado","specialSkillLongText":"Creates a powerful tornado","kickerAbilityName":"Accel Charge","kickerAbilityShortText":"Speed","kickerAbilityLongText":"Faster with crystals","kickerDiscDistinctionText":"Aerial combat","kickerGraphHpRate":0.8,"kickerGraphAttackRate":0.9,"kickerGraphSpeedRate":1.0,"age":18,"birthday":"1/1","height":"165cm","profileText":"Fast as the wind"}]""");
         var parameterJson = LoadJson(contentRoot, "config/masters_kicker_parameter.json", "[]");
         var abilityJson = LoadJson(contentRoot, "config/masters_kicker_ability.json", "[]");
         var abilityConditionJson = LoadJson(contentRoot, "config/masters_kicker_ability_condition.json", "[]");
@@ -161,12 +161,12 @@ public sealed partial class DemoSessionApi
         // before the team can score. The file is the source; the literal is only the fallback.
         var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", """
             [
-              {"id":1,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":2,"name":"Vuelo de banderas","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":3,"name":"Bola rápida","seasonName":"Temporada 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":4,"name":"Bola rápida","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
-              {"id":5,"name":"Cristalmanía","seasonName":"Temporada 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
-              {"id":6,"name":"Festival Kick-Flight","seasonName":"","festivalName":"Festival Kick-Flight","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
+              {"id":1,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":1,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":2,"name":"Flag Flight","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":2,"regularMatchFlag":true,"guardianAmount":0,"crystalAmount":0,"flagAmount":1,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":3,"name":"Rapid Ball","seasonName":"Season 1","festivalName":"","matchType":1,"battleRuleType":3,"regularMatchFlag":true,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":4,"name":"Rapid Ball","seasonName":"","festivalName":"","matchType":2,"battleRuleType":3,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":0,"flagAmount":0,"generalAmount":1,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"},
+              {"id":5,"name":"Crystal Scramble","seasonName":"Season 1","festivalName":"","matchType":3,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"},
+              {"id":6,"name":"Kick-Flight Festival","seasonName":"","festivalName":"Kick-Flight Festival","matchType":4,"battleRuleType":1,"regularMatchFlag":false,"guardianAmount":1,"crystalAmount":50,"flagAmount":0,"generalAmount":0,"minimapVisibleType":1,"battleTimeSecond":180,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2020-01-01 00:00:00"}
             ]
             """);
         _encryptedMasters["BattleRule"] = EncryptMaster(battleRuleJson);
@@ -290,25 +290,25 @@ public sealed partial class DemoSessionApi
             """);
         _encryptedMasters["CapsuleCampaign"] = EncryptMaster("""[{"id":1,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59","coefficient":0.5}]""");
         _encryptedMasters["CapsuleDropCampaign"] = EncryptMaster("""[{"id":1,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"}]""");
-        _encryptedMasters["BattleRankingClass"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"name":"Clase 1","minBattlePoint":0},{"id":2,"battleRuleId":2,"name":"Clase 1","minBattlePoint":0},{"id":3,"battleRuleId":3,"name":"Clase 1","minBattlePoint":0},{"id":4,"battleRuleId":4,"name":"Div.1","minBattlePoint":0},{"id":5,"battleRuleId":5,"name":"Div.1","minBattlePoint":0},{"id":6,"battleRuleId":6,"name":"Clase 1","minBattlePoint":0}]""");
+        _encryptedMasters["BattleRankingClass"] = EncryptMaster("""[{"id":1,"battleRuleId":1,"name":"Class 1","minBattlePoint":0},{"id":2,"battleRuleId":2,"name":"Class 1","minBattlePoint":0},{"id":3,"battleRuleId":3,"name":"Class 1","minBattlePoint":0},{"id":4,"battleRuleId":4,"name":"Div.1","minBattlePoint":0},{"id":5,"battleRuleId":5,"name":"Div.1","minBattlePoint":0},{"id":6,"battleRuleId":6,"name":"Class 1","minBattlePoint":0}]""");
         _encryptedMasters["HomeFieldSchedule"] = EncryptMaster("""[{"id":1,"fieldId":99999,"startDatetime":"2019-01-01 00:00:00","endDatetime":"2030-01-01 23:59:59"}]""");
-        _encryptedMasters["Festival"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"theme":"Festival Kick-Flight"}]""");
-        _encryptedMasters["FestivalTeam"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"name":"Equipo Rojo","color":"#FF0000"},{"id":2,"battleRuleId":6,"name":"Equipo Azul","color":"#0000FF"}]""");
+        _encryptedMasters["Festival"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"theme":"Kick-Flight Festival"}]""");
+        _encryptedMasters["FestivalTeam"] = EncryptMaster("""[{"id":1,"battleRuleId":6,"name":"Red Team","color":"#FF0000"},{"id":2,"battleRuleId":6,"name":"Blue Team","color":"#0000FF"}]""");
         _encryptedMasters["BattleRuleParameter"] = EncryptMaster("""
             [
-              {"id":1,"battleRuleId":1,"description":"sin afectar tu rango","subRuleName":"Combate por diversión","itemDecelerationMaxCount":0},
-              {"id":2,"battleRuleId":2,"description":"sin afectar tu rango","subRuleName":"Combate por diversión","itemDecelerationMaxCount":0},
-              {"id":3,"battleRuleId":3,"description":"sin afectar tu rango","subRuleName":"Combate por diversión","itemDecelerationMaxCount":0},
-              {"id":4,"battleRuleId":4,"description":"Combate feroz con rangos S","subRuleName":"Combate de clasificación","itemDecelerationMaxCount":0},
-              {"id":5,"battleRuleId":5,"description":"Temporada 1","subRuleName":"Combate de temporada","itemDecelerationMaxCount":0},
-              {"id":6,"battleRuleId":6,"description":"Combate de festival","subRuleName":"Festival Kick-Flight","itemDecelerationMaxCount":0}
+              {"id":1,"battleRuleId":1,"description":"without affecting your rank","subRuleName":"Fun Match","itemDecelerationMaxCount":0},
+              {"id":2,"battleRuleId":2,"description":"without affecting your rank","subRuleName":"Fun Match","itemDecelerationMaxCount":0},
+              {"id":3,"battleRuleId":3,"description":"without affecting your rank","subRuleName":"Fun Match","itemDecelerationMaxCount":0},
+              {"id":4,"battleRuleId":4,"description":"Intense battles at S ranks","subRuleName":"Ranked Match","itemDecelerationMaxCount":0},
+              {"id":5,"battleRuleId":5,"description":"Season 1","subRuleName":"Season Match","itemDecelerationMaxCount":0},
+              {"id":6,"battleRuleId":6,"description":"Festival Match","subRuleName":"Kick-Flight Festival","itemDecelerationMaxCount":0}
             ]
             """);
         _encryptedMasters["Capsule"] = EncryptMaster("""
             [
-              {"id":5010001,"lotteryId":1,"name":"Cápsula estándar","openTime":"01:00:00","lotteryDiscRarityGroupId":1,"lotteryDiscDropAmountGroupId":1},
-              {"id":5010002,"lotteryId":2,"name":"Cápsula dorada","openTime":"12:00:00","lotteryDiscRarityGroupId":2,"lotteryDiscDropAmountGroupId":2},
-              {"id":5010003,"lotteryId":3,"name":"Cápsula de madera","openTime":"03:00:00","lotteryDiscRarityGroupId":1,"lotteryDiscDropAmountGroupId":1}
+              {"id":5010001,"lotteryId":1,"name":"Standard Capsule","openTime":"01:00:00","lotteryDiscRarityGroupId":1,"lotteryDiscDropAmountGroupId":1},
+              {"id":5010002,"lotteryId":2,"name":"Golden Capsule","openTime":"12:00:00","lotteryDiscRarityGroupId":2,"lotteryDiscDropAmountGroupId":2},
+              {"id":5010003,"lotteryId":3,"name":"Wooden Capsule","openTime":"03:00:00","lotteryDiscRarityGroupId":1,"lotteryDiscDropAmountGroupId":1}
             ]
             """);
 
@@ -484,7 +484,7 @@ public sealed partial class DemoSessionApi
         });
         _encryptedMasters["PlayerLevelExp"] = EncryptMaster(JsonSerializer.Serialize(levelExpList));
 
-        _encryptedMasters["Frame"] = EncryptMaster("""[{"id":1,"name":"Marco estándar","battleRuleId":0}]""");
+        _encryptedMasters["Frame"] = EncryptMaster("""[{"id":1,"name":"Standard Frame","battleRuleId":0}]""");
         // ItemMasterData: MasterData(id) + goodsType, name, maxAmount. ids 1-4 are the legacy counters; 5-8 carry the
         // goodsTypes the gear screen (202 gear stamps), the gacha (401/402 tickets) and the goods shop trade in.
         var itemJson = """
@@ -1647,13 +1647,13 @@ public sealed partial class DemoSessionApi
             error = new
             {
                 code = "2005",
-                title = "Nombre no valido",
+                title = "Invalid name",
                 message = reason switch
                 {
-                    "empty" => "Escribe un nombre.",
-                    "too-long" => $"El nombre no puede pasar de {NameMaxLength} caracteres.",
-                    "taken" => "Ese nombre ya lo usa otro jugador.",
-                    _ => "Ese nombre no se puede usar."
+                    "empty" => "Enter a name.",
+                    "too-long" => $"Names cannot be longer than {NameMaxLength} characters.",
+                    "taken" => "That name is already used by another player.",
+                    _ => "That name cannot be used."
                 }
             }
         });

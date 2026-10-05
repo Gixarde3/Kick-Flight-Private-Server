@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Translate the authentic Japanese Kick-Flight master data into Spanish.
-Applies real localized names, canonical stats, and comprehensive Spanish lore/skills.
+"""Translate the authentic Japanese Kick-Flight master data into English.
+Applies real localized names, canonical stats, and comprehensive English lore/skills.
 """
 
 import json
@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_DIR = REPO_ROOT / "config"
 BRAIN_DIR = Path("/Users/marcochavez/.gemini/antigravity-ide/brain/98d8f949-d5f5-4795-8960-aeb6094cced5")
 
-# 1. DISC NAMES TRANSLATION MAP (Katakana -> Localized / Spanish Name)
+# 1. DISC NAMES TRANSLATION MAP (Katakana -> Localized / English Name)
 DISC_NAME_TRANSLATION = {
     "フレイムザウラー": "Flamezaurer",
     "ガイモス": "Gaimos",
@@ -34,7 +34,7 @@ DISC_NAME_TRANSLATION = {
     "ラッシュブレイド": "Rush Blade",
     "プロペダイル": "Propedile",
     "ボルケータス": "Volcatus",
-    "カゼタチヌ": "Kazetachinu (Viento Alzado)",
+    "カゼタチヌ": "Kazetachinu (Rising Wind)",
     "ハナプーゴン": "Hanapoogon",
     "ラピビット": "Lapibit",
     "アームドカリス": "Armed Calis",
@@ -55,7 +55,7 @@ DISC_NAME_TRANSLATION = {
     "ジェットハンマー": "Jet Hammer",
     "ヘルムック": "Hellmuck",
     "タイダリオン": "Tidalion",
-    "ハカイジュウキ": "Hakaijuki (Excavadora)",
+    "ハカイジュウキ": "Hakaijuki (Bulldozer)",
     "マジマジン": "Majimajin",
     "セレスティア": "Celestia",
     "オクトヴァース": "Octoverse",
@@ -68,9 +68,9 @@ DISC_NAME_TRANSLATION = {
     "ヌタウツボン": "Nutautsubon",
     "シビリードラ": "Sibilydra",
     "ウィザビロコ": "Wizard Biloco",
-    "バクリュー": "Bakuryu (Dragón Explosivo)",
+    "バクリュー": "Bakuryu (Explosive Dragon)",
     "ジャンクバレット": "Junk Bullet",
-    "ドクドクバレット": "Bala Venenosa",
+    "ドクドクバレット": "Poison Bullet",
     "ボムヘビ": "Bomb Snake",
     "メラキランチャー": "Melaki Launcher",
     "スルゥマジン": "Through Majin",
@@ -82,14 +82,14 @@ DISC_NAME_TRANSLATION = {
     "ヒルミャン": "Healmyan",
     "キュパルーパー": "Cupalooper",
     "ピコリーフ": "Pico Leaf",
-    "ウミガミ": "Umigami (Dios Marino)",
+    "ウミガミ": "Umigami (Sea God)",
     "キュアウィー": "Cure Wee",
-    "メディカルBOX": "Botiquín Médico",
+    "メディカルBOX": "Medical BOX",
     "ナースロイド": "Nursdroid",
     "エネガエル": "Enegaeru",
     "エアガエル": "Airgaeru",
     "パワワンワ": "Powerwanwa",
-    "ブーストボトル": "Botella Boost",
+    "ブーストボトル": "Boost Bottle",
     "ガンコブルド": "Ganko Bulld",
     "チアラウダー": "Cheer Louder",
     "フラッシュバリア": "Flash Barrier",
@@ -97,30 +97,30 @@ DISC_NAME_TRANSLATION = {
     "ファイタガルー": "Fightgaroo",
     "シェルカブト": "Shell Kabuto",
     "テトラシールド": "Tetra Shield",
-    "マモリガニ": "Mamorigani (Cangrejo Guardián)",
+    "マモリガニ": "Mamorigani (Guardian Crab)",
     "エンカレッジオ": "Encouragio",
     "ポンポコヌシ": "Pompokonushi",
     "スターリオン": "Starlion",
     "ギャラクシールド": "Galaxyshield",
     "アントレイズ": "Antraise",
-    "テンクウテイ": "Tenkutei (Emperador Celeste)",
+    "テンクウテイ": "Tenkutei (Celestial Emperor)",
     "イルダ・ルマ": "Ilda Ruma",
     "ワイルディア": "Wildia",
     "ポップキャンディ": "Pop Candy",
     "イザナヒメ": "Izanahime",
     "ブービーボンバー": "Booby Bomber",
-    "レッドマイン": "Mina Roja",
-    "グリーンマイン": "Mina Verde",
-    "ブルーマイン": "Mina Azul",
-    "ハイパーボム": "Híper Bomba",
+    "レッドマイン": "Red Mine",
+    "グリーンマイン": "Green Mine",
+    "ブルーマイン": "Blue Mine",
+    "ハイパーボム": "Hyper Bomb",
     "スタンノヴァ": "Stun Nova",
     "セプタコプター": "Septacopter",
     "レイジブルド": "Rage Bulld",
-    "アクトタレット": "Torreta Act",
+    "アクトタレット": "Robo Turret",
     "キラービレット": "Killer Billet",
     "ノロマイマイ": "Noromaimai",
     "カモガンガン": "Kamo Gangan",
-    "ステルスマイン": "Mina Furtiva",
+    "ステルスマイン": "Stealth Mine",
     "イビルクロウ": "Evil Crow",
     "エアロジャマー": "Aero Jammer",
     "リベリオウルフ": "Rebelio Wolf",
@@ -128,13 +128,13 @@ DISC_NAME_TRANSLATION = {
     "ヘルパンプキン": "Hell Pumpkin",
     "ウォーランタン": "War Lantern",
     "アークオルフィン": "Arc Orphin",
-    "スタートゲート": "Portal de Inicio",
-    "アサシンゲート": "Portal Asesino",
+    "スタートゲート": "Start Gate",
+    "アサシンゲート": "Assassin Gate",
     "サポットロイド": "Supportdroid",
     "キラーセクタ": "Killer Secta",
     "ネオイルミー": "Neo Illumi",
     "プリンシア": "Princia",
-    "キズナゲート": "Portal Vínculo",
+    "キズナゲート": "Bond Gate",
     "モモンドラ": "Momondra",
     "モモンボン": "Momonbon",
     "レイター": "Later",
@@ -142,286 +142,171 @@ DISC_NAME_TRANSLATION = {
     "スカパンクル": "Skapunkle",
     "タイガルガ": "Tigarga",
     "クックロン": "Cookron",
-    "マッハオバケ": "Fantasma Mach"
+    "マッハオバケ": "Mach Ghost"
 }
 
-# 2. EFFECT TRANSLATION MAP (All 112 unique Japanese phrases -> Spanish)
-EFFECT_TRANSLATION = {
-    "HPが最も低い味方付近へ瞬間移動し、味方のHPを30％回復": "Teletransporte cerca del aliado con menos salud y restaura un 30% de sus PS.",
-    "HPが最も低い味方付近へ瞬間移動し、味方のHPを50％回復": "Teletransporte cerca del aliado con menos salud y restaura un 50% de sus PS.",
-    "スタート地点に瞬間移動": "Teletransporte instantáneo al punto de inicio.",
-    "スタート地点に瞬間移動し、HPを100％回復": "Teletransporte instantáneo al punto de inicio y restaura el 100% de PS.",
-    "ダッシュしながら、自身後方に連続攻撃(合計中ダメージ)": "Ataque continuo hacia atrás durante el turbo (daño medio total).",
-    "ダッシュしながら、自身後方に連続攻撃(合計中ダメージ) ＋シビレ": "Ataque continuo hacia atrás durante el turbo (daño medio) y parálisis.",
-    "ダッシュしながら、自身後方に連続攻撃(合計大ダメージ)": "Ataque continuo hacia atrás durante el turbo (gran daño total).",
-    "ロックオンまたは前方の最も遠い相手の背後へ瞬間移動 ＋5秒間攻撃力中アップ": "Teletransporte a la espalda del rival fijado o más lejano y aumenta el ataque por 5 s.",
-    "ロックオン相手、または最も近い相手の背後へ瞬間移動": "Teletransporte instantáneo a la espalda del rival fijado o más cercano.",
-    "中ダメージ＋吹き飛ばすステルス爆弾を30秒間設置": "Coloca una trampa invisible por 30 s que inflige daño medio y repele al estallar.",
-    "中ダメージ＋吹き飛ばす爆弾を20秒間設置": "Coloca una bomba por 20 s que inflige daño medio y repele al estallar.",
-    "前方1体に中ダメージの高速貫通突進攻撃 ＋SSゲージを最大20%吸収する": "Embestida perforante veloz a 1 rival con daño medio y absorbe hasta 20% de SS.",
-    "前方1体に中ダメージ攻撃": "Ataque frontal a 1 rival que inflige daño medio.",
-    "前方1体に中ダメージ攻撃 ＋5秒間移動速度中ダウン": "Ataque frontal a 1 rival con daño medio y reduce su velocidad por 5 s.",
-    "前方1体に中ダメージ攻撃 ＋シビレ": "Ataque frontal a 1 rival con daño medio y causa parálisis.",
-    "前方1体に中ダメージ攻撃 ＋与えたダメージの80%を回復": "Ataque frontal a 1 rival con daño medio y recupera el 80% del daño infligido.",
-    "前方1体に低弾速・長射程の連続攻撃(合計中ダメージ)": "Ráfaga de largo alcance a baja velocidad a 1 rival (daño medio total).",
-    "前方1体に低弾速・長射程の連続攻撃(合計大ダメージ＋シビレ)": "Ráfaga de largo alcance a baja velocidad a 1 rival (gran daño total y parálisis).",
-    "前方1体に小ダメージ攻撃 ＋スタン": "Ataque frontal a 1 rival con daño ligero y aturdimiento.",
-    "前方1体に小ダメージ攻撃 ＋スペシャルスキルゲージを20％減らす": "Ataque frontal a 1 rival con daño ligero y drena un 20% de su indicador de SS.",
-    "前方1体に連続攻撃(合計中ダメージ) ＋10秒間毒（最大HP30％）": "Ataque continuo a 1 rival (daño medio total) y envenena por 10 s (30% PS máx).",
-    "前方1体に連続攻撃(合計中ダメージ) ＋8秒間攻撃力中ダウン": "Ataque continuo a 1 rival (daño medio total) y reduce su ataque por 8 s.",
-    "前方1体に長射程の中ダメージ攻撃 ＋5秒間スキルを封印する": "Disparo a larga distancia a 1 rival con daño medio y bloquea sus discos por 5 s.",
-    "前方に中ダメージの貫通突進攻撃 ＋シールドブレイク": "Embestida perforante hacia adelante con daño medio y rotura de escudo.",
-    "前方に大ダメージ ＋吹き飛ばす爆発弾攻撃": "Disparo explosivo hacia adelante que inflige gran daño y derriba con retroceso.",
-    "前方に大ダメージの高速追撃突進攻撃": "Embestida veloz de persecución hacia adelante que inflige gran daño.",
-    "前方に小ダメージ ＋吹き飛ばす爆発弾攻撃": "Disparo explosivo hacia adelante con daño ligero y empuje con retroceso.",
-    "前方に小ダメージの貫通突進攻撃 ＋シールドブレイク": "Embestida perforante hacia adelante con daño ligero y rotura de escudo.",
-    "前方に小ダメージの貫通突進攻撃 ＋与えたダメージの100％を回復": "Embestida perforante con daño ligero y recupera el 100% del daño infligido.",
-    "前方に小ダメージの追撃突進攻撃": "Embestida rápida de persecución hacia adelante con daño ligero.",
-    "前方に小ダメージの高速追撃突進攻撃 ＋8秒間攻撃力中ダウン": "Embestida veloz hacia adelante con daño ligero y reduce el ataque rival por 8 s.",
-    "前方に連射攻撃 （合計小ダメージ+シビレ）": "Ráfaga continua frontal (daño ligero total y parálisis).",
-    "前方に連射攻撃(合計大ダメージ)": "Ráfaga continua frontal que inflige gran daño total.",
-    "前方に連射攻撃(合計極大ダメージ ＋SSゲージを最大40％吸収する）": "Ráfaga continua frontal con daño masivo total y drena hasta 40% de SS.",
-    "前方に連射攻撃(合計極大ダメージ)": "Ráfaga continua frontal que inflige daño masivo devastador.",
-    "前方範囲に中ダメージ攻撃 ＋10秒間毒(最大HP40％)": "Ataque en área frontal con daño medio y envenena por 10 s (40% PS máx).",
-    "前方範囲に中ダメージ攻撃 ＋吹き飛ばし": "Ataque en área frontal con daño medio y derribo con retroceso.",
-    "前方範囲に中ダメージ攻撃 ＋超吹き飛ばし": "Ataque en área frontal con daño medio y empuje demoledor.",
-    "前方範囲に大ダメージ攻撃 ＋吹き飛ばし": "Ataque en área frontal que inflige gran daño y derriba con retroceso.",
-    "前方範囲に小ダメージ攻撃 ＋8秒間攻撃力中ダウン": "Ataque en área frontal con daño ligero y reduce el ataque rival por 8 s.",
-    "前方範囲に小ダメージ攻撃 ＋吹き飛ばし": "Ataque en área frontal con daño ligero y derribo con retroceso.",
-    "前方範囲に小ダメージ貫通攻撃 ＋吹き飛ばし": "Ataque perforante en abanico frontal con daño ligero y retroceso.",
-    "周囲球状に中ダメージ攻撃": "Ataque circular esférico que inflige daño medio alrededor.",
-    "周囲球状に中ダメージ攻撃 ＋シビレ": "Ataque circular esférico con daño medio y causa parálisis.",
-    "周囲球状に中ダメージ攻撃 ＋上吹き飛ばし": "Ataque circular esférico con daño medio y derribo hacia arriba.",
-    "周囲球状に大ダメージ攻撃 ＋与えたダメージの60%を回復": "Ataque circular esférico con gran daño y recupera el 60% del daño infligido.",
-    "周囲球状に小ダメージ攻撃": "Ataque circular esférico con daño ligero alrededor.",
-    "周囲球状に小ダメージ攻撃 ＋10秒間毒(最大HP80％)": "Ataque circular esférico con daño ligero y envenena por 10 s (80% PS máx).",
-    "周囲球状に小ダメージ攻撃 ＋シビレ": "Ataque circular esférico con daño ligero y causa parálisis.",
-    "周囲球状に小ダメージ攻撃 ＋上吹き飛ばし": "Ataque circular esférico con daño ligero y derribo hacia arriba.",
-    "周囲球状に極大ダメージ攻撃": "Ataque circular esférico que inflige daño masivo devastador.",
-    "味方全員のHPを20秒間継続回復 （最大80％）": "Regenera PS continuamente a todos los aliados por 20 s (hasta 80% máx).",
-    "味方全員のHPを20％回復 ＋状態異常を解除する": "Restaura un 20% de PS a todos los aliados y purifica alteraciones de estado.",
-    "味方全員のHPを30％回復": "Restaura instantáneamente un 30% de PS a todos los aliados.",
-    "味方全員のHPを50％回復": "Restaura instantáneamente un 50% de PS a todos los aliados.",
-    "味方全員のブーストエネルギー回復量を10秒間大アップ": "Aumenta drásticamente la recuperación de turbo de todos los aliados por 10 s.",
-    "味方全員の攻撃力を15秒間中アップ": "Aumenta el ataque de todos los aliados de forma media durante 15 s.",
-    "味方全員の攻撃力を20秒間小アップ": "Aumenta ligeramente el ataque de todos los aliados durante 20 s.",
-    "味方全員の移動速度を10秒間中アップ": "Aumenta la velocidad de movimiento de todos los aliados durante 10 s.",
-    "味方全員の被ダメージを15秒間30％カット": "Reduce un 30% el daño recibido por todos los aliados durante 15 s.",
-    "味方全員の被ダメージを8秒間70％カット": "Reduce un 70% el daño recibido por todos los aliados durante 8 s.",
-    "大ダメージ＋吹き飛ばす爆弾を20秒間設置": "Coloca una trampa por 20 s que inflige gran daño y derriba al estallar.",
-    "宙返りしながら、自身後方に小ダメージ攻撃 ＋シビレ": "Voltereta evasiva hacia atrás que inflige daño ligero y parálisis.",
-    "小ダメージ＋8秒間スキルを封じる爆弾を20秒間設置": "Coloca una trampa por 20 s que causa daño ligero y sella discos por 8 s.",
-    "小ダメージ＋シビレさせる爆弾を20秒間設置": "Coloca una mina por 20 s que causa daño ligero y produce parálisis.",
-    "小ダメージ＋スタンさせる爆弾を20秒間設置": "Coloca una mina por 20 s que causa daño ligero y aturdimiento.",
-    "小ダメージ＋吹き飛ばす爆弾を20秒間設置": "Coloca una trampa por 20 s que inflige daño ligero y empuja al estallar.",
-    "小ダメージ＋吹き飛ばす爆弾を20秒間設置 ＋10秒間毒(最大60%)": "Coloca una trampa por 20 s que empuja y envenena por 10 s (hasta 60%).",
-    "広範囲の周囲球状に中ダメージ攻撃 ＋スタン": "Ataque esférico en área amplia con daño medio y aturdimiento.",
-    "広範囲の周囲球状に中ダメージ攻撃 ＋上吹き飛ばし": "Ataque esférico en área amplia con daño medio y elevación por los aires.",
-    "広範囲の周囲球状に大ダメージ攻撃 ＋上吹き飛ばし": "Ataque esférico en área amplia con gran daño y elevación por los aires.",
-    "最も遠くの味方がいる場所へ瞬間移動し、HPを30%回復": "Teletransporte al aliado más lejano y restaura un 30% de PS.",
-    "相手が近づくと超低速で周囲攻撃をするタレットを15秒間設置（吹き飛ばし）": "Coloca una torreta por 15 s que repele a los rivales al acercarse.",
-    "相手の移動速度を極大ダウンする空間を10秒間生成": "Genera una zona de gravedad densa por 10 s que frena drásticamente a los rivales.",
-    "範囲内の相手を中速で攻撃するタレットを15秒間設置": "Coloca una torreta por 15 s que dispara a velocidad media a los rivales.",
-    "範囲内の相手を中速で攻撃するタレットを8秒間設置（攻撃力中ダウン）": "Coloca una torreta por 8 s que ataca y reduce el ataque rival.",
-    "範囲内の相手を超高速で攻撃するタレットを15秒間設置": "Coloca una torreta por 15 s que ametralla a velocidad extrema a los rivales.",
-    "範囲内の相手を高速で攻撃するタレットを15秒間設置（1秒間スキルを封印する）": "Coloca una torreta por 15 s que dispara velozmente y bloquea discos por 1 s.",
-    "自動的に4秒間高速前進する": "Propulsa al Kicker hacia adelante a alta velocidad durante 4 s.",
-    "自動的に5秒間超高速前進する": "Propulsa al Kicker hacia adelante a velocidad extrema durante 5 s.",
-    "自動的に5秒間高速前進する": "Propulsa al Kicker hacia adelante a alta velocidad durante 5 s.",
-    "自身のHPを10秒間継続回復 (最大100％)": "Regenera PS continuamente durante 10 s (hasta 100% máx).",
-    "自身のHPを10秒間継続回復 (最大50％)": "Regenera PS continuamente durante 10 s (hasta 50% máx).",
-    "自身のHPを15秒間継続回復 (最大120％)": "Regenera PS continuamente durante 15 s (hasta 120% máx).",
-    "自身のHPを25％回復 ＋状態異常を解除する": "Restaura un 25% de PS y purifica todas las alteraciones de estado.",
-    "自身のHPを30％回復": "Restaura instantáneamente un 30% de PS propios.",
-    "自身のHPを60％回復": "Restaura instantáneamente un 60% de PS propios.",
-    "自身のHPを80％回復": "Restaura instantáneamente un 80% de PS propios.",
-    "自身のブーストエネルギーを中回復": "Restaura una cantidad moderada de indicador de turbo.",
-    "自身のブーストエネルギーを大回復": "Restaura una gran cantidad de indicador de turbo.",
-    "自身のブーストエネルギー回復量を12秒間大アップ": "Aumenta en gran medida la tasa de recarga de turbo durante 12 s.",
-    "自身の攻撃力を15秒間大アップ": "Aumenta en gran medida el ataque propio durante 15 s.",
-    "自身の攻撃力を30秒間小アップ": "Aumenta ligeramente el ataque propio durante 30 s.",
-    "自身の攻撃力を中アップ ＋移動速度を中アップ(10秒間)": "Aumenta moderadamente el ataque y la velocidad de vuelo por 10 s.",
-    "自身の移動速度を10秒間小アップ": "Aumenta ligeramente la velocidad de vuelo durante 10 s.",
-    "自身の被ダメージを10秒間70％カット": "Reduce un 70% el daño recibido durante 10 s.",
-    "自身の被ダメージを15秒間50％カット": "Reduce un 50% el daño recibido durante 15 s.",
-    "自身の被ダメージを25秒間30％カット": "Reduce un 30% el daño recibido durante 25 s.",
-    "自身の被ダメージを3秒間50％カット": "Reduce un 50% el daño recibido durante 3 s.",
-    "自身の被ダメージを5秒間100％カット": "Inmunidad total: anula el 100% de todo daño recibido durante 5 s.",
-    "近くの味方がいる場所へ瞬間移動し、HPを50％回復": "Teletransporte al aliado más cercano y restaura un 50% de PS.",
-    "近くの相手に中ダメージ攻撃 ＋シールドブレイク": "Golpe contundente a corta distancia con daño medio y rotura de escudo.",
-    "近くの相手に中ダメージ攻撃 ＋上吹き飛ばし": "Golpe a corta distancia con daño medio y elevación por los aires.",
-    "近くの相手に大ダメージ攻撃 ＋上吹き飛ばし": "Golpe demoledor a corta distancia con gran daño y elevación por los aires.",
-    "近くの相手に大ダメージ攻撃 ＋叩きつけ": "Golpe demoledor a corta distancia con gran daño e impacto contra el suelo.",
-    "近くの相手に大ダメージ攻撃 ＋叩きつけ（与えたダメージの100％を回復）": "Gran impacto a corta distancia con derribo y absorbe el 100% del daño en PS.",
-    "近くの相手に小ダメージ攻撃 ＋上吹き飛ばし": "Ataque ligero a corta distancia con elevación por los aires.",
-    "近くの相手に小ダメージ攻撃 ＋叩きつけ": "Ataque ligero a corta distancia con impacto contra el suelo.",
-    "近くの相手に小ダメージ攻撃 ＋叩きつけ（スペシャルスキルゲージを30%減少）": "Ataque ligero con impacto y drena un 30% del medidor de SS rival.",
-    "近くの相手に極大ダメージ攻撃 ＋上吹き飛ばし": "Impacto colosal a corta distancia con daño masivo y elevación por los aires.",
-    "連続ダメージ(合計大ダメージ) ＋味方を継続回復(秒間8%)する空間を8秒生成": "Crea una zona por 8 s que daña a los rivales y sana a los aliados (8%/s).",
-    "連続ダメージを与える空間を8秒間生成(合計極大ダメージ)": "Genera una zona de daño continuo durante 8 s (daño masivo total)."
-}
-
-# 3. KICKER COMPLETE LOCALIZATION
-KICKER_PROFILES_SPANISH = {
+# 3. KICKER COMPLETE LOCALIZATION (English; skill and ability text is the official wording from
+# https://kick-flight.fandom.com/wiki/Category:Characters, except the rows listed in the commit message)
+KICKER_PROFILES = {
     1: {
         "name": "Tsubame",
         "cv": "Kaito Ishikawa",
-        "profile": "Joven apasionado que aspira a ser el mejor Kicker. Creció en un orfanato y su mayor tesoro son las gafas heredadas de un Kicker legendario, el objeto clave que despierta su verdadero potencial. Amigo de la infancia de Ruriha y Owlbert.",
-        "specialSkillName": "Planeo Ráfaga (Burst Glide)",
-        "specialSkillDescription": "Aumenta la velocidad de movimiento un 20% y despliega un tornado dañino a su alrededor durante unos 10 s que lanza por los aires a los rivales.",
-        "kickerSkillName": "Embestida Sónica (Sonic Rush)",
-        "kickerSkillDescription": "Se abalanza rápidamente hacia adelante asestando un tajo que inflige el doble de daño de ataque. Destruye y anula los escudos defensivos rivales.",
-        "abilityName": "Carga Acelerada (Accel Charge)",
-        "abilityDescription": "Cuando la salud (PS) cae por debajo del 50%, la velocidad de recarga de la barra de turbo aumenta un 100%."
+        "profile": "A hot-blooded youth that aims to be the best Kicker ever. Tsubame's earliest memories are of living in the orphanage in which he was raised. The goggles he wears are something he received from a legendary Kicker he admires, and are a key source of his strength. Tsubame's first steps into Kick-Flight were marked by failures to effectively use discs in battle, and he was treated as a washout. But when he puts on his goggles in key moments, his concentration skyrockets as he puts unfathomable hidden talents on display. Ruriha and Owlbert are his childhood friends.",
+        "specialSkillName": "Burst Glide",
+        "specialSkillDescription": "Movement speed increases 20%. Opponents will be knocked up and take small damage (10 seconds).",
+        "kickerSkillName": "Sonic Rush",
+        "kickerSkillDescription": "Deals medium slash damage to one enemy in front. Cancels damage reduction of enemy and increases dealt damage.",
+        "abilityName": "Accel Charge",
+        "abilityDescription": "Dash gauge heal increases by 100% when HP is below 50%."
     },
     2: {
         "name": "Ruriha",
         "cv": "Azumi Waki",
-        "profile": "Idol carismática y llena de energía que ilumina el estadio con su sonrisa. Creció junto a Tsubame y Owlbert, y compite en Kick-Flight para transmitir valor y alegría a todos sus fans.",
-        "specialSkillName": "Escenario Curativo (Cure Light Stage)",
-        "specialSkillDescription": "Proyecta un resplandeciente escenario en el aire que restaura continuamente la salud de todos los aliados y disipa estados alterados.",
-        "kickerSkillName": "Disparo en Retroceso (Backstep Shot)",
-        "kickerSkillDescription": "Realiza un ágil salto hacia atrás mientras dispara proyectiles helados que dañan y ralentizan al rival.",
-        "abilityName": "¡Jamás me rendiré! (#Zettai Makenai yo!)",
-        "abilityDescription": "Al curar a un compañero, aumenta temporalmente la velocidad de movimiento propia y del aliado sanado."
+        "profile": "An influencer whose middle name is chic. Precociously fashionable, Ruriha puts all of her energy into her social media presence. As a result, this budding influencer has attracted an incredible number of fans. To further increase her popularity, Ruriha has alighted the Kick-Flight stage. As always, she dons her favorite outfit and strives to ensure that all eyes are on her. She has known Tsubame and Owlbert since childhood.",
+        "specialSkillName": "Cure Light Stage",
+        "specialSkillDescription": "Regenerates 20% of HP for every 1 second (10 seconds).",
+        "kickerSkillName": "Back-Step Shot",
+        "kickerSkillDescription": "Quickly moves backwards from recoil while dealing small paralysis damage to one enemy in front.",
+        "abilityName": "#neversurrender",
+        "abilityDescription": "Damage taken reduced by 40% when HEAL type Disc Skill is used. (3 seconds)"
     },
     3: {
         "name": "Coco",
         "cv": "Yuki Kuwahara",
-        "profile": "Pastelera alegre vestida con traje de conejita que maneja un martillo gigante impulsado por turbinas. Dulce pero arrolladora, castiga a quien intente robar sus dulces.",
-        "specialSkillName": "Torbellino Coco (Coco Swing Tornado)",
-        "specialSkillDescription": "Gira a toda potencia con su martillo gigantesco desatando un tifón devastador que barre a todos los rivales en un amplio radio.",
-        "kickerSkillName": "Bomba en Picado (Shock Dive)",
-        "kickerSkillDescription": "Se lanza con fuerza en picado generando una onda sísmica demoledora que aturde e inflige gran daño en área.",
-        "abilityName": "Ritmo Coco (Coco Rhythm)",
-        "abilityDescription": "Cada impacto consecutivo con sus ataques básicos incrementa su defensa y resistencia al retroceso."
+        "profile": "The daughter of the weapons maker, Guamrail Co. As the youngest child doted upon by her parents and two older brothers, Coco knows little about the harsh realities of life. That naivety is often reflected in the preposterous things that come out of her mouth. Coco has joined Kick-Flight to become a billboard for Guamrail Co. and help improve its flagging sales. Having been around weapons her whole life, she is incredibly knowledgeable about and adept at using them in her battles, attracting attention as a rising star amongst the younger Kickers.",
+        "specialSkillName": "Coco Swing Tornado",
+        "specialSkillDescription": "Whips up a giant tornado to draw in opponents and slams them down, dealing large damage.",
+        "kickerSkillName": "Shock Dive",
+        "kickerSkillDescription": "Jumps forward and delivers a slam ranged attack. Inflicts medium damage to nearby opponents.",
+        "abilityName": "Coco Rhythm",
+        "abilityDescription": "Damage afflicted by attacking enemy reduced by 40% (2 seconds)."
     },
     4: {
         "name": "Kite",
         "cv": "Kouki Uchiyama",
-        "profile": "Joven shinobi frío y calculador que domina las artes ninja del aire. Considera a Tsubame su gran rival y busca alcanzar la cúspide perfeccionando su técnica en solitario.",
-        "specialSkillName": "Shuriken Colmillo de Viento (Fuga Shuriken)",
-        "specialSkillDescription": "Lanza un gigantesco shuriken impregnado de energía eólica que atraviesa a múltiples rivales cortando el espacio.",
-        "kickerSkillName": "Técnica Ilusoria (Genjutsu)",
-        "kickerSkillDescription": "Crea clones de sombras ilusorios para confundir a los rivales mientras él se desvanece para atacar por sorpresa.",
-        "abilityName": "Esencia de un Instante (Setsuna no Gokui)",
-        "abilityDescription": "Tras esquivar con éxito un ataque enemigo mediante un giro aéreo, su siguiente golpe inflige un daño crítico incrementado."
+        "profile": "A youth that hails from a ninja village, their future resting on his shoulders. Kite's goal is to bring a second wind to ninja work, which has been left behind in the modern era. Washing his hands of the older generation set in their ways, he overcame much resistance to stand in the Kick-Flight arena. His physical ability together with the Infinite Style handed down in his family for generations past, has set him aside as a Kicker to watch. Though they're always at loggerheads, Tsubame's occasional flashes of potential ensure that Kite keeps him in his sights.",
+        "specialSkillName": "Wind-Fanged Throwing Star",
+        "specialSkillDescription": "An arcane infinite-style attack that delivers a single devastating frontal blow.",
+        "kickerSkillName": "Art of Illusion",
+        "kickerSkillDescription": "Creates a substitute on the spot and warps forward.",
+        "abilityName": "Mystery Moment",
+        "abilityDescription": "Perform Perfect Evade to remove cooldown for \"Art of Illusion\"."
     },
     5: {
         "name": "Owlbert",
         "cv": "Mutsumi Tamura",
-        "profile": "Pequeño genio inventor de la tecnología aérea. Amigo de la infancia de Tsubame y Ruriha, programa drones tácticos autónomos para brindar apoyo y dominar el terreno.",
-        "specialSkillName": "Formación Nube de Drones (Formation Cloud)",
-        "specialSkillDescription": "Despliega una flotilla de drones de apoyo que proyectan un domo protector sobre los aliados y electrifican a los rivales que osen cruzarlo.",
-        "kickerSkillName": "Dron de Hackeo (Hacking Drone)",
-        "kickerSkillDescription": "Envía un dron teledirigido que intercepta al rival, bloqueando sus discos e interfiriendo con su visión durante varios segundos.",
-        "abilityName": "Teoría de Trampas (Trap Theory)",
-        "abilityDescription": "Reduce notablemente el tiempo de recarga de todos los discos de tipo trampa y torreta, potenciando además su daño."
+        "profile": "A young, genius inventor. Influenced by his grandfather, Owlbert has grown up creating new devices all on his own. Unlike the other participants, Owlbert participates in Kick-Flight not for his own glory, but rather to keep creating new inventions and keep improving his existing devices. When focused on his research, he loses sight of everything else around him. Whenever he completes a new invention, Owlbert shows it to his childhood friends, Tsubame and Ruriha.",
+        "specialSkillName": "Formation Cloud",
+        "specialSkillDescription": "Deploys drone that emits smoke screen for all allies, making them untargetable. (15 seconds).",
+        "kickerSkillName": "Hacking Drone",
+        "kickerSkillDescription": "Deploys drone that on contact with an enemy, suppressing skills (10 seconds).",
+        "abilityName": "Trap Theory",
+        "abilityDescription": "With each use of TRAP-type Disc Skills, damage increases by 7.5% ( up to 75% ) and effect duration increases by 5.0%. (up to 50%)."
     },
     6: {
         "name": "Pitophy",
         "cv": "Miku Ito",
-        "profile": "Gatita traviesa y caótica a bordo de una cápsula mecha flotante. Armada hasta los dientes, adora provocar a los rivales y desatar tormentas de misiles a distancia.",
-        "specialSkillName": "Fiesta de Misiles (Missile Party)",
-        "specialSkillDescription": "Abre todas las compuertas de su mecha y dispara una andanada masiva de micro-misiles teledirigidos contra todos los rivales.",
-        "kickerSkillName": "Joker Inverso (Reverse Joker)",
-        "kickerSkillDescription": "Lanza una caja trampa sorpresa que al abrirse proyecta un resorte demoledor que derriba e invierte los controles del objetivo.",
-        "abilityName": "Aumento de Daño (Damage Raise)",
-        "abilityDescription": "Al acertar ataques a distancia consecutivos, su multiplicador de daño de ataque se incrementa progresivamente."
+        "profile": "A master treasure hunter that's both agile and resourceful. With earnings as a treasure hunter falling, Pitophy throws his hat into the Kick-Flight ring both for the prize money and also to make a name for himself. Having been abandoned in the slums where he fought to eke out a meager existence, he is obsessed with money and the idea of living a life of luxury. Pitophy's charming appearance belies a rash temper - in particular, pat his head and you'll see him erupt with fury. He also thinks of Diatrius as his henchman, though this is one-sided.",
+        "specialSkillName": "Missile Party",
+        "specialSkillDescription": "Launches 12 small-damage guided missiles forward.",
+        "kickerSkillName": "Reverse Joker",
+        "kickerSkillDescription": "Dashes forward a short distance from recoil while dealing small damage to an enemy behind.",
+        "abilityName": "Damage Raiser",
+        "abilityDescription": "Dealt damage increases 15% each time you take an opponent out, but resets when you are killed."
     },
     7: {
         "name": "Grenhawk",
         "cv": "Hiroki Yasumoto",
-        "profile": "Curtido veterano militar con gabardina táctica y porte imponente. Como un hermano mayor protector, emplea fuego pesado y artillería aérea para custodiar a su escuadrón.",
-        "specialSkillName": "Operación Ala Táctica (Operation Wing)",
-        "specialSkillDescription": "Solicita un bombardeo aéreo de precisión sobre una amplia zona, devastando el terreno y cubriendo a los aliados con pantallas de humo tácticas.",
-        "kickerSkillName": "Disparo Ralentizador (Slow Shot)",
-        "kickerSkillDescription": "Dispara un proyectil pesado de contención que suprime el impulso de vuelo del rival y frena fuertemente su velocidad.",
-        "abilityName": "Memorias del Frente (Senjou no Kioku)",
-        "abilityDescription": "Aumenta la defensa y resistencia a los impactos de todos los aliados que permanezcan en sus proximidades."
+        "profile": "Combat pro whose Kicker Skill slows down opponents, while his Special Skill increases movement and attack speed of allies.",
+        "specialSkillName": "Operation Wing",
+        "specialSkillDescription": "Increases movement speed by 30% and attack speed by 30% for all allies (12 seconds).",
+        "kickerSkillName": "Slow Shot",
+        "kickerSkillDescription": "Deals small damage to one enemy in front and reduces movement speed temporarily.",
+        "abilityName": "Battlefield Memories",
+        "abilityDescription": "Attack increases by 30% when HP falls below 50%."
     },
     8: {
         "name": "Anna",
         "cv": "Shizuka Ito",
-        "profile": "Elegante cazarrecompensas de puntería implacable y fría serenidad. Domina el combate aéreo a larga distancia con su fusil de precisión láser.",
-        "specialSkillName": "Prisión Aérea (Aero Prison)",
-        "specialSkillDescription": "Dispara una red de rayos láser de plasma que encierra a los rivales en una jaula de energía suspendida en el aire impidiéndoles huir.",
-        "kickerSkillName": "Rayo Vinculante (Binding Ray)",
-        "kickerSkillDescription": "Emite un haz láser frontal que inmoviliza al objetivo fijado y lo atrae hacia el alcance de sus compañeros.",
-        "abilityName": "Cazadora Estelar (Star Chaser)",
-        "abilityDescription": "Detecta automáticamente la posición de los rivales con poca salud y recibe un impulso adicional de velocidad de vuelo."
+        "profile": "An outstanding police officer with a brilliant mind. Specially trained from a young age, Anna has top-class marksmanship and hand-to-hand combat skills. On the flip side, her sense of justice and responsibility is so strong that failure really gets her down. Anna takes part in Kick-Flight under orders from the top brass, who have instructed her to secretly investigate any suspicious activity related to the matches. Annoyed at Jay's interference with her investigations, she now views his questionable words and actions with suspicion.",
+        "specialSkillName": "Aeroprison",
+        "specialSkillDescription": "Creates a cage that detains the whole opponent team, blocking them from making any move. (5 seconds)",
+        "kickerSkillName": "Binding Ray",
+        "kickerSkillDescription": "Restrains enemy & deals small continuous damage while player is still. (3 seconds)",
+        "abilityName": "Star Chaser",
+        "abilityDescription": "Movement speed increases by 20% while locked on to opponents."
     },
     9: {
         "name": "Jay",
         "cv": "Hiroyuki Yoshino",
-        "profile": "Rebelde artista callejero y el Kicker con la velocidad punta más rápida de la liga. Vuela a toda marcha dejando estelas de pintura colorida para burlarse de las defensas.",
-        "specialSkillName": "Grafiti Alucinógeno (Hallucination Graffiti)",
-        "specialSkillDescription": "Pinta un grafiti gigante en el aire que estalla en una cegadora explosión de colores, desorientando y cegando a los rivales.",
-        "kickerSkillName": "Pintura Furtiva (Stealth Paint)",
-        "kickerSkillDescription": "Se rocía con un spray de camuflaje de alta tecnología, volviéndose invisible a la vista y a los radares por varios segundos.",
-        "abilityName": "Regalo 4U (Present 4U)",
-        "abilityDescription": "Deja una trampa de pintura al realizar giros rápidos o frenadas bruscas, que ralentiza y delata a los perseguidores."
+        "profile": "A backstreet punk who sees the world as an uninteresting place he should change and make more amusing. Jay gets carried away easily and doesn't come across as being particularly smart, but that's precisely where his aesthetic lies. And now, Jay has set his sights on Kick-Flight, which has grown in popularity worldwide. No one will be able to stop him if he takes this contest - and thus the world - by storm. Having fallen for Anna at first sight, he tags along behind her, utterly unconcerned about her cold attitude towards him.",
+        "specialSkillName": "Halcynation Graffiti",
+        "specialSkillDescription": "Disguises battle and map information for the opposing team (12 seconds).",
+        "kickerSkillName": "Stealth Paint",
+        "kickerSkillDescription": "Disappear from mini map and field and become untargetable (4 seconds).",
+        "abilityName": "Present 4 U",
+        "abilityDescription": "On death, sets a massive damage bomb trap that knocks away nearby opponents. (2 seconds)"
     },
     10: {
         "name": "Yuyan",
         "cv": "Yu Kobayashi",
-        "profile": "Pequeño maestro de artes marciales de gran corazón y voraz apetito. Empuña un par de nunchakus mágicos combinando acrobacias aéreas con la fuerza de un panda gigante.",
-        "specialSkillName": "Lluvia Panda (Panda Rush)",
-        "specialSkillDescription": "Desata una ráfaga frenética de golpes ultra-rápidos con sus nunchakus mientras un aura de espíritu de panda gigante machaca a los rivales.",
-        "kickerSkillName": "Nunchaku Nyoi (Ruyi Nunchaku)",
-        "kickerSkillDescription": "Extiende sus nunchakus energéticos para asestar un golpe demoledor que atrae al enemigo y lo deja vulnerable a combos inmediatos.",
-        "abilityName": "Combo Imparable (Musou Rengeki)",
-        "abilityDescription": "Cada golpe exitoso de sus combos básicos reduce el tiempo de recarga de su Kicker Skill."
+        "profile": "The tomboyish daughter of the master of a Kung Fu School. Yuyan was raised and trained deep in the mountains, secluded from the rest of society. But the lure of that prohibited, unknown world only grew with each passing day. Unable to suppress that curiosity, Yuyan secretly ventured out one day, and became captivated with Kick-Flight. After an entire month, she finally managed to obtain permission to participate. Now, with her trusted friend, Fei Fei, by her side, Yuyan sets her sights on victory.",
+        "specialSkillName": "Panda Rush",
+        "specialSkillDescription": "Temporary automatic high-speed movement with x3 attack speed increase. (12 seconds)",
+        "kickerSkillName": "Nunchaku Nirvana",
+        "kickerSkillDescription": "Nunchaku deals damage to one enemy in the front and forcibly draws them to you.",
+        "abilityName": "God Combo Strike",
+        "abilityDescription": "Normal attack increases by 10% each time one hits (1 seconds, max 50%)."
     },
     11: {
         "name": "Diatrius",
         "cv": "Tetsu Inada",
-        "profile": "Colosal guerrero biomecánico fruto de experimentos genéticos. Pese a su aterradora envergadura, posee un alma noble y usa su descomunal poder para defender a los indefensos.",
-        "specialSkillName": "Mega Gravitón (Mega Graviton)",
-        "specialSkillDescription": "Genera un pozo de gravedad supermasivo en el aire que atrae con fuerza irresistible a todos los rivales de la zona y los comprime violentamente.",
-        "kickerSkillName": "Impacto Meteoro (Meteor Impact)",
-        "kickerSkillDescription": "Acelera su enorme cuerpo como un bólido e impacta contra el objetivo, causando un daño devastador y empujándolo con violencia.",
-        "abilityName": "Nanomáquinas de Arranque (Boot Nanomachine)",
-        "abilityDescription": "Regenera salud de forma continua cuando se encuentra cerca de un cristal o guardián aliado."
+        "profile": "An alien hailing from a planet with a more advanced civilization. Diatrius crash-landed on Earth after encountering engine trouble as he was travelling through space. When he regained consciousness, he found himself under the control of an organization scheming to use him for scientific advancement. In order to find a way back home, Diatrius agrees to participate in Kick-Flight based on an offer to supply him with the necessary fuel if he becomes the champion. He considers Pitophy, who shows some kind of interest in him, to be his only friend on Earth.",
+        "specialSkillName": "Mega Graviton",
+        "specialSkillDescription": "Generates a gravity well that pulls in all opponents in the area and holds them in place.",
+        "kickerSkillName": "Meteor Impact",
+        "kickerSkillDescription": "Dashes forward at high speed and slams into the target, dealing large damage and knocking it back.",
+        "abilityName": "Boot Nanomachine",
+        "abilityDescription": "If HP falls below 50%, HP recovers 5% every 1 seconds."
     },
     12: {
         "name": "Buzzy Big",
         "cv": "Subaru Kimura",
-        "profile": "Astro juvenil del baloncesto callejero con un ritmo contagioso y fuerza atlética. Usa su corpulencia y su balón blindado para bloquear a los rivales y asegurar los cristales.",
-        "specialSkillName": "Protección de Banda (Crew Protection)",
-        "specialSkillDescription": "Despliega una cúpula magnética masiva que absorbe todo el daño dirigido a sus compañeros de equipo en un amplio radio.",
-        "kickerSkillName": "Barrera Frontal (Front Barrier)",
-        "kickerSkillDescription": "Crea un escudo de energía frontal que repele proyectiles y empuja a los rivales que colisionen con él.",
+        "profile": "A singing, dancing and flying MC Kicker. Optimistic and easy-going, Buzzy Big is the mood maker wherever he goes, and he also cares a great deal about his friends. One day, frustrated by the seemingly meaningless life he was leading, Buzzy Big came across a rapper whose performance changed his life. Now a rapper himself, he participates in Kick-Flight for both the popularity and the prize money, so that he can achieve his dream of performing on the biggest stage in the world. He can often be found busking in between his Kick-Flight matches.",
+        "specialSkillName": "Crew Protection",
+        "specialSkillDescription": "Deploys a barrier that absorbs damage dealt to all teammates in a wide area.",
+        "kickerSkillName": "Front Barrier",
+        "kickerSkillDescription": "Deploys an energy barrier in front that blocks projectiles and pushes back opponents that collide with it.",
         "abilityName": "B.B. in da House",
-        "abilityDescription": "Gana una bonificación masiva de defensa y velocidad mientras transporte cristales hacia el depósito de su equipo."
+        "abilityDescription": "On death, deploys a one-time barrier that blocks any damage to all teammates."
     },
     13: {
         "name": "Hitagi",
         "cv": "Rika Tachibana",
-        "profile": "Misteriosa espadachina que oculta su identidad tras una máscara oni tradicional. Blandiendo su katana a velocidad centelleante, desata técnicas espirituales letales.",
-        "specialSkillName": "Arte Oculto: Títere Demoníaco (Kishin Kairai)",
-        "specialSkillDescription": "Despierta el poder del demonio interior durante 15 s, convirtiendo todos sus ataques cuerpo a cuerpo en letales impactos mortales.",
-        "kickerSkillName": "Técnica Oni: Paso Sombrío (Shukuchi)",
-        "kickerSkillDescription": "Fija al rival dentro de su rango de detección y se teletransporta instantáneamente a su espalda para asestar un tajo sorpresa por la retaguardia.",
-        "abilityName": "Técnica Oni: Transmigración (Rinne)",
-        "abilityDescription": "Al derribar a un rival, recupera instantáneamente un porcentaje significativo de salud y llena su medidor de habilidad especial."
+        "profile": "The young daughter of a distinguished, noble family, who has escaped from her filial duties. Weary of her strict upbringing as the heir, Hitagi ran away from home and was taken in by a group of hooligans. The group's demon crest is a well-known symbol in the territory they control, and also the target of many an envious rival. In order to repay her new family, Hitagi aims for victory in Kick-Flight, so that she can increase the group's authority and influence. Secretly, she also longs to be praised by the leader who took her in.",
+        "specialSkillName": "Demon God Marionette",
+        "specialSkillDescription": "Releases the power of a demon to turn a normal attack on an opponent into a lethal strike. (15 seconds)",
+        "kickerSkillName": "Demonic Shadow",
+        "kickerSkillDescription": "Move instantaneously behind targeted opponent. (If there is no target, you'll move forward instead)",
+        "abilityName": "Demonic Reincarnation",
+        "abilityDescription": "Cooldown for her Kicker Skill Demonic Shadow shortens with each kill."
     },
     14: {
         "name": "Sid",
         "cv": "Tomokazu Sugita",
-        "profile": "Excéntrico artista y escultor cibernético con una mirada desafiante. Utiliza rayos de grabado láser y bloques de materia cuántica para rediseñar el campo de batalla a su gusto.",
-        "specialSkillName": "Láser de Grabado (Engrave Laser)",
-        "specialSkillDescription": "Dispara un haz continuo de energía de gran alcance que barre el escenario, causando gran daño sostenido y perforando escudos enemigos.",
-        "kickerSkillName": "Esculpir y Crear (Sculpt Make)",
-        "kickerSkillDescription": "Materializa un bloque cúbico sólido flotante en el aire que bloquea el avance enemigo y provee cobertura táctica.",
-        "abilityName": "Fiebre de Artista (Artist's High)",
-        "abilityDescription": "Cuando sus habilidades o discos impactan con éxito en los rivales, incrementa temporalmente la velocidad de recarga de todas sus técnicas."
+        "profile": "A street sculptor who does guerrilla art activities under the moniker of Azumaya. A mysterious personage whose background and age are unknown. With his beloved laser gun, Sid goes around creating works of art using pillars and trees he finds on the streets. This \"destruction\" sees him regarded as a delinquent, but none have ever seen his enigmatic figure, leaving the cops no course for response. His reasons for participating in Kick-Flight are unclear. In fact, no one knows that the sculptor that has joined the competition is the delinquent in question.",
+        "specialSkillName": "Engraving Laser",
+        "specialSkillDescription": "Continuously fires a wall-piercing laser over a wide area in front, damage (small) and paralysis.",
+        "kickerSkillName": "Sculpt Make",
+        "kickerSkillDescription": "Sets a sculpture that absorbs attacks from Guardians, and turrets and bombs created with discs (6 seconds).",
+        "abilityName": "Artistic High",
+        "abilityDescription": "Each successful normal attack against an opponent reduces Kicker Skill Cooldown by 1 second & attack speed increased by 100% while kicker skill is activated."
     }
 }
 
 
 def main():
-    print("Loading raw Japanese masters and translating to Spanish...")
+    print("Loading raw Japanese masters and translating to English...")
 
     # 1. Update config/masters_disc.json
     discs_file = CONFIG_DIR / "masters_disc.json"
@@ -440,32 +325,7 @@ def main():
         f.write("\n")
     print(f"Updated {discs_translated}/{len(discs)} disc names in {discs_file}")
 
-    # 2. Update config/masters_skill.json
-    skills_file = CONFIG_DIR / "masters_skill.json"
-    with open(skills_file, encoding="utf-8") as f:
-        skills = json.load(f)
-
-    skills_translated = 0
-    for s in skills:
-        orig_name = s.get("name", "")
-        orig_desc = s.get("description", "")
-        if orig_name in DISC_NAME_TRANSLATION:
-            s["name"] = DISC_NAME_TRANSLATION[orig_name]
-        if orig_desc in EFFECT_TRANSLATION:
-            s["description"] = EFFECT_TRANSLATION[orig_desc]
-            skills_translated += 1
-        elif orig_desc:
-            # Fallback if minor spacing difference
-            for k, v in EFFECT_TRANSLATION.items():
-                if k.replace(" ", "").replace("　", "") == orig_desc.replace(" ", "").replace("　", ""):
-                    s["description"] = v
-                    skills_translated += 1
-                    break
-
-    with open(skills_file, "w", encoding="utf-8") as f:
-        json.dump(skills, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    print(f"Updated {skills_translated}/{len(skills)} skill descriptions in {skills_file}")
+    # 2. masters_skill.json descriptions are English and owned by apply_disc_cards.py / generate_combat_masters.py.
 
     # 3. Update config/masters_kicker.json
     kicker_file = CONFIG_DIR / "masters_kicker.json"
@@ -474,8 +334,8 @@ def main():
 
     for k in kickers:
         kid = k.get("id")
-        if kid in KICKER_PROFILES_SPANISH:
-            info = KICKER_PROFILES_SPANISH[kid]
+        if kid in KICKER_PROFILES:
+            info = KICKER_PROFILES[kid]
             k["name"] = info["name"]
             k["cv"] = info["cv"]
 
@@ -491,8 +351,8 @@ def main():
 
     for d in details:
         kid = d.get("id")
-        if kid in KICKER_PROFILES_SPANISH:
-            info = KICKER_PROFILES_SPANISH[kid]
+        if kid in KICKER_PROFILES:
+            info = KICKER_PROFILES[kid]
             d["kickerIntroductionText"] = info["profile"]
             d["profileText"] = info["profile"]
             d["profile"] = info["profile"]

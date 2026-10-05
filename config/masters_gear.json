@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "name": "Engranaje Aumento de PS Máximos (N)",
+    "name": "Gear Max HP Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 1,
@@ -9,7 +9,7 @@
   },
   {
     "id": 2,
-    "name": "Engranaje Aumento de PS Máximos (N)",
+    "name": "Gear Max HP Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 1,
@@ -17,7 +17,7 @@
   },
   {
     "id": 3,
-    "name": "Engranaje Aumento de PS Máximos (N)",
+    "name": "Gear Max HP Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 1,
@@ -25,7 +25,7 @@
   },
   {
     "id": 4,
-    "name": "Engranaje Aumento de PS Máximos (N)",
+    "name": "Gear Max HP Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 1,
@@ -33,7 +33,7 @@
   },
   {
     "id": 5,
-    "name": "Engranaje Aumento de PS Máximos (N)",
+    "name": "Gear Max HP Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 1,
@@ -41,7 +41,7 @@
   },
   {
     "id": 6,
-    "name": "Engranaje Aumento de PS Máximos (R)",
+    "name": "Gear Max HP Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 1,
@@ -49,7 +49,7 @@
   },
   {
     "id": 7,
-    "name": "Engranaje Aumento de PS Máximos (R)",
+    "name": "Gear Max HP Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 1,
@@ -57,7 +57,7 @@
   },
   {
     "id": 8,
-    "name": "Engranaje Aumento de PS Máximos (R)",
+    "name": "Gear Max HP Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 1,
@@ -65,7 +65,7 @@
   },
   {
     "id": 9,
-    "name": "Engranaje Aumento de PS Máximos (R)",
+    "name": "Gear Max HP Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 1,
@@ -73,7 +73,7 @@
   },
   {
     "id": 10,
-    "name": "Engranaje Aumento de PS Máximos (R)",
+    "name": "Gear Max HP Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 1,
@@ -81,7 +81,7 @@
   },
   {
     "id": 11,
-    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "name": "Gear Max HP Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 1,
@@ -89,7 +89,7 @@
   },
   {
     "id": 12,
-    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "name": "Gear Max HP Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 1,
@@ -97,7 +97,7 @@
   },
   {
     "id": 13,
-    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "name": "Gear Max HP Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 1,
@@ -105,7 +105,7 @@
   },
   {
     "id": 14,
-    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "name": "Gear Max HP Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 1,
@@ -113,7 +113,7 @@
   },
   {
     "id": 15,
-    "name": "Engranaje Aumento de PS Máximos (SR)",
+    "name": "Gear Max HP Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 1,
@@ -121,7 +121,7 @@
   },
   {
     "id": 16,
-    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "name": "Gear Max HP Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 1,
@@ -129,7 +129,7 @@
   },
   {
     "id": 17,
-    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "name": "Gear Max HP Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 1,
@@ -137,7 +137,7 @@
   },
   {
     "id": 18,
-    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "name": "Gear Max HP Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 1,
@@ -145,7 +145,7 @@
   },
   {
     "id": 19,
-    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "name": "Gear Max HP Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 1,
@@ -153,7 +153,7 @@
   },
   {
     "id": 20,
-    "name": "Engranaje Aumento de PS Máximos (UR)",
+    "name": "Gear Max HP Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 1,
@@ -161,7 +161,7 @@
   },
   {
     "id": 21,
-    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "name": "Gear ATK Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 2,
@@ -169,7 +169,7 @@
   },
   {
     "id": 22,
-    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "name": "Gear ATK Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 2,
@@ -177,7 +177,7 @@
   },
   {
     "id": 23,
-    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "name": "Gear ATK Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 2,
@@ -185,7 +185,7 @@
   },
   {
     "id": 24,
-    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "name": "Gear ATK Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 2,
@@ -193,7 +193,7 @@
   },
   {
     "id": 25,
-    "name": "Engranaje Aumento de Potencia de Ataque (N)",
+    "name": "Gear ATK Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 2,
@@ -201,7 +201,7 @@
   },
   {
     "id": 26,
-    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "name": "Gear ATK Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 2,
@@ -209,7 +209,7 @@
   },
   {
     "id": 27,
-    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "name": "Gear ATK Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 2,
@@ -217,7 +217,7 @@
   },
   {
     "id": 28,
-    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "name": "Gear ATK Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 2,
@@ -225,7 +225,7 @@
   },
   {
     "id": 29,
-    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "name": "Gear ATK Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 2,
@@ -233,7 +233,7 @@
   },
   {
     "id": 30,
-    "name": "Engranaje Aumento de Potencia de Ataque (R)",
+    "name": "Gear ATK Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 2,
@@ -241,7 +241,7 @@
   },
   {
     "id": 31,
-    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "name": "Gear ATK Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 2,
@@ -249,7 +249,7 @@
   },
   {
     "id": 32,
-    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "name": "Gear ATK Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 2,
@@ -257,7 +257,7 @@
   },
   {
     "id": 33,
-    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "name": "Gear ATK Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 2,
@@ -265,7 +265,7 @@
   },
   {
     "id": 34,
-    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "name": "Gear ATK Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 2,
@@ -273,7 +273,7 @@
   },
   {
     "id": 35,
-    "name": "Engranaje Aumento de Potencia de Ataque (SR)",
+    "name": "Gear ATK Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 2,
@@ -281,7 +281,7 @@
   },
   {
     "id": 36,
-    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "name": "Gear ATK Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 2,
@@ -289,7 +289,7 @@
   },
   {
     "id": 37,
-    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "name": "Gear ATK Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 2,
@@ -297,7 +297,7 @@
   },
   {
     "id": 38,
-    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "name": "Gear ATK Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 2,
@@ -305,7 +305,7 @@
   },
   {
     "id": 39,
-    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "name": "Gear ATK Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 2,
@@ -313,7 +313,7 @@
   },
   {
     "id": 40,
-    "name": "Engranaje Aumento de Potencia de Ataque (UR)",
+    "name": "Gear ATK Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 2,
@@ -321,7 +321,7 @@
   },
   {
     "id": 41,
-    "name": "Engranaje Velocidad de Movimiento (N)",
+    "name": "Gear Movement Speed (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 3,
@@ -329,7 +329,7 @@
   },
   {
     "id": 42,
-    "name": "Engranaje Velocidad de Movimiento (N)",
+    "name": "Gear Movement Speed (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 3,
@@ -337,7 +337,7 @@
   },
   {
     "id": 43,
-    "name": "Engranaje Velocidad de Movimiento (N)",
+    "name": "Gear Movement Speed (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 3,
@@ -345,7 +345,7 @@
   },
   {
     "id": 44,
-    "name": "Engranaje Velocidad de Movimiento (N)",
+    "name": "Gear Movement Speed (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 3,
@@ -353,7 +353,7 @@
   },
   {
     "id": 45,
-    "name": "Engranaje Velocidad de Movimiento (N)",
+    "name": "Gear Movement Speed (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 3,
@@ -361,7 +361,7 @@
   },
   {
     "id": 46,
-    "name": "Engranaje Velocidad de Movimiento (R)",
+    "name": "Gear Movement Speed (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 3,
@@ -369,7 +369,7 @@
   },
   {
     "id": 47,
-    "name": "Engranaje Velocidad de Movimiento (R)",
+    "name": "Gear Movement Speed (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 3,
@@ -377,7 +377,7 @@
   },
   {
     "id": 48,
-    "name": "Engranaje Velocidad de Movimiento (R)",
+    "name": "Gear Movement Speed (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 3,
@@ -385,7 +385,7 @@
   },
   {
     "id": 49,
-    "name": "Engranaje Velocidad de Movimiento (R)",
+    "name": "Gear Movement Speed (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 3,
@@ -393,7 +393,7 @@
   },
   {
     "id": 50,
-    "name": "Engranaje Velocidad de Movimiento (R)",
+    "name": "Gear Movement Speed (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 3,
@@ -401,7 +401,7 @@
   },
   {
     "id": 51,
-    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "name": "Gear Movement Speed (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 3,
@@ -409,7 +409,7 @@
   },
   {
     "id": 52,
-    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "name": "Gear Movement Speed (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 3,
@@ -417,7 +417,7 @@
   },
   {
     "id": 53,
-    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "name": "Gear Movement Speed (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 3,
@@ -425,7 +425,7 @@
   },
   {
     "id": 54,
-    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "name": "Gear Movement Speed (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 3,
@@ -433,7 +433,7 @@
   },
   {
     "id": 55,
-    "name": "Engranaje Velocidad de Movimiento (SR)",
+    "name": "Gear Movement Speed (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 3,
@@ -441,7 +441,7 @@
   },
   {
     "id": 56,
-    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "name": "Gear Movement Speed (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 3,
@@ -449,7 +449,7 @@
   },
   {
     "id": 57,
-    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "name": "Gear Movement Speed (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 3,
@@ -457,7 +457,7 @@
   },
   {
     "id": 58,
-    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "name": "Gear Movement Speed (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 3,
@@ -465,7 +465,7 @@
   },
   {
     "id": 59,
-    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "name": "Gear Movement Speed (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 3,
@@ -473,7 +473,7 @@
   },
   {
     "id": 60,
-    "name": "Engranaje Velocidad de Movimiento (UR)",
+    "name": "Gear Movement Speed (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 3,
@@ -481,7 +481,7 @@
   },
   {
     "id": 61,
-    "name": "Engranaje Potenciación de Fuego (N)",
+    "name": "Gear Fire Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 4,
@@ -489,7 +489,7 @@
   },
   {
     "id": 62,
-    "name": "Engranaje Potenciación de Fuego (N)",
+    "name": "Gear Fire Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 4,
@@ -497,7 +497,7 @@
   },
   {
     "id": 63,
-    "name": "Engranaje Potenciación de Fuego (N)",
+    "name": "Gear Fire Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 4,
@@ -505,7 +505,7 @@
   },
   {
     "id": 64,
-    "name": "Engranaje Potenciación de Fuego (N)",
+    "name": "Gear Fire Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 4,
@@ -513,7 +513,7 @@
   },
   {
     "id": 65,
-    "name": "Engranaje Potenciación de Fuego (N)",
+    "name": "Gear Fire Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 4,
@@ -521,7 +521,7 @@
   },
   {
     "id": 66,
-    "name": "Engranaje Potenciación de Fuego (R)",
+    "name": "Gear Fire Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 4,
@@ -529,7 +529,7 @@
   },
   {
     "id": 67,
-    "name": "Engranaje Potenciación de Fuego (R)",
+    "name": "Gear Fire Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 4,
@@ -537,7 +537,7 @@
   },
   {
     "id": 68,
-    "name": "Engranaje Potenciación de Fuego (R)",
+    "name": "Gear Fire Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 4,
@@ -545,7 +545,7 @@
   },
   {
     "id": 69,
-    "name": "Engranaje Potenciación de Fuego (R)",
+    "name": "Gear Fire Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 4,
@@ -553,7 +553,7 @@
   },
   {
     "id": 70,
-    "name": "Engranaje Potenciación de Fuego (R)",
+    "name": "Gear Fire Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 4,
@@ -561,7 +561,7 @@
   },
   {
     "id": 71,
-    "name": "Engranaje Potenciación de Fuego (SR)",
+    "name": "Gear Fire Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 4,
@@ -569,7 +569,7 @@
   },
   {
     "id": 72,
-    "name": "Engranaje Potenciación de Fuego (SR)",
+    "name": "Gear Fire Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 4,
@@ -577,7 +577,7 @@
   },
   {
     "id": 73,
-    "name": "Engranaje Potenciación de Fuego (SR)",
+    "name": "Gear Fire Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 4,
@@ -585,7 +585,7 @@
   },
   {
     "id": 74,
-    "name": "Engranaje Potenciación de Fuego (SR)",
+    "name": "Gear Fire Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 4,
@@ -593,7 +593,7 @@
   },
   {
     "id": 75,
-    "name": "Engranaje Potenciación de Fuego (SR)",
+    "name": "Gear Fire Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 4,
@@ -601,7 +601,7 @@
   },
   {
     "id": 76,
-    "name": "Engranaje Potenciación de Fuego (UR)",
+    "name": "Gear Fire Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 4,
@@ -609,7 +609,7 @@
   },
   {
     "id": 77,
-    "name": "Engranaje Potenciación de Fuego (UR)",
+    "name": "Gear Fire Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 4,
@@ -617,7 +617,7 @@
   },
   {
     "id": 78,
-    "name": "Engranaje Potenciación de Fuego (UR)",
+    "name": "Gear Fire Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 4,
@@ -625,7 +625,7 @@
   },
   {
     "id": 79,
-    "name": "Engranaje Potenciación de Fuego (UR)",
+    "name": "Gear Fire Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 4,
@@ -633,7 +633,7 @@
   },
   {
     "id": 80,
-    "name": "Engranaje Potenciación de Fuego (UR)",
+    "name": "Gear Fire Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 4,
@@ -641,7 +641,7 @@
   },
   {
     "id": 81,
-    "name": "Engranaje Potenciación de Agua (N)",
+    "name": "Gear Water Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 5,
@@ -649,7 +649,7 @@
   },
   {
     "id": 82,
-    "name": "Engranaje Potenciación de Agua (N)",
+    "name": "Gear Water Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 5,
@@ -657,7 +657,7 @@
   },
   {
     "id": 83,
-    "name": "Engranaje Potenciación de Agua (N)",
+    "name": "Gear Water Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 5,
@@ -665,7 +665,7 @@
   },
   {
     "id": 84,
-    "name": "Engranaje Potenciación de Agua (N)",
+    "name": "Gear Water Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 5,
@@ -673,7 +673,7 @@
   },
   {
     "id": 85,
-    "name": "Engranaje Potenciación de Agua (N)",
+    "name": "Gear Water Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 5,
@@ -681,7 +681,7 @@
   },
   {
     "id": 86,
-    "name": "Engranaje Potenciación de Agua (R)",
+    "name": "Gear Water Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 5,
@@ -689,7 +689,7 @@
   },
   {
     "id": 87,
-    "name": "Engranaje Potenciación de Agua (R)",
+    "name": "Gear Water Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 5,
@@ -697,7 +697,7 @@
   },
   {
     "id": 88,
-    "name": "Engranaje Potenciación de Agua (R)",
+    "name": "Gear Water Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 5,
@@ -705,7 +705,7 @@
   },
   {
     "id": 89,
-    "name": "Engranaje Potenciación de Agua (R)",
+    "name": "Gear Water Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 5,
@@ -713,7 +713,7 @@
   },
   {
     "id": 90,
-    "name": "Engranaje Potenciación de Agua (R)",
+    "name": "Gear Water Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 5,
@@ -721,7 +721,7 @@
   },
   {
     "id": 91,
-    "name": "Engranaje Potenciación de Agua (SR)",
+    "name": "Gear Water Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 5,
@@ -729,7 +729,7 @@
   },
   {
     "id": 92,
-    "name": "Engranaje Potenciación de Agua (SR)",
+    "name": "Gear Water Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 5,
@@ -737,7 +737,7 @@
   },
   {
     "id": 93,
-    "name": "Engranaje Potenciación de Agua (SR)",
+    "name": "Gear Water Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 5,
@@ -745,7 +745,7 @@
   },
   {
     "id": 94,
-    "name": "Engranaje Potenciación de Agua (SR)",
+    "name": "Gear Water Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 5,
@@ -753,7 +753,7 @@
   },
   {
     "id": 95,
-    "name": "Engranaje Potenciación de Agua (SR)",
+    "name": "Gear Water Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 5,
@@ -761,7 +761,7 @@
   },
   {
     "id": 96,
-    "name": "Engranaje Potenciación de Agua (UR)",
+    "name": "Gear Water Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 5,
@@ -769,7 +769,7 @@
   },
   {
     "id": 97,
-    "name": "Engranaje Potenciación de Agua (UR)",
+    "name": "Gear Water Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 5,
@@ -777,7 +777,7 @@
   },
   {
     "id": 98,
-    "name": "Engranaje Potenciación de Agua (UR)",
+    "name": "Gear Water Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 5,
@@ -785,7 +785,7 @@
   },
   {
     "id": 99,
-    "name": "Engranaje Potenciación de Agua (UR)",
+    "name": "Gear Water Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 5,
@@ -793,7 +793,7 @@
   },
   {
     "id": 100,
-    "name": "Engranaje Potenciación de Agua (UR)",
+    "name": "Gear Water Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 5,
@@ -801,7 +801,7 @@
   },
   {
     "id": 101,
-    "name": "Engranaje Potenciación de Viento (N)",
+    "name": "Gear Wind Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 6,
@@ -809,7 +809,7 @@
   },
   {
     "id": 102,
-    "name": "Engranaje Potenciación de Viento (N)",
+    "name": "Gear Wind Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 6,
@@ -817,7 +817,7 @@
   },
   {
     "id": 103,
-    "name": "Engranaje Potenciación de Viento (N)",
+    "name": "Gear Wind Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 6,
@@ -825,7 +825,7 @@
   },
   {
     "id": 104,
-    "name": "Engranaje Potenciación de Viento (N)",
+    "name": "Gear Wind Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 6,
@@ -833,7 +833,7 @@
   },
   {
     "id": 105,
-    "name": "Engranaje Potenciación de Viento (N)",
+    "name": "Gear Wind Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 6,
@@ -841,7 +841,7 @@
   },
   {
     "id": 106,
-    "name": "Engranaje Potenciación de Viento (R)",
+    "name": "Gear Wind Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 6,
@@ -849,7 +849,7 @@
   },
   {
     "id": 107,
-    "name": "Engranaje Potenciación de Viento (R)",
+    "name": "Gear Wind Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 6,
@@ -857,7 +857,7 @@
   },
   {
     "id": 108,
-    "name": "Engranaje Potenciación de Viento (R)",
+    "name": "Gear Wind Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 6,
@@ -865,7 +865,7 @@
   },
   {
     "id": 109,
-    "name": "Engranaje Potenciación de Viento (R)",
+    "name": "Gear Wind Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 6,
@@ -873,7 +873,7 @@
   },
   {
     "id": 110,
-    "name": "Engranaje Potenciación de Viento (R)",
+    "name": "Gear Wind Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 6,
@@ -881,7 +881,7 @@
   },
   {
     "id": 111,
-    "name": "Engranaje Potenciación de Viento (SR)",
+    "name": "Gear Wind Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 6,
@@ -889,7 +889,7 @@
   },
   {
     "id": 112,
-    "name": "Engranaje Potenciación de Viento (SR)",
+    "name": "Gear Wind Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 6,
@@ -897,7 +897,7 @@
   },
   {
     "id": 113,
-    "name": "Engranaje Potenciación de Viento (SR)",
+    "name": "Gear Wind Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 6,
@@ -905,7 +905,7 @@
   },
   {
     "id": 114,
-    "name": "Engranaje Potenciación de Viento (SR)",
+    "name": "Gear Wind Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 6,
@@ -913,7 +913,7 @@
   },
   {
     "id": 115,
-    "name": "Engranaje Potenciación de Viento (SR)",
+    "name": "Gear Wind Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 6,
@@ -921,7 +921,7 @@
   },
   {
     "id": 116,
-    "name": "Engranaje Potenciación de Viento (UR)",
+    "name": "Gear Wind Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 6,
@@ -929,7 +929,7 @@
   },
   {
     "id": 117,
-    "name": "Engranaje Potenciación de Viento (UR)",
+    "name": "Gear Wind Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 6,
@@ -937,7 +937,7 @@
   },
   {
     "id": 118,
-    "name": "Engranaje Potenciación de Viento (UR)",
+    "name": "Gear Wind Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 6,
@@ -945,7 +945,7 @@
   },
   {
     "id": 119,
-    "name": "Engranaje Potenciación de Viento (UR)",
+    "name": "Gear Wind Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 6,
@@ -953,7 +953,7 @@
   },
   {
     "id": 120,
-    "name": "Engranaje Potenciación de Viento (UR)",
+    "name": "Gear Wind Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 6,
@@ -961,7 +961,7 @@
   },
   {
     "id": 121,
-    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "name": "Gear Stun Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 7,
@@ -969,7 +969,7 @@
   },
   {
     "id": 122,
-    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "name": "Gear Stun Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 7,
@@ -977,7 +977,7 @@
   },
   {
     "id": 123,
-    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "name": "Gear Stun Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 7,
@@ -985,7 +985,7 @@
   },
   {
     "id": 124,
-    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "name": "Gear Stun Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 7,
@@ -993,7 +993,7 @@
   },
   {
     "id": 125,
-    "name": "Engranaje Resistencia al Aturdimiento (N)",
+    "name": "Gear Stun Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 7,
@@ -1001,7 +1001,7 @@
   },
   {
     "id": 126,
-    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "name": "Gear Stun Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 7,
@@ -1009,7 +1009,7 @@
   },
   {
     "id": 127,
-    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "name": "Gear Stun Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 7,
@@ -1017,7 +1017,7 @@
   },
   {
     "id": 128,
-    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "name": "Gear Stun Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 7,
@@ -1025,7 +1025,7 @@
   },
   {
     "id": 129,
-    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "name": "Gear Stun Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 7,
@@ -1033,7 +1033,7 @@
   },
   {
     "id": 130,
-    "name": "Engranaje Resistencia al Aturdimiento (R)",
+    "name": "Gear Stun Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 7,
@@ -1041,7 +1041,7 @@
   },
   {
     "id": 131,
-    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "name": "Gear Stun Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 7,
@@ -1049,7 +1049,7 @@
   },
   {
     "id": 132,
-    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "name": "Gear Stun Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 7,
@@ -1057,7 +1057,7 @@
   },
   {
     "id": 133,
-    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "name": "Gear Stun Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 7,
@@ -1065,7 +1065,7 @@
   },
   {
     "id": 134,
-    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "name": "Gear Stun Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 7,
@@ -1073,7 +1073,7 @@
   },
   {
     "id": 135,
-    "name": "Engranaje Resistencia al Aturdimiento (SR)",
+    "name": "Gear Stun Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 7,
@@ -1081,7 +1081,7 @@
   },
   {
     "id": 136,
-    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "name": "Gear Stun Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 7,
@@ -1089,7 +1089,7 @@
   },
   {
     "id": 137,
-    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "name": "Gear Stun Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 7,
@@ -1097,7 +1097,7 @@
   },
   {
     "id": 138,
-    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "name": "Gear Stun Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 7,
@@ -1105,7 +1105,7 @@
   },
   {
     "id": 139,
-    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "name": "Gear Stun Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 7,
@@ -1113,7 +1113,7 @@
   },
   {
     "id": 140,
-    "name": "Engranaje Resistencia al Aturdimiento (UR)",
+    "name": "Gear Stun Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 7,
@@ -1121,7 +1121,7 @@
   },
   {
     "id": 141,
-    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "name": "Gear Paralysis Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 8,
@@ -1129,7 +1129,7 @@
   },
   {
     "id": 142,
-    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "name": "Gear Paralysis Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 8,
@@ -1137,7 +1137,7 @@
   },
   {
     "id": 143,
-    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "name": "Gear Paralysis Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 8,
@@ -1145,7 +1145,7 @@
   },
   {
     "id": 144,
-    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "name": "Gear Paralysis Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 8,
@@ -1153,7 +1153,7 @@
   },
   {
     "id": 145,
-    "name": "Engranaje Resistencia a la Parálisis (N)",
+    "name": "Gear Paralysis Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 8,
@@ -1161,7 +1161,7 @@
   },
   {
     "id": 146,
-    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "name": "Gear Paralysis Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 8,
@@ -1169,7 +1169,7 @@
   },
   {
     "id": 147,
-    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "name": "Gear Paralysis Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 8,
@@ -1177,7 +1177,7 @@
   },
   {
     "id": 148,
-    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "name": "Gear Paralysis Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 8,
@@ -1185,7 +1185,7 @@
   },
   {
     "id": 149,
-    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "name": "Gear Paralysis Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 8,
@@ -1193,7 +1193,7 @@
   },
   {
     "id": 150,
-    "name": "Engranaje Resistencia a la Parálisis (R)",
+    "name": "Gear Paralysis Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 8,
@@ -1201,7 +1201,7 @@
   },
   {
     "id": 151,
-    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "name": "Gear Paralysis Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 8,
@@ -1209,7 +1209,7 @@
   },
   {
     "id": 152,
-    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "name": "Gear Paralysis Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 8,
@@ -1217,7 +1217,7 @@
   },
   {
     "id": 153,
-    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "name": "Gear Paralysis Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 8,
@@ -1225,7 +1225,7 @@
   },
   {
     "id": 154,
-    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "name": "Gear Paralysis Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 8,
@@ -1233,7 +1233,7 @@
   },
   {
     "id": 155,
-    "name": "Engranaje Resistencia a la Parálisis (SR)",
+    "name": "Gear Paralysis Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 8,
@@ -1241,7 +1241,7 @@
   },
   {
     "id": 156,
-    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "name": "Gear Paralysis Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 8,
@@ -1249,7 +1249,7 @@
   },
   {
     "id": 157,
-    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "name": "Gear Paralysis Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 8,
@@ -1257,7 +1257,7 @@
   },
   {
     "id": 158,
-    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "name": "Gear Paralysis Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 8,
@@ -1265,7 +1265,7 @@
   },
   {
     "id": 159,
-    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "name": "Gear Paralysis Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 8,
@@ -1273,7 +1273,7 @@
   },
   {
     "id": 160,
-    "name": "Engranaje Resistencia a la Parálisis (UR)",
+    "name": "Gear Paralysis Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 8,
@@ -1281,7 +1281,7 @@
   },
   {
     "id": 161,
-    "name": "Engranaje Resistencia al Veneno (N)",
+    "name": "Gear Poison Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 9,
@@ -1289,7 +1289,7 @@
   },
   {
     "id": 162,
-    "name": "Engranaje Resistencia al Veneno (N)",
+    "name": "Gear Poison Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 9,
@@ -1297,7 +1297,7 @@
   },
   {
     "id": 163,
-    "name": "Engranaje Resistencia al Veneno (N)",
+    "name": "Gear Poison Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 9,
@@ -1305,7 +1305,7 @@
   },
   {
     "id": 164,
-    "name": "Engranaje Resistencia al Veneno (N)",
+    "name": "Gear Poison Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 9,
@@ -1313,7 +1313,7 @@
   },
   {
     "id": 165,
-    "name": "Engranaje Resistencia al Veneno (N)",
+    "name": "Gear Poison Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 9,
@@ -1321,7 +1321,7 @@
   },
   {
     "id": 166,
-    "name": "Engranaje Resistencia al Veneno (R)",
+    "name": "Gear Poison Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 9,
@@ -1329,7 +1329,7 @@
   },
   {
     "id": 167,
-    "name": "Engranaje Resistencia al Veneno (R)",
+    "name": "Gear Poison Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 9,
@@ -1337,7 +1337,7 @@
   },
   {
     "id": 168,
-    "name": "Engranaje Resistencia al Veneno (R)",
+    "name": "Gear Poison Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 9,
@@ -1345,7 +1345,7 @@
   },
   {
     "id": 169,
-    "name": "Engranaje Resistencia al Veneno (R)",
+    "name": "Gear Poison Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 9,
@@ -1353,7 +1353,7 @@
   },
   {
     "id": 170,
-    "name": "Engranaje Resistencia al Veneno (R)",
+    "name": "Gear Poison Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 9,
@@ -1361,7 +1361,7 @@
   },
   {
     "id": 171,
-    "name": "Engranaje Resistencia al Veneno (SR)",
+    "name": "Gear Poison Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 9,
@@ -1369,7 +1369,7 @@
   },
   {
     "id": 172,
-    "name": "Engranaje Resistencia al Veneno (SR)",
+    "name": "Gear Poison Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 9,
@@ -1377,7 +1377,7 @@
   },
   {
     "id": 173,
-    "name": "Engranaje Resistencia al Veneno (SR)",
+    "name": "Gear Poison Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 9,
@@ -1385,7 +1385,7 @@
   },
   {
     "id": 174,
-    "name": "Engranaje Resistencia al Veneno (SR)",
+    "name": "Gear Poison Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 9,
@@ -1393,7 +1393,7 @@
   },
   {
     "id": 175,
-    "name": "Engranaje Resistencia al Veneno (SR)",
+    "name": "Gear Poison Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 9,
@@ -1401,7 +1401,7 @@
   },
   {
     "id": 176,
-    "name": "Engranaje Resistencia al Veneno (UR)",
+    "name": "Gear Poison Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 9,
@@ -1409,7 +1409,7 @@
   },
   {
     "id": 177,
-    "name": "Engranaje Resistencia al Veneno (UR)",
+    "name": "Gear Poison Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 9,
@@ -1417,7 +1417,7 @@
   },
   {
     "id": 178,
-    "name": "Engranaje Resistencia al Veneno (UR)",
+    "name": "Gear Poison Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 9,
@@ -1425,7 +1425,7 @@
   },
   {
     "id": 179,
-    "name": "Engranaje Resistencia al Veneno (UR)",
+    "name": "Gear Poison Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 9,
@@ -1433,7 +1433,7 @@
   },
   {
     "id": 180,
-    "name": "Engranaje Resistencia al Veneno (UR)",
+    "name": "Gear Poison Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 9,
@@ -1441,7 +1441,7 @@
   },
   {
     "id": 181,
-    "name": "Engranaje Resistencia al Silencio (N)",
+    "name": "Gear Silence Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 10,
@@ -1449,7 +1449,7 @@
   },
   {
     "id": 182,
-    "name": "Engranaje Resistencia al Silencio (N)",
+    "name": "Gear Silence Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 10,
@@ -1457,7 +1457,7 @@
   },
   {
     "id": 183,
-    "name": "Engranaje Resistencia al Silencio (N)",
+    "name": "Gear Silence Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 10,
@@ -1465,7 +1465,7 @@
   },
   {
     "id": 184,
-    "name": "Engranaje Resistencia al Silencio (N)",
+    "name": "Gear Silence Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 10,
@@ -1473,7 +1473,7 @@
   },
   {
     "id": 185,
-    "name": "Engranaje Resistencia al Silencio (N)",
+    "name": "Gear Silence Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 10,
@@ -1481,7 +1481,7 @@
   },
   {
     "id": 186,
-    "name": "Engranaje Resistencia al Silencio (R)",
+    "name": "Gear Silence Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 10,
@@ -1489,7 +1489,7 @@
   },
   {
     "id": 187,
-    "name": "Engranaje Resistencia al Silencio (R)",
+    "name": "Gear Silence Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 10,
@@ -1497,7 +1497,7 @@
   },
   {
     "id": 188,
-    "name": "Engranaje Resistencia al Silencio (R)",
+    "name": "Gear Silence Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 10,
@@ -1505,7 +1505,7 @@
   },
   {
     "id": 189,
-    "name": "Engranaje Resistencia al Silencio (R)",
+    "name": "Gear Silence Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 10,
@@ -1513,7 +1513,7 @@
   },
   {
     "id": 190,
-    "name": "Engranaje Resistencia al Silencio (R)",
+    "name": "Gear Silence Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 10,
@@ -1521,7 +1521,7 @@
   },
   {
     "id": 191,
-    "name": "Engranaje Resistencia al Silencio (SR)",
+    "name": "Gear Silence Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 10,
@@ -1529,7 +1529,7 @@
   },
   {
     "id": 192,
-    "name": "Engranaje Resistencia al Silencio (SR)",
+    "name": "Gear Silence Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 10,
@@ -1537,7 +1537,7 @@
   },
   {
     "id": 193,
-    "name": "Engranaje Resistencia al Silencio (SR)",
+    "name": "Gear Silence Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 10,
@@ -1545,7 +1545,7 @@
   },
   {
     "id": 194,
-    "name": "Engranaje Resistencia al Silencio (SR)",
+    "name": "Gear Silence Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 10,
@@ -1553,7 +1553,7 @@
   },
   {
     "id": 195,
-    "name": "Engranaje Resistencia al Silencio (SR)",
+    "name": "Gear Silence Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 10,
@@ -1561,7 +1561,7 @@
   },
   {
     "id": 196,
-    "name": "Engranaje Resistencia al Silencio (UR)",
+    "name": "Gear Silence Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 10,
@@ -1569,7 +1569,7 @@
   },
   {
     "id": 197,
-    "name": "Engranaje Resistencia al Silencio (UR)",
+    "name": "Gear Silence Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 10,
@@ -1577,7 +1577,7 @@
   },
   {
     "id": 198,
-    "name": "Engranaje Resistencia al Silencio (UR)",
+    "name": "Gear Silence Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 10,
@@ -1585,7 +1585,7 @@
   },
   {
     "id": 199,
-    "name": "Engranaje Resistencia al Silencio (UR)",
+    "name": "Gear Silence Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 10,
@@ -1593,7 +1593,7 @@
   },
   {
     "id": 200,
-    "name": "Engranaje Resistencia al Silencio (UR)",
+    "name": "Gear Silence Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 10,
@@ -1601,7 +1601,7 @@
   },
   {
     "id": 201,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "name": "Gear ATK Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 11,
@@ -1609,7 +1609,7 @@
   },
   {
     "id": 202,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "name": "Gear ATK Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 11,
@@ -1617,7 +1617,7 @@
   },
   {
     "id": 203,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "name": "Gear ATK Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 11,
@@ -1625,7 +1625,7 @@
   },
   {
     "id": 204,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "name": "Gear ATK Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 11,
@@ -1633,7 +1633,7 @@
   },
   {
     "id": 205,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (N)",
+    "name": "Gear ATK Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 11,
@@ -1641,7 +1641,7 @@
   },
   {
     "id": 206,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "name": "Gear ATK Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 11,
@@ -1649,7 +1649,7 @@
   },
   {
     "id": 207,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "name": "Gear ATK Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 11,
@@ -1657,7 +1657,7 @@
   },
   {
     "id": 208,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "name": "Gear ATK Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 11,
@@ -1665,7 +1665,7 @@
   },
   {
     "id": 209,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "name": "Gear ATK Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 11,
@@ -1673,7 +1673,7 @@
   },
   {
     "id": 210,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (R)",
+    "name": "Gear ATK Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 11,
@@ -1681,7 +1681,7 @@
   },
   {
     "id": 211,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "name": "Gear ATK Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 11,
@@ -1689,7 +1689,7 @@
   },
   {
     "id": 212,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "name": "Gear ATK Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 11,
@@ -1697,7 +1697,7 @@
   },
   {
     "id": 213,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "name": "Gear ATK Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 11,
@@ -1705,7 +1705,7 @@
   },
   {
     "id": 214,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "name": "Gear ATK Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 11,
@@ -1713,7 +1713,7 @@
   },
   {
     "id": 215,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (SR)",
+    "name": "Gear ATK Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 11,
@@ -1721,7 +1721,7 @@
   },
   {
     "id": 216,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "name": "Gear ATK Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 11,
@@ -1729,7 +1729,7 @@
   },
   {
     "id": 217,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "name": "Gear ATK Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 11,
@@ -1737,7 +1737,7 @@
   },
   {
     "id": 218,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "name": "Gear ATK Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 11,
@@ -1745,7 +1745,7 @@
   },
   {
     "id": 219,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "name": "Gear ATK Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 11,
@@ -1753,7 +1753,7 @@
   },
   {
     "id": 220,
-    "name": "Engranaje Resistencia a Debuffs de Ataque (UR)",
+    "name": "Gear ATK Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 11,
@@ -1761,7 +1761,7 @@
   },
   {
     "id": 221,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "name": "Gear DEF Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 12,
@@ -1769,7 +1769,7 @@
   },
   {
     "id": 222,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "name": "Gear DEF Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 12,
@@ -1777,7 +1777,7 @@
   },
   {
     "id": 223,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "name": "Gear DEF Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 12,
@@ -1785,7 +1785,7 @@
   },
   {
     "id": 224,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "name": "Gear DEF Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 12,
@@ -1793,7 +1793,7 @@
   },
   {
     "id": 225,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (N)",
+    "name": "Gear DEF Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 12,
@@ -1801,7 +1801,7 @@
   },
   {
     "id": 226,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "name": "Gear DEF Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 12,
@@ -1809,7 +1809,7 @@
   },
   {
     "id": 227,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "name": "Gear DEF Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 12,
@@ -1817,7 +1817,7 @@
   },
   {
     "id": 228,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "name": "Gear DEF Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 12,
@@ -1825,7 +1825,7 @@
   },
   {
     "id": 229,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "name": "Gear DEF Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 12,
@@ -1833,7 +1833,7 @@
   },
   {
     "id": 230,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (R)",
+    "name": "Gear DEF Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 12,
@@ -1841,7 +1841,7 @@
   },
   {
     "id": 231,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "name": "Gear DEF Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 12,
@@ -1849,7 +1849,7 @@
   },
   {
     "id": 232,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "name": "Gear DEF Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 12,
@@ -1857,7 +1857,7 @@
   },
   {
     "id": 233,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "name": "Gear DEF Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 12,
@@ -1865,7 +1865,7 @@
   },
   {
     "id": 234,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "name": "Gear DEF Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 12,
@@ -1873,7 +1873,7 @@
   },
   {
     "id": 235,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (SR)",
+    "name": "Gear DEF Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 12,
@@ -1881,7 +1881,7 @@
   },
   {
     "id": 236,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "name": "Gear DEF Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 12,
@@ -1889,7 +1889,7 @@
   },
   {
     "id": 237,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "name": "Gear DEF Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 12,
@@ -1897,7 +1897,7 @@
   },
   {
     "id": 238,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "name": "Gear DEF Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 12,
@@ -1905,7 +1905,7 @@
   },
   {
     "id": 239,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "name": "Gear DEF Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 12,
@@ -1913,7 +1913,7 @@
   },
   {
     "id": 240,
-    "name": "Engranaje Resistencia a Debuffs de Defensa (UR)",
+    "name": "Gear DEF Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 12,
@@ -1921,7 +1921,7 @@
   },
   {
     "id": 241,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "name": "Gear Speed Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 13,
@@ -1929,7 +1929,7 @@
   },
   {
     "id": 242,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "name": "Gear Speed Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 13,
@@ -1937,7 +1937,7 @@
   },
   {
     "id": 243,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "name": "Gear Speed Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 13,
@@ -1945,7 +1945,7 @@
   },
   {
     "id": 244,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "name": "Gear Speed Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 13,
@@ -1953,7 +1953,7 @@
   },
   {
     "id": 245,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (N)",
+    "name": "Gear Speed Debuff Resistance (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 13,
@@ -1961,7 +1961,7 @@
   },
   {
     "id": 246,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "name": "Gear Speed Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 13,
@@ -1969,7 +1969,7 @@
   },
   {
     "id": 247,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "name": "Gear Speed Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 13,
@@ -1977,7 +1977,7 @@
   },
   {
     "id": 248,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "name": "Gear Speed Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 13,
@@ -1985,7 +1985,7 @@
   },
   {
     "id": 249,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "name": "Gear Speed Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 13,
@@ -1993,7 +1993,7 @@
   },
   {
     "id": 250,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (R)",
+    "name": "Gear Speed Debuff Resistance (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 13,
@@ -2001,7 +2001,7 @@
   },
   {
     "id": 251,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "name": "Gear Speed Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 13,
@@ -2009,7 +2009,7 @@
   },
   {
     "id": 252,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "name": "Gear Speed Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 13,
@@ -2017,7 +2017,7 @@
   },
   {
     "id": 253,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "name": "Gear Speed Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 13,
@@ -2025,7 +2025,7 @@
   },
   {
     "id": 254,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "name": "Gear Speed Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 13,
@@ -2033,7 +2033,7 @@
   },
   {
     "id": 255,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (SR)",
+    "name": "Gear Speed Debuff Resistance (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 13,
@@ -2041,7 +2041,7 @@
   },
   {
     "id": 256,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "name": "Gear Speed Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 13,
@@ -2049,7 +2049,7 @@
   },
   {
     "id": 257,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "name": "Gear Speed Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 13,
@@ -2057,7 +2057,7 @@
   },
   {
     "id": 258,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "name": "Gear Speed Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 13,
@@ -2065,7 +2065,7 @@
   },
   {
     "id": 259,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "name": "Gear Speed Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 13,
@@ -2073,7 +2073,7 @@
   },
   {
     "id": 260,
-    "name": "Engranaje Resistencia a Debuffs de Velocidad (UR)",
+    "name": "Gear Speed Debuff Resistance (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 13,
@@ -2081,7 +2081,7 @@
   },
   {
     "id": 261,
-    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "name": "Gear Cooldown Reduction (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 14,
@@ -2089,7 +2089,7 @@
   },
   {
     "id": 262,
-    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "name": "Gear Cooldown Reduction (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 14,
@@ -2097,7 +2097,7 @@
   },
   {
     "id": 263,
-    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "name": "Gear Cooldown Reduction (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 14,
@@ -2105,7 +2105,7 @@
   },
   {
     "id": 264,
-    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "name": "Gear Cooldown Reduction (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 14,
@@ -2113,7 +2113,7 @@
   },
   {
     "id": 265,
-    "name": "Engranaje Reducción de Tiempo de Recarga (N)",
+    "name": "Gear Cooldown Reduction (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 14,
@@ -2121,7 +2121,7 @@
   },
   {
     "id": 266,
-    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "name": "Gear Cooldown Reduction (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 14,
@@ -2129,7 +2129,7 @@
   },
   {
     "id": 267,
-    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "name": "Gear Cooldown Reduction (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 14,
@@ -2137,7 +2137,7 @@
   },
   {
     "id": 268,
-    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "name": "Gear Cooldown Reduction (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 14,
@@ -2145,7 +2145,7 @@
   },
   {
     "id": 269,
-    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "name": "Gear Cooldown Reduction (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 14,
@@ -2153,7 +2153,7 @@
   },
   {
     "id": 270,
-    "name": "Engranaje Reducción de Tiempo de Recarga (R)",
+    "name": "Gear Cooldown Reduction (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 14,
@@ -2161,7 +2161,7 @@
   },
   {
     "id": 271,
-    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "name": "Gear Cooldown Reduction (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 14,
@@ -2169,7 +2169,7 @@
   },
   {
     "id": 272,
-    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "name": "Gear Cooldown Reduction (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 14,
@@ -2177,7 +2177,7 @@
   },
   {
     "id": 273,
-    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "name": "Gear Cooldown Reduction (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 14,
@@ -2185,7 +2185,7 @@
   },
   {
     "id": 274,
-    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "name": "Gear Cooldown Reduction (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 14,
@@ -2193,7 +2193,7 @@
   },
   {
     "id": 275,
-    "name": "Engranaje Reducción de Tiempo de Recarga (SR)",
+    "name": "Gear Cooldown Reduction (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 14,
@@ -2201,7 +2201,7 @@
   },
   {
     "id": 276,
-    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "name": "Gear Cooldown Reduction (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 14,
@@ -2209,7 +2209,7 @@
   },
   {
     "id": 277,
-    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "name": "Gear Cooldown Reduction (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 14,
@@ -2217,7 +2217,7 @@
   },
   {
     "id": 278,
-    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "name": "Gear Cooldown Reduction (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 14,
@@ -2225,7 +2225,7 @@
   },
   {
     "id": 279,
-    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "name": "Gear Cooldown Reduction (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 14,
@@ -2233,7 +2233,7 @@
   },
   {
     "id": 280,
-    "name": "Engranaje Reducción de Tiempo de Recarga (UR)",
+    "name": "Gear Cooldown Reduction (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 14,
@@ -2241,7 +2241,7 @@
   },
   {
     "id": 281,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "name": "Gear Special Skill Charge Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 15,
@@ -2249,7 +2249,7 @@
   },
   {
     "id": 282,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "name": "Gear Special Skill Charge Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 15,
@@ -2257,7 +2257,7 @@
   },
   {
     "id": 283,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "name": "Gear Special Skill Charge Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 15,
@@ -2265,7 +2265,7 @@
   },
   {
     "id": 284,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "name": "Gear Special Skill Charge Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 15,
@@ -2273,7 +2273,7 @@
   },
   {
     "id": 285,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (N)",
+    "name": "Gear Special Skill Charge Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 15,
@@ -2281,7 +2281,7 @@
   },
   {
     "id": 286,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "name": "Gear Special Skill Charge Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 15,
@@ -2289,7 +2289,7 @@
   },
   {
     "id": 287,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "name": "Gear Special Skill Charge Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 15,
@@ -2297,7 +2297,7 @@
   },
   {
     "id": 288,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "name": "Gear Special Skill Charge Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 15,
@@ -2305,7 +2305,7 @@
   },
   {
     "id": 289,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "name": "Gear Special Skill Charge Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 15,
@@ -2313,7 +2313,7 @@
   },
   {
     "id": 290,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (R)",
+    "name": "Gear Special Skill Charge Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 15,
@@ -2321,7 +2321,7 @@
   },
   {
     "id": 291,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "name": "Gear Special Skill Charge Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 15,
@@ -2329,7 +2329,7 @@
   },
   {
     "id": 292,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "name": "Gear Special Skill Charge Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 15,
@@ -2337,7 +2337,7 @@
   },
   {
     "id": 293,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "name": "Gear Special Skill Charge Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 15,
@@ -2345,7 +2345,7 @@
   },
   {
     "id": 294,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "name": "Gear Special Skill Charge Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 15,
@@ -2353,7 +2353,7 @@
   },
   {
     "id": 295,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (SR)",
+    "name": "Gear Special Skill Charge Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 15,
@@ -2361,7 +2361,7 @@
   },
   {
     "id": 296,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "name": "Gear Special Skill Charge Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 15,
@@ -2369,7 +2369,7 @@
   },
   {
     "id": 297,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "name": "Gear Special Skill Charge Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 15,
@@ -2377,7 +2377,7 @@
   },
   {
     "id": 298,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "name": "Gear Special Skill Charge Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 15,
@@ -2385,7 +2385,7 @@
   },
   {
     "id": 299,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "name": "Gear Special Skill Charge Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 15,
@@ -2393,7 +2393,7 @@
   },
   {
     "id": 300,
-    "name": "Engranaje Carga Acelerada de Habilidad Especial (UR)",
+    "name": "Gear Special Skill Charge Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 15,
@@ -2401,7 +2401,7 @@
   },
   {
     "id": 301,
-    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "name": "Gear Fast Boost Regeneration (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 16,
@@ -2409,7 +2409,7 @@
   },
   {
     "id": 302,
-    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "name": "Gear Fast Boost Regeneration (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 16,
@@ -2417,7 +2417,7 @@
   },
   {
     "id": 303,
-    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "name": "Gear Fast Boost Regeneration (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 16,
@@ -2425,7 +2425,7 @@
   },
   {
     "id": 304,
-    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "name": "Gear Fast Boost Regeneration (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 16,
@@ -2433,7 +2433,7 @@
   },
   {
     "id": 305,
-    "name": "Engranaje Regeneración Rápida de Boost (N)",
+    "name": "Gear Fast Boost Regeneration (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 16,
@@ -2441,7 +2441,7 @@
   },
   {
     "id": 306,
-    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "name": "Gear Fast Boost Regeneration (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 16,
@@ -2449,7 +2449,7 @@
   },
   {
     "id": 307,
-    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "name": "Gear Fast Boost Regeneration (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 16,
@@ -2457,7 +2457,7 @@
   },
   {
     "id": 308,
-    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "name": "Gear Fast Boost Regeneration (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 16,
@@ -2465,7 +2465,7 @@
   },
   {
     "id": 309,
-    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "name": "Gear Fast Boost Regeneration (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 16,
@@ -2473,7 +2473,7 @@
   },
   {
     "id": 310,
-    "name": "Engranaje Regeneración Rápida de Boost (R)",
+    "name": "Gear Fast Boost Regeneration (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 16,
@@ -2481,7 +2481,7 @@
   },
   {
     "id": 311,
-    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "name": "Gear Fast Boost Regeneration (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 16,
@@ -2489,7 +2489,7 @@
   },
   {
     "id": 312,
-    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "name": "Gear Fast Boost Regeneration (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 16,
@@ -2497,7 +2497,7 @@
   },
   {
     "id": 313,
-    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "name": "Gear Fast Boost Regeneration (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 16,
@@ -2505,7 +2505,7 @@
   },
   {
     "id": 314,
-    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "name": "Gear Fast Boost Regeneration (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 16,
@@ -2513,7 +2513,7 @@
   },
   {
     "id": 315,
-    "name": "Engranaje Regeneración Rápida de Boost (SR)",
+    "name": "Gear Fast Boost Regeneration (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 16,
@@ -2521,7 +2521,7 @@
   },
   {
     "id": 316,
-    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "name": "Gear Fast Boost Regeneration (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 16,
@@ -2529,7 +2529,7 @@
   },
   {
     "id": 317,
-    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "name": "Gear Fast Boost Regeneration (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 16,
@@ -2537,7 +2537,7 @@
   },
   {
     "id": 318,
-    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "name": "Gear Fast Boost Regeneration (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 16,
@@ -2545,7 +2545,7 @@
   },
   {
     "id": 319,
-    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "name": "Gear Fast Boost Regeneration (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 16,
@@ -2553,7 +2553,7 @@
   },
   {
     "id": 320,
-    "name": "Engranaje Regeneración Rápida de Boost (UR)",
+    "name": "Gear Fast Boost Regeneration (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 16,
@@ -2561,7 +2561,7 @@
   },
   {
     "id": 321,
-    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "name": "Gear Healing Received Boost (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 17,
@@ -2569,7 +2569,7 @@
   },
   {
     "id": 322,
-    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "name": "Gear Healing Received Boost (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 17,
@@ -2577,7 +2577,7 @@
   },
   {
     "id": 323,
-    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "name": "Gear Healing Received Boost (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 17,
@@ -2585,7 +2585,7 @@
   },
   {
     "id": 324,
-    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "name": "Gear Healing Received Boost (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 17,
@@ -2593,7 +2593,7 @@
   },
   {
     "id": 325,
-    "name": "Engranaje Aumento de Curación Recibida (N)",
+    "name": "Gear Healing Received Boost (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 17,
@@ -2601,7 +2601,7 @@
   },
   {
     "id": 326,
-    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "name": "Gear Healing Received Boost (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 17,
@@ -2609,7 +2609,7 @@
   },
   {
     "id": 327,
-    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "name": "Gear Healing Received Boost (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 17,
@@ -2617,7 +2617,7 @@
   },
   {
     "id": 328,
-    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "name": "Gear Healing Received Boost (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 17,
@@ -2625,7 +2625,7 @@
   },
   {
     "id": 329,
-    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "name": "Gear Healing Received Boost (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 17,
@@ -2633,7 +2633,7 @@
   },
   {
     "id": 330,
-    "name": "Engranaje Aumento de Curación Recibida (R)",
+    "name": "Gear Healing Received Boost (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 17,
@@ -2641,7 +2641,7 @@
   },
   {
     "id": 331,
-    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "name": "Gear Healing Received Boost (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 17,
@@ -2649,7 +2649,7 @@
   },
   {
     "id": 332,
-    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "name": "Gear Healing Received Boost (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 17,
@@ -2657,7 +2657,7 @@
   },
   {
     "id": 333,
-    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "name": "Gear Healing Received Boost (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 17,
@@ -2665,7 +2665,7 @@
   },
   {
     "id": 334,
-    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "name": "Gear Healing Received Boost (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 17,
@@ -2673,7 +2673,7 @@
   },
   {
     "id": 335,
-    "name": "Engranaje Aumento de Curación Recibida (SR)",
+    "name": "Gear Healing Received Boost (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 17,
@@ -2681,7 +2681,7 @@
   },
   {
     "id": 336,
-    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "name": "Gear Healing Received Boost (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 17,
@@ -2689,7 +2689,7 @@
   },
   {
     "id": 337,
-    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "name": "Gear Healing Received Boost (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 17,
@@ -2697,7 +2697,7 @@
   },
   {
     "id": 338,
-    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "name": "Gear Healing Received Boost (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 17,
@@ -2705,7 +2705,7 @@
   },
   {
     "id": 339,
-    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "name": "Gear Healing Received Boost (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 17,
@@ -2713,7 +2713,7 @@
   },
   {
     "id": 340,
-    "name": "Engranaje Aumento de Curación Recibida (UR)",
+    "name": "Gear Healing Received Boost (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 17,
@@ -2721,7 +2721,7 @@
   },
   {
     "id": 341,
-    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "name": "Gear ATK Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 18,
@@ -2729,7 +2729,7 @@
   },
   {
     "id": 342,
-    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "name": "Gear ATK Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 18,
@@ -2737,7 +2737,7 @@
   },
   {
     "id": 343,
-    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "name": "Gear ATK Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 18,
@@ -2745,7 +2745,7 @@
   },
   {
     "id": 344,
-    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "name": "Gear ATK Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 18,
@@ -2753,7 +2753,7 @@
   },
   {
     "id": 345,
-    "name": "Engranaje Potenciador de Buffs de Ataque (N)",
+    "name": "Gear ATK Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 18,
@@ -2761,7 +2761,7 @@
   },
   {
     "id": 346,
-    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "name": "Gear ATK Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 18,
@@ -2769,7 +2769,7 @@
   },
   {
     "id": 347,
-    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "name": "Gear ATK Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 18,
@@ -2777,7 +2777,7 @@
   },
   {
     "id": 348,
-    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "name": "Gear ATK Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 18,
@@ -2785,7 +2785,7 @@
   },
   {
     "id": 349,
-    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "name": "Gear ATK Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 18,
@@ -2793,7 +2793,7 @@
   },
   {
     "id": 350,
-    "name": "Engranaje Potenciador de Buffs de Ataque (R)",
+    "name": "Gear ATK Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 18,
@@ -2801,7 +2801,7 @@
   },
   {
     "id": 351,
-    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "name": "Gear ATK Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 18,
@@ -2809,7 +2809,7 @@
   },
   {
     "id": 352,
-    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "name": "Gear ATK Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 18,
@@ -2817,7 +2817,7 @@
   },
   {
     "id": 353,
-    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "name": "Gear ATK Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 18,
@@ -2825,7 +2825,7 @@
   },
   {
     "id": 354,
-    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "name": "Gear ATK Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 18,
@@ -2833,7 +2833,7 @@
   },
   {
     "id": 355,
-    "name": "Engranaje Potenciador de Buffs de Ataque (SR)",
+    "name": "Gear ATK Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 18,
@@ -2841,7 +2841,7 @@
   },
   {
     "id": 356,
-    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "name": "Gear ATK Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 18,
@@ -2849,7 +2849,7 @@
   },
   {
     "id": 357,
-    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "name": "Gear ATK Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 18,
@@ -2857,7 +2857,7 @@
   },
   {
     "id": 358,
-    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "name": "Gear ATK Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 18,
@@ -2865,7 +2865,7 @@
   },
   {
     "id": 359,
-    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "name": "Gear ATK Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 18,
@@ -2873,7 +2873,7 @@
   },
   {
     "id": 360,
-    "name": "Engranaje Potenciador de Buffs de Ataque (UR)",
+    "name": "Gear ATK Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 18,
@@ -2881,7 +2881,7 @@
   },
   {
     "id": 361,
-    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "name": "Gear DEF Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 19,
@@ -2889,7 +2889,7 @@
   },
   {
     "id": 362,
-    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "name": "Gear DEF Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 19,
@@ -2897,7 +2897,7 @@
   },
   {
     "id": 363,
-    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "name": "Gear DEF Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 19,
@@ -2905,7 +2905,7 @@
   },
   {
     "id": 364,
-    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "name": "Gear DEF Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 19,
@@ -2913,7 +2913,7 @@
   },
   {
     "id": 365,
-    "name": "Engranaje Potenciador de Buffs de Defensa (N)",
+    "name": "Gear DEF Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 19,
@@ -2921,7 +2921,7 @@
   },
   {
     "id": 366,
-    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "name": "Gear DEF Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 19,
@@ -2929,7 +2929,7 @@
   },
   {
     "id": 367,
-    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "name": "Gear DEF Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 19,
@@ -2937,7 +2937,7 @@
   },
   {
     "id": 368,
-    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "name": "Gear DEF Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 19,
@@ -2945,7 +2945,7 @@
   },
   {
     "id": 369,
-    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "name": "Gear DEF Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 19,
@@ -2953,7 +2953,7 @@
   },
   {
     "id": 370,
-    "name": "Engranaje Potenciador de Buffs de Defensa (R)",
+    "name": "Gear DEF Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 19,
@@ -2961,7 +2961,7 @@
   },
   {
     "id": 371,
-    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "name": "Gear DEF Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 19,
@@ -2969,7 +2969,7 @@
   },
   {
     "id": 372,
-    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "name": "Gear DEF Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 19,
@@ -2977,7 +2977,7 @@
   },
   {
     "id": 373,
-    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "name": "Gear DEF Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 19,
@@ -2985,7 +2985,7 @@
   },
   {
     "id": 374,
-    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "name": "Gear DEF Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 19,
@@ -2993,7 +2993,7 @@
   },
   {
     "id": 375,
-    "name": "Engranaje Potenciador de Buffs de Defensa (SR)",
+    "name": "Gear DEF Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 19,
@@ -3001,7 +3001,7 @@
   },
   {
     "id": 376,
-    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "name": "Gear DEF Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 19,
@@ -3009,7 +3009,7 @@
   },
   {
     "id": 377,
-    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "name": "Gear DEF Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 19,
@@ -3017,7 +3017,7 @@
   },
   {
     "id": 378,
-    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "name": "Gear DEF Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 19,
@@ -3025,7 +3025,7 @@
   },
   {
     "id": 379,
-    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "name": "Gear DEF Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 19,
@@ -3033,7 +3033,7 @@
   },
   {
     "id": 380,
-    "name": "Engranaje Potenciador de Buffs de Defensa (UR)",
+    "name": "Gear DEF Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 19,
@@ -3041,7 +3041,7 @@
   },
   {
     "id": 381,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "name": "Gear Speed Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 20,
@@ -3049,7 +3049,7 @@
   },
   {
     "id": 382,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "name": "Gear Speed Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 20,
@@ -3057,7 +3057,7 @@
   },
   {
     "id": 383,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "name": "Gear Speed Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 20,
@@ -3065,7 +3065,7 @@
   },
   {
     "id": 384,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "name": "Gear Speed Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 20,
@@ -3073,7 +3073,7 @@
   },
   {
     "id": 385,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (N)",
+    "name": "Gear Speed Buff Booster (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 20,
@@ -3081,7 +3081,7 @@
   },
   {
     "id": 386,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "name": "Gear Speed Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 20,
@@ -3089,7 +3089,7 @@
   },
   {
     "id": 387,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "name": "Gear Speed Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 20,
@@ -3097,7 +3097,7 @@
   },
   {
     "id": 388,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "name": "Gear Speed Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 20,
@@ -3105,7 +3105,7 @@
   },
   {
     "id": 389,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "name": "Gear Speed Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 20,
@@ -3113,7 +3113,7 @@
   },
   {
     "id": 390,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (R)",
+    "name": "Gear Speed Buff Booster (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 20,
@@ -3121,7 +3121,7 @@
   },
   {
     "id": 391,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "name": "Gear Speed Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 20,
@@ -3129,7 +3129,7 @@
   },
   {
     "id": 392,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "name": "Gear Speed Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 20,
@@ -3137,7 +3137,7 @@
   },
   {
     "id": 393,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "name": "Gear Speed Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 20,
@@ -3145,7 +3145,7 @@
   },
   {
     "id": 394,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "name": "Gear Speed Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 20,
@@ -3153,7 +3153,7 @@
   },
   {
     "id": 395,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (SR)",
+    "name": "Gear Speed Buff Booster (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 20,
@@ -3161,7 +3161,7 @@
   },
   {
     "id": 396,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "name": "Gear Speed Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 20,
@@ -3169,7 +3169,7 @@
   },
   {
     "id": 397,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "name": "Gear Speed Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 20,
@@ -3177,7 +3177,7 @@
   },
   {
     "id": 398,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "name": "Gear Speed Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 20,
@@ -3185,7 +3185,7 @@
   },
   {
     "id": 399,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "name": "Gear Speed Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 20,
@@ -3193,7 +3193,7 @@
   },
   {
     "id": 400,
-    "name": "Engranaje Potenciador de Buffs de Velocidad (UR)",
+    "name": "Gear Speed Buff Booster (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 20,
@@ -3201,7 +3201,7 @@
   },
   {
     "id": 401,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "name": "Gear Faster Respawn (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 21,
@@ -3209,7 +3209,7 @@
   },
   {
     "id": 402,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "name": "Gear Faster Respawn (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 21,
@@ -3217,7 +3217,7 @@
   },
   {
     "id": 403,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "name": "Gear Faster Respawn (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 21,
@@ -3225,7 +3225,7 @@
   },
   {
     "id": 404,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "name": "Gear Faster Respawn (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 21,
@@ -3233,7 +3233,7 @@
   },
   {
     "id": 405,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (N)",
+    "name": "Gear Faster Respawn (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 21,
@@ -3241,7 +3241,7 @@
   },
   {
     "id": 406,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "name": "Gear Faster Respawn (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 21,
@@ -3249,7 +3249,7 @@
   },
   {
     "id": 407,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "name": "Gear Faster Respawn (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 21,
@@ -3257,7 +3257,7 @@
   },
   {
     "id": 408,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "name": "Gear Faster Respawn (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 21,
@@ -3265,7 +3265,7 @@
   },
   {
     "id": 409,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "name": "Gear Faster Respawn (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 21,
@@ -3273,7 +3273,7 @@
   },
   {
     "id": 410,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (R)",
+    "name": "Gear Faster Respawn (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 21,
@@ -3281,7 +3281,7 @@
   },
   {
     "id": 411,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "name": "Gear Faster Respawn (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 21,
@@ -3289,7 +3289,7 @@
   },
   {
     "id": 412,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "name": "Gear Faster Respawn (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 21,
@@ -3297,7 +3297,7 @@
   },
   {
     "id": 413,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "name": "Gear Faster Respawn (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 21,
@@ -3305,7 +3305,7 @@
   },
   {
     "id": 414,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "name": "Gear Faster Respawn (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 21,
@@ -3313,7 +3313,7 @@
   },
   {
     "id": 415,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (SR)",
+    "name": "Gear Faster Respawn (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 21,
@@ -3321,7 +3321,7 @@
   },
   {
     "id": 416,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "name": "Gear Faster Respawn (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 21,
@@ -3329,7 +3329,7 @@
   },
   {
     "id": 417,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "name": "Gear Faster Respawn (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 21,
@@ -3337,7 +3337,7 @@
   },
   {
     "id": 418,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "name": "Gear Faster Respawn (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 21,
@@ -3345,7 +3345,7 @@
   },
   {
     "id": 419,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "name": "Gear Faster Respawn (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 21,
@@ -3353,7 +3353,7 @@
   },
   {
     "id": 420,
-    "name": "Engranaje Reaparición Acelerada tras Muerte (UR)",
+    "name": "Gear Faster Respawn (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 21,
@@ -3361,7 +3361,7 @@
   },
   {
     "id": 421,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "name": "Gear Special Gauge Retention on Death (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 22,
@@ -3369,7 +3369,7 @@
   },
   {
     "id": 422,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "name": "Gear Special Gauge Retention on Death (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 22,
@@ -3377,7 +3377,7 @@
   },
   {
     "id": 423,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "name": "Gear Special Gauge Retention on Death (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 22,
@@ -3385,7 +3385,7 @@
   },
   {
     "id": 424,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "name": "Gear Special Gauge Retention on Death (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 22,
@@ -3393,7 +3393,7 @@
   },
   {
     "id": 425,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (N)",
+    "name": "Gear Special Gauge Retention on Death (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 22,
@@ -3401,7 +3401,7 @@
   },
   {
     "id": 426,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "name": "Gear Special Gauge Retention on Death (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 22,
@@ -3409,7 +3409,7 @@
   },
   {
     "id": 427,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "name": "Gear Special Gauge Retention on Death (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 22,
@@ -3417,7 +3417,7 @@
   },
   {
     "id": 428,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "name": "Gear Special Gauge Retention on Death (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 22,
@@ -3425,7 +3425,7 @@
   },
   {
     "id": 429,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "name": "Gear Special Gauge Retention on Death (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 22,
@@ -3433,7 +3433,7 @@
   },
   {
     "id": 430,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (R)",
+    "name": "Gear Special Gauge Retention on Death (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 22,
@@ -3441,7 +3441,7 @@
   },
   {
     "id": 431,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "name": "Gear Special Gauge Retention on Death (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 22,
@@ -3449,7 +3449,7 @@
   },
   {
     "id": 432,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "name": "Gear Special Gauge Retention on Death (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 22,
@@ -3457,7 +3457,7 @@
   },
   {
     "id": 433,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "name": "Gear Special Gauge Retention on Death (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 22,
@@ -3465,7 +3465,7 @@
   },
   {
     "id": 434,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "name": "Gear Special Gauge Retention on Death (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 22,
@@ -3473,7 +3473,7 @@
   },
   {
     "id": 435,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (SR)",
+    "name": "Gear Special Gauge Retention on Death (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 22,
@@ -3481,7 +3481,7 @@
   },
   {
     "id": 436,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "name": "Gear Special Gauge Retention on Death (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 22,
@@ -3489,7 +3489,7 @@
   },
   {
     "id": 437,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "name": "Gear Special Gauge Retention on Death (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 22,
@@ -3497,7 +3497,7 @@
   },
   {
     "id": 438,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "name": "Gear Special Gauge Retention on Death (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 22,
@@ -3505,7 +3505,7 @@
   },
   {
     "id": 439,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "name": "Gear Special Gauge Retention on Death (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 22,
@@ -3513,7 +3513,7 @@
   },
   {
     "id": 440,
-    "name": "Engranaje Retención de Puntos Especiales al Morir (UR)",
+    "name": "Gear Special Gauge Retention on Death (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 22,
@@ -3521,7 +3521,7 @@
   },
   {
     "id": 441,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Resistance: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 23,
@@ -3529,7 +3529,7 @@
   },
   {
     "id": 442,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Resistance: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 23,
@@ -3537,7 +3537,7 @@
   },
   {
     "id": 443,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Resistance: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 23,
@@ -3545,7 +3545,7 @@
   },
   {
     "id": 444,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Resistance: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 23,
@@ -3553,7 +3553,7 @@
   },
   {
     "id": 445,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Resistance: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 23,
@@ -3561,7 +3561,7 @@
   },
   {
     "id": 446,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Resistance: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 23,
@@ -3569,7 +3569,7 @@
   },
   {
     "id": 447,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Resistance: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 23,
@@ -3577,7 +3577,7 @@
   },
   {
     "id": 448,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Resistance: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 23,
@@ -3585,7 +3585,7 @@
   },
   {
     "id": 449,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Resistance: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 23,
@@ -3593,7 +3593,7 @@
   },
   {
     "id": 450,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Resistance: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 23,
@@ -3601,7 +3601,7 @@
   },
   {
     "id": 451,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 23,
@@ -3609,7 +3609,7 @@
   },
   {
     "id": 452,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 23,
@@ -3617,7 +3617,7 @@
   },
   {
     "id": 453,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 23,
@@ -3625,7 +3625,7 @@
   },
   {
     "id": 454,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 23,
@@ -3633,7 +3633,7 @@
   },
   {
     "id": 455,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 23,
@@ -3641,7 +3641,7 @@
   },
   {
     "id": 456,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 23,
@@ -3649,7 +3649,7 @@
   },
   {
     "id": 457,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 23,
@@ -3657,7 +3657,7 @@
   },
   {
     "id": 458,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 23,
@@ -3665,7 +3665,7 @@
   },
   {
     "id": 459,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 23,
@@ -3673,7 +3673,7 @@
   },
   {
     "id": 460,
-    "name": "Engranaje Resistencia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Resistance: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 23,
@@ -3681,7 +3681,7 @@
   },
   {
     "id": 461,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "name": "Gear Mixed Resistance: Silence and Poison (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 24,
@@ -3689,7 +3689,7 @@
   },
   {
     "id": 462,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "name": "Gear Mixed Resistance: Silence and Poison (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 24,
@@ -3697,7 +3697,7 @@
   },
   {
     "id": 463,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "name": "Gear Mixed Resistance: Silence and Poison (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 24,
@@ -3705,7 +3705,7 @@
   },
   {
     "id": 464,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "name": "Gear Mixed Resistance: Silence and Poison (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 24,
@@ -3713,7 +3713,7 @@
   },
   {
     "id": 465,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (N)",
+    "name": "Gear Mixed Resistance: Silence and Poison (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 24,
@@ -3721,7 +3721,7 @@
   },
   {
     "id": 466,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "name": "Gear Mixed Resistance: Silence and Poison (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 24,
@@ -3729,7 +3729,7 @@
   },
   {
     "id": 467,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "name": "Gear Mixed Resistance: Silence and Poison (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 24,
@@ -3737,7 +3737,7 @@
   },
   {
     "id": 468,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "name": "Gear Mixed Resistance: Silence and Poison (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 24,
@@ -3745,7 +3745,7 @@
   },
   {
     "id": 469,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "name": "Gear Mixed Resistance: Silence and Poison (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 24,
@@ -3753,7 +3753,7 @@
   },
   {
     "id": 470,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (R)",
+    "name": "Gear Mixed Resistance: Silence and Poison (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 24,
@@ -3761,7 +3761,7 @@
   },
   {
     "id": 471,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 24,
@@ -3769,7 +3769,7 @@
   },
   {
     "id": 472,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 24,
@@ -3777,7 +3777,7 @@
   },
   {
     "id": 473,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 24,
@@ -3785,7 +3785,7 @@
   },
   {
     "id": 474,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 24,
@@ -3793,7 +3793,7 @@
   },
   {
     "id": 475,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (SR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 24,
@@ -3801,7 +3801,7 @@
   },
   {
     "id": 476,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 24,
@@ -3809,7 +3809,7 @@
   },
   {
     "id": 477,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 24,
@@ -3817,7 +3817,7 @@
   },
   {
     "id": 478,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 24,
@@ -3825,7 +3825,7 @@
   },
   {
     "id": 479,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 24,
@@ -3833,7 +3833,7 @@
   },
   {
     "id": 480,
-    "name": "Engranaje Resistencia Mixta: Silencio y Veneno (UR)",
+    "name": "Gear Mixed Resistance: Silence and Poison (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 24,
@@ -3841,7 +3841,7 @@
   },
   {
     "id": 481,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Synergy: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 0,
     "gearSkillId": 25,
@@ -3849,7 +3849,7 @@
   },
   {
     "id": 482,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Synergy: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 1,
     "gearSkillId": 25,
@@ -3857,7 +3857,7 @@
   },
   {
     "id": 483,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Synergy: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 2,
     "gearSkillId": 25,
@@ -3865,7 +3865,7 @@
   },
   {
     "id": 484,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Synergy: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 3,
     "gearSkillId": 25,
@@ -3873,7 +3873,7 @@
   },
   {
     "id": 485,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (N)",
+    "name": "Gear Mixed Synergy: ATK and Speed (N)",
     "rarityType": 0,
     "gearColorType": 4,
     "gearSkillId": 25,
@@ -3881,7 +3881,7 @@
   },
   {
     "id": 486,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Synergy: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 0,
     "gearSkillId": 25,
@@ -3889,7 +3889,7 @@
   },
   {
     "id": 487,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Synergy: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 1,
     "gearSkillId": 25,
@@ -3897,7 +3897,7 @@
   },
   {
     "id": 488,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Synergy: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 2,
     "gearSkillId": 25,
@@ -3905,7 +3905,7 @@
   },
   {
     "id": 489,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Synergy: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 3,
     "gearSkillId": 25,
@@ -3913,7 +3913,7 @@
   },
   {
     "id": 490,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (R)",
+    "name": "Gear Mixed Synergy: ATK and Speed (R)",
     "rarityType": 1,
     "gearColorType": 4,
     "gearSkillId": 25,
@@ -3921,7 +3921,7 @@
   },
   {
     "id": 491,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 0,
     "gearSkillId": 25,
@@ -3929,7 +3929,7 @@
   },
   {
     "id": 492,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 1,
     "gearSkillId": 25,
@@ -3937,7 +3937,7 @@
   },
   {
     "id": 493,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 2,
     "gearSkillId": 25,
@@ -3945,7 +3945,7 @@
   },
   {
     "id": 494,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 3,
     "gearSkillId": 25,
@@ -3953,7 +3953,7 @@
   },
   {
     "id": 495,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (SR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (SR)",
     "rarityType": 2,
     "gearColorType": 4,
     "gearSkillId": 25,
@@ -3961,7 +3961,7 @@
   },
   {
     "id": 496,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 0,
     "gearSkillId": 25,
@@ -3969,7 +3969,7 @@
   },
   {
     "id": 497,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 1,
     "gearSkillId": 25,
@@ -3977,7 +3977,7 @@
   },
   {
     "id": 498,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 2,
     "gearSkillId": 25,
@@ -3985,7 +3985,7 @@
   },
   {
     "id": 499,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 3,
     "gearSkillId": 25,
@@ -3993,7 +3993,7 @@
   },
   {
     "id": 500,
-    "name": "Engranaje Sinergia Mixta: Ataque y Velocidad (UR)",
+    "name": "Gear Mixed Synergy: ATK and Speed (UR)",
     "rarityType": 3,
     "gearColorType": 4,
     "gearSkillId": 25,

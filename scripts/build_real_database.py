@@ -25,98 +25,98 @@ KICKERS_MASTER = [
         "name": "Tsubame",
         "shortName": "Tsubame",
         "nameSpelling": "Tsubame",
-        "voiceActorName": "CV: 内田雄馬 (Yuma Uchida)"
+        "voiceActorName": "CV: Yuma Uchida"
     },
     {
         "id": 2,
         "name": "Ruriha",
         "shortName": "Ruriha",
         "nameSpelling": "Ruriha",
-        "voiceActorName": "CV: 佐倉綾音 (Ayane Sakura)"
+        "voiceActorName": "CV: Ayane Sakura"
     },
     {
         "id": 3,
         "name": "Coco",
         "shortName": "Coco",
         "nameSpelling": "Coco Guamrail",
-        "voiceActorName": "CV: 五十嵐裕美 (Hiromi Igarashi)"
+        "voiceActorName": "CV: Hiromi Igarashi"
     },
     {
         "id": 4,
         "name": "Kite",
         "shortName": "Kite",
         "nameSpelling": "Kite",
-        "voiceActorName": "CV: 石川界人 (Kaito Ishikawa)"
+        "voiceActorName": "CV: Kaito Ishikawa"
     },
     {
         "id": 5,
         "name": "Owlbert",
         "shortName": "Owlbert",
         "nameSpelling": "Owlbert",
-        "voiceActorName": "CV: 岡本信彦 (Nobuhiko Okamoto)"
+        "voiceActorName": "CV: Nobuhiko Okamoto"
     },
     {
         "id": 6,
         "name": "Pitophy",
         "shortName": "Pitophy",
         "nameSpelling": "Pitophy",
-        "voiceActorName": "CV: 石上静香 (Shizuka Ishigami)"
+        "voiceActorName": "CV: Shizuka Ishigami"
     },
     {
         "id": 7,
         "name": "Grenhawk",
         "shortName": "Grenhawk",
         "nameSpelling": "Grenhawk",
-        "voiceActorName": "CV: 杉田智和 (Tomokazu Sugita)"
+        "voiceActorName": "CV: Tomokazu Sugita"
     },
     {
         "id": 8,
         "name": "Anna",
         "shortName": "Anna",
         "nameSpelling": "Anna Starling",
-        "voiceActorName": "CV: 早見沙織 (Saori Hayami)"
+        "voiceActorName": "CV: Saori Hayami"
     },
     {
         "id": 9,
         "name": "Jay",
         "shortName": "Jay",
         "nameSpelling": "Jay",
-        "voiceActorName": "CV: 吉野裕行 (Hiroyuki Yoshino)"
+        "voiceActorName": "CV: Hiroyuki Yoshino"
     },
     {
         "id": 10,
         "name": "Yuyan",
         "shortName": "Yuyan",
         "nameSpelling": "Yuyan",
-        "voiceActorName": "CV: 内山昂輝 (Koki Uchiyama)"
+        "voiceActorName": "CV: Koki Uchiyama"
     },
     {
         "id": 11,
         "name": "Diatrius",
         "shortName": "Diatrius",
         "nameSpelling": "Diatrius",
-        "voiceActorName": "CV: 安元洋貴 (Hiroki Yasumoto)"
+        "voiceActorName": "CV: Hiroki Yasumoto"
     },
     {
         "id": 12,
         "name": "Buzzy Big",
         "shortName": "Buzzy Big",
         "nameSpelling": "Buzzy Big",
-        "voiceActorName": "CV: 木村昴 (Subaru Kimura)"
+        "voiceActorName": "CV: Subaru Kimura"
     },
     {
         "id": 13,
         "name": "Hitagi",
         "shortName": "Hitagi",
         "nameSpelling": "Hitagi",
-        "voiceActorName": "CV: 桑島法子 (Houko Kuwashima)"
+        "voiceActorName": "CV: Houko Kuwashima"
     },
     {
         "id": 14,
         "name": "Sid",
         "shortName": "Sid",
         "nameSpelling": "Sid",
-        "voiceActorName": "CV: 森久保祥太郎 (Showtaro Morikubo)"
+        "voiceActorName": "CV: Showtaro Morikubo"
     }
 ]
 

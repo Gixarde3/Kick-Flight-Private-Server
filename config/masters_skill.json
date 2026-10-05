@@ -1981,7 +1981,7 @@
  },
  {
   "id": 20001,
-  "description": "Corte Relámpago",
+  "description": "Sonic Rush",
   "skillType": 2,
   "skillActionType": 9,
   "skillCategoryType": 0,
@@ -1996,7 +1996,7 @@
  },
  {
   "id": 20002,
-  "description": "Onda Sanadora",
+  "description": "Back-Step Shot",
   "skillType": 2,
   "skillActionType": 10,
   "skillCategoryType": 0,
@@ -2011,7 +2011,7 @@
  },
  {
   "id": 20003,
-  "description": "Golpe Propulsor",
+  "description": "Shock Dive",
   "skillType": 2,
   "skillActionType": 11,
   "skillCategoryType": 0,
@@ -2026,7 +2026,7 @@
  },
  {
   "id": 20004,
-  "description": "Técnica Ilusoria",
+  "description": "Art of Illusion",
   "skillType": 2,
   "skillActionType": 12,
   "skillCategoryType": 0,
@@ -2041,7 +2041,7 @@
  },
  {
   "id": 20005,
-  "description": "Dron Centinela",
+  "description": "Hacking Drone",
   "skillType": 2,
   "skillActionType": 13,
   "skillCategoryType": 0,
@@ -2056,7 +2056,7 @@
  },
  {
   "id": 20006,
-  "description": "Bombardeo Ígneo",
+  "description": "Reverse Joker",
   "skillType": 2,
   "skillActionType": 14,
   "skillCategoryType": 0,
@@ -2071,7 +2071,7 @@
  },
  {
   "id": 20007,
-  "description": "Barrera Fortaleza",
+  "description": "Slow Shot",
   "skillType": 2,
   "skillActionType": 17,
   "skillCategoryType": 0,
@@ -2086,7 +2086,7 @@
  },
  {
   "id": 20008,
-  "description": "Prisión Aérea",
+  "description": "Binding Ray",
   "skillType": 2,
   "skillActionType": 15,
   "skillCategoryType": 0,
@@ -2101,7 +2101,7 @@
  },
  {
   "id": 20009,
-  "description": "Espiral Doble",
+  "description": "Stealth Paint",
   "skillType": 2,
   "skillActionType": 19,
   "skillCategoryType": 0,
@@ -2116,7 +2116,7 @@
  },
  {
   "id": 20010,
-  "description": "Corte Espectral",
+  "description": "Nunchaku Nirvana",
   "skillType": 2,
   "skillActionType": 20,
   "skillCategoryType": 0,
@@ -2131,7 +2131,7 @@
  },
  {
   "id": 20011,
-  "description": "Garras Abisales",
+  "description": "Meteor Impact",
   "skillType": 2,
   "skillActionType": 16,
   "skillCategoryType": 0,
@@ -2146,7 +2146,7 @@
  },
  {
   "id": 20012,
-  "description": "Megamartillo",
+  "description": "Front Barrier",
   "skillType": 2,
   "skillActionType": 18,
   "skillCategoryType": 0,
@@ -2161,7 +2161,7 @@
  },
  {
   "id": 20013,
-  "description": "Envaine Relámpago",
+  "description": "Demonic Shadow",
   "skillType": 2,
   "skillActionType": 23,
   "skillCategoryType": 0,
@@ -2176,7 +2176,7 @@
  },
  {
   "id": 20014,
-  "description": "Trampa Eléctrica",
+  "description": "Sculpt Make",
   "skillType": 2,
   "skillActionType": 24,
   "skillCategoryType": 0,

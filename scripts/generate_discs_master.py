@@ -52,83 +52,83 @@ def main():
         # Front Attack (CQC)
         {"cat": 0, "act": 4, "range": 8.0, "speed": 20.0, "cd": 14, "coef": 2.4,
          "names": {
-             1: ["Colmillo Ígneo", "Garra Volcánica", "Corte Abrasador", "Mordisco de Fuego", "Puño Sísmico"],
-             2: ["Zarpazo Glacial", "Colmillo Polar", "Corte Abisal", "Gélido Desgarro", "Impacto Marea"],
-             3: ["Tajo Esmeralda", "Garra Huracanada", "Céfiro Cortante", "Espina Vórtice", "Corte Ciclón"]
+             1: ["Blazing Fang", "Volcanic Claw", "Scorching Slash", "Fire Bite", "Seismic Fist"],
+             2: ["Glacial Swipe", "Polar Fang", "Abyssal Slash", "Frozen Rend", "Tidal Impact"],
+             3: ["Emerald Slash", "Hurricane Claw", "Cutting Zephyr", "Vortex Thorn", "Cyclone Cut"]
          },
-         "desc": "Ataque cuerpo a cuerpo contundente que causa gran daño al rival y lo desestabiliza."},
+         "desc": "Powerful melee attack that deals large damage to an enemy and throws it off balance."},
 
         # Move Attack (Dash attack)
         {"cat": 0, "act": 3, "range": 16.0, "speed": 28.0, "cd": 16, "coef": 2.2,
          "names": {
-             1: ["Embestida Ardiente", "Vuelo de Meteorito", "Carga Ígnea", "Cohete Carmesí", "Ráfaga Ígnea"],
-             2: ["Embestida Tsunami", "Carga Glacial", "Delfín Abisal", "Ráfaga Torrencial", "Ola Rompedora"],
-             3: ["Vuelo Ciclónico", "Embestida Huracán", "Ráfaga Viento Feroz", "Picado Celestial", "Dardo Tempestuoso"]
+             1: ["Blazing Rush", "Meteor Flight", "Fire Charge", "Crimson Rocket", "Flame Gust"],
+             2: ["Tsunami Rush", "Glacial Charge", "Abyssal Dolphin", "Torrent Gust", "Breaking Wave"],
+             3: ["Cyclone Flight", "Hurricane Rush", "Fierce Wind Gust", "Celestial Dive", "Tempest Dart"]
          },
-         "desc": "Carga veloz hacia el frente recorriendo gran distancia y embistiendo a los rivales a su paso."},
+         "desc": "Dashes far ahead at high speed, ramming any enemy in the way."},
 
         # Shot Attack (Projectile)
         {"cat": 0, "act": 1, "range": 25.0, "speed": 35.0, "cd": 13, "coef": 1.9,
          "names": {
-             1: ["Disparo de Magma", "Piroesfera Guiada", "Lanza Solar", "Chispazo Fulgurante", "Bala de Fuego"],
-             2: ["Carámbano Afilado", "Proyectil Marino", "Dardo Helado", "Gota Perforante", "Flecha Acuática"],
-             3: ["Pluma Tempestuosa", "Aguja de Aire", "Ráfaga Huracán", "Flecha Sonora", "Dardo Verde"]
+             1: ["Magma Shot", "Guided Pyrosphere", "Solar Lance", "Flash Spark", "Fire Bullet"],
+             2: ["Sharp Icicle", "Sea Shell", "Frozen Dart", "Piercing Drop", "Aqua Arrow"],
+             3: ["Tempest Feather", "Air Needle", "Hurricane Gust", "Sonic Arrow", "Green Dart"]
          },
-         "desc": "Dispara proyectiles veloces guiados de alta precisión contra objetivos a larga distancia."},
+         "desc": "Fires fast, high-precision guided projectiles at long-range targets."},
 
         # Around Attack (Radial AoE)
         {"cat": 0, "act": 2, "range": 10.0, "speed": 15.0, "cd": 18, "coef": 2.6,
          "names": {
-             1: ["Nova Ardiente", "Estallido Volcánico", "Anillo Ígneo", "Supernova Carmesí", "Círculo de Llamas"],
-             2: ["Ventisca Polar", "Maelstrom Abisal", "Tormenta Glacial", "Onda Marea", "Esfera Fría"],
-             3: ["Tornado Esmeralda", "Cúpula Tempestad", "Vórtice Aéreo", "Huracán Radial", "Viento Desatado"]
+             1: ["Blazing Nova", "Volcanic Burst", "Fire Ring", "Crimson Supernova", "Flame Circle"],
+             2: ["Polar Blizzard", "Abyssal Maelstrom", "Glacial Storm", "Tidal Wave", "Cold Sphere"],
+             3: ["Emerald Tornado", "Tempest Dome", "Aerial Vortex", "Radial Hurricane", "Unleashed Wind"]
          },
-         "desc": "Libera una devastadora explosión elemental en área circular alrededor del Kicker."},
+         "desc": "Unleashes a devastating elemental blast in a circle around the Kicker."},
 
         # Beam Attack
         {"cat": 0, "act": 5, "range": 30.0, "speed": 45.0, "cd": 20, "coef": 2.8,
          "names": {
-             1: ["Láser Solar", "Haz de Plasma", "Rayo Ígneo", "Cañón Magmático", "Rayo Térmico"],
-             2: ["Rayo Criogénico", "Haz Glacial", "Láser Abisal", "Columna de Agua", "Rayo Polar"],
-             3: ["Haz de Vacío", "Rayo Sísmico", "Láser Temporal", "Corte Cuántico", "Haz Galáctico"]
+             1: ["Solar Laser", "Plasma Beam", "Fire Ray", "Magma Cannon", "Thermal Ray"],
+             2: ["Cryo Ray", "Glacial Beam", "Abyssal Laser", "Water Column", "Polar Ray"],
+             3: ["Void Beam", "Seismic Ray", "Temporal Laser", "Quantum Cut", "Galactic Beam"]
          },
-         "desc": "Canaliza un potente rayo continuo que atraviesa defensas y golpea a todos los objetivos en fila."},
+         "desc": "Channels a powerful continuous beam that pierces defenses and hits every target in line."},
 
         # Heal (Instant / Regen)
         {"cat": 1, "act": 6, "range": 0.0, "speed": 0.0, "cd": 22, "coef": 1.0,
          "names": {
-             1: ["Llama de Vitalidad", "Calor Reparador", "Fénix Restaurador", "Corazón Ígneo", "Bendición Solar"],
-             2: ["Manantial Puro", "Gotas de Rocío", "Bálsamo Marino", "Oasis Sanador", "Gotas de Vida"],
-             3: ["Brisa Sanadora", "Aliento de Vida", "Savia del Bosque", "Cura Esmeralda", "Céfiro Vital"]
+             1: ["Vitality Flame", "Restoring Warmth", "Restoring Phoenix", "Fire Heart", "Solar Blessing"],
+             2: ["Pure Spring", "Dewdrops", "Sea Balm", "Healing Oasis", "Drops of Life"],
+             3: ["Healing Breeze", "Breath of Life", "Forest Sap", "Emerald Cure", "Vital Zephyr"]
          },
-         "desc": "Recupera instantáneamente una porción sustancial de los puntos de salud máximos."},
+         "desc": "Instantly restores a large portion of max HP."},
 
         # Shield / Buff
         {"cat": 2, "act": 6, "range": 0.0, "speed": 0.0, "cd": 24, "coef": 1.0,
          "names": {
-             1: ["Manto de Lava", "Escudo Ígneo", "Muralla de Fuego", "Coraza de Rubí", "Baluarte Ardiente"],
-             2: ["Barrera Égida", "Cúpula de Hielo", "Manto Acuático", "Escudo de Cristal", "Baluarte Zafiro"],
-             3: ["Velo Huracanado", "Escudo Ciclónico", "Manto de Plumas", "Barrera Tempestad", "Aura Esmeralda"]
+             1: ["Lava Mantle", "Fire Shield", "Wall of Fire", "Ruby Armor", "Blazing Bulwark"],
+             2: ["Aegis Barrier", "Ice Dome", "Aqua Mantle", "Crystal Shield", "Sapphire Bulwark"],
+             3: ["Hurricane Veil", "Cyclone Shield", "Feather Mantle", "Tempest Barrier", "Emerald Aura"]
          },
-         "desc": "Despliega una resistente barrera de energía que anula el daño y previene derribos."},
+         "desc": "Deploys a sturdy energy barrier that negates damage and prevents knockdowns."},
 
         # Trap
         {"cat": 3, "act": 7, "range": 5.0, "speed": 0.0, "cd": 19, "coef": 1.8,
          "names": {
-             1: ["Mina de Fuego", "Trampa Volcánica", "Red Ardiente", "Cepo Explosivo", "Foso de Magma"],
-             2: ["Cepo de Escarcha", "Mina Fría", "Trampa Marea", "Foso Glacial", "Prisión de Hielo"],
-             3: ["Trampa Gravitatoria", "Mina de Vacío", "Cepo Vendaval", "Red Tempestuosa", "Vórtice Oculto"]
+             1: ["Fire Mine", "Volcanic Trap", "Blazing Net", "Explosive Snare", "Magma Pit"],
+             2: ["Frost Snare", "Cold Mine", "Tidal Trap", "Glacial Pit", "Ice Prison"],
+             3: ["Gravity Trap", "Void Mine", "Gale Snare", "Tempest Net", "Hidden Vortex"]
          },
-         "desc": "Coloca una trampa invisible en el espacio que inmoviliza y daña a cualquier rival que la detone."},
+         "desc": "Sets an invisible trap in the air that immobilizes and damages any enemy that triggers it."},
 
         # Warp
         {"cat": 4, "act": 8, "range": 50.0, "speed": 0.0, "cd": 25, "coef": 1.0,
          "names": {
-             1: ["Paso Ígneo", "Salto de Fénix", "Teletransporte Carmesí", "Parpadeo Solar", "Salto Magmático"],
-             2: ["Warp de Marea", "Salto Acuático", "Reflejo Marino", "Teletransporte Polar", "Parpadeo Abisal"],
-             3: ["Salto Dimensional", "Warp Estratégico", "Parpadeo Céfiro", "Salto Huracán", "Teletransporte Aéreo"]
+             1: ["Fire Step", "Phoenix Leap", "Crimson Teleport", "Solar Blink", "Magma Leap"],
+             2: ["Tidal Warp", "Aqua Leap", "Sea Reflection", "Polar Teleport", "Abyssal Blink"],
+             3: ["Dimensional Leap", "Tactical Warp", "Zephyr Blink", "Hurricane Leap", "Aerial Teleport"]
          },
-         "desc": "Teletransporta instantáneamente al Kicker a la posición de un aliado o del guardián de cristales."}
+         "desc": "Instantly teleports the Kicker to the position of an ally or the crystal Guardian."}
     ]
 
     discs = []
@@ -264,31 +264,31 @@ def main():
     # Color types: 0: Red, 1: Green, 2: Yellow, 3: Blue, 4: White
     # 25 GearSkillTypes
     gear_skills_def = [
-        (0, "Aumento de PS Máximos", "Incrementa la salud máxima del Kicker."),
-        (1, "Aumento de Potencia de Ataque", "Incrementa el daño de todos los ataques."),
-        (2, "Velocidad de Movimiento", "Aumenta la velocidad de vuelo y desplazamiento."),
-        (3, "Potenciación de Fuego", "Incrementa el daño de habilidades y discos ígneos."),
-        (4, "Potenciación de Agua", "Incrementa el daño de habilidades y discos de agua."),
-        (5, "Potenciación de Viento", "Incrementa el daño de habilidades y discos de viento."),
-        (6, "Resistencia al Aturdimiento", "Reduce la duración del aturdimiento recibido."),
-        (7, "Resistencia a la Parálisis", "Reduce la probabilidad y duración de parálisis."),
-        (8, "Resistencia al Veneno", "Reduce el daño continuo causado por veneno."),
-        (9, "Resistencia al Silencio", "Reduce la duración del bloqueo de habilidades."),
-        (10, "Resistencia a Debuffs de Ataque", "Mitiga la reducción de ataque enemiga."),
-        (11, "Resistencia a Debuffs de Defensa", "Mitiga la reducción de defensa enemiga."),
-        (12, "Resistencia a Debuffs de Velocidad", "Mitiga la ralentización de vuelo enemiga."),
-        (13, "Reducción de Tiempo de Recarga", "Acelera la recarga de todos los discos equipados."),
-        (14, "Carga Acelerada de Habilidad Especial", "Aumenta la ganancia de medidor especial."),
-        (15, "Regeneración Rápida de Boost", "Recupera la barra de aceleración con mayor velocidad."),
-        (16, "Aumento de Curación Recibida", "Potencia los efectos de curación recibidos."),
-        (17, "Potenciador de Buffs de Ataque", "Extiende la duración y potencia de mejoras de ataque."),
-        (18, "Potenciador de Buffs de Defensa", "Extiende la duración y potencia de mejoras de defensa."),
-        (19, "Potenciador de Buffs de Velocidad", "Extiende la duración de mejoras de velocidad."),
-        (20, "Reaparición Acelerada tras Muerte", "Reduce los segundos de reaparición en combate."),
-        (21, "Retención de Puntos Especiales al Morir", "Conserva parte del medidor especial al ser derrotado."),
-        (22, "Resistencia Mixta: Ataque y Velocidad", "Mitiga debuffs tanto de ataque como de velocidad."),
-        (23, "Resistencia Mixta: Silencio y Veneno", "Inmunidad parcial a silencio y veneno."),
-        (24, "Sinergia Mixta: Ataque y Velocidad", "Aumenta conjuntamente las mejoras de ataque y vuelo.")
+        (0, "Max HP Boost", "Increases the Kicker's max HP."),
+        (1, "ATK Boost", "Increases the damage of all attacks."),
+        (2, "Movement Speed", "Increases flight and movement speed."),
+        (3, "Fire Boost", "Increases the damage of Fire skills and discs."),
+        (4, "Water Boost", "Increases the damage of Water skills and discs."),
+        (5, "Wind Boost", "Increases the damage of Wind skills and discs."),
+        (6, "Stun Resistance", "Reduces the duration of stun received."),
+        (7, "Paralysis Resistance", "Reduces the chance and duration of paralysis."),
+        (8, "Poison Resistance", "Reduces damage over time from poison."),
+        (9, "Silence Resistance", "Reduces the duration of skill sealing."),
+        (10, "ATK Debuff Resistance", "Mitigates enemy attack reduction."),
+        (11, "DEF Debuff Resistance", "Mitigates enemy defense reduction."),
+        (12, "Speed Debuff Resistance", "Mitigates enemy flight slowdown."),
+        (13, "Cooldown Reduction", "Speeds up the recharge of all equipped discs."),
+        (14, "Special Skill Charge Boost", "Increases special gauge gain."),
+        (15, "Fast Boost Regeneration", "Recovers the boost gauge faster."),
+        (16, "Healing Received Boost", "Strengthens healing effects received."),
+        (17, "ATK Buff Booster", "Extends the duration and strength of attack buffs."),
+        (18, "DEF Buff Booster", "Extends the duration and strength of defense buffs."),
+        (19, "Speed Buff Booster", "Extends the duration of speed buffs."),
+        (20, "Faster Respawn", "Reduces respawn seconds in battle."),
+        (21, "Special Gauge Retention on Death", "Keeps part of the special gauge when defeated."),
+        (22, "Mixed Resistance: ATK and Speed", "Mitigates both attack and speed debuffs."),
+        (23, "Mixed Resistance: Silence and Poison", "Partial immunity to silence and poison."),
+        (24, "Mixed Synergy: ATK and Speed", "Jointly increases attack and flight buffs.")
     ]
 
     gear_skills = []
@@ -307,7 +307,7 @@ def main():
                 coef = round(0.02 + 0.02 * rarity + 0.005 * color, 3)
                 gears.append({
                     "id": gear_id,
-                    "name": f"Engranaje {name} ({['N', 'R', 'SR', 'UR'][rarity]})",
+                    "name": f"Gear {name} ({['N', 'R', 'SR', 'UR'][rarity]})",
                     "rarityType": rarity,
                     "gearColorType": color,
                     "gearSkillId": skill_type + 1,

@@ -87,7 +87,7 @@
  {
   "id": 18,
   "key": "common.battleRuleFestival",
-  "text": "Festival Kick-Flight"
+  "text": "Kick-Flight Festival"
  },
  {
   "id": 19,
@@ -97,12 +97,12 @@
  {
   "id": 20,
   "key": "common.battleRuleRegularMatch",
-  "text": "Combate normal"
+  "text": "Regular Match"
  },
  {
   "id": 21,
   "key": "common.battleRuleRankerMatch",
-  "text": "Combate de clasificación"
+  "text": "Ranked Match"
  },
  {
   "id": 22,
@@ -117,7 +117,7 @@
  {
   "id": 24,
   "key": "common.battleRuleFestivalMatch",
-  "text": "Festival Kick-Flight"
+  "text": "Kick-Flight Festival"
  },
  {
   "id": 25,
@@ -182,7 +182,7 @@
  {
   "id": 37,
   "key": "common.levelTitle",
-  "text": "Level"
+  "text": "Lv"
  },
  {
   "id": 38,
@@ -322,7 +322,7 @@
  {
   "id": 65,
   "key": "common.battleRecord",
-  "text": "Historial de combate"
+  "text": "Battle History"
  },
  {
   "id": 66,
@@ -332,7 +332,7 @@
  {
   "id": 67,
   "key": "common.help",
-  "text": "Ayuda"
+  "text": "Help"
  },
  {
   "id": 68,
@@ -777,7 +777,7 @@
  {
   "id": 156,
   "key": "matching.festivalFixedLevelDescription",
-  "text": "Festival Fixed Level"
+  "text": "Festival Fixed Lv"
  },
  {
   "id": 157,
@@ -1112,7 +1112,7 @@
  {
   "id": 223,
   "key": "tutorial.defaultPlayerName",
-  "text": "Piloto"
+  "text": "Pilot"
  },
  {
   "id": 224,
@@ -1452,22 +1452,22 @@
  {
   "id": 291,
   "key": "battleDisconnect.warningText1",
-  "text": "Abandonar un combate en curso perjudica a tu equipo."
+  "text": "Leaving a battle in progress hurts your team."
  },
  {
   "id": 292,
   "key": "battleDisconnect.warningText2",
-  "text": "Las desconexiones intencionadas pueden conllevar penalizaciones temporales."
+  "text": "Intentional disconnections may result in temporary penalties."
  },
  {
   "id": 293,
   "key": "battleDisconnect.penaltyText1",
-  "text": "Penalización de puntos de batalla aplicada."
+  "text": "Battle point penalty applied."
  },
  {
   "id": 294,
   "key": "battleDisconnect.penaltyText2",
-  "text": "Espera unos momentos antes de volver a buscar partida."
+  "text": "Please wait a moment before searching for a match again."
  },
  {
   "id": 295,
@@ -1502,7 +1502,7 @@
  {
   "id": 301,
   "key": "common.rankFormat",
-  "text": "Rango {0}"
+  "text": "Rank {0}"
  },
  {
   "id": 302,
@@ -1952,7 +1952,7 @@
  {
   "id": 391,
   "key": "inApp.discLevelUpTitle",
-  "text": "Disc Level Up"
+  "text": "Disc Lv Up"
  },
  {
   "id": 392,
@@ -2367,12 +2367,12 @@
  {
   "id": 474,
   "key": "rule",
-  "text": "Reglas"
+  "text": "Rule"
  },
  {
   "id": 475,
   "key": "rules",
-  "text": "Reglas"
+  "text": "Rules"
  },
  {
   "id": 476,
@@ -2482,17 +2482,17 @@
  {
   "id": 497,
   "key": "matching.teamWaitTitle",
-  "text": "Sala de espera"
+  "text": "Waiting Room"
  },
  {
   "id": 498,
   "key": "matching.teamListTitle",
-  "text": "Lista de equipos"
+  "text": "Team List"
  },
  {
   "id": 499,
   "key": "matching.teamDecide",
-  "text": "Fijar equipo"
+  "text": "Set Team"
  },
  {
   "id": 500,
@@ -2547,17 +2547,17 @@
  {
   "id": 510,
   "key": "common.levelUp",
-  "text": "Level Up!"
+  "text": "Lv Up!"
  },
  {
   "id": 511,
   "key": "common.levelUpTitle",
-  "text": "Subida de nivel"
+  "text": "Lv Up"
  },
  {
   "id": 512,
   "key": "common.levelUpBonus",
-  "text": "Level Up Bonus"
+  "text": "Lv Up Bonus"
  },
  {
   "id": 513,
@@ -2577,7 +2577,7 @@
  {
   "id": 516,
   "key": "common.tap",
-  "text": "Toca para continuar"
+  "text": "Tap to continue"
  },
  {
   "id": 517,
@@ -2602,7 +2602,7 @@
  {
   "id": 521,
   "key": "common.replay",
-  "text": "Repetición"
+  "text": "Replay"
  },
  {
   "id": 522,
@@ -2612,17 +2612,17 @@
  {
   "id": 523,
   "key": "common.friendFollow",
-  "text": "Seguir"
+  "text": "Follow"
  },
  {
   "id": 524,
   "key": "common.friendFollowing",
-  "text": "Siguiendo"
+  "text": "Following"
  },
  {
   "id": 525,
   "key": "common.download",
-  "text": "Descargar"
+  "text": "Download"
  },
  {
   "id": 526,
@@ -2632,7 +2632,7 @@
  {
   "id": 527,
   "key": "common.confirm",
-  "text": "Confirmar"
+  "text": "Confirm"
  },
  {
   "id": 528,
@@ -2652,7 +2652,7 @@
  {
   "id": 531,
   "key": "common.informationTitle",
-  "text": "Avisos"
+  "text": "Notices"
  },
  {
   "id": 532,
@@ -2667,12 +2667,12 @@
  {
   "id": 534,
   "key": "common.toShop",
-  "text": "Ir a la tienda"
+  "text": "Go to Shop"
  },
  {
   "id": 535,
   "key": "common.profile",
-  "text": "Perfil"
+  "text": "Profile"
  },
  {
   "id": 536,
@@ -3382,7 +3382,7 @@
  {
   "id": 677,
   "key": "conditionType.autoMove",
-  "text": "Auto Move"
+  "text": "Auto move"
  },
  {
   "id": 678,
@@ -3567,7 +3567,7 @@
  {
   "id": 714,
   "key": "customMatch.fixDiscLevel",
-  "text": "Fix Disc Level"
+  "text": "Fix Disc Lv"
  },
  {
   "id": 715,
@@ -4057,7 +4057,7 @@
  {
   "id": 812,
   "key": "gear.bonusDescription",
-  "text": "Same-colour gear grants a bonus."
+  "text": "Same-color gear grants a bonus."
  },
  {
   "id": 813,
@@ -4847,7 +4847,7 @@
  {
   "id": 970,
   "key": "sort.level",
-  "text": "Level"
+  "text": "Lv"
  },
  {
   "id": 971,
@@ -4897,7 +4897,7 @@
  {
   "id": 980,
   "key": "sortType.level",
-  "text": "Level"
+  "text": "Lv"
  },
  {
   "id": 981,

@@ -19,9 +19,9 @@ public sealed partial class DemoSessionApi
     // DiscForce tab; the three JetCoin exchanges live in the Exchange tab.
     private static readonly GoodsShopProductRow[] GoodsShopProducts =
     [
-        new(1, 2, "Ticket de gacha de discos", 101, 1, 100, 402, 8, 1),
-        new(2, 2, "Ticket de gacha de Kickers", 101, 1, 300, 401, 7, 1),
-        new(3, 2, "Sellos de engranaje x10", 101, 1, 100, 202, 5, 10),
+        new(1, 2, "Disc Gacha Ticket", 101, 1, 100, 402, 8, 1),
+        new(2, 2, "Kicker Gacha Ticket", 101, 1, 300, 401, 7, 1),
+        new(3, 2, "Gear Stamps x10", 101, 1, 100, 202, 5, 10),
         new(4, 1, "Disc Force x1000", 101, 1, 100, 302, 3, 1000),
     ];
 

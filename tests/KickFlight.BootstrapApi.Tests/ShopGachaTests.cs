@@ -103,7 +103,7 @@ public sealed class ShopGachaTests : IClassFixture<ServerTestHostFixture>
         var coinsBefore = ItemAmount(before, 1);
         var stampsBefore = ItemAmount(before, GearMaterialItemId);
 
-        // product 3 = "Sellos de engranaje x10": 100 JetCoin -> 10x item 5
+        // product 3 = "Gear Stamps x10": 100 JetCoin -> 10x item 5
         var buy = await PostAsync(session, "/goodsShop/buy", new { goodsShopProductId = 3 });
 
         Assert.Equal(coinsBefore - 100, ItemAmount(buy, 1));
