@@ -22,6 +22,8 @@ KFDIAG values (all fixed integers, no account data):
         only when activeListener != null); 9248+valid = source hasValidPosition.
   9250+hasPlayer, ptr  GameManager.SetListener entry (reparents the 'Listener' GameObject under the player; with
                   player == null (9250) it returns before doing anything); ptr = player low 32 bits
+                  (run 2: a single 9250 ptr=0 from InitializeObject. With the production ReceiveAddPlayer ->
+                  SetListener cave of 2026-10-05 expect an extra 9251 + the local player's pointer while it is added.)
   9252, ptr       CriAtomListener.ActivateListener entry, this low 32 bits
   9256, ptr, x, z CriAtomListener.LateUpdate when the active listener's x changed: this low32, new x/z raw float bits
   9254+wasActive  CriAtomListener.OnDisable entry (9255 = the active listener is being disabled -> native listener

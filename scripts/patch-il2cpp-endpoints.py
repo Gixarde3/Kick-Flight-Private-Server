@@ -2196,6 +2196,34 @@ NATIVE_PATCHES: dict[str, list[dict[str, object]]] = {
             "expected": bytes.fromhex("fe25f897"),
             "replacement": bytes.fromhex("bc56f897"),
         }] if READY_SCENE else []),
+        # 3D audio listener (2026-10-05). The only SetListener call of a normal battle is in
+        # GameManager.InitializeObject (BeginAsync state 8): SetListener(ObjectManager.GetMainPlayer()) re-parents the
+        # 'Listener' GameObject (GameManager+0x58, the CriAtomListener) under the local player. Retail reaches it only
+        # after the <BeginAsync>b__3 WaitWhile(!IsCreatedPlayer) and b__4 WaitWhile(!IsCreatedCommonObject); both are
+        # stubbed to false above, so InitializeObject runs ~100 ms after CreatePlayer, GetMainPlayer is still null,
+        # SetListener returns without doing anything and the listener stays at the origin for the whole match
+        # (KFDIAG 9250 ptr=0, no 9256; every in-match voice/SE is 3D and falls outside its attenuation range). The
+        # waits stay stubbed (IsCreatedPlayer is a strict players.Count == PlayerBattleInfos.Count and the disconnect
+        # timer is stubbed too, so one missing peer would hang the loading screen for good); instead, when
+        # ObjectManager.ReceiveAddPlayer has registered a player (PlayerCharacter.Initialize + AddObject), call
+        # GameManager.SetListener(player) if ObjectManager.IsMainPlayer(player) and the GameManager singleton and its
+        # Listener exist. Hook = the `b` on ReceiveAddPlayer's epilogue ldp (also reached by the null-player path: x19
+        # null -> IsMainPlayer false); the cave saves/restores x29/x30 around its calls, uses only caller-saved
+        # registers, replays the ldp and returns to +4. The two singleton Method* slots are already resolved by
+        # SearchTransferOwnership, which ReceiveAddPlayer calls first. Cave in the dead tail of the entry-stubbed
+        # <BeginAsync>b__4 (0x1579B14-0x1579B74, after the ready-gate cave; no branch from outside the body lands in it).
+        {
+            "description": "cave: ObjectManager.ReceiveAddPlayer tail -> GameManager.SetListener(player) when it is the main player (dead tail of <BeginAsync>b__4)",
+            "offset": 0x1579B14,
+            "expected": bytes.fromhex("60000036e8031f2a15000014087801b008e142f9730a40f9000140f9089c44398800083608d840b94800003588f5f197e0031faa6ae70794f403002a730000b5e0031faaa569f297e803342a01010012e00313aa93d6ff9708000052fd7b41a9"),
+            "replacement": bytes.fromhex("fd7bbfa9fd030091e00313aae1031faae930fa9700020036e8770190081947f9000140f9ac9b4e946001003628730190087941f9000140f9399b4e94c00000b4082c40f9880000b4e10313aae2031faa2cdcff97fd7bc1a8fd7b42a93519fa17"),
+        },
+        {
+            "description": "ObjectManager.ReceiveAddPlayer epilogue `ldp x29, x30, [sp, #0x20]` -> b SetListener cave",
+            "offset": 0x1400040,
+            "expected": bytes.fromhex("fd7b42a9"),
+            "replacement": bytes.fromhex("b5e60514"),  # b #0x1579b14
+        },
         *_attack_interval_patches(),
         # Diagnostics: KF_DIAG=1 installs the full KFDIAG probe set (regions relocated out of LoadDeckSummonModel on
         # 2026-09-20 so disc pets still load); KF_RESULT_DIAG=1 installs only the isolated ResultManager/ResultScene

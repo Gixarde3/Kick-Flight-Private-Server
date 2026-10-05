@@ -107,4 +107,8 @@ Rules learned the hard way:
   historical generator exits instead of writing caves into that reserved range.
   `HomeSummonModelController.SetModel` tail 0x159DA48-0x159DA78 holds the production bat-bomb HitInfo fallback cave
   (0x159DA78-0x159DAB0 free).
+  `GameManager.<BeginAsync>b__4` (entry-stubbed, 0x1579AC8-0x1579B80): the **production** ready-gate cave at
+  0x1579AD0-0x1579B14 and the **production** 3D-listener cave (`ObjectManager.ReceiveAddPlayer` tail ->
+  `GameManager.SetListener(main player)`) at 0x1579B14-0x1579B74; 0x1579B74-0x1579B80 free. `<BeginAsync>b__1`
+  (0x1579948-0x157999C) is also entry-stubbed and unused; `b__3` holds the DIAG region G.
 * `scripts/re/_disfull.py` = `a64dis.py` that does not stop at the first `ret` (whole-function listings).
