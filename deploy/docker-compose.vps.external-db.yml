@@ -20,6 +20,9 @@ services:
     environment:
       PlayerStore__DatabaseUrl: ${DATABASE_URL:?Set DATABASE_URL to a postgres:// URL in the root .env}
       PlayerStore__ConnectionString: ""
+      # Oldest client allowed to play (forced-update gate). Seeds the gate after every redeploy; change it with
+      # POST /admin/client-update inside the container for a live switch, here to make it stick.
+      ClientUpdate__MinimumVersion: "2.11.1"
     depends_on: !override
       photon:
         condition: service_healthy
