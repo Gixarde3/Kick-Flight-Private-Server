@@ -276,6 +276,7 @@ sudo install -o ubuntu -g ubuntu -m 0755 scripts/rollback-kickflight-db-to-exter
 sudo install -o ubuntu -g ubuntu -m 0644 scripts/player-db-fingerprint.sql /opt/kickflight/scripts/
 sudo install -o root -g root -m 0644 deploy/systemd/kickflight-db-backup.service /etc/systemd/system/
 sudo install -o root -g root -m 0644 deploy/systemd/kickflight-db-backup.timer /etc/systemd/system/
+sudo install -d -o ubuntu -g ubuntu -m 0700 /opt/kickflight/.local/docker-backup-config
 sudo systemctl daemon-reload
 sudo systemctl enable --now kickflight-db-backup.timer
 sudo systemctl start kickflight-db-backup.service  # produce and verify the first dump now
@@ -289,7 +290,7 @@ host o de su almacenamiento. Mantén una copia cifrada fuera del VPS para recupe
 
 El rollback ejecutable y versionado está en `/opt/kickflight/scripts/rollback-kickflight-db-to-external.sh`.
 Detiene el escritor API, genera y conserva un dump actual de PostgreSQL local, comprueba que la base externa
-coincida con la huella privada `external-baseline.json` del corte y toma otro dump externo antes de
+coincida con el destino privado `external-target.json` y la huella privada `external-baseline.json` del corte y toma otro dump externo antes de
 restaurar. Si el externo cambió desde el corte, aborta sin sobrescribirlo. Si coincide, restaura el estado
 local en una sola transacción y arranca solo la API con el perfil externo, incluyendo así las escrituras
 posteriores al corte. El `.env` externo de antes del corte se conserva como `pre-cutover.env` dentro del

@@ -8,6 +8,7 @@ state_dir=${KF_DB_MIGRATION_DIR:-$app_dir/.local/db-migration-20261007}
 backup_dir=${KF_DB_BACKUP_DIR:-$state_dir/backups}
 pre_cutover_env="$state_dir/pre-cutover.env"
 external_baseline="$state_dir/external-baseline.json"
+external_target="$state_dir/external-target.json"
 fingerprint_sql="$app_dir/scripts/player-db-fingerprint.sql"
 external_env_file=""
 local_compose="$app_dir/deploy/docker-compose.vps.yml"
@@ -15,18 +16,21 @@ external_compose="$app_dir/deploy/docker-compose.vps.external-db.yml"
 pg_image=${KF_POSTGRES_IMAGE:-postgres:17.11-alpine}
 
 [[ $# -eq 0 ]] || { echo "usage: $0" >&2; exit 2; }
-[[ -f "$app_dir/.env" && -f "$pre_cutover_env" && -f "$external_baseline" && -f "$fingerprint_sql" && -f "$local_compose" && -f "$external_compose" ]] || {
+[[ -f "$app_dir/.env" && -f "$pre_cutover_env" && -f "$external_baseline" && -f "$external_target" && -f "$fingerprint_sql" && -f "$local_compose" && -f "$external_compose" ]] || {
   echo "app configuration, saved pre-cutover env, or Compose files are missing" >&2
   exit 1
 }
 [[ -d "$state_dir" && -d "$backup_dir" ]] || { echo "private migration/backup directory is missing" >&2; exit 1; }
-[[ $(stat -c '%a' "$state_dir") == 700 && $(stat -c '%a' "$pre_cutover_env") == 600 && $(stat -c '%a' "$external_baseline") == 600 ]] || {
+[[ $(stat -c '%a' "$state_dir") == 700 && $(stat -c '%a' "$pre_cutover_env") == 600 && $(stat -c '%a' "$external_baseline") == 600 && $(stat -c '%a' "$external_target") == 600 ]] || {
   echo "migration directory and saved environment must have modes 0700 and 0600" >&2
   exit 1
 }
 command -v docker >/dev/null || { echo "Docker is required" >&2; exit 1; }
 command -v python3 >/dev/null || { echo "Python 3 is required" >&2; exit 1; }
 command -v curl >/dev/null || { echo "curl is required" >&2; exit 1; }
+command -v flock >/dev/null || { echo "flock is required" >&2; exit 1; }
+exec 9>"$app_dir/.ci/deploy.lock"
+flock -x 9
 
 local=(docker compose --env-file "$app_dir/.env" --project-name deploy -f "$local_compose")
 "${local[@]}" config --quiet
@@ -41,13 +45,14 @@ trap cleanup_secret EXIT
 # Parse only DATABASE_URL, write the password to a private libpq passfile, and prepare a private Compose
 # environment that preserves current local settings while enabling the explicitly requested external mode.
 IFS=$'\t' read -r external_host external_port external_db external_user < <(
-  python3 - "$pre_cutover_env" "$pgpass" "$app_dir/.env" "$secret_dir/compose.env" <<'PY'
+  python3 - "$pre_cutover_env" "$pgpass" "$app_dir/.env" "$secret_dir/compose.env" "$external_target" <<'PY'
 import os
 import sys
+import json
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
-env_path, pgpass_path, local_env_path, external_env_path = map(Path, sys.argv[1:])
+env_path, pgpass_path, local_env_path, external_env_path, target_path = map(Path, sys.argv[1:])
 database_url = None
 database_url_line = None
 for raw in env_path.read_text(encoding="utf-8").splitlines():
@@ -77,7 +82,10 @@ port = uri.port or 5432
 database = unquote(uri.path.lstrip("/"))
 user = unquote(uri.username)
 password = unquote(uri.password)
-if database != "kickflight" or any(any(ch in item for ch in "\r\n\t") for item in (host, database, user, password)):
+expected = json.loads(target_path.read_text())
+if {"host": host, "port": port, "database": database, "user": user} != expected:
+    raise SystemExit("external destination differs from the saved cutover target")
+if not database or any(any(ch in item for ch in "\r\n\t") for item in (host, database, user, password)):
     raise SystemExit("external destination does not match the expected Kick Flight database")
 def esc(value):
     return value.replace("\\", "\\\\").replace(":", "\\:")
@@ -101,7 +109,7 @@ PY
 external_env_file="$secret_dir/compose.env"
 external=(docker compose --env-file "$external_env_file" --project-name deploy -f "$external_compose")
 "${external[@]}" config --quiet
-[[ -n "$external_host" && "$external_port" =~ ^[0-9]+$ && "$external_db" == kickflight ]] || {
+[[ -n "$external_host" && "$external_port" =~ ^[0-9]+$ && -n "$external_db" ]] || {
   echo "could not parse the saved external database target" >&2
   exit 1
 }
@@ -201,5 +209,14 @@ chmod 0600 -- "$root_env_tmp"
 mv -f -- "$root_env_tmp" "$app_dir/.env"
 "${external[@]}" up -d --no-deps api
 api_stopped=false
-curl --fail --silent --show-error --max-time 30 http://127.0.0.1:18080/health/ready >/dev/null
+"${external[@]}" restart cdn grpc
+ready=false
+for attempt in $(seq 1 30); do
+  if curl --fail --silent --max-time 5 http://127.0.0.1:18080/health/ready >/dev/null; then
+    ready=true
+    break
+  fi
+  sleep 2
+done
+[[ "$ready" == true ]] || { echo "external API did not become ready; inspect the running API before further writes" >&2; exit 1; }
 printf 'Rollback completed. Local dump retained at %s; pre-restore external dump retained at %s\n' "$local_dump" "$external_dump"
