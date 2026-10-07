@@ -49,6 +49,7 @@ public sealed partial class DemoSessionApi
 
     private readonly string _contentRoot;
     private readonly int _grpcPort;
+    private readonly MasterOverrides _mastersOverrides;
     // A live session, key and state together. One dictionary rather than two parallel ones so the two can
     // never disagree about which tokens are known.
     //
@@ -88,7 +89,13 @@ public sealed partial class DemoSessionApi
         _playerStore = playerStore;
         _contentRoot = environment.ContentRootPath;
         _grpcPort = configuration.GetValue("GrpcPort", 18081);
+        _mastersOverrides = new MasterOverrides(configuration[MasterOverrides.ConfigurationKey], environment.ContentRootPath);
         InitializeMasters(environment.ContentRootPath);
+
+        var overridden = _mastersOverrides.Applied;
+        _logger.LogInformation("Master overrides in {OverrideDir}: {Count} ({Names})",
+            _mastersOverrides.Directory, overridden.Count,
+            overridden.Count == 0 ? "none" : string.Join(", ", overridden));
     }
 
     // Inline fallbacks for a checkout without config/ (InitializeMasters). Public so tests can validate the rules
@@ -842,11 +849,8 @@ public sealed partial class DemoSessionApi
         }
     }
 
-    private static string LoadJson(string contentRoot, string relativePath, string fallback)
-    {
-        var resolved = RepositoryPaths.Resolve(relativePath, contentRoot);
-        return File.Exists(resolved) ? File.ReadAllText(resolved) : fallback;
-    }
+    private string LoadJson(string contentRoot, string relativePath, string fallback) =>
+        _mastersOverrides.Read(contentRoot, relativePath, fallback);
 
     // The client's master getters subtract a fixed anti-tamper offset from these integer columns
     // (SkillMasterData.get_CoolTime = coolTime - 230, DiscMasterData.get_MinHp = minHp - 928, ...), so the served

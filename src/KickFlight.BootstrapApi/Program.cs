@@ -58,6 +58,9 @@ app.Services.GetRequiredService<IPlayerStore>();
 app.Services.GetRequiredService<MaintenanceState>();
 // Loads data/client-update.json now, so a restart keeps the forced-update minimum from the first request.
 app.Services.GetRequiredService<ClientUpdateState>();
+// Loads every master now (rather than on the first player request) so the one-line "master overrides"
+// startup summary - and any missing config - is reported while the server boots.
+app.Services.GetRequiredService<DemoSessionApi>();
 
 app.UseMiddleware<RequestCaptureMiddleware>();
 app.MapGrpcService<OpenMatchFrontendService>();
