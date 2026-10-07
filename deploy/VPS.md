@@ -139,7 +139,9 @@ Usa siempre el mismo proyecto `deploy` al operar manualmente y desde Actions; de
 creará una segunda pila. El CI usa `deploy/docker-compose.vps.yml` por defecto y solo selecciona el perfil
 externo si `.env` contiene `KF_DB_MODE=external`, un marcador que escribe el rollback validado. Así una
 `DATABASE_URL` residual no cambia el destino del API. El archivo `.env` está excluido del rsync administrado
-y conserva la configuración; el volumen `postgres-data` tampoco lo administra rsync. Hasta integrar este
+y conserva la configuración; el volumen `postgres-data` tampoco lo administra rsync. El estado de
+mantenimiento persiste en `.local/maintenance/maintenance.json`, montado como `/srv/repo/data`; conserva
+ese archivo al recrear contenedores para no quitar el modo de mantenimiento activo. Hasta integrar este
 cambio, un workflow antiguo pide `DATABASE_URL`; como se quita del `.env`, su `docker compose config
 --quiet` falla antes de ejecutar `up` y deja los contenedores actuales intactos. El CI viejo puede fallar
 hasta desplegar esta actualización, pero no reconectará la API al externo. La configuración del host, APK,
