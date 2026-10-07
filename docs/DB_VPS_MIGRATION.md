@@ -34,7 +34,10 @@ Daily dumps are stored under `/opt/kickflight/.local/db-migration-20261007/backu
 private directory/file modes `0700`/`0600`, and a systemd timer at 02:15 UTC. A same-VPS backup does not
 protect against loss of the VPS; maintain an encrypted off-host copy for disaster recovery.
 
-For rollback after local writes, stop the API writer and run the guarded
-`/opt/kickflight/.local/db-migration-20261007/rollback-to-external.sh`. It saves a fresh local dump, restores
-that state to the external database in one transaction, and only then starts the API with the saved
-pre-cutover configuration. Switching the Compose profile alone would discard writes made after cutover.
+For rollback after local writes, run the guarded and versioned
+`/opt/kickflight/scripts/rollback-kickflight-db-to-external.sh`. It checks the external database against the
+private `external-baseline.json` cutover fingerprint (including schema, table rows, constraints, indexes,
+extensions, and sequences), stops the API writer, saves a fresh local dump and a pre-restore external dump,
+restores local state in one transaction, and only then starts the API with the saved pre-cutover configuration.
+It aborts without overwriting the target if the external DB drifted after the cut. Switching the Compose
+profile alone would discard writes made after cutover.

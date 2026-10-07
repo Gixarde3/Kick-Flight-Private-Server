@@ -136,13 +136,14 @@ curl -fsS http://127.0.0.1:18080/health/ready
 ```
 
 Usa siempre el mismo proyecto `deploy` al operar manualmente y desde Actions; de lo contrario Compose
-creará una segunda pila. El CI fija el perfil PostgreSQL local, así un futuro redeploy no puede volver a
-inyectar la conexión externa. El archivo `.env` está excluido del rsync administrado y conserva la
-credencial local; el volumen `postgres-data` tampoco lo administra rsync. Hasta integrar este cambio, un
-workflow antiguo pide `DATABASE_URL`; como se quita del `.env`, su `docker compose config --quiet` falla
-antes de ejecutar `up` y deja los contenedores actuales intactos. El CI viejo puede fallar hasta desplegar
-esta actualización, pero no reconectará la API al externo. La configuración del host, APK, catálogo y assets
-está en las secciones siguientes. El despliegue selectivo normal se hace con un `push`
+creará una segunda pila. El CI usa `deploy/docker-compose.vps.yml` por defecto y solo selecciona el perfil
+externo si `.env` contiene `KF_DB_MODE=external`, un marcador que escribe el rollback validado. Así una
+`DATABASE_URL` residual no cambia el destino del API. El archivo `.env` está excluido del rsync administrado
+y conserva la configuración; el volumen `postgres-data` tampoco lo administra rsync. Hasta integrar este
+cambio, un workflow antiguo pide `DATABASE_URL`; como se quita del `.env`, su `docker compose config
+--quiet` falla antes de ejecutar `up` y deja los contenedores actuales intactos. El CI viejo puede fallar
+hasta desplegar esta actualización, pero no reconectará la API al externo. La configuración del host, APK,
+catálogo y assets está en las secciones siguientes. El despliegue selectivo normal se hace con un `push`
 que actualice el workflow en `main`; para revertir una versión, revierte el commit en `main` y deja que el
 workflow despliegue ese commit.
 
@@ -270,6 +271,14 @@ del corte. El VPS conserva los dumps diarios en `/opt/kickflight/.local/db-migra
 UTC y retiene 14 días. El directorio es modo `0700` y los dumps modo `0600`.
 
 ```sh
+sudo install -o ubuntu -g ubuntu -m 0755 scripts/backup-kickflight-db.sh /opt/kickflight/scripts/
+sudo install -o ubuntu -g ubuntu -m 0755 scripts/rollback-kickflight-db-to-external.sh /opt/kickflight/scripts/
+sudo install -o ubuntu -g ubuntu -m 0644 scripts/player-db-fingerprint.sql /opt/kickflight/scripts/
+sudo install -o root -g root -m 0644 deploy/systemd/kickflight-db-backup.service /etc/systemd/system/
+sudo install -o root -g root -m 0644 deploy/systemd/kickflight-db-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now kickflight-db-backup.timer
+sudo systemctl start kickflight-db-backup.service  # produce and verify the first dump now
 systemctl list-timers kickflight-db-backup.timer
 systemctl status kickflight-db-backup.service --no-pager
 ls -lh /opt/kickflight/.local/db-migration-20261007/backups/
@@ -278,12 +287,16 @@ ls -lh /opt/kickflight/.local/db-migration-20261007/backups/
 Estos dumps están en el mismo VPS: sirven para errores operativos, pero no protegen contra la pérdida del
 host o de su almacenamiento. Mantén una copia cifrada fuera del VPS para recuperación ante desastre.
 
-El rollback de datos está en `/opt/kickflight/.local/db-migration-20261007/rollback-to-external.sh`. Detiene
-el escritor API, genera y conserva un dump actual de PostgreSQL local y aplica ese dump a la base externa en
-una sola transacción antes de volver a arrancar solo la API contra el perfil externo. Así incluye las
-escrituras posteriores al corte. Sigue las validaciones y guardas del script; cambiar Compose por sí solo
-volvería al estado anterior del proveedor y perdería esas escrituras. El `.env` externo de antes del corte se
-conserva en `pre-cutover.env` dentro de ese directorio privado; no imprimas ni copies sus secretos.
+El rollback ejecutable y versionado está en `/opt/kickflight/scripts/rollback-kickflight-db-to-external.sh`.
+Detiene el escritor API, genera y conserva un dump actual de PostgreSQL local, comprueba que la base externa
+coincida con la huella privada `external-baseline.json` del corte y toma otro dump externo antes de
+restaurar. Si el externo cambió desde el corte, aborta sin sobrescribirlo. Si coincide, restaura el estado
+local en una sola transacción y arranca solo la API con el perfil externo, incluyendo así las escrituras
+posteriores al corte. El `.env` externo de antes del corte se conserva como `pre-cutover.env` dentro del
+mismo directorio privado; no imprimas ni copies sus secretos. Al completar el rollback, el script actualiza
+`.env` con `KF_DB_MODE=external` y la URL protegida para que los despliegues posteriores mantengan ese modo
+explícito. Para volver a local después, primero migra las escrituras externas recientes a `postgres-data`;
+cambiar solo `KF_DB_MODE` podría retroceder datos.
 
 ### Perfil externo de recuperación
 
