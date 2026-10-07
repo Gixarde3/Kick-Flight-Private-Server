@@ -107,6 +107,9 @@ app.MapGet("/webview/{**rest}", (string? rest) => Results.Content($"""
 // APK download for phones: http://<server>:18080/apk (LAN build) and /apk/remote (kickflightsg.ddns.net build).
 // Files live in .local/ (git-ignored, produced by .local/build.sh); 404 with the expected path when missing.
 var repoRoot = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
+var diagnosticUploadDirectory = builder.Configuration["Diagnostics:UploadDirectory"]
+    ?? Path.Combine(repoRoot, ".local", "run");
+var diagnosticUploads = new DiagnosticUploadStore(diagnosticUploadDirectory);
 IResult ServeApk(string fileName)
 {
     var path = Path.Combine(repoRoot, ".local", fileName);
@@ -128,10 +131,8 @@ app.MapGet("/apk/merged-diag-remote", () => ServeApk("KickFlight-2.11.0-merged-D
 app.MapGet("/apk/photon-remote", () => ServeApk("KickFlight-2.11.0-photon-remote.apk"));
 app.MapGet("/apk/photon-diag", () => ServeApk("KickFlight-2.11.0-photon-DIAG.apk"));
 app.MapGet("/apk/photon-diag-remote", () => ServeApk("KickFlight-2.11.0-photon-DIAG-remote.apk"));
-// Remote diagnostics drop box: `adb logcat -d -s KFDIAG | curl -X POST --data-binary @- http://<server>:18080/diag/upload`
-// from Termux on the phone when no PC can reach it. Text only, 4 MB cap, saved under .local/run/.
-// Phone-only diagnostics: open http://<server>:18080/diag in the phone browser and upload a bug report zip
-// (Developer options -> Take bug report) or any log file; saved under .local/run/diag-upload-*.
+// Diagnostic uploads are private server-side files. Production sets Diagnostics__UploadDirectory to a dedicated
+// writable bind mount; local runs fall back to .local/run. Nginx exposes only these POST routes.
 app.MapGet("/diag", () => Results.Content("""
 <!doctype html><meta name=viewport content="width=device-width,initial-scale=1">
 <title>KF diag upload</title>
@@ -148,30 +149,45 @@ comparte el zip a Archivos/Descargas y subelo aqui. Max 200 MB.</p>
 app.MapPost("/diag/upload-file", async (HttpContext context) =>
 {
     if (!context.Request.HasFormContentType) return Results.Json(new { error = "multipart form expected" }, statusCode: 400);
-    var form = await context.Request.ReadFormAsync(context.RequestAborted);
+    IFormCollection form;
+    try { form = await context.Request.ReadFormAsync(context.RequestAborted); }
+    catch (InvalidDataException) { return Results.Json(new { error = "invalid multipart form" }, statusCode: 400); }
     var file = form.Files.GetFile("file");
     if (file is null || file.Length == 0) return Results.Json(new { error = "no file" }, statusCode: 400);
     const long max = 200L * 1024 * 1024;
     if (file.Length > max) return Results.Json(new { error = "too-large", max }, statusCode: 413);
-    var dir = Path.Combine(repoRoot, ".local", "run");
-    Directory.CreateDirectory(dir);
-    var safeName = string.Concat(Path.GetFileName(file.FileName).Where(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_'));
-    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{(string.IsNullOrEmpty(safeName) ? "file" : safeName)}";
-    await using (var target = File.Create(Path.Combine(dir, name)))
-        await file.CopyToAsync(target, context.RequestAborted);
-    return Results.Content($"<!doctype html><meta name=viewport content=\"width=device-width\"><body style=\"font-family:sans-serif;padding:24px\"><h2>Saved</h2><p>{name}<br>{file.Length} bytes</p><a href=\"/diag\">back</a></body>", "text/html; charset=utf-8");
-});
+    try
+    {
+        await using var source = file.OpenReadStream();
+        var saved = await diagnosticUploads.SaveAsync(source, file.FileName, max, context.RequestAborted);
+        return Results.Json(new { saved = saved.Name, bytes = saved.Bytes });
+    }
+    catch (DiagnosticUploadTooLargeException ex)
+    {
+        return Results.Json(new { error = "too-large", max = ex.MaxBytes }, statusCode: 413);
+    }
+    catch (DiagnosticUploadCapacityException ex)
+    {
+        return Results.Json(new { error = "diagnostic-storage-full", maxStoredBytes = ex.MaxBytes }, statusCode: 507);
+    }
+}).WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(210L * 1024 * 1024));
 app.MapPost("/diag/upload", async (HttpContext context) =>
 {
-    var dir = Path.Combine(repoRoot, ".local", "run");
-    Directory.CreateDirectory(dir);
-    var name = $"diag-upload-{DateTime.UtcNow:yyyyMMdd-HHmmss}.txt";
-    using var ms = new MemoryStream();
-    await context.Request.Body.CopyToAsync(ms, context.RequestAborted);
-    if (ms.Length > 4 * 1024 * 1024) return Results.Json(new { error = "too-large", max = 4 * 1024 * 1024 }, statusCode: 413);
-    await File.WriteAllBytesAsync(Path.Combine(dir, name), ms.ToArray(), context.RequestAborted);
-    return Results.Json(new { saved = name, bytes = ms.Length });
-});
+    const long max = 4L * 1024 * 1024;
+    try
+    {
+        var saved = await diagnosticUploads.SaveAsync(context.Request.Body, "logcat.txt", max, context.RequestAborted);
+        return Results.Json(new { saved = saved.Name, bytes = saved.Bytes });
+    }
+    catch (DiagnosticUploadTooLargeException ex)
+    {
+        return Results.Json(new { error = "too-large", max = ex.MaxBytes }, statusCode: 413);
+    }
+    catch (DiagnosticUploadCapacityException ex)
+    {
+        return Results.Json(new { error = "diagnostic-storage-full", maxStoredBytes = ex.MaxBytes }, statusCode: 507);
+    }
+}).WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(5L * 1024 * 1024));
 app.MapGet("/health/photon", async (IPhotonServerManager photonManager, CancellationToken ct) =>
 {
     var status = await photonManager.CheckHealthAsync(ct);
