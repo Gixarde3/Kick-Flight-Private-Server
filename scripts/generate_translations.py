@@ -136,6 +136,7 @@ TEXTS = {
     "common.possession": "Possessed: {0}", "common.possessionableDisk": "Discs you can own", "common.rankUpDiskRelease": "Unlocked at rank up",
     "common.untilHolding": "Held until", "common.monthName": "{0}", "common.yearName": "{0}",
     "common.inputNameDescription": "Enter your name.", "common.nameEditDescription": "Enter a new name.",
+    "common.userIdTitleFormat": "User ID: {0:D12}",
     "common.nameEditWarning": "Names that break the rules may be changed.",
     "common.nameChangeRuleDescription": "Up to 10 characters.", "common.nameChangeRuleWarning": "Offensive names are not allowed.",
     "common.idSearchDialogDescription": "Enter a player ID.",
@@ -156,6 +157,12 @@ TEXTS = {
     "review.androidButton": "Rate on Google Play", "review.androidMessage1": "Enjoying Kick-Flight?",
     "review.androidMessage2": "A review would help us a lot!", "replay.empty": "No replays",
     "replay.invalidVersionAnnounce": "This replay was recorded with another version.",
+}
+
+# Historical hand-written values that should now be generated from TEXTS. Keep this list narrow so rerunning
+# the generator preserves all other existing translations.
+LEGACY_TEXTS = {
+    "common.userIdTitleFormat": {"User ID Title {0}"},
 }
 
 
@@ -192,7 +199,9 @@ def main() -> None:
     for key in sorted(wanted | set(by_key)):
         if key in by_key:
             row = by_key[key]
-            if placeholder.match(row["text"]):
+            if row["text"] in LEGACY_TEXTS.get(key, set()):
+                row["text"] = TEXTS.get(key, fallback(key)); fixed += 1
+            elif placeholder.match(row["text"]):
                 row["text"] = TEXTS.get(key, fallback(key)); fixed += 1
             elif key in TEXTS and row["text"] != TEXTS[key] and row["text"].lower() == fallback(key).lower():
                 row["text"] = TEXTS[key]; fixed += 1

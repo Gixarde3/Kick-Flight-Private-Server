@@ -1573,7 +1573,7 @@ public sealed partial class DemoSessionApi
         var userPlayer = new
         {
             userId = state.UserId,
-            displayUserId = int.TryParse(state.UserId, out var uid) ? uid : 1000001,
+            displayUserId = PlayerDisplayIdCodec.ToPublic(int.TryParse(state.UserId, out var uid) ? uid : 1000001),
             name = CurrentUserName(state),
             exp = 38500,
             honorId = 6010000,

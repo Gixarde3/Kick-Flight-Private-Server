@@ -33,6 +33,7 @@ public sealed class SocialRankingEndpointsTests
         var following = await PostAsync(alice, "/follow/index", new { page = 0, teamBattleInvitationFlag = false });
         Assert.Equal(1, following.GetProperty("followCount").GetInt32());
         Assert.Equal(bob.UserId, following.GetProperty("userProfileList")[0].GetProperty("userId").GetString());
+        Assert.Equal(PlayerDisplayIdCodec.ToPublic(bobId), following.GetProperty("userProfileList")[0].GetProperty("displayUserId").GetInt64());
         Assert.Equal(1, following.GetProperty("userProfileList")[0].GetProperty("followStatus").GetInt32());
         Assert.Equal(1, (await PostAsync(alice, "/follow/online", null)).GetProperty("userProfileList").GetArrayLength());
         clock.Advance(TimeSpan.FromMinutes(11) + TimeSpan.FromSeconds(1));
@@ -108,6 +109,24 @@ public sealed class SocialRankingEndpointsTests
         var ownPosition = world.GetProperty("battleRanking").GetProperty("number").GetInt32();
         Assert.True(ownPosition > 0);
 
+        // Tapping a crown row uses its raw userId string in /user/detail.searchUserId.
+        var topUserId = world.GetProperty("battleRankingList")[0].GetProperty("userId").GetString()!;
+        var topUserState = Assert.IsType<SessionState>(store.TryLoad(long.Parse(topUserId)));
+        var topUserDeck = topUserState.Decks[topUserState.ActiveDeckNumber];
+        var detail = await PostAsync(alice, "/user/detail", new { searchUserId = topUserId });
+        var detailedProfile = detail.GetProperty("userProfile");
+        var battleParameter = detail.GetProperty("userBattleParameter");
+        Assert.Equal(topUserId, detailedProfile.GetProperty("userId").GetString());
+        Assert.Equal(PlayerDisplayIdCodec.ToPublic(long.Parse(topUserId)), detailedProfile.GetProperty("displayUserId").GetInt64());
+        Assert.Equal(1, battleParameter.GetProperty("battleRuleId").GetInt32());
+        Assert.Equal(topUserState.KickerId, battleParameter.GetProperty("kickerId").GetInt32());
+        Assert.Equal(topUserState.KickerCostumeId, battleParameter.GetProperty("kickerCostumeId").GetInt32());
+        for (var slot = 0; slot < 4; slot++)
+        {
+            Assert.Equal(topUserDeck[slot], battleParameter.GetProperty($"discId{slot + 1}").GetInt32());
+            Assert.True(battleParameter.GetProperty($"discLevel{slot + 1}").GetInt32() > 0);
+        }
+
         var personal = await PostAsync(alice, "/ranking/user", new { battleRuleId = 1 });
         var ownPersonalRow = Assert.Single(personal.GetProperty("battleRankingList").EnumerateArray(),
             row => row.GetProperty("userId").GetString() == alice.UserId);
@@ -122,6 +141,76 @@ public sealed class SocialRankingEndpointsTests
         Assert.Equal(world.GetProperty("battleRankingList")[0].GetProperty("userId").GetString(),
             local.GetProperty("battleRankingList")[0].GetProperty("userId").GetString());
         Assert.StartsWith("Rank Alice ", store.FindProfile(aliceId)?.DisplayName ?? "");
+    }
+
+    [Fact]
+    public async Task User_detail_returns_target_active_deck_and_valid_defaults_when_deck_is_missing()
+    {
+        using var factory = NewFactory();
+        var viewer = await CreateSessionAsync(factory);
+        var target = await CreateSessionAsync(factory);
+        var store = factory.Services.GetRequiredService<IPlayerStore>();
+        var targetId = long.Parse(target.UserId);
+        var targetState = Assert.IsType<SessionState>(store.TryLoad(targetId));
+        var targetKickerId = targetState.KickerId;
+        var targetCostumeId = targetState.KickerCostumeId;
+        var activeDeck = new[] { 3010005, 3010006, 3010007, 3010008 };
+        var levels = new[] { 6, 7, 8, 9 };
+        targetState.ActiveDeckNumber = 3;
+        targetState.Decks[3] = activeDeck.ToList();
+        for (var slot = 0; slot < activeDeck.Length; slot++)
+        {
+            targetState.Discs[activeDeck[slot]] = new UserDiscState
+            {
+                DiscId = activeDeck[slot],
+                Level = levels[slot],
+                Amount = 99
+            };
+        }
+        store.Save(targetState);
+
+        var detail = await PostAsync(viewer, "/user/detail", new
+        {
+            searchUserId = PlayerDisplayIdCodec.ToPublic(targetId).ToString()
+        });
+        var profile = detail.GetProperty("userProfile");
+        var battle = detail.GetProperty("userBattleParameter");
+        Assert.Equal(target.UserId, profile.GetProperty("userId").GetString());
+        Assert.Equal(PlayerDisplayIdCodec.ToPublic(targetId), profile.GetProperty("displayUserId").GetInt64());
+        Assert.Equal(targetKickerId, profile.GetProperty("kickerId").GetInt32());
+        Assert.Equal(targetCostumeId, profile.GetProperty("kickerCostumeId").GetInt32());
+        Assert.Equal(1, battle.GetProperty("battleRuleId").GetInt32());
+        Assert.Equal(targetKickerId, battle.GetProperty("kickerId").GetInt32());
+        Assert.Equal(targetCostumeId, battle.GetProperty("kickerCostumeId").GetInt32());
+        for (var slot = 0; slot < activeDeck.Length; slot++)
+        {
+            Assert.Equal(activeDeck[slot], battle.GetProperty($"discId{slot + 1}").GetInt32());
+            Assert.Equal(levels[slot], battle.GetProperty($"discLevel{slot + 1}").GetInt32());
+        }
+
+        targetState.ActiveDeckNumber = 99;
+        store.Save(targetState);
+        var missingDeckDetail = await PostAsync(viewer, "/user/detail", new
+        {
+            searchUserId = PlayerDisplayIdCodec.ToPublic(targetId).ToString()
+        });
+        var fallback = missingDeckDetail.GetProperty("userBattleParameter");
+        Assert.Equal(new[] { 3010001, 3010002, 3010003, 3010004 },
+            Enumerable.Range(1, 4).Select(slot => fallback.GetProperty($"discId{slot}").GetInt32()).ToArray());
+        Assert.All(Enumerable.Range(1, 4), slot => Assert.True(fallback.GetProperty($"discLevel{slot}").GetInt32() > 0));
+        Assert.DoesNotContain(Enumerable.Range(1, 4), slot => fallback.GetProperty($"discId{slot}").GetInt32() == 0);
+
+        targetState.ActiveDeckNumber = 98;
+        targetState.Decks[98] = [3010005, 0, 3010007];
+        store.Save(targetState);
+        var partialDeckDetail = await PostAsync(viewer, "/user/detail", new
+        {
+            searchUserId = PlayerDisplayIdCodec.ToPublic(targetId).ToString()
+        });
+        var partial = partialDeckDetail.GetProperty("userBattleParameter");
+        Assert.Equal(new[] { 3010005, 3010002, 3010007, 3010004 },
+            Enumerable.Range(1, 4).Select(slot => partial.GetProperty($"discId{slot}").GetInt32()).ToArray());
+        Assert.All(Enumerable.Range(1, 4), slot => Assert.True(partial.GetProperty($"discLevel{slot}").GetInt32() > 0));
     }
 
     private static WebApplicationFactory<Program> NewFactory(TimeProvider? clock = null) =>
