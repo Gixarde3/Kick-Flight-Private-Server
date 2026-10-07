@@ -11,7 +11,7 @@ public sealed partial class DemoSessionApi
 
     // ResponseAppSeasonMatchResult: the season result banner. Neutral dates, no rule attached.
     private const string NeutralSeasonMatchResult =
-        """{"battleRuleId":0,"resultDatetime":"2026-01-01 00:00:00","rewardReceiptStartDatetime":"2026-01-01 00:00:00","rewardReceiptEndDatetime":"2026-01-01 00:00:00"}""";
+        """{"battleRuleId":0,"resultDatetime":"","rewardReceiptStartDatetime":"","rewardReceiptEndDatetime":""}""";
 
     // ResponseUserDailyRandomMissionTask: mission/change hands one back, so it cannot be an empty list.
     private const string NeutralDailyRandomMissionTask =
@@ -33,16 +33,24 @@ public sealed partial class DemoSessionApi
             case "/analysis/index":
                 return await HandleAnalysisIndexAsync(context, state, key);
 
-            // FollowStatus in every row below is the neutral 0 (none).
+            case "/follow/index":
+                return await HandleFollowIndexAsync(context, state, key);
+            case "/follow/online":
+                return await HandleFollowOnlineAsync(context, state, key);
             case "/follow/search":
-                return OkJson(context, key, """{"followUserIdList":[]}""");
+                return await HandleFollowSearchAsync(context, state, key);
             case "/follow/add":
+                return await HandleFollowMutationAsync(context, state, key, add: true);
             case "/follow/remove":
-                return OkJson(context, key, "{}");
+                return await HandleFollowMutationAsync(context, state, key, add: false);
             case "/follower/index":
-                return OkJson(context, key, """{"userProfileList":[],"followerCount":0,"newFollowerCount":0}""");
+                return await HandleFollowerIndexAsync(context, state, key);
             case "/follower/read":
-                return OkJson(context, key, "{}");
+                return await HandleFollowerReadAsync(context, state, key);
+            case "/realFriend/token":
+                return OkJson(context, key, JsonSerializer.Serialize(new { token = _playerStore.GetOrCreateRealFriendToken(state.PlayerId) }));
+            case "/realFriend/apply":
+                return await HandleRealFriendApplyAsync(context, state, key);
 
             case "/user/search":
                 return await HandleUserSearchStubAsync(context, state, key);
@@ -58,10 +66,8 @@ public sealed partial class DemoSessionApi
             case "/ranking/index":
             case "/ranking/user":
             case "/ranking/follow":
-                return OkJson(context, key, NeutralRankingList);
             case "/ranking/region":
-                // RankingRegionResponseData has no per-user entry, only the list and the season banner.
-                return OkJson(context, key, $$"""{"battleRankingList":[],"appSeasonMatchResult":{{NeutralSeasonMatchResult}}}""");
+                return await HandleRankingAsync(context, state, key, path);
 
             case "/sns/index":
                 return OkJson(context, key, """{"userProfileList":[]}""");
@@ -121,8 +127,8 @@ public sealed partial class DemoSessionApi
         }
     }
 
-    // user/search is a display-id lookup, so the reply always has to be a profile: searching yourself returns your
-    // own, any other id gets a placeholder one instead of an empty list the UI would dereference.
+    // user/search is a display-id lookup. Only return accounts with persisted profiles; unknown ids are a normal
+    // lookup miss instead of fabricated Player NNNN identities.
     private async Task<IResult?> HandleUserSearchStubAsync(HttpContext context, SessionState state, byte[] key)
     {
         var displayUserId = CurrentDisplayUserId(state);
@@ -145,21 +151,26 @@ public sealed partial class DemoSessionApi
             return StatusError(context, key);
         }
 
-        var profile = displayUserId == CurrentDisplayUserId(state)
-            ? BuildUserProfileJson(state, state.UserId, displayUserId, CurrentUserName(state))
-            : BuildUserProfileJson(state, displayUserId.ToString(), displayUserId, $"Player {displayUserId}");
+        var record = _playerStore.FindProfile(displayUserId);
+        if (record is null) return StatusError(context, key);
+        var profile = SocialProfileJson(state, record, FollowStatusFor(state.PlayerId, record.PlayerId), false);
 
         return OkJson(context, key, $$"""{"userProfile":{{profile}}}""");
     }
 
     private async Task<IResult?> HandleUserDetailStubAsync(HttpContext context, SessionState state, byte[] key)
     {
-        // The request carries a searchUserId, but the only profile this server can describe is the caller's own, so
-        // the body is decoded for logging and ignored.
+        var searchUserId = state.PlayerId;
         var body = await ReadBodyAsync(context.Request);
         try
         {
-            if (body.Length > 0) D2CCodec.Decode(body, key);
+            if (body.Length > 0)
+            {
+                using var document = JsonDocument.Parse(D2CCodec.Decode(body, key));
+                if (document.RootElement.TryGetProperty("searchUserId", out var idProp) &&
+                    idProp.ValueKind == JsonValueKind.String && long.TryParse(idProp.GetString(), out var parsedId))
+                    searchUserId = parsedId;
+            }
         }
         catch (Exception ex)
         {
@@ -167,9 +178,12 @@ public sealed partial class DemoSessionApi
             return StatusError(context, key);
         }
 
-        var profile = BuildUserProfileJson(state, state.UserId, CurrentDisplayUserId(state), CurrentUserName(state));
+        var record = _playerStore.FindProfile(searchUserId);
+        if (record is null) return StatusError(context, key);
+        var profile = SocialProfileJson(state, record, FollowStatusFor(state.PlayerId, record.PlayerId), false);
+        var targetState = _playerStore.TryLoad(record.PlayerId) ?? state;
         return OkJson(context, key,
-            $$"""{"userProfile":{{profile}},"userBattleParameter":{{BuildNeutralBattleParameterJson(state)}},"snsScreenName":""}""");
+            $$"""{"userProfile":{{profile}},"userBattleParameter":{{BuildNeutralBattleParameterJson(targetState)}},"snsScreenName":""}""");
     }
 
     private async Task<IResult?> HandleUserChangeStubAsync(HttpContext context, SessionState state, byte[] key)

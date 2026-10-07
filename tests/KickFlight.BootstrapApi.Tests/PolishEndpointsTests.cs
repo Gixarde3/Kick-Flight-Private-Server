@@ -307,7 +307,7 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     }
 
     [Fact]
-    public async Task Home_and_battle_result_serve_the_regular_end_rank()
+    public async Task Battle_result_without_a_ranked_entry_does_not_change_the_rank()
     {
         var session = await CreateSessionAsync();
 
@@ -322,16 +322,14 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
 
         var result = await PostAsync(session, "/battle/result", null);
         Assert.Equal(7, result.GetProperty("userBattleRank").GetProperty("rank").GetInt32());
-        // The result screen scores the battle and persists the delta, so the standing it reports is the one after
-        // the win while beforeUserBattleRank is the one it started from. Rank 7 spans 2900.., so the win moves the
-        // battle point without moving the league: the master only renders ranks 7 and up.
-        Assert.Equal(2950, result.GetProperty("userBattleRank").GetProperty("battlePoint").GetInt32());
+        // No issued ranked entry means there is no authoritative ranked mode to apply.
+        Assert.Equal(2900, result.GetProperty("userBattleRank").GetProperty("battlePoint").GetInt32());
         Assert.Equal(7, result.GetProperty("beforeUserBattleRank").GetProperty("rank").GetInt32());
         Assert.Equal(2900, result.GetProperty("beforeUserBattleRank").GetProperty("battlePoint").GetInt32());
 
-        // ... and the next home read serves the persisted standing, not the starting one.
+        // The home profile continues to serve the unchanged persisted standing.
         var after = await PostAsync(session, "/home/index", null);
-        Assert.Equal(2950, after.GetProperty("userBattleRankList")[0].GetProperty("battlePoint").GetInt32());
+        Assert.Equal(2900, after.GetProperty("userBattleRankList")[0].GetProperty("battlePoint").GetInt32());
     }
 
     [Fact]
@@ -367,8 +365,6 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     [Theory]
     [InlineData("/analysis/index", null)]
     [InlineData("/follow/search", "followUserIdList")]
-    [InlineData("/follow/add", null)]
-    [InlineData("/follow/remove", null)]
     [InlineData("/follower/index", "newFollowerCount")]
     [InlineData("/follower/read", null)]
     [InlineData("/user/search", "userProfile")]
@@ -442,7 +438,7 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     }
 
     [Fact]
-    public async Task User_search_returns_the_caller_profile_and_placeholders_for_other_ids()
+    public async Task User_search_returns_persisted_profiles_and_rejects_unknown_ids()
     {
         var session = await CreateSessionAsync();
         var ownId = long.Parse(session.UserId);
@@ -450,13 +446,17 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
         var own = (await PostAsync(session, "/user/search", new { displayUserId = ownId })).GetProperty("userProfile");
         Assert.Equal(session.UserId, own.GetProperty("userId").GetString());
         Assert.Equal(ownId, own.GetProperty("displayUserId").GetInt64());
-        Assert.Equal($"Player {session.UserId[^4..]}", own.GetProperty("name").GetString());
+        Assert.Equal("", own.GetProperty("name").GetString());
         Assert.Equal(6010000, own.GetProperty("honorId").GetInt32());
         Assert.Equal(7, own.GetProperty("userBattleRankList")[0].GetProperty("rank").GetInt32());
 
-        var other = (await PostAsync(session, "/user/search", new { displayUserId = 9999999 })).GetProperty("userProfile");
-        Assert.Equal("9999999", other.GetProperty("userId").GetString());
-        Assert.Equal("Player 9999999", other.GetProperty("name").GetString());
+        var otherSession = await CreateSessionAsync();
+        await PostAsync(otherSession, "/user/change", new { name = "Persisted Search Profile" });
+        var otherId = long.Parse(otherSession.UserId);
+        var other = (await PostAsync(session, "/user/search", new { displayUserId = otherId })).GetProperty("userProfile");
+        Assert.Equal(otherSession.UserId, other.GetProperty("userId").GetString());
+        Assert.Equal("Persisted Search Profile", other.GetProperty("name").GetString());
+        await PostAsync(session, "/user/search", new { displayUserId = 9999999 }, expectStatusZero: false);
     }
 
     [Fact]

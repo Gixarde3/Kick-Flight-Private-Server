@@ -4,6 +4,7 @@ using System.Text.Json;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using OpenMatch;
+using KickFlight.BootstrapApi.PlayerStore;
 
 namespace KickFlight.BootstrapApi;
 
@@ -39,6 +40,9 @@ public sealed class BattleMatchmakingService
         public int KickerId { get; set; } = 1;
         public int KickerCostumeId { get; set; } = 2010101;
         public int BattleRuleId { get; set; } = 1;
+        // Snapshotted from BattleRule master when this server issues the entry, and used for result classification.
+        public int? BattleMatchType { get; set; }
+        public int? BattleRuleType { get; set; }
         public List<int> DeckDiscs { get; set; } = [];
         /// <summary>Stable matchmaking party identity. Null means the player queues alone.</summary>
         public string? PartyId { get; set; }
@@ -48,6 +52,8 @@ public sealed class BattleMatchmakingService
         /// </summary>
         public bool IsDiag { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        internal object BattleResultLock { get; } = new();
+        internal RankedResultSnapshot? AppliedRankedResult { get; set; }
     }
 
     public sealed class TeamLobby
@@ -60,26 +66,34 @@ public sealed class BattleMatchmakingService
         public HashSet<string> SelectedUserIds { get; } = new(StringComparer.Ordinal);
         public bool IsStarted { get; set; }
         public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public int? BattleMatchType { get; set; }
+        public int? BattleRuleType { get; set; }
     }
 
     public sealed record TeamMemberEntry(string BattleEntryId, string TicketId, string MatchmakingTeamId);
     public sealed record TeamLobbySnapshot(
         string MatchmakingTeamId, string Code, int BattleRuleId, IReadOnlyList<int> KickerCostumeIdList);
+    public sealed record BattleResultEntry(string UserId, int BattleRuleId, int? MatchType, int? BattleRuleType);
+    public sealed record RankedResultSnapshot(int BattleRuleType, RankState Before, RankState After);
+    public sealed record BattleResultProcessing(BattleResultEntry Entry, RankedResultSnapshot? RankedResult, bool IsReplay);
 
     public TeamMemberEntry CreateTeam(
         string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string code,
-        bool isDiag = false)
+        bool isDiag = false, int? matchType = null, int? battleRuleType = null)
     {
         lock (_teamLock)
         {
             var teamId = $"team-{Guid.NewGuid():N}"[..21];
-            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, teamId, isDiag);
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, teamId,
+                isDiag, matchType, battleRuleType);
             var team = new TeamLobby
             {
                 MatchmakingTeamId = teamId,
                 Code = code.Trim(),
                 HostUserId = userId,
-                BattleRuleId = battleRuleId
+                BattleRuleId = battleRuleId,
+                BattleMatchType = matchType,
+                BattleRuleType = battleRuleType
             };
             team.MembersByUserId.Add(userId, member);
             _teamsById[teamId] = team;
@@ -97,7 +111,8 @@ public sealed class BattleMatchmakingService
                 return new TeamMemberEntry(existing.BattleEntryId, existing.TicketId, team.MatchmakingTeamId);
             if (team.MembersByUserId.Count >= MaxPerTeam) return null;
 
-            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, team.BattleRuleId, deck, teamId, isDiag);
+            var member = RegisterTeamMember(userId, userName, kickerId, costumeId, team.BattleRuleId, deck, teamId,
+                isDiag, team.BattleMatchType, team.BattleRuleType);
             team.MembersByUserId.Add(userId, member);
             return new TeamMemberEntry(member.BattleEntryId, member.TicketId, team.MatchmakingTeamId);
         }
@@ -248,15 +263,16 @@ public sealed class BattleMatchmakingService
 
     public (string battleEntryId, string ticketId) RegisterEntry(
         string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck,
-        string? partyId = null, bool isDiag = false)
+        string? partyId = null, bool isDiag = false, int? matchType = null, int? battleRuleType = null)
     {
-        var session = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, partyId, isDiag);
+        var session = RegisterTeamMember(userId, userName, kickerId, costumeId, battleRuleId, deck, partyId,
+            isDiag, matchType, battleRuleType);
         return (session.BattleEntryId, session.TicketId);
     }
 
     private BattleEntrySession RegisterTeamMember(
         string userId, string userName, int kickerId, int costumeId, int battleRuleId, List<int> deck, string? partyId,
-        bool isDiag = false)
+        bool isDiag = false, int? matchType = null, int? battleRuleType = null)
     {
         var entryId = $"be-{Guid.NewGuid():N}"[..12];
         var ticketId = $"ticket-{Guid.NewGuid():N}"[..16];
@@ -270,6 +286,8 @@ public sealed class BattleMatchmakingService
             KickerId = kickerId,
             KickerCostumeId = costumeId,
             BattleRuleId = battleRuleId,
+            BattleMatchType = matchType,
+            BattleRuleType = battleRuleType,
             DeckDiscs = deck,
             PartyId = string.IsNullOrWhiteSpace(partyId) ? null : partyId.Trim(),
             IsDiag = isDiag
@@ -315,6 +333,37 @@ public sealed class BattleMatchmakingService
     /// <summary>The rule selected on entry, retained for result reporting after the room has started.</summary>
     public int? GetBattleRuleIdForEntry(string battleEntryId) =>
         _entriesByBattleEntryId.TryGetValue(battleEntryId, out var entry) ? entry.BattleRuleId : null;
+
+    public BattleResultEntry? GetBattleResultEntry(string battleEntryId) =>
+        _entriesByBattleEntryId.TryGetValue(battleEntryId, out var entry)
+            ? new BattleResultEntry(entry.UserId, entry.BattleRuleId, entry.BattleMatchType, entry.BattleRuleType)
+            : null;
+
+    /// <summary>
+    /// Applies and caches one ranked result for an owned, server-issued entry. The per-entry gate keeps concurrent
+    /// retries from incrementing twice; the cache is assigned only after the caller's persistence callback succeeds.
+    /// </summary>
+    public BattleResultProcessing? ProcessRankedResultOnce(
+        string battleEntryId, string userId, Func<int, RankedResultSnapshot> persistRankedResult)
+    {
+        if (!_entriesByBattleEntryId.TryGetValue(battleEntryId, out var entry) || entry.UserId != userId)
+            return null;
+
+        lock (entry.BattleResultLock)
+        {
+            var resultEntry = new BattleResultEntry(entry.UserId, entry.BattleRuleId,
+                entry.BattleMatchType, entry.BattleRuleType);
+            if (entry.BattleMatchType != 2 || entry.BattleRuleType is not (>= 1 and <= 3))
+                return new BattleResultProcessing(resultEntry, null, false);
+
+            if (entry.AppliedRankedResult is { } cached)
+                return new BattleResultProcessing(resultEntry, cached, true);
+
+            var applied = persistRankedResult(entry.BattleRuleType.Value);
+            entry.AppliedRankedResult = applied;
+            return new BattleResultProcessing(resultEntry, applied, false);
+        }
+    }
 
     private readonly object _matchLock = new();
     private ActiveBattleRoom? _pendingRoom;

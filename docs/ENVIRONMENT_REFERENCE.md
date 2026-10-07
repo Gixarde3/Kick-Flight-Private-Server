@@ -119,10 +119,14 @@ idempotente. La versión aplicada queda en `schema_meta`.
 
 | objeto | contenido |
 | --- | --- |
+| `schema_meta` | versiones de migración aplicadas; la API las aplica en orden, bajo advisory lock y dentro de transacciones |
 | `player_id_seq` | ids de jugador, empieza en **1000001** |
 | `players` | `id`, `uuid` (único), `display_name` (NULL hasta que elige nombre), kicker y disfraz activos, deck activo, las cuatro monedas, `state jsonb` (decks, discos, gears, objetos), timestamps |
 | `sessions` | `access_token` → `player_id` + `session_key`; por esto un reinicio ya no expulsa a todo el mundo |
 | `player_ranks` | por `(player_id, battle_rule_type)`: puntos de batalla y rango |
+| `player_follows` | aristas dirigidas `(follower_id, followed_id)`, fecha y lectura del aviso de nuevo seguidor; FK con borrado en cascada y sin auto-seguimiento |
+| `real_friend_tokens` | un token opaco, estable y reusable por jugador para vincular amistades reales; único por dueño y por valor |
+| `player_real_friends` | amistad explícita simétrica, guardada una sola vez como `(player_low_id, player_high_id)`; separada de follows |
 
 El nombre vacío se guarda como `NULL` (`nullif(...,'')`), que es lo que hace que
 un jugador nuevo entre por la ventana de nombre.

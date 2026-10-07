@@ -1,13 +1,16 @@
 using System.Net;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using Grpc.Core;
 using KickFlight.BootstrapApi;
+using KickFlight.BootstrapApi.PlayerStore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenMatch;
 using Xunit;
 
@@ -177,9 +180,147 @@ public sealed class RankedModeRotationTests
         using var resultResponse = await client.SendAsync(resultRequest);
         Assert.Equal(HttpStatusCode.OK, resultResponse.StatusCode);
         using var resultBody = JsonDocument.Parse(D2CCodec.Decode(await resultResponse.Content.ReadAsByteArrayAsync(), sessionKey));
-        Assert.Equal(3, resultBody.RootElement.GetProperty("userBattleRank").GetProperty("battleRuleType").GetInt32());
+        var beforeRank = resultBody.RootElement.GetProperty("beforeUserBattleRank");
+        var afterRank = resultBody.RootElement.GetProperty("userBattleRank");
+        Assert.Equal(3, afterRank.GetProperty("battleRuleType").GetInt32());
+        Assert.Equal(beforeRank.GetProperty("battlePoint").GetInt32() + RankProgression.WinBattlePoint,
+            afterRank.GetProperty("battlePoint").GetInt32());
         assignmentCancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => assignmentTask);
+    }
+
+    [Fact]
+    public async Task Concurrent_retries_of_one_ranked_result_apply_and_return_the_same_snapshot()
+    {
+        var service = new BattleMatchmakingService(NullLogger<BattleMatchmakingService>.Instance, null!);
+        var (entryId, _) = service.RegisterEntry("player-1", "player", 1, 1,
+            RankedModeRotation.CrystalRuleId, [], matchType: 2, battleRuleType: 1);
+        Assert.Throws<InvalidOperationException>(() =>
+            service.ProcessRankedResultOnce(entryId, "player-1", _ => throw new InvalidOperationException("store failed")));
+        var appliedCount = 0;
+        var responses = await Task.WhenAll(Enumerable.Range(0, 12).Select(_ => Task.Run(() =>
+            service.ProcessRankedResultOnce(entryId, "player-1", ruleType =>
+            {
+                Interlocked.Increment(ref appliedCount);
+                return new BattleMatchmakingService.RankedResultSnapshot(ruleType,
+                    new RankState(2900, 7), new RankState(2950, 7));
+            })!)));
+
+        Assert.Equal(1, appliedCount);
+        Assert.Single(responses, response => !response.IsReplay);
+        Assert.Equal(11, responses.Count(response => response.IsReplay));
+        Assert.All(responses, response => Assert.Equal(responses[0].RankedResult, response.RankedResult));
+    }
+
+    [Fact]
+    public async Task Battle_result_progresses_only_the_owned_ranked_entry_mode()
+    {
+        var clock = new AdjustableTimeProvider(DateTimeOffset.UnixEpoch);
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseContentRoot(AppContext.BaseDirectory);
+            builder.ConfigureTestServices(services =>
+            {
+                services.RemoveAll<TimeProvider>();
+                services.AddSingleton<TimeProvider>(clock);
+            });
+        });
+        var client = factory.CreateClient();
+        var player = await CreateResultSessionAsync(client);
+        var otherPlayer = await CreateResultSessionAsync(client);
+
+        async Task<string> Enter(ResultSession session, int ruleId)
+        {
+            using var body = await PostJsonAsync(client, session, "/battle/entry", new { battleRuleId = ruleId });
+            var entryId = body.RootElement.GetProperty("battleEntryId").GetString();
+            Assert.False(string.IsNullOrWhiteSpace(entryId));
+            return entryId!;
+        }
+
+        static void AssertUnchanged(JsonDocument result)
+        {
+            var before = result.RootElement.GetProperty("beforeUserBattleRank");
+            var after = result.RootElement.GetProperty("userBattleRank");
+            Assert.Equal(before.GetProperty("battleRuleType").GetInt32(), after.GetProperty("battleRuleType").GetInt32());
+            Assert.Equal(before.GetProperty("battlePoint").GetInt32(), after.GetProperty("battlePoint").GetInt32());
+            Assert.Equal(before.GetProperty("rank").GetInt32(), after.GetProperty("rank").GetInt32());
+        }
+
+        // Retail BattleResultRequestData carries teamScoreList, not a trusted won flag. Both score orderings
+        // must leave every normal rule's shared ranked ladder unchanged.
+        foreach (var ruleId in new[] { 1, 2, 3 })
+        {
+            var entryId = await Enter(player, ruleId);
+            foreach (var (ourScore, theirScore) in new[] { (100, 50), (50, 100) })
+            {
+                using var result = await PostJsonAsync(client, player, "/battle/result", new
+                {
+                    battleEntryId = entryId,
+                    teamScoreList = new[]
+                    {
+                        new { teamType = 0, score = ourScore },
+                        new { teamType = 1, score = theirScore }
+                    }
+                });
+                AssertUnchanged(result);
+                Assert.Equal(ruleId, result.RootElement.GetProperty("userBattleRank").GetProperty("battleRuleType").GetInt32());
+            }
+        }
+
+        // Festival rules and custom results have no ranked eligibility. Custom result requests have no normal entry.
+        var festivalEntryId = await Enter(player, 5);
+        using (var festival = await PostJsonAsync(client, player, "/battle/result", new { battleEntryId = festivalEntryId }))
+            AssertUnchanged(festival);
+        using (var missing = await PostJsonAsync(client, player, "/battle/result", new { }))
+            AssertUnchanged(missing);
+        var store = factory.Services.GetRequiredService<IPlayerStore>();
+        var rankBeforeCustom = store.LoadRank(player.PlayerId, 1);
+        using (var custom = await PostJsonAsync(client, player, "/customBattle/result", new { customBattleId = "custom-test" }))
+            Assert.Empty(custom.RootElement.EnumerateObject());
+        Assert.Equal(rankBeforeCustom, store.LoadRank(player.PlayerId, 1));
+        using (var unknown = await PostJsonAsync(client, player, "/battle/result", new { battleEntryId = "be-not-issued" }))
+            AssertUnchanged(unknown);
+
+        // A known entry belongs to the player who received it; another session cannot claim its ranked result.
+        var rankedEntryId = await Enter(player, RankedModeRotation.CrystalRuleId);
+        var rankedEntry = factory.Services.GetRequiredService<BattleMatchmakingService>()
+            .GetBattleResultEntry(rankedEntryId);
+        Assert.NotNull(rankedEntry);
+        Assert.Equal(2, rankedEntry!.MatchType);
+        Assert.Equal(1, rankedEntry.BattleRuleType);
+        using (var stolen = await PostJsonAsync(client, otherPlayer, "/battle/result", new { battleEntryId = rankedEntryId }))
+            AssertUnchanged(stolen);
+
+        // Advancing the rotation after entry must not replace the entry's snapshotted rule 7/type 1 with rule 8/type 2.
+        clock.SetUtcNow(DateTimeOffset.UnixEpoch.AddHours(1));
+        Assert.Equal(RankedModeRotation.FlagRuleId, RankedModeRotation.RuleIdAt(clock.GetUtcNow()));
+        using var ranked = await PostJsonAsync(client, player, "/battle/result", new { battleEntryId = rankedEntryId });
+        var beforeRank = ranked.RootElement.GetProperty("beforeUserBattleRank");
+        var afterRank = ranked.RootElement.GetProperty("userBattleRank");
+        Assert.Equal(1, afterRank.GetProperty("battleRuleType").GetInt32());
+        Assert.Equal(beforeRank.GetProperty("battlePoint").GetInt32() + RankProgression.WinBattlePoint,
+            afterRank.GetProperty("battlePoint").GetInt32());
+        using (var replay = await PostJsonAsync(client, player, "/battle/result", new { battleEntryId = rankedEntryId }))
+        {
+            Assert.Equal(ranked.RootElement.GetRawText(), replay.RootElement.GetRawText());
+            Assert.Equal(afterRank.GetProperty("battlePoint").GetInt32(),
+                factory.Services.GetRequiredService<IPlayerStore>().LoadRank(player.PlayerId, 1).BattlePoint);
+        }
+
+        var flagRankedEntryId = await Enter(player, RankedModeRotation.FlagRuleId);
+        var flagRankedEntry = factory.Services.GetRequiredService<BattleMatchmakingService>()
+            .GetBattleResultEntry(flagRankedEntryId);
+        Assert.NotNull(flagRankedEntry);
+        Assert.Equal(2, flagRankedEntry!.MatchType);
+        Assert.Equal(2, flagRankedEntry.BattleRuleType);
+        clock.SetUtcNow(DateTimeOffset.UnixEpoch.AddHours(2));
+        Assert.Equal(RankedModeRotation.RapidBallRuleId, RankedModeRotation.RuleIdAt(clock.GetUtcNow()));
+        using var flagRanked = await PostJsonAsync(client, player, "/battle/result", new { battleEntryId = flagRankedEntryId });
+        var beforeFlagRank = flagRanked.RootElement.GetProperty("beforeUserBattleRank");
+        var afterFlagRank = flagRanked.RootElement.GetProperty("userBattleRank");
+        Assert.Equal(2, afterFlagRank.GetProperty("battleRuleType").GetInt32());
+        Assert.Equal(beforeFlagRank.GetProperty("battlePoint").GetInt32() + RankProgression.WinBattlePoint,
+            afterFlagRank.GetProperty("battlePoint").GetInt32());
     }
 
     [Fact]
@@ -218,6 +359,40 @@ public sealed class RankedModeRotationTests
         Assert.Equal(
             body.RootElement.GetProperty("beforeUserBattleRank").GetProperty("rank").GetInt32(),
             body.RootElement.GetProperty("userBattleRank").GetProperty("rank").GetInt32());
+    }
+
+    private sealed record ResultSession(string AccessToken, byte[] SessionKey, long PlayerId);
+
+    private static async Task<ResultSession> CreateResultSessionAsync(HttpClient client)
+    {
+        var sessionKey = Encoding.ASCII.GetBytes(SessionKey);
+        var commonCode = Encoding.ASCII.GetBytes(CommonCode);
+        var authPayload = JsonSerializer.Serialize(new { hash = SessionKey, uuid = Guid.NewGuid().ToString("N") });
+        using var authRequest = new HttpRequestMessage(HttpMethod.Post, "/auth/index")
+        {
+            Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(authPayload), commonCode, new byte[16]))
+        };
+        authRequest.Headers.Host = Host;
+        using var authResponse = await client.SendAsync(authRequest);
+        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
+        var playerId = long.Parse(authResponse.Headers.GetValues("x-app-user-id").Single(), CultureInfo.InvariantCulture);
+        return new ResultSession(authResponse.Headers.GetValues("x-app-access-token").Single(), sessionKey, playerId);
+    }
+
+    private static async Task<JsonDocument> PostJsonAsync(
+        HttpClient client, ResultSession session, string path, object payload)
+    {
+        var json = JsonSerializer.Serialize(payload);
+        using var request = new HttpRequestMessage(HttpMethod.Post, path)
+        {
+            Content = new ByteArrayContent(D2CCodec.Encode(Encoding.UTF8.GetBytes(json), session.SessionKey, new byte[16]))
+        };
+        request.Headers.Host = Host;
+        request.Headers.Add("x-app-access-token", session.AccessToken);
+        using var response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("0", response.Headers.GetValues("x-app-status-code").Single());
+        return JsonDocument.Parse(D2CCodec.Decode(await response.Content.ReadAsByteArrayAsync(), session.SessionKey));
     }
 
     private static bool IsInScheduleWindow(JsonElement row, TimeSpan time)
