@@ -19,17 +19,19 @@ Two facts drive this plan:
   host. CI excludes `.local/` from the rsync, so tuned overrides survive every deploy; `config/`
   does not.
 
-Port: the WebUI listens on **127.0.0.1:8765** on the VPS and is reached through an SSH tunnel, so it
-is never exposed. `KF_BALANCE_PASSWORD` in `/etc/kickflight-balance.env` adds HTTP basic auth if that
-policy ever changes.
+The WebUI listens only on **127.0.0.1:8765**. Caddy routes the HTTPS prefix
+`https://kick-flight-fenix.us.ci/balance/` to that loopback service and keeps the prefix intact.
+All other paths continue to the existing API/CDN on port 18080. Port 8765 is never public. The app
+requires a manually inserted SQLite account and uses secure server-side sessions.
 
 ## Files
 
 | file | action |
 |---|---|
-| `tools/balance/server.py`, `index.html`, `icons/` | delivered by CI to `/opt/kickflight/tools/balance/` |
+| `tools/balance/server.py`, `auth.py`, `password_hash.py`, `login.html`, `index.html`, `icons/` | delivered by CI to `/opt/kickflight/tools/balance/` |
 | `tools/balance/deploy/kickflight-balance.service` | install as `/etc/systemd/system/kickflight-balance.service` |
 | `tools/balance/deploy/kickflight-balance.env.example` | copy to `/etc/kickflight-balance.env` (mode `0600`) |
+| `deploy/caddy/Caddyfile` | delivered with the compose project; routes `/balance` to the local UI |
 | `docs/disc_cards.json`, `docs/localize_layout.json` | optional (card text / Text tab); also delivered by CI |
 
 CI only rsyncs when a deployed component changed. A `src/` change sets `api=true` (and therefore
@@ -45,21 +47,21 @@ APP=/opt/kickflight
 # 0. Merge the branch to main. The CI deploy delivers src/ (rebuilds+restarts deploy-api-1) and the
 #    whole tree, including tools/balance/, then runs its /health/ready smoke check.
 
-# 1. Install the unit and the env file (once; later pushes only refresh server.py/index.html).
+# 1. Install the unit and the env file (once; later pushes refresh the application files).
 scp tools/balance/deploy/kickflight-balance.service "$VPS:/tmp/kickflight-balance.service"
 scp tools/balance/deploy/kickflight-balance.env.example "$VPS:/tmp/kickflight-balance.env"
 ssh "$VPS" "sudo -n install -m 644 /tmp/kickflight-balance.service /etc/systemd/system/kickflight-balance.service && \
             sudo -n install -m 600 /tmp/kickflight-balance.env /etc/kickflight-balance.env && \
             rm -f /tmp/kickflight-balance.service /tmp/kickflight-balance.env && \
-            sudo -n systemctl daemon-reload && sudo -n systemctl enable --now kickflight-balance"
+            sudo -n systemctl daemon-reload && sudo -n systemctl enable kickflight-balance && \
+            sudo -n systemctl restart kickflight-balance"
 
-# 2. Verify on the host.
+# 2. Verify the private listener and public login page.
 ssh "$VPS" "systemctl status --no-pager kickflight-balance | head -15; \
-            curl -s -o /dev/null -w 'webui: %{http_code}\n' http://127.0.0.1:8765/"
+            curl -s -o /dev/null -w 'login: %{http_code}\n' http://127.0.0.1:8765/balance/login; \
+            curl -s -o /dev/null -w 'public: %{http_code}\n' https://kick-flight-fenix.us.ci/balance/login"
 
-# 3. Open it from the workstation (keep the tunnel while editing).
-ssh -N -L 8765:127.0.0.1:8765 "$VPS"
-#    then browse http://127.0.0.1:8765/
+# 3. Open https://kick-flight-fenix.us.ci/balance/ in a browser.
 
 # 4. Edit, then click "Restart API to apply" (or, equivalently, on the host):
 ssh "$VPS" "docker restart deploy-api-1"
@@ -70,6 +72,31 @@ ssh "$VPS" "docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/read
 ssh "$VPS" "docker exec -i deploy-api-1 curl -sS -X POST \
     http://127.0.0.1:8080/admin/maintenance -H 'Content-Type: application/json' -d '{\"mode\":\"hard\"}'"
 ```
+
+## Create the first operator account
+
+The service starts with an empty user table and denies all logins until an operator adds an account.
+After the first service start, generate the password hash interactively and insert it manually:
+
+```bash
+ssh -t "$VPS" "cd /opt/kickflight && sudo -u ubuntu python3 tools/balance/password_hash.py"
+ssh -t "$VPS" "sudo -n -u ubuntu python3 -c 'import sqlite3
+import time
+import unicodedata
+
+username = unicodedata.normalize(\"NFKC\", input(\"Username: \")).strip().casefold()
+assert username, \"username cannot be empty\"
+password_hash = input(\"PBKDF2 hash from the helper: \")
+db = sqlite3.connect(\"/opt/kickflight/.local/balance-auth.sqlite3\")
+db.execute(\"INSERT INTO users(username, password_hash, created_at) VALUES (?, ?, ?)\",
+           (username, password_hash, int(time.time())))
+db.commit()
+db.close()'"
+```
+
+Use the actual hash from the helper at the Python prompt; do not place the password or hash in a
+command-line argument, shell history, or a deployment secret file. The app intentionally has no
+signup, user-management route, or account-creation CLI.
 
 ## Committing overrides back to git
 

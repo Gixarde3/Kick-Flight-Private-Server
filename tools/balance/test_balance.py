@@ -13,14 +13,13 @@ apply command can be exercised without Docker), then drives the WebUI HTTP API:
 * pending overrides are detected against the API container start time;
 * effect-row add/delete and the core-table validation still work;
 * maintenance is proxied to the mock admin endpoint;
-* basic auth is enforced.
+* manually provisioned session authentication is enforced.
 
     python3 tools/balance/test_balance.py
 """
 
 from __future__ import annotations
 
-import base64
 import io
 import json
 import os
@@ -47,7 +46,10 @@ APPLIED_MARKER = ROOT / "applied.marker"
 PORT = 18765
 ADMIN_PORT = 19080
 USER = "balance"
-PASSWORD = "s3cret"
+PASSWORD = "correct horse battery staple"
+BASE_PATH = "/balance"
+AUTH_DB = ROOT / "auth.sqlite3"
+SESSION_COOKIE = None
 
 FAILURES = []
 
@@ -90,27 +92,44 @@ class MockAdmin(BaseHTTPRequestHandler):
         self.send_json(200, dict(MockAdmin.state))
 
 
-def request(path, method="GET", body=None, auth=True, raw=False, headers=None):
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, response, code, message, headers, new_url):
+        return None
+
+
+def request(path, method="GET", body=None, auth=True, raw=False, headers=None, *, port=PORT, raw_path=False):
+    global SESSION_COOKIE
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request("http://127.0.0.1:%d%s" % (PORT, path), data=data, method=method)
+    request_path = path if raw_path or path == BASE_PATH or path.startswith(BASE_PATH + "/") else BASE_PATH + path
+    req = urllib.request.Request("http://127.0.0.1:%d%s" % (port, request_path), data=data, method=method)
     if method in ("POST", "PUT", "DELETE") or data is not None:
-        # The WebUI now requires application/json on every state-changing request; callers pass a
-        # headers override (e.g. Content-Type text/plain, a foreign Host) to test the rejections.
         req.add_header("Content-Type", "application/json")
+        req.add_header("Origin", "http://127.0.0.1:%d" % port)
     for key, value in (headers or {}).items():
         req.add_header(key, value)
-    if auth:
-        token = base64.b64encode(("%s:%s" % (USER, PASSWORD)).encode()).decode()
-        req.add_header("Authorization", "Basic " + token)
+    if auth and SESSION_COOKIE:
+        req.add_header("Cookie", SESSION_COOKIE)
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
             payload = response.read()
+            set_cookie = response.headers.get("Set-Cookie")
+            if set_cookie and "Max-Age=0" not in set_cookie:
+                SESSION_COOKIE = set_cookie.split(";", 1)[0]
+            elif set_cookie and "Max-Age=0" in set_cookie:
+                SESSION_COOKIE = None
             if raw:
                 return response.status, payload, dict(response.headers)
             text = payload.decode()
-            return response.status, (json.loads(text) if text else None)
+            try:
+                parsed = json.loads(text) if text else None
+            except ValueError:
+                parsed = payload
+            return response.status, parsed
     except urllib.error.HTTPError as error:
         payload = error.read()
+        set_cookie = error.headers.get("Set-Cookie")
+        if set_cookie and "Max-Age=0" not in set_cookie:
+            SESSION_COOKIE = set_cookie.split(";", 1)[0]
         if raw:
             return error.code, payload, dict(error.headers)
         try:
@@ -167,9 +186,10 @@ def main():
         "KF_BALANCE_BASE_DIR": str(BASE),
         "KF_BALANCE_OVERRIDE_DIR": str(OVERRIDES),
         "KF_BALANCE_BACKUP_DIR": str(BACKUPS),
+        "KF_BALANCE_AUTH_DB": str(AUTH_DB),
+        "KF_BALANCE_BASE_PATH": BASE_PATH,
+        "KF_BALANCE_ALLOWED_ORIGINS": "https://balance.test",
         "KF_BALANCE_ADMIN_URL": "http://127.0.0.1:%d/admin/maintenance" % ADMIN_PORT,
-        "KF_BALANCE_USER": USER,
-        "KF_BALANCE_PASSWORD": PASSWORD,
         "KF_BALANCE_ALLOWED_HOSTS": "balance.test",
         "KF_BALANCE_API_CONTAINER": "fake-api",
         # A real restart changes the container start time; the fake one moves it forward too.
@@ -181,6 +201,14 @@ def main():
         "KF_FAKE_STARTED_AT": str(STARTED_AT),
         "PATH": str(FAKEBIN) + os.pathsep + env.get("PATH", ""),
     })
+    sys.path.insert(0, str(REPO / "tools/balance"))
+    from auth import AuthStore, hash_password
+    AuthStore(AUTH_DB)
+    with __import__("sqlite3").connect(AUTH_DB) as connection:
+        connection.execute(
+            "INSERT INTO users(username,password_hash,created_at) VALUES(?,?,?)",
+            (USER, hash_password(PASSWORD), int(time.time())),
+        )
     webui = subprocess.Popen(
         [sys.executable, str(REPO / "tools/balance/server.py"),
          "--host", "127.0.0.1", "--port", str(PORT)],
@@ -189,12 +217,64 @@ def main():
     try:
         wait_for_port(webui)
 
-        # -- auth -----------------------------------------------------------------
+        # -- authentication -------------------------------------------------------
+        status, page = request("/login", auth=False)
+        check("login page is public", status == 200 and b"autocomplete=\"current-password\"" in page)
+        bare_req = urllib.request.Request("http://127.0.0.1:%d%s" % (PORT, BASE_PATH))
+        try:
+            opener = urllib.request.build_opener(NoRedirect)
+            with opener.open(bare_req, timeout=5) as response:
+                status, redirect_headers = response.status, response.headers
+        except urllib.error.HTTPError as error:
+            status, redirect_headers = error.code, error.headers
+        check("bare mount redirects to its slash form",
+              status == 308 and redirect_headers.get("Location") == BASE_PATH + "/")
         status, _ = request("/api/discs", auth=False)
-        check("GET without credentials is 401", status == 401, "got %s" % status)
+        check("GET without a session is 401", status == 401, "got %s" % status)
+        page_req = urllib.request.Request("http://127.0.0.1:%d%s/" % (PORT, BASE_PATH))
+        try:
+            opener = urllib.request.build_opener(NoRedirect)
+            with opener.open(page_req, timeout=5) as response:
+                page_status, page_headers = response.status, response.headers
+        except urllib.error.HTTPError as error:
+            page_status, page_headers = error.code, error.headers
+        check("unauthenticated UI redirects to the login page",
+              page_status == 303 and page_headers.get("Location") == BASE_PATH + "/login")
+        status, _ = request("/icons/disc_1.png", auth=False)
+        check("static icons also require a session", status == 401, "got %s" % status)
+        status, _ = request("/api/overrides/export", auth=False)
+        check("override export requires a session", status == 401, "got %s" % status)
+        status, _ = request("/api/apply", "POST", {}, auth=False)
+        check("unauthorized apply is denied before side effects", status == 401 and not APPLIED_MARKER.exists(),
+              "got %s" % status)
+        status, _ = request("/api/logout", "POST", {}, auth=False)
+        check("logout also requires an authenticated session", status == 401, "got %s" % status)
+        status, _ = request("/api/apply", "POST", {}, auth=False, headers={"Origin": ""})
+        check("state-changing requests require Origin", status == 403, "got %s" % status)
+        status, failed = request("/api/login", "POST", {"username": USER, "password": "wrong password"},
+                                 auth=False, raw=False)
+        check("failed login gives a generic credential error",
+              status == 401 and failed.get("error") == "invalid username or password")
+        status, _, login_headers = request(
+            "/api/login", "POST", {"username": USER.upper(), "password": PASSWORD}, auth=False, raw=True
+        )
+        cookie_header = login_headers.get("Set-Cookie", "")
+        check("valid login sets a scoped secure session cookie",
+              status == 200 and "Secure" in cookie_header and "HttpOnly" in cookie_header and
+              "SameSite=Strict" in cookie_header and "Path=/balance" in cookie_header and
+              "Domain=" not in cookie_header)
+        check("session token is stored only as a hash",
+              bool(SESSION_COOKIE) and __session_is_hashed(AUTH_DB, SESSION_COOKIE.split("=", 1)[1]))
+        status, session = request("/api/session")
+        check("session endpoint identifies the signed-in user",
+              status == 200 and session.get("username") == USER)
         status, discs = request("/api/discs")
-        check("GET with credentials is 200 + disc list",
+        check("GET with a session is 200 + disc list",
               status == 200 and isinstance(discs, list) and discs, "status %s" % status)
+
+        # The application is mounted behind /balance; routes outside that prefix are not exposed.
+        status, _ = request("/api/discs", auth=True, raw_path=True)
+        check("routes outside the configured mount prefix are 404", status == 404, "got %s" % status)
 
         # -- CSRF / DNS-rebinding protection --------------------------------------
         status, _ = request("/api/discs", headers={"Host": "evil.example"})
@@ -204,10 +284,19 @@ def main():
         status, _ = request("/api/maintenance", "POST", {"mode": "off"},
                             headers={"Content-Type": "text/plain"})
         check("text/plain POST -> 415", status == 415, "got %s" % status)
+        status, _ = request("/api/maintenance", "POST", {"mode": "off"},
+                            headers={"Origin": "https://evil.example"})
+        check("foreign HTTPS Origin -> 403", status == 403, "got %s" % status)
         status, _ = request("/api/discs")
         check("legit request -> 200", status == 200, "got %s" % status)
-        status, _ = request("/api/discs", headers={"Host": "balance.test"})
-        check("extra KF_BALANCE_ALLOWED_HOSTS host -> 200", status == 200, "got %s" % status)
+        status, _ = request("/api/discs", headers={
+            "Host": "balance.test", "Origin": "https://balance.test"
+        })
+        check("configured HTTPS public origin is accepted", status == 200, "got %s" % status)
+        status, _ = request("/api/discs", headers={
+            "Host": "balance.test", "Origin": "https://127.0.0.1:%d" % PORT
+        })
+        check("Origin authority must match the request Host", status == 403, "got %s" % status)
         status, _ = request("/api/discs", headers={"Origin": "http://127.0.0.1:%d" % PORT})
         check("same-origin Origin -> 200", status == 200, "got %s" % status)
 
@@ -335,9 +424,33 @@ def main():
         status, _ = request("/api/maintenance", "POST", {"mode": "bogus"})
         check("invalid maintenance mode is rejected", status == 400, "status %s" % status)
 
+        # -- logout ---------------------------------------------------------------
+        status, _ = request("/api/logout", "POST", {})
+        check("logout revokes the server-side session", status == 200)
+        status, _ = request("/api/discs")
+        check("revoked session cannot access protected routes", status == 401, "got %s" % status)
+
         # -- apply failure is reported, not swallowed -----------------------------
         check("failing apply command returns an error", _failing_apply_works(env, "exit 3"))
         check("apply that exits 0 without restarting is an error", _failing_apply_works(env, "true"))
+
+        # The limiter is also exercised through the real HTTP endpoint (after all later
+        # acceptance cases that need to authenticate from this test client's IP).
+        rate_status = None
+        saw_credential_failure = False
+        for _ in range(6):
+            rate_status, _ = request(
+                "/api/login", "POST", {"username": "missing-user", "password": PASSWORD}, auth=False
+            )
+            saw_credential_failure = saw_credential_failure or rate_status == 401
+            if rate_status == 429:
+                break
+        status, _, rate_headers = request(
+            "/api/login", "POST", {"username": "missing-user", "password": PASSWORD}, auth=False, raw=True
+        )
+        check("login failures are rate-limited by source IP",
+              saw_credential_failure and rate_status == 429 and status == 429 and "Retry-After" in rate_headers,
+              "last credential status %s, blocked status %s" % (rate_status, status))
     finally:
         webui.terminate()
         try:
@@ -360,7 +473,7 @@ def wait_for_port(webui):
         if webui.poll() is not None:
             break
         try:
-            request("/favicon.ico")
+            request("/login", auth=False)
             print("WebUI is up on port %d" % PORT)
             return
         except Exception:
@@ -381,12 +494,21 @@ def _failing_apply_works(base_env, command):
     try:
         for _ in range(80):
             try:
-                req = urllib.request.Request("http://127.0.0.1:%d/api/apply" % (PORT + 1), method="POST")
+                req = urllib.request.Request("http://127.0.0.1:%d%s/api/login" %
+                                             (PORT + 1, BASE_PATH), data=json.dumps(
+                                                 {"username": USER, "password": PASSWORD}
+                                             ).encode(), method="POST")
                 req.add_header("Content-Type", "application/json")
-                token = base64.b64encode(("%s:%s" % (USER, PASSWORD)).encode()).decode()
-                req.add_header("Authorization", "Basic " + token)
+                req.add_header("Origin", "http://127.0.0.1:%d" % (PORT + 1))
                 with urllib.request.urlopen(req, timeout=10) as response:
-                    return response.status == 502 or False
+                    cookie = response.headers["Set-Cookie"].split(";", 1)[0]
+                req = urllib.request.Request("http://127.0.0.1:%d%s/api/apply" %
+                                             (PORT + 1, BASE_PATH), data=b"{}", method="POST")
+                req.add_header("Content-Type", "application/json")
+                req.add_header("Origin", "http://127.0.0.1:%d" % (PORT + 1))
+                req.add_header("Cookie", cookie)
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    return False
             except urllib.error.HTTPError as error:
                 if error.code == 502:
                     return True
@@ -400,6 +522,14 @@ def _failing_apply_works(base_env, command):
             proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             proc.kill()
+
+
+def __session_is_hashed(database, token):
+    import hashlib
+    import sqlite3
+    with sqlite3.connect(database) as connection:
+        row = connection.execute("SELECT token_hash FROM sessions").fetchone()
+    return bool(row and row[0] == hashlib.sha256(token.encode("ascii")).hexdigest() and row[0] != token)
 
 
 if __name__ == "__main__":

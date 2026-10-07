@@ -15,9 +15,11 @@ Columns the dataset does not cover (range, speed, seId, targetAreaType, grow gro
 Min columns come from the Lv.1 stats ('lv1', Appliv) when present, else the table's mean min/max ratio; coefficient from 'coefficient_appliv' when it is a plain number.
 
 `docs/disc_damage_expectations.json` contains the user's expected per-hit values and takes precedence for cards matched
-there. DiscSkillParameter.GetCoefficient multiplies Skill.coefficient by the level-calculated Disc coefficient, so the
-expected multiplier belongs in Disc.min/maxCoefficient and Skill.coefficient must remain 1.0 for measured disc skills.
-For entries such as `0.75 ×19`, the hit/tick count belongs to the timeline; store 0.75 per hit, not 0.75 x 19.
+there. DiscSkillParameter.GetCoefficient multiplies Skill.coefficient by the level-calculated Disc coefficient.
+DiscParameterUtil.CalcCoefficient returns an integer using Mathf.FloorToInt, even though the Disc endpoints are
+floats. To preserve fractional per-hit values, set both Disc endpoints to 1 and put the expected multiplier in
+Skill.coefficient; the resulting Disc factor stays exactly 1 at every growth level. For entries such as `0.75 ×19`,
+the hit/tick count belongs to the timeline; store 0.75 per hit, not 0.75 x 19.
 
     python scripts/apply_disc_cards.py [--dry-run]
 """
@@ -134,11 +136,10 @@ def main() -> int:
         appliv_coef = per_hit_coefficient(coef_text)
         coef = expected_coefficients.get(sid, appliv_coef)
         if coef is not None:
-            # DiscSkillParameter.GetCoefficient = SkillMasterData.coefficient * _coefficient;
-            # _coefficient comes from DiscParameterUtil.CalcCoefficient. Keep the full intended per-hit
-            # multiplier in the Disc range, whose endpoints are expected at Lv.1/Lv.10, and neutralize the
-            # independent Skill factor. Equal endpoints make the result level-invariant.
-            disc["minCoefficient"] = disc["maxCoefficient"] = coef
+            # CalcCoefficient returns Mathf.FloorToInt(min + (max - min) * rate / 100), so a fractional
+            # Disc endpoint is truncated before it reaches DiscSkillParameter. Keep the Disc factor exactly
+            # one at every level and store the full intended per-hit multiplier in Skill.coefficient.
+            disc["minCoefficient"] = disc["maxCoefficient"] = 1
 
         skill = skills.get(sid)
         if skill is None:
@@ -154,8 +155,8 @@ def main() -> int:
                       "coolTime": int(ct), "attributeType": attribute_of[c["attribute"]],
                       "summonId": summon_id})
         if coef is not None:
-            # See DiscSkillParameter.GetCoefficient: multiplying the same card value in both masters squares it.
-            skill["coefficient"] = 1.0
+            # The Disc factor is exactly one after CalcCoefficient's integer floor; preserve fractional values here.
+            skill["coefficient"] = coef
 
     # disc ids that are not in the dataset are not released discs (e.g. 3010054/3010121: pets exist, no card,
     # no thumbnail, not on Appliv) - drop them and their disc-skill rows so they never reach a deck

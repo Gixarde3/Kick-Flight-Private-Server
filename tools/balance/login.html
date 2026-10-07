@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="__BALANCE_BASE_PATH__/">
+<title>Sign in · Kick-Flight Balance</title>
+<style>
+  :root { color-scheme: dark; font: 15px/1.5 system-ui, sans-serif; }
+  body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #14161c; color: #e6e8ee; }
+  main { width: min(360px, calc(100vw - 40px)); padding: 28px; border: 1px solid #2e3340; border-radius: 12px; background: #1b1e26; }
+  h1 { margin: 0 0 20px; font-size: 20px; }
+  label { display: block; margin: 14px 0 5px; color: #c6ccda; }
+  input { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid #3a4050; border-radius: 6px; background: #14161c; color: inherit; font: inherit; }
+  button { width: 100%; margin-top: 20px; padding: 10px; border: 0; border-radius: 6px; background: #4da3ff; color: #06131f; font: inherit; font-weight: 650; cursor: pointer; }
+  #error { min-height: 1.5em; margin: 12px 0 0; color: #ff8585; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Kick-Flight Balance</h1>
+  <form id="loginForm">
+    <label for="username">Username</label>
+    <input id="username" name="username" autocomplete="username" required maxlength="128">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit">Sign in</button>
+    <p id="error" role="alert" aria-live="polite"></p>
+  </form>
+</main>
+<script>
+const BASE_PATH = "__BALANCE_BASE_PATH__";
+document.getElementById("loginForm").addEventListener("submit", async function (event) {
+  event.preventDefault();
+  const button = event.currentTarget.querySelector("button");
+  const error = document.getElementById("error");
+  button.disabled = true;
+  error.textContent = "";
+  try {
+    const response = await fetch(BASE_PATH + "/api/login", {
+      method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Sign in failed");
+    window.location.replace(BASE_PATH + "/");
+  } catch (failure) {
+    error.textContent = failure.message || "Sign in failed";
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

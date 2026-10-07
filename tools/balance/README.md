@@ -37,7 +37,7 @@ python tools/balance/server.py            # default port 8765, binds 127.0.0.1 o
 python tools/balance/server.py --override-dir ~/kf-overrides --open
 ```
 
-Then open <http://127.0.0.1:8765/>.
+Then open <http://127.0.0.1:8765/> and sign in with an account inserted by an operator.
 
 **After saving, click "Restart API to apply"** (locally `start-server.bat`; on the VPS the button
 runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot reload.
@@ -50,7 +50,10 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_OVERRIDE_DIR` | where saves are written and overrides read from (default: `.local/masters-overrides/`) |
 | `KF_BALANCE_BACKUP_DIR` | where each replaced file is copied (default: `tools/balance/backups/`) |
 | `KF_BALANCE_HOST` / `KF_BALANCE_PORT` | bind interface / port (default `127.0.0.1` / `8765`) |
-| `KF_BALANCE_USER` / `KF_BALANCE_PASSWORD` | optional HTTP basic auth; **no auth at all when the password is empty** |
+| `KF_BALANCE_AUTH_DB` | required SQLite file for manually inserted users and server-side sessions (default: `.local/balance-auth.sqlite3`); an empty user table denies sign-in |
+| `KF_BALANCE_BASE_PATH` | mount prefix when served below a path such as `/balance` (default: empty) |
+| `KF_BALANCE_ALLOWED_ORIGINS` | comma-separated exact HTTPS origins accepted through the TLS proxy |
+| `KF_BALANCE_TRUSTED_PROXIES` | immediate proxy IPs allowed to supply `X-Real-IP` for login throttling |
 | `KF_BALANCE_API_CONTAINER` | container the apply/maintenance defaults target (default `deploy-api-1`) |
 | `KF_BALANCE_APPLY_CMD` | shell command that restarts the API (default `docker restart deploy-api-1`) |
 | `KF_BALANCE_HEALTH_CMD` | shell command that must exit 0 when the API is ready (default `docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready`) |
@@ -62,12 +65,40 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` | escape hatches: full shell commands whose stdout is the JSON status |
 | `KF_BALANCE_ALLOWED_HOSTS` | extra comma-separated `Host` values accepted alongside `127.0.0.1:<port>`, `localhost:<port>` and `[::1]:<port>` (needed when binding to a LAN address or sitting behind a proxy) |
 
-Protection choice: the deployment binds `127.0.0.1:8765` on the VPS and is reached over an SSH
-tunnel, so nothing is exposed to the network. `KF_BALANCE_PASSWORD` is the optional second layer for
-LAN runs. Independently of auth, every request must carry an allowed `Host` (blocks DNS rebinding),
-an `Origin`, when the browser sends one, must be `http://<allowed host>`, and every
-POST/PUT/DELETE must be `Content-Type: application/json` (forces a CORS preflight the server never
-answers, so a foreign page cannot toggle maintenance or restart the API).
+### Accounts and sessions
+
+Authentication is mandatory and there is no signup or user-administration route. No account is
+seeded at startup. The SQLite database contains a `users(username,password_hash,created_at)` table
+and hashed opaque sessions; the application stores neither plaintext passwords nor session tokens.
+Passwords use PBKDF2-HMAC-SHA256 with a per-password random salt and 600,000 iterations. Sessions
+expire after eight hours and logout revokes the server-side record.
+
+Initialize the service once so it creates the private database, then generate a hash interactively:
+
+```bash
+cd /opt/kickflight
+sudo -u ubuntu python3 tools/balance/password_hash.py
+```
+
+Insert a row manually as the service user, replacing the placeholders with the normalized username
+and hash printed by the helper. Keep the hash out of shell history and logs:
+
+```bash
+sudo -u ubuntu sqlite3 /opt/kickflight/.local/balance-auth.sqlite3
+INSERT INTO users(username, password_hash, created_at)
+VALUES ('operator-name', 'pbkdf2_sha256$600000$...$...', unixepoch());
+.quit
+```
+
+For local development, use the same process with the default database at
+`.local/balance-auth.sqlite3`. The helper prompts for the password and prints only its derived
+hash; it cannot create, list, or delete accounts.
+
+Every UI/API route, export and static icon requires a valid session. The login endpoint is the only
+unauthenticated API route. Login is rate-limited; the session cookie is Secure, HttpOnly,
+SameSite=Strict, scoped to the configured base path, and has no Domain attribute. State-changing
+requests require JSON and an allowed Origin. Requests also require an allowed Host to block DNS
+rebinding.
 
 ## What it edits
 
@@ -167,15 +198,16 @@ HTTP client, point `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` at anothe
 | `GET /icons/<file>.png` | the extracted kicker/disc icons |
 | `GET /` | `tools/balance/index.html` |
 
-Every route (including static files) requires HTTP basic auth when `KF_BALANCE_PASSWORD` is set.
+Every route (including static files), exports and state-changing actions require an authenticated
+session. `GET /login` and `POST /api/login` are the only public UI/API routes.
 
 ## Deploy on the VPS
 
 See `tools/balance/deploy/README.md` and `deploy/VPS.md`. Short version: the CI deploy delivers
 `tools/balance/` to `/opt/kickflight/tools/balance`, and the `kickflight-balance` systemd unit runs
 `python3 /opt/kickflight/tools/balance/server.py` on `127.0.0.1:8765` with
-`/etc/kickflight-balance.env`. Reach it with `ssh -N -L 8765:127.0.0.1:8765 kickflight` and open
-<http://127.0.0.1:8765/>.
+`/etc/kickflight-balance.env`. Public access is through
+<https://kick-flight-fenix.us.ci/balance/>; the loopback port is not exposed publicly.
 
 ## Notes
 
