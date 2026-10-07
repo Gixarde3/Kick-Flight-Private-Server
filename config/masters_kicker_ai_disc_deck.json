@@ -12,5 +12,12 @@
     "kickerAiDiscId2": 6,
     "kickerAiDiscId3": 7,
     "kickerAiDiscId4": 8
+  },
+  {
+    "id": 3,
+    "kickerAiDiscId1": 9,
+    "kickerAiDiscId2": 10,
+    "kickerAiDiscId3": 11,
+    "kickerAiDiscId4": 12
   }
 ]

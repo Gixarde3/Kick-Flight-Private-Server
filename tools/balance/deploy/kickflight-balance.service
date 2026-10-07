@@ -16,9 +16,14 @@ Environment=KF_BALANCE_BASE_DIR=/opt/kickflight/config
 # (config/ is not: the CI replaces it). The API reads them with Masters__OverrideDir.
 Environment=KF_BALANCE_OVERRIDE_DIR=/opt/kickflight/.local/masters-overrides
 Environment=KF_BALANCE_BACKUP_DIR=/opt/kickflight/.local/balance-backups
-# Loopback only; reach it through: ssh -N -L 8765:127.0.0.1:8765 kickflight
+# Loopback only; Caddy exposes the authenticated UI at /balance/ over HTTPS.
 Environment=KF_BALANCE_HOST=127.0.0.1
 Environment=KF_BALANCE_PORT=8765
+Environment=KF_BALANCE_AUTH_DB=/opt/kickflight/.local/balance-auth/auth.sqlite3
+Environment=KF_BALANCE_BASE_PATH=/balance
+Environment=KF_BALANCE_ALLOWED_HOSTS=kick-flight-fenix.us.ci
+Environment=KF_BALANCE_ALLOWED_ORIGINS=https://kick-flight-fenix.us.ci
+Environment=KF_BALANCE_TRUSTED_PROXIES=127.0.0.1,::1
 # Apply + maintenance both target the compose api service (its HTTP port is not published).
 Environment=KF_BALANCE_API_CONTAINER=deploy-api-1
 # Values with spaces must be quoted: systemd splits an unquoted Environment= line on whitespace.
@@ -26,7 +31,7 @@ Environment="KF_BALANCE_APPLY_CMD=docker restart deploy-api-1"
 Environment="KF_BALANCE_HEALTH_CMD=docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready"
 Environment=KF_BALANCE_ADMIN_CONTAINER=deploy-api-1
 Environment=KF_BALANCE_ADMIN_INTERNAL_URL=http://127.0.0.1:8080/admin/maintenance
-# Optional secrets overrides (KF_BALANCE_PASSWORD=...). root-only, mode 0600; see the example file.
+# Optional deployment overrides; the example contains the required public path and origin settings.
 EnvironmentFile=-/etc/kickflight-balance.env
 ExecStart=/usr/bin/python3 /opt/kickflight/tools/balance/server.py
 Restart=on-failure

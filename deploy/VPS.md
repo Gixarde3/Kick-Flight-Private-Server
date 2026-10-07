@@ -326,11 +326,10 @@ ejecuta como servicio systemd `kickflight-balance` en `127.0.0.1:8765`, con el f
 * overrides: `/opt/kickflight/.local/masters-overrides`
 * copias: `/opt/kickflight/.local/balance-backups`
 
-Acceso desde el puesto de trabajo (deja el túnel abierto mientras editas):
+Acceso a la WebUI de balance:
 
 ```sh
-ssh -N -L 8765:127.0.0.1:8765 kickflight
-# y abre http://127.0.0.1:8765/
+# inicia sesión en https://kick-flight-fenix.us.ci/balance/
 ```
 
 Al guardar, la WebUI escribe **solo** en el directorio de overrides y guarda copia del fichero anterior. Cada

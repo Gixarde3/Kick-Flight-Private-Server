@@ -18,12 +18,13 @@ variables, never from hardcoded secrets.
 from __future__ import annotations
 
 import argparse
-import base64
 import io
+import ipaddress
 import json
 import math
 import os
 import re
+import sqlite3
 import subprocess
 import sys
 import threading
@@ -31,9 +32,13 @@ import time
 import urllib.error
 import urllib.request
 import zipfile
+from http.cookies import SimpleCookie
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
+
+from auth import AuthStore, LoginRateLimiter, normalize_username
 
 BALANCE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BALANCE_DIR.parent.parent
@@ -41,6 +46,7 @@ CONFIG_DIR = REPO_ROOT / "config"   # the checkout default; the deployment overr
 DOCS_DIR = REPO_ROOT / "docs"
 ICON_DIR = BALANCE_DIR / "icons"
 INDEX_FILE = BALANCE_DIR / "index.html"
+LOGIN_FILE = BALANCE_DIR / "login.html"
 DISC_CARDS_FILE = DOCS_DIR / "disc_cards.json"
 
 
@@ -62,11 +68,28 @@ MASTERS_DIR = _env_path("KF_BALANCE_BASE_DIR", _env_path("KF_BALANCE_MASTERS_DIR
 OVERRIDE_DIR = _env_path("KF_BALANCE_OVERRIDE_DIR", REPO_ROOT / ".local" / "masters-overrides")
 BACKUP_DIR = _env_path("KF_BALANCE_BACKUP_DIR", BALANCE_DIR / "backups")
 
-# Production data protection.  The chosen deployment binds to loopback and is reached over an SSH
-# tunnel; setting KF_BALANCE_PASSWORD adds HTTP basic auth as a second layer for LAN use.  Both
-# values come from the environment, never from the repository.
-BASIC_USER = os.environ.get("KF_BALANCE_USER", "balance")
-BASIC_PASSWORD = os.environ.get("KF_BALANCE_PASSWORD", "")
+# Authentication is mandatory. The local DB is never committed, and an empty user table denies
+# every login until an operator inserts an account manually.
+AUTH_DB_PATH = _env_path("KF_BALANCE_AUTH_DB", REPO_ROOT / ".local" / "balance-auth" / "auth.sqlite3")
+SESSION_COOKIE_NAME = "__Secure-kf_balance_session"
+BASE_PATH = os.environ.get("KF_BALANCE_BASE_PATH", "").strip()
+if BASE_PATH in ("", "/"):
+    BASE_PATH = ""
+else:
+    BASE_PATH = "/" + BASE_PATH.strip("/")
+    if (not re.fullmatch(r"/[A-Za-z0-9._~-]+(?:/[A-Za-z0-9._~-]+)*", BASE_PATH)
+            or any(part in (".", "..") for part in BASE_PATH.split("/"))):
+        raise RuntimeError("KF_BALANCE_BASE_PATH must be a simple URL path, for example /balance")
+AUTH_STORE: AuthStore | None = None
+LOGIN_LIMITER = LoginRateLimiter()
+# PBKDF2 is deliberately expensive. Cap simultaneous hashes to the two CPU cores available on
+# the VPS so distinct source IPs cannot turn ThreadingHTTPServer into an unbounded hash farm.
+AUTH_WORK_SLOTS = threading.BoundedSemaphore(2)
+ALLOWED_ORIGINS_EXTRA = tuple(
+    origin.strip().rstrip("/").lower()
+    for origin in os.environ.get("KF_BALANCE_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+)
 
 # CSRF / DNS-rebinding protection.  The tool is bound to loopback and normally reached through an SSH
 # tunnel at 127.0.0.1:8765, but a page open in the user's browser can still send it a "simple" POST
@@ -79,6 +102,11 @@ ALLOWED_HOSTS_EXTRA = tuple(
     host.strip().lower()
     for host in os.environ.get("KF_BALANCE_ALLOWED_HOSTS", "").split(",")
     if host.strip()
+)
+TRUSTED_PROXIES = frozenset(
+    address.strip()
+    for address in os.environ.get("KF_BALANCE_TRUSTED_PROXIES", "").split(",")
+    if address.strip()
 )
 JSON_CONTENT_TYPE = "application/json"
 
@@ -881,7 +909,7 @@ def apply_changes():
 
 
 class BalanceHandler(BaseHTTPRequestHandler):
-    server_version = "BalanceTool/2.0"
+    server_version = "BalanceTool/3.0"
     protocol_version = "HTTP/1.1"
     timeout = 60
 
@@ -906,14 +934,26 @@ class BalanceHandler(BaseHTTPRequestHandler):
         return (self.headers.get("Host") or "").strip().lower() in self.allowed_hosts()
 
     def origin_allowed(self):
-        """An Origin, when present, must be exactly http://<allowed host> (never a foreign page)."""
+        """Accept loopback HTTP origins and explicitly configured HTTPS origins only."""
         origin = self.headers.get("Origin")
         if origin is None:
             return True
         origin = origin.strip().lower()
-        if not origin.startswith("http://"):
+        try:
+            parsed = urlsplit(origin)
+        except ValueError:
             return False
-        return origin[len("http://"):] in self.allowed_hosts()
+        if parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
+            return False
+        authority = parsed.netloc
+        request_host = (self.headers.get("Host") or "").strip().lower()
+        if authority not in self.allowed_hosts() or authority != request_host:
+            return False
+        if parsed.scheme == "http":
+            return authority in {"127.0.0.1:%d" % self.server.server_address[1],
+                                 "localhost:%d" % self.server.server_address[1],
+                                 "[::1]:%d" % self.server.server_address[1]}
+        return parsed.scheme == "https" and origin in ALLOWED_ORIGINS_EXTRA
 
     def content_type_is_json(self):
         return (self.headers.get("Content-Type") or "").strip().lower().split(";", 1)[0].strip() == JSON_CONTENT_TYPE
@@ -923,10 +963,13 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.close_connection = True
         self.send_error_json(status, message)
 
-    def origin_and_host_ok(self):
+    def origin_and_host_ok(self, *, require_origin=False):
         """False (after answering 403) when the Host or Origin does not belong to this service."""
         if not self.host_allowed():
             self.reject(403, "forbidden: Host %r is not allowed" % (self.headers.get("Host") or ""))
+            return False
+        if require_origin and not self.headers.get("Origin"):
+            self.reject(403, "an allowed Origin is required")
             return False
         if not self.origin_allowed():
             self.reject(403, "forbidden: Origin %r is not allowed" % (self.headers.get("Origin") or ""))
@@ -935,45 +978,76 @@ class BalanceHandler(BaseHTTPRequestHandler):
 
     def state_change_ok(self):
         """The CSRF gate for POST/PUT/DELETE: Host + Origin first, then the JSON Content-Type."""
-        if not self.origin_and_host_ok():
+        if not self.origin_and_host_ok(require_origin=True):
             return False
         if not self.content_type_is_json():
             self.reject(415, "Content-Type must be application/json")
             return False
         return True
 
-    def authorized(self):
-        """True when no password is configured, or the Basic credentials match it."""
-        if not BASIC_PASSWORD:
-            return True
-        header = self.headers.get("Authorization", "")
-        if not header.startswith("Basic "):
-            return False
-        try:
-            decoded = base64.b64decode(header[6:].strip()).decode("utf-8")
-        except (ValueError, UnicodeDecodeError):
-            return False
-        user, _, password = decoded.partition(":")
-        return user == BASIC_USER and password == BASIC_PASSWORD
+    def request_path(self):
+        """Return the path relative to BASE_PATH, or None for a request outside the mounted app."""
+        path = urlsplit(self.path).path
+        if BASE_PATH:
+            if path == BASE_PATH:
+                return ""
+            if not path.startswith(BASE_PATH + "/"):
+                return None
+            path = path[len(BASE_PATH):]
+        return path or "/"
 
-    def require_auth(self):
-        if self.authorized():
+    def session_token(self):
+        cookie = SimpleCookie()
+        try:
+            cookie.load(self.headers.get("Cookie", ""))
+        except Exception:
+            return None
+        morsel = cookie.get(SESSION_COOKIE_NAME)
+        return morsel.value if morsel is not None else None
+
+    def client_ip(self):
+        """Use proxy-provided client IP only when the immediate peer is explicitly trusted."""
+        peer = self.client_address[0]
+        if peer not in TRUSTED_PROXIES:
+            return peer
+        forwarded = (self.headers.get("X-Real-IP") or "").strip()
+        try:
+            return str(ipaddress.ip_address(forwarded))
+        except ValueError:
+            return peer
+
+    def require_auth(self, *, browser_page=False):
+        store = getattr(self.server, "auth_store", None) or AUTH_STORE
+        username = store.resolve_session(self.session_token()) if store is not None else None
+        if username:
+            self.auth_username = username
             return True
-        body = b"authentication required"
-        self.send_response(401)
-        self.send_header("WWW-Authenticate", 'Basic realm="Kick-Flight Balance", charset="UTF-8"')
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        if self.command != "HEAD":
-            self.wfile.write(body)
+        path = self.request_path()
+        if browser_page and path in ("/", "/index.html"):
+            self.send_body(303, b"", "text/plain; charset=utf-8",
+                           {"Location": BASE_PATH + "/login"})
+            return False
+        self.send_error_json(401, "authentication required")
         return False
+
+    def set_session_cookie(self, token, max_age):
+        cookie_path = BASE_PATH or "/"
+        return (f"{SESSION_COOKIE_NAME}={token}; Path={cookie_path}; Max-Age={max_age}; "
+                "Secure; HttpOnly; SameSite=Strict")
+
+    def clear_session_cookie(self):
+        cookie_path = BASE_PATH or "/"
+        return (f"{SESSION_COOKIE_NAME}=; Path={cookie_path}; Max-Age=0; "
+                "Secure; HttpOnly; SameSite=Strict")
 
     def send_body(self, status, body, content_type, extra_headers=None):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
         for key, value in (extra_headers or {}).items():
             self.send_header(key, value)
         self.end_headers()
@@ -995,7 +1069,7 @@ class BalanceHandler(BaseHTTPRequestHandler):
             return
         self.send_body(200, body, content_type)
 
-    def read_body(self):
+    def read_body(self, max_bytes=MAX_BODY_BYTES):
         """(bytes, None) or (None, (status, message))."""
         raw_length = self.headers.get("Content-Length")
         if raw_length is None:
@@ -1006,8 +1080,8 @@ class BalanceHandler(BaseHTTPRequestHandler):
             return None, (400, "invalid Content-Length header")
         if length <= 0:
             return None, (400, "empty request body")
-        if length > MAX_BODY_BYTES:
-            return None, (413, "request body larger than %d bytes" % MAX_BODY_BYTES)
+        if length > max_bytes:
+            return None, (413, "request body larger than %d bytes" % max_bytes)
         body = self.rfile.read(length)
         if len(body) != length:
             return None, (400, "truncated request body")
@@ -1019,11 +1093,38 @@ class BalanceHandler(BaseHTTPRequestHandler):
         # The Host check also covers GET so a DNS-rebinding page cannot read the masters.
         if not self.origin_and_host_ok():
             return
-        if not self.require_auth():
+        path = self.request_path()
+        if path is None:
+            self.send_error_json(404, "not found")
             return
-        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if BASE_PATH and path == "":
+            self.send_body(308, b"", "text/plain; charset=utf-8", {"Location": BASE_PATH + "/"})
+            return
+        if path == "/login":
+            try:
+                html = LOGIN_FILE.read_text(encoding="utf-8")
+            except OSError as error:
+                self.send_error_json(500, "could not read login page: %s" % error)
+                return
+            html = html.replace("__BALANCE_BASE_PATH__", BASE_PATH)
+            self.send_body(200, html.encode("utf-8"), "text/html; charset=utf-8")
+            return
+        if path == "/api/login":
+            self.send_error_json(405, "method not allowed")
+            return
+        if not self.require_auth(browser_page=True):
+            return
+        if path == "/api/session":
+            self.send_json(200, {"ok": True, "username": self.auth_username})
+            return
         if path in ("/", "/index.html"):
-            self.send_file(INDEX_FILE, "text/html; charset=utf-8")
+            try:
+                html = INDEX_FILE.read_text(encoding="utf-8")
+            except OSError as error:
+                self.send_error_json(500, "could not read balance UI: %s" % error)
+                return
+            html = html.replace("__BALANCE_BASE_PATH__", BASE_PATH)
+            self.send_body(200, html.encode("utf-8"), "text/html; charset=utf-8")
             return
         if path == "/favicon.ico":
             self.send_body(204, b"", "image/x-icon")
@@ -1076,9 +1177,18 @@ class BalanceHandler(BaseHTTPRequestHandler):
     def do_POST(self):  # noqa: N802
         if not self.state_change_ok():
             return
+        path = self.request_path()
+        if path is None:
+            self.send_error_json(404, "not found")
+            return
+        if path == "/api/login":
+            self.handle_login()
+            return
         if not self.require_auth():
             return
-        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if path == "/api/logout":
+            self.handle_logout()
+            return
         if path == "/api/maintenance":
             self.handle_post_maintenance()
             return
@@ -1105,7 +1215,72 @@ class BalanceHandler(BaseHTTPRequestHandler):
         """No put/delete routes exist; still apply the CSRF gate before answering 405."""
         if not self.state_change_ok():
             return
+        if not self.require_auth():
+            return
         self.send_error_json(405, "method %s is not supported" % self.command)
+
+    def handle_login(self):
+        body, error = self.read_body(max_bytes=8192)
+        if error:
+            self.send_error_json(*error)
+            return
+        try:
+            payload = json.loads(body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            self.send_error_json(400, "invalid login payload")
+            return
+        username = payload.get("username") if isinstance(payload, dict) else None
+        password = payload.get("password") if isinstance(payload, dict) else None
+        if not isinstance(username, str) or not isinstance(password, str):
+            self.send_error_json(400, "username and password are required")
+            return
+        try:
+            password_size = len(password.encode("utf-8"))
+        except UnicodeEncodeError:
+            self.send_error_json(400, "invalid login payload")
+            return
+        if len(username) > 128 or password_size > 1024:
+            self.send_error_json(400, "invalid login payload")
+            return
+        store = getattr(self.server, "auth_store", None) or AUTH_STORE
+        if store is None:
+            self.send_error_json(503, "authentication database unavailable")
+            return
+        normalized = normalize_username(username)
+        ip_address = self.client_ip()
+        retry_after = LOGIN_LIMITER.blocked_for(ip_address, normalized)
+        if retry_after:
+            self.send_error_json_with_headers(429, "login temporarily unavailable",
+                                               {"Retry-After": str(retry_after)})
+            return
+        if not AUTH_WORK_SLOTS.acquire(blocking=False):
+            self.send_error_json_with_headers(429, "login temporarily unavailable", {"Retry-After": "1"})
+            return
+        try:
+            authenticated = store.authenticate(normalized, password)
+        finally:
+            AUTH_WORK_SLOTS.release()
+        if authenticated is None:
+            LOGIN_LIMITER.record_failure(ip_address, normalized)
+            self.send_error_json(401, "invalid username or password")
+            return
+        LOGIN_LIMITER.clear(ip_address, normalized)
+        token, expires_at = store.create_session(authenticated)
+        max_age = max(0, expires_at - int(time.time()))
+        self.send_json_with_headers(200, {"ok": True}, {"Set-Cookie": self.set_session_cookie(token, max_age)})
+
+    def handle_logout(self):
+        store = getattr(self.server, "auth_store", None) or AUTH_STORE
+        if store is not None:
+            store.revoke_session(self.session_token())
+        self.send_json_with_headers(200, {"ok": True}, {"Set-Cookie": self.clear_session_cookie()})
+
+    def send_json_with_headers(self, status, payload, headers):
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_body(status, body, "application/json; charset=utf-8", headers)
+
+    def send_error_json_with_headers(self, status, message, headers):
+        self.send_json_with_headers(status, {"ok": False, "error": message}, headers)
 
     # -- endpoint bodies --------------------------------------------------- #
 
@@ -1341,8 +1516,10 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.send_file(path, "image/png")
 
 
-def build_server(port, host="127.0.0.1"):
-    return ThreadingHTTPServer((host, port), BalanceHandler)
+def build_server(port, host="127.0.0.1", auth_store=None):
+    server = ThreadingHTTPServer((host, port), BalanceHandler)
+    server.auth_store = auth_store
+    return server
 
 
 def lan_addresses():
@@ -1395,7 +1572,7 @@ def main(argv=None):
     if args.backup_dir:
         BACKUP_DIR = Path(args.backup_dir).expanduser()
 
-    if not INDEX_FILE.is_file():
+    if not INDEX_FILE.is_file() or not LOGIN_FILE.is_file():
         print("missing %s" % INDEX_FILE, file=sys.stderr)
         return 1
     if not MASTERS_DIR.is_dir():
@@ -1411,21 +1588,27 @@ def main(argv=None):
         return 1
 
     try:
-        server = build_server(args.port, args.host)
+        auth_store = AuthStore(AUTH_DB_PATH)
+    except (OSError, RuntimeError, sqlite3.Error) as error:
+        print("could not initialize required authentication database: %s" % error, file=sys.stderr)
+        return 1
+
+    try:
+        server = build_server(args.port, args.host, auth_store)
     except OSError as error:
         print("could not bind %s:%d: %s" % (args.host, args.port, error), file=sys.stderr)
         return 1
 
     server.daemon_threads = True
-    local_url = "http://127.0.0.1:%d/" % args.port
+    local_url = "http://127.0.0.1:%d%s/" % (args.port, BASE_PATH)
     print("Balance WebUI listening on %s" % local_url)
     if args.host == "0.0.0.0":
         for ip in lan_addresses():
-            print("  from the LAN:  http://%s:%d/" % (ip, args.port))
-        if BASIC_PASSWORD:
-            print("  (HTTP basic auth is required; user %r)" % BASIC_USER)
-        else:
-            print("  WARNING: no KF_BALANCE_PASSWORD set - anyone on the network can edit the masters")
+            print("  from the LAN:  http://%s:%d%s/" % (ip, args.port, BASE_PATH))
+        print("  WARNING: use a TLS reverse proxy and configure allowed Host/Origin values before public access")
+    print("authentication database: %s (users must be inserted manually)" % AUTH_DB_PATH)
+    if ALLOWED_ORIGINS_EXTRA:
+        print("allowed public origins: %s" % ", ".join(ALLOWED_ORIGINS_EXTRA))
     print("base masters: %s" % MASTERS_DIR)
     print("overrides (written here): %s" % OVERRIDE_DIR)
     print("backups: %s" % BACKUP_DIR)

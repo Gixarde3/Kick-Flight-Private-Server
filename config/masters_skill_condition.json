@@ -69,7 +69,7 @@
   "duration": 3.0,
   "interval": 0.0,
   "effectValue": 1.0,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 40,
@@ -105,7 +105,7 @@
   "duration": 8.0,
   "interval": 0.0,
   "effectValue": 1.0,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 47,
@@ -258,7 +258,7 @@
   "duration": 10.0,
   "interval": 1.0,
   "effectValue": 0.06,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 75,
@@ -366,7 +366,7 @@
   "duration": 2.0,
   "interval": 0.0,
   "effectValue": 1.0,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 94,
@@ -384,7 +384,7 @@
   "duration": 5.0,
   "interval": 0.0,
   "effectValue": 0.7,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 102,
@@ -456,7 +456,7 @@
   "duration": 1.0,
   "interval": 0.0,
   "effectValue": 1.0,
-  "triggerType": 5
+  "triggerType": 1
  },
  {
   "id": 123,

@@ -1,6 +1,14 @@
 kick-flight-fenix.us.ci {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:18080 {
-		header_up X-Real-IP {remote_host}
+	@balance path /balance /balance/*
+	handle @balance {
+		reverse_proxy 127.0.0.1:8765 {
+			header_up X-Real-IP {remote_host}
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:18080 {
+			header_up X-Real-IP {remote_host}
+		}
 	}
 }

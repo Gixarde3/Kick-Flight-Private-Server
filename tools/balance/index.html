@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="__BALANCE_BASE_PATH__/">
 <title>Kick-Flight Balance</title>
 <style>
   :root {
@@ -31,6 +32,7 @@
   }
   header#top h1 { margin: 0; font-size: 15px; font-weight: 600; }
   header#top .hint { color: var(--fg2); font-size: 12px; }
+  header#top #logout { margin-left: auto; padding: 4px 10px; }
   #layout {
     display: flex; align-items: stretch;
     height: calc(100vh - 41px - 6.5rem);
@@ -205,6 +207,8 @@
 <header id="top">
   <h1>Kick-Flight Balance</h1>
   <span class="hint">saves write <code>.local/masters-overrides</code> (never <code>config/</code>) &mdash; restart the API to load them</span>
+  <span id="currentUser" class="hint"></span>
+  <button id="logout" type="button">Log out</button>
 </header>
 
 <div id="layout">
@@ -244,6 +248,9 @@
 "use strict";
 
 /* ------------------------------------------------------------------ config */
+
+const BASE_PATH = "__BALANCE_BASE_PATH__";
+function balanceUrl(path) { return BASE_PATH + path; }
 
 const CORE_TABLES = [
   "kicker", "kicker_parameter", "kicker_ability", "kicker_ability_condition",
@@ -368,7 +375,11 @@ function fieldMode(table, key, value) {
 }
 
 async function fetchJSON(url, options) {
-  const response = await fetch(url, options);
+  const response = await fetch(balanceUrl(url), Object.assign({ credentials: "same-origin" }, options || {}));
+  if (response.status === 401) {
+    window.location.replace(balanceUrl("/login"));
+    throw new Error("session expired");
+  }
   const text = await response.text();
   let body = null;
   if (text) {
@@ -1380,7 +1391,14 @@ function wireEvents() {
   document.getElementById("revert").addEventListener("click", revert);
   document.getElementById("apply").addEventListener("click", applyNow);
   document.getElementById("exportOverrides").addEventListener("click", function () {
-    window.location.href = "/api/overrides/export";
+    window.location.href = balanceUrl("/api/overrides/export");
+  });
+  document.getElementById("logout").addEventListener("click", async function () {
+    try {
+      await fetchJSON("/api/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    } finally {
+      window.location.replace(balanceUrl("/login"));
+    }
   });
   window.addEventListener("keydown", function (event) {
     if ((event.ctrlKey || event.metaKey) && String(event.key).toLowerCase() === "s") {
@@ -1393,6 +1411,8 @@ function wireEvents() {
 async function boot() {
   wireEvents();
   try {
+    const session = await fetchJSON("/api/session", { cache: "no-store" });
+    document.getElementById("currentUser").textContent = session.username;
     const loaded = await Promise.all([
       fetchJSON("/api/kickers", { cache: "no-store" }),
       fetchJSON("/api/discs", { cache: "no-store" })

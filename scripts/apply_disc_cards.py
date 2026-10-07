@@ -11,15 +11,24 @@ Updates, per disc:
                                exists (SummonMasterData.LowModelId = middleModelFlag ? 2 : 0 picks the bundle suffix)
   config/masters_skill_{heal,condition,trap,blow_off,pull_in}.json  regenerated templates for the new categories
                                (generate_combat_masters.skill_tables)
-Columns the dataset does not cover (range, speed, seId, coefficient, targetAreaType, grow groups, ...) are kept.
+Columns the dataset does not cover (range, speed, seId, targetAreaType, grow groups, ...) are kept.
 Min columns come from the Lv.1 stats ('lv1', Appliv) when present, else the table's mean min/max ratio; coefficient from 'coefficient_appliv' when it is a plain number.
+
+`docs/disc_damage_expectations.json` contains the user's expected per-hit values and takes precedence for cards matched
+there. DiscSkillParameter.GetCoefficient multiplies Skill.coefficient by the level-calculated Disc coefficient.
+DiscParameterUtil.CalcCoefficient returns an integer using Mathf.FloorToInt, even though the Disc endpoints are
+floats. To preserve fractional per-hit values, set both Disc endpoints to 1 and put the expected multiplier in
+Skill.coefficient; the resulting Disc factor stays exactly 1 at every growth level. For entries such as `0.75 ×19`,
+the hit/tick count belongs to the timeline; store 0.75 per hit, not 0.75 x 19.
 
     python scripts/apply_disc_cards.py [--dry-run]
 """
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -37,15 +46,47 @@ NEW_DISC_DEFAULTS = {"rank": 0, "discType": 1, "hpGrowGroupId": 1, "attackGrowGr
                      "releaseDatetime": "2020-01-29 00:00:00"}
 
 
+def per_hit_coefficient(value):
+    """Parse an Appliv coefficient as a per-impact multiplier; ignore an optional total hit count."""
+    if value is None:
+        return None
+    match = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*(?:×\s*\d+)?\s*", str(value))
+    return float(match.group(1)) if match else None
+
+
 def load(name):
     return json.loads((CONFIG / name).read_text(encoding="utf-8"))
 
 
 def save(name, rows, dry):
+    path = CONFIG / name
     if dry:
         print(f"would write {name} ({len(rows)} rows)")
         return
-    (CONFIG / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1).replace("\n", "\r\n"), encoding="utf-8")
+    if path.exists() and json.loads(path.read_text(encoding="utf-8")) == rows:
+        print(f"keep    {name} (unchanged, {len(rows)} rows)")
+        return
+    def lf_lines(data):
+        parts = data.split(b"\n")
+        return [part + b"\n" for part in parts[:-1]] + ([parts[-1]] if parts[-1] else [])
+
+    old_lines = lf_lines(path.read_bytes()) if path.exists() else []
+    new_lines = lf_lines((json.dumps(rows, ensure_ascii=False, indent=1) + "\n").encode("utf-8"))
+    if old_lines:
+        # Preserve the repository's existing line endings for untouched lines. Some legacy masters use CRCRLF;
+        # newly changed lines use LF so the extra CR does not become trailing whitespace in the reviewed diff.
+        old_content = [line.rstrip(b"\r\n") for line in old_lines]
+        new_content = [line.rstrip(b"\r\n") for line in new_lines]
+        matcher = difflib.SequenceMatcher(a=old_content, b=new_content, autojunk=False)
+        output = bytearray()
+        for tag, a0, a1, b0, b1 in matcher.get_opcodes():
+            if tag == "equal":
+                output.extend(b"".join(old_lines[a0:a1]))
+            elif tag in ("replace", "insert"):
+                output.extend(b"".join(line.rstrip(b"\r\n") + b"\n" for line in new_lines[b0:b1]))
+        path.write_bytes(output)
+    else:
+        path.write_bytes(b"".join(new_lines))
     print(f"wrote {name} ({len(rows)} rows)")
 
 
@@ -64,6 +105,9 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     data = json.loads((REPO_ROOT / "docs" / "disc_cards.json").read_text(encoding="utf-8"))
+    expected_data = json.loads((REPO_ROOT / "docs" / "disc_damage_expectations.json").read_text(encoding="utf-8"))
+    expected_coefficients = {r["skillId"]: r["expectedMultiplierPerHit"] for r in expected_data["discs"]
+                             if r["skillId"] is not None}
     action_of_type = data["typeToSkillActionType"]
     attribute_of = data["attributeType"]
     discs = {r["id"]: r for r in load("masters_disc.json")}
@@ -88,9 +132,14 @@ def main() -> int:
                      "maxHp": int(hp), "minHp": int(lv1["hp"]),
                      "maxAttack": int(atk), "minAttack": int(lv1["atk"]),
                      "maxCoolTime": float(ct), "minCoolTime": float(lv1["coolTime"])})
-        coef = c.get("coefficient_appliv")
-        if coef and coef.replace(".", "", 1).isdigit():          # "0.75 ×19" style multi-hit values are left to the tuner
-            disc["minCoefficient"] = disc["maxCoefficient"] = float(coef)
+        coef_text = c.get("coefficient_appliv")
+        appliv_coef = per_hit_coefficient(coef_text)
+        coef = expected_coefficients.get(sid, appliv_coef)
+        if coef is not None:
+            # CalcCoefficient returns Mathf.FloorToInt(min + (max - min) * rate / 100), so a fractional
+            # Disc endpoint is truncated before it reaches DiscSkillParameter. Keep the Disc factor exactly
+            # one at every level and store the full intended per-hit multiplier in Skill.coefficient.
+            disc["minCoefficient"] = disc["maxCoefficient"] = 1
 
         skill = skills.get(sid)
         if skill is None:
@@ -101,10 +150,13 @@ def main() -> int:
         if not suffixes.get(summon_id):
             summon_id = 0   # no model bundle captured for this pet at all
         skill.update({"description": c["effect"], "skillType": 1,
-                      "skillActionType": action_of_type[c["type"]],
+                      "skillActionType": gen.DISC_ACTION_TYPE_OVERRIDES.get(sid, action_of_type[c["type"]]),
                       "skillCategoryType": CATEGORY_OF_TYPE[type_key],
                       "coolTime": int(ct), "attributeType": attribute_of[c["attribute"]],
                       "summonId": summon_id})
+        if coef is not None:
+            # The Disc factor is exactly one after CalcCoefficient's integer floor; preserve fractional values here.
+            skill["coefficient"] = coef
 
     # disc ids that are not in the dataset are not released discs (e.g. 3010054/3010121: pets exist, no card,
     # no thumbnail, not on Appliv) - drop them and their disc-skill rows so they never reach a deck
