@@ -24,6 +24,8 @@ The `SocialDisplayPresenter` exposes `SetFollowerNotificationCount(int)` (`0x14F
 
 `Search` shows ID, Facebook, and Twitter choices in the supplied screen. The binary exposes `/user/search` for display-ID lookup. Facebook/Twitter use a separate SNS search/disconnection family; the existing DTOs do not provide an external account search service here, so this restoration does not claim or fabricate Facebook/Twitter results.
 
+The profile window formats the numeric display ID through `common.userIdTitleFormat`. For stored player IDs below `100000000000`, the public display ID is `100000000000 + playerId`; existing IDs at or above that base pass through unchanged. Search checks an exact stored ID before decoding this namespace, preserving any pre-existing long ID. The Translation master uses `User ID: {0:D12}`. These IDs are a response/search mapping only: `players.id`, session keys, follows, real-friend edges, and ranks keep their existing values, and the mapping requires no database migration.
+
 The `Invite Friend`/QR path uses `POST /realFriend/token` with an empty request and `{token:string}` response (route RVA `0x3210818`). `RealFriendDetailWindow.OpenQRCreateWindow` (`0x16C8B1C`) requests it. Scanning a QR calls `POST /realFriend/apply` with `{token:string}` and expects `{}` (route RVA `0x321066C`; caller in `QRReadWindow.<ReadCoroutine>d__8.MoveNext`, `0x16C0BE0`). The relationship is symmetric and separate from follows: applying does not create a Follow edge. Tokens are opaque, stable per owner, reusable for multiple invitees, and an apply is idempotent for a pair; invalid, self-owned, or unknown tokens fail.
 
 ## Crown ranking screen

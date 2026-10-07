@@ -1,4 +1,5 @@
 using System.Text.Json;
+using KickFlight.BootstrapApi.PlayerStore;
 
 namespace KickFlight.BootstrapApi;
 
@@ -151,7 +152,7 @@ public sealed partial class DemoSessionApi
             return StatusError(context, key);
         }
 
-        var record = _playerStore.FindProfile(displayUserId);
+        var record = FindProfileByDisplayOrStoredId(displayUserId);
         if (record is null) return StatusError(context, key);
         var profile = SocialProfileJson(state, record, FollowStatusFor(state.PlayerId, record.PlayerId), false);
 
@@ -178,12 +179,23 @@ public sealed partial class DemoSessionApi
             return StatusError(context, key);
         }
 
-        var record = _playerStore.FindProfile(searchUserId);
+        var record = FindProfileByDisplayOrStoredId(searchUserId);
         if (record is null) return StatusError(context, key);
-        var profile = SocialProfileJson(state, record, FollowStatusFor(state.PlayerId, record.PlayerId), false);
-        var targetState = _playerStore.TryLoad(record.PlayerId) ?? state;
+        var targetState = _playerStore.TryLoad(record.PlayerId);
+        if (targetState is null) return StatusError(context, key);
+
+        NormalizeCostume(targetState);
+        if (!TryBuildUserBattleParameterJson(targetState, out var battleParameter))
+            return StatusError(context, key);
+
+        var targetProfile = record with
+        {
+            KickerId = targetState.KickerId,
+            KickerCostumeId = targetState.KickerCostumeId
+        };
+        var profile = SocialProfileJson(state, targetProfile, FollowStatusFor(state.PlayerId, record.PlayerId), false);
         return OkJson(context, key,
-            $$"""{"userProfile":{{profile}},"userBattleParameter":{{BuildNeutralBattleParameterJson(targetState)}},"snsScreenName":""}""");
+            $$"""{"userProfile":{{profile}},"userBattleParameter":{{battleParameter}},"snsScreenName":""}""");
     }
 
     private async Task<IResult?> HandleUserChangeStubAsync(HttpContext context, SessionState state, byte[] key)
@@ -230,7 +242,10 @@ public sealed partial class DemoSessionApi
         userId.Length <= 4 ? userId : userId[^4..];
 
     private static long CurrentDisplayUserId(SessionState state) =>
-        long.TryParse(state.UserId, out var parsed) ? parsed : 1000001;
+        PlayerDisplayIdCodec.ToPublic(long.TryParse(state.UserId, out var parsed) ? parsed : 1000001);
+
+    private PlayerProfile? FindProfileByDisplayOrStoredId(long id) =>
+        PlayerDisplayIdCodec.Find(id, _playerStore.FindProfile);
 
     // ResponseUserProfile, field for field. Frames and battle ranks mirror what BuildHomeJson already serves for the
     // same user (an empty userFrameList leaves the profile card without a frame to draw).
@@ -238,7 +253,7 @@ public sealed partial class DemoSessionApi
         JsonSerializer.Serialize(new
         {
             userId,
-            displayUserId,
+            displayUserId = PlayerDisplayIdCodec.ToPublic(displayUserId),
             name,
             honorId = 6010000,
             userFrameList = new[]
@@ -261,18 +276,43 @@ public sealed partial class DemoSessionApi
             snsUserImageUrl = ""
         });
 
-    // ResponseUserBattleParameter: the deck the opponent screen would show, empty (no discs, no rule).
-    private static string BuildNeutralBattleParameterJson(SessionState state) =>
-        JsonSerializer.Serialize(new
+    // The client resolves every disc id through DiscMasterData while building a friend card. Keep the detail
+    // payload tied to the target's persisted active deck, with the same initial deck as SessionState when a slot
+    // is absent or invalid. Rule 1 is the valid regular rule; SessionState does not persist a selected rule.
+    private bool TryBuildUserBattleParameterJson(SessionState state, out string json)
+    {
+        json = "";
+        if (_discIdList.Count < 4) return false;
+
+        int[] initialDeck = [3010001, 3010002, 3010003, 3010004];
+        var activeDeck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [];
+        int DiscAt(int slot)
         {
-            battleRuleId = 0,
+            var current = slot < activeDeck.Count ? activeDeck[slot] : 0;
+            if (_discIdList.Contains(current)) return current;
+
+            var fallback = initialDeck[slot];
+            if (_discIdList.Contains(fallback)) return fallback;
+            return _discIdList[slot];
+        }
+
+        var discIds = Enumerable.Range(0, 4).Select(DiscAt).ToArray();
+        int LevelOf(int discId) => state.Discs.TryGetValue(discId, out var disc) && disc.Level > 0
+            ? disc.Level
+            : 10;
+
+        json = JsonSerializer.Serialize(new
+        {
+            battleRuleId = 1,
             kickerId = state.KickerId,
             kickerCostumeId = state.KickerCostumeId,
-            discId1 = 0, discLevel1 = 0,
-            discId2 = 0, discLevel2 = 0,
-            discId3 = 0, discLevel3 = 0,
-            discId4 = 0, discLevel4 = 0
+            discId1 = discIds[0], discLevel1 = LevelOf(discIds[0]),
+            discId2 = discIds[1], discLevel2 = LevelOf(discIds[1]),
+            discId3 = discIds[2], discLevel3 = LevelOf(discIds[2]),
+            discId4 = discIds[3], discLevel4 = LevelOf(discIds[3])
         });
+        return true;
+    }
 
     // Same four rows BuildStartupJson emits, built from the live counters.
     private static string BuildUserItemListJson(SessionState state) =>

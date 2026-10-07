@@ -361,6 +361,24 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
             row => Assert.True(row.GetProperty("regularMatchFlag").GetBoolean()));
     }
 
+    [Fact]
+    public async Task Served_translation_formats_social_user_id_as_twelve_digits()
+    {
+        using var client = _factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/demo-master/Translation");
+        request.Headers.Host = Host;
+        using var response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var decrypted = D2CCodec.Decode(await response.Content.ReadAsByteArrayAsync(), Encoding.ASCII.GetBytes(CommonCode));
+        using var document = JsonDocument.Parse(decrypted);
+        var row = Assert.Single(document.RootElement.EnumerateArray(), entry =>
+            entry.GetProperty("key").GetString() == "common.userIdTitleFormat");
+        var format = row.GetProperty("text").GetString();
+        Assert.Equal("User ID: {0:D12}", format);
+        Assert.Equal("User ID: 000001000028", string.Format(CultureInfo.InvariantCulture, format!, 1000028L));
+    }
+
     // Every path of the stub table, each with a field its response must carry.
     [Theory]
     [InlineData("/analysis/index", null)]
@@ -442,19 +460,33 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     {
         var session = await CreateSessionAsync();
         var ownId = long.Parse(session.UserId);
+        var publicOwnId = PlayerDisplayIdCodec.ToPublic(ownId);
 
         var own = (await PostAsync(session, "/user/search", new { displayUserId = ownId })).GetProperty("userProfile");
         Assert.Equal(session.UserId, own.GetProperty("userId").GetString());
-        Assert.Equal(ownId, own.GetProperty("displayUserId").GetInt64());
+        Assert.Equal(publicOwnId, own.GetProperty("displayUserId").GetInt64());
         Assert.Equal("", own.GetProperty("name").GetString());
         Assert.Equal(6010000, own.GetProperty("honorId").GetInt32());
         Assert.Equal(7, own.GetProperty("userBattleRankList")[0].GetProperty("rank").GetInt32());
+
+        var ownByPublicId = (await PostAsync(session, "/user/search", new { displayUserId = publicOwnId })).GetProperty("userProfile");
+        Assert.Equal(session.UserId, ownByPublicId.GetProperty("userId").GetString());
+        Assert.Equal(publicOwnId, ownByPublicId.GetProperty("displayUserId").GetInt64());
+        var ownDetail = (await PostAsync(session, "/user/detail", new { searchUserId = publicOwnId.ToString(CultureInfo.InvariantCulture) }))
+            .GetProperty("userProfile");
+        Assert.Equal(session.UserId, ownDetail.GetProperty("userId").GetString());
+        Assert.Equal(publicOwnId, ownDetail.GetProperty("displayUserId").GetInt64());
+        var displayEndpoint = await PostAsync(session, "/user/displayUserId", null);
+        Assert.Equal(publicOwnId, displayEndpoint.GetProperty("displayUserId").GetInt64());
+        var home = await PostAsync(session, "/home/index", null);
+        Assert.Equal(publicOwnId, home.GetProperty("userPlayer").GetProperty("displayUserId").GetInt64());
 
         var otherSession = await CreateSessionAsync();
         await PostAsync(otherSession, "/user/change", new { name = "Persisted Search Profile" });
         var otherId = long.Parse(otherSession.UserId);
         var other = (await PostAsync(session, "/user/search", new { displayUserId = otherId })).GetProperty("userProfile");
         Assert.Equal(otherSession.UserId, other.GetProperty("userId").GetString());
+        Assert.Equal(PlayerDisplayIdCodec.ToPublic(otherId), other.GetProperty("displayUserId").GetInt64());
         Assert.Equal("Persisted Search Profile", other.GetProperty("name").GetString());
         await PostAsync(session, "/user/search", new { displayUserId = 9999999 }, expectStatusZero: false);
     }

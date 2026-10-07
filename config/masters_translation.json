@@ -52,7 +52,7 @@
  {
   "id": 11,
   "key": "common.userIdTitleFormat",
-  "text": "User ID Title {0}"
+  "text": "User ID: {0:D12}"
  },
  {
   "id": 12,

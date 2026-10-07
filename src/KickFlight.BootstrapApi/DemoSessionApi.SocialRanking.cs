@@ -179,7 +179,7 @@ public sealed partial class DemoSessionApi
         return JsonSerializer.Serialize(new
         {
             userId = profile.PlayerId.ToString(),
-            displayUserId = profile.PlayerId,
+            displayUserId = PlayerDisplayIdCodec.ToPublic(profile.PlayerId),
             name = profile.DisplayName,
             honorId = 6010000,
             userFrameList = new[]
