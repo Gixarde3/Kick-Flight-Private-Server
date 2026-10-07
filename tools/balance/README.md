@@ -1,9 +1,32 @@
 # Balance WebUI (`tools/balance/`)
 
-A small local web tool to edit the Kick-Flight combat master tables in `config/masters_*.json`
-per kicker and per disc, with the kicker/disc icon, name and (discs) description next to the
-numbers. Nothing here talks to the game server: the tool edits the JSON files on disk, and the
-server picks them up the next time it starts.
+A small local web tool to edit the Kick-Flight combat master tables (`masters_*.json`) per kicker and
+per disc, with the kicker/disc icon, name and (discs) description next to the numbers, plus
+Maintenance and "Restart API to apply" panels that drive the deployed API. One HTML file with
+vanilla JS/CSS, a Python 3 standard-library server, no `pip install`, no `package.json`, no CDN.
+
+## Where the masters actually live
+
+The game server does **not** read masters from Postgres. `DemoSessionApi` is a singleton
+(`src/KickFlight.BootstrapApi/Program.cs`) that reads `config/masters_*.json` once and caches the
+encrypted copy in `_encryptedMasters`; changing a master needs an API restart. Postgres carries only
+player state (`players`, `sessions`, `player_ranks`, `schema_meta`). The tool edits *master files*,
+never the DB.
+
+Saving never writes to `config/`. It writes a per-table override file, and the API's **master
+override layer** (`MasterOverrides`, `Masters:OverrideDir` / `Masters__OverrideDir`) uses that file
+instead of the base `config/masters_<table>.json` when it exists:
+
+| directory | default | deployed (VPS) | role |
+|---|---|---|---|
+| base | this checkout's `config/` | `/opt/kickflight/config` | shipped, overwritten by the CI deploy |
+| override | `.local/masters-overrides/` | `/opt/kickflight/.local/masters-overrides` | tuned values, **survive the deploy** |
+| backups | `tools/balance/backups/` | `/opt/kickflight/.local/balance-backups` | one copy per overwritten file |
+
+The API logs one line at startup listing the overridden tables, and `MasterVersion` (the client's
+master hash) changes automatically, so clients pick the tuned values up after the restart. Masters
+that are inline C# constants (`Field`, `BattleRank`, `Guardian`, ...) have no file and are not
+overridable. `KF_BALANCE_MASTERS_DIR` is accepted as an alias of `KF_BALANCE_BASE_DIR`.
 
 ## Run it
 
@@ -11,100 +34,151 @@ server picks them up the next time it starts.
 start-balance.bat                         # repo root: starts the server and opens the browser (this PC only)
 start-balance.bat lan                     # same, but also reachable from other devices on the LAN (URL is printed)
 python tools/balance/server.py            # default port 8765, binds 127.0.0.1 only
-python tools/balance/server.py --host 0.0.0.0 --open   # LAN access + open the browser
-python tools/balance/server.py --port 8766
+python tools/balance/server.py --override-dir ~/kf-overrides --open
 ```
 
-Then open <http://127.0.0.1:8765/>. Python 3 standard library only — no `pip install`, no
-`package.json`, no CDN: the page is one HTML file with vanilla JS/CSS and only ever fetches its
-own origin, so it works offline.
+Then open <http://127.0.0.1:8765/>.
 
-**After saving, restart the game server with `start-server.bat` so `config/` is read again.**
+**After saving, click "Restart API to apply"** (locally `start-server.bat`; on the VPS the button
+runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot reload.
+
+## Environment (deployed use)
+
+| variable | meaning |
+|---|---|
+| `KF_BALANCE_BASE_DIR` | base directory holding `masters_*.json` (default: this checkout's `config/`; alias `KF_BALANCE_MASTERS_DIR`) |
+| `KF_BALANCE_OVERRIDE_DIR` | where saves are written and overrides read from (default: `.local/masters-overrides/`) |
+| `KF_BALANCE_BACKUP_DIR` | where each replaced file is copied (default: `tools/balance/backups/`) |
+| `KF_BALANCE_HOST` / `KF_BALANCE_PORT` | bind interface / port (default `127.0.0.1` / `8765`) |
+| `KF_BALANCE_USER` / `KF_BALANCE_PASSWORD` | optional HTTP basic auth; **no auth at all when the password is empty** |
+| `KF_BALANCE_API_CONTAINER` | container the apply/maintenance defaults target (default `deploy-api-1`) |
+| `KF_BALANCE_APPLY_CMD` | shell command that restarts the API (default `docker restart deploy-api-1`) |
+| `KF_BALANCE_HEALTH_CMD` | shell command that must exit 0 when the API is ready (default `docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready`) |
+| `KF_BALANCE_HEALTH_URL` | URL used to build the default health command (default `http://127.0.0.1:8080/health/ready`) |
+| `KF_BALANCE_APPLY_TIMEOUT` / `KF_BALANCE_HEALTH_INTERVAL` | readiness poll budget in seconds / interval (default `120` / `2`) |
+| `KF_BALANCE_ADMIN_URL` | full URL of `/admin/maintenance`; when set the tool calls it directly |
+| `KF_BALANCE_ADMIN_CONTAINER` | container the default maintenance command `docker exec`s into (default `deploy-api-1`) |
+| `KF_BALANCE_ADMIN_INTERNAL_URL` | URL curl uses inside that container (default `http://127.0.0.1:8080/admin/maintenance`) |
+| `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` | escape hatches: full shell commands whose stdout is the JSON status |
+
+Protection choice: the deployment binds `127.0.0.1:8765` on the VPS and is reached over an SSH
+tunnel, so nothing is exposed to the network. `KF_BALANCE_PASSWORD` is the optional second layer for
+LAN runs.
 
 ## What it edits
 
-Left sidebar: **Kickers** (14) or **Discs** (131), a text filter (name/id; for discs also the
-card effect text) and, for discs, rarity and type dropdowns. Every entry shows its icon from
-`tools/balance/icons/`.
+Left sidebar: **Kickers** (14), **Discs**, **Text** and **Maintenance**. A text filter and, for discs,
+rarity/type dropdowns. Every entry shows its icon from `tools/balance/icons/`.
 
-Kicker panel — one section per source file:
+Kicker panel — one section per source table (Stats, Passive, Passive condition, passive/kicker/special
+skill and their extras, Basic Attack). Disc panel — the `Disc` row, the card text from
+`docs/disc_cards.json`, the `Skill` row and every `SkillCondition` / `SkillHeal` / `SkillBlowOff` /
+`SkillPullIn` / `SkillTrap` / `SkillCollision` / `SkillHit` row of that skill.
 
-| section | file |
+Numbers render as `<input type="number" step="any">`, booleans as checkboxes, strings as read-only
+text. Row-link columns (`id`, `kickerId`, `attackCount`, `skillId`, `specialSkillId`,
+`kickerAbilityId`) and the documented read-only columns are shown as read-only chips.
+
+Every section whose table has an override file shows an **override** badge and a **Revert to base**
+button. Reverting deletes the override file (after backing it up) so the base `config/` file applies
+again; like a save, it needs the API restart. **Export overrides** downloads a zip of every override
+file (`masters_*.json`), ready to copy into `config/` and commit when a tuned set should become the
+shipped default.
+
+## Adding and deleting effect rows
+
+Most TRAP/effect discs have no row in one or more effect tables. For the effect tables the section
+header carries **+ Add row** and every row carries **Delete row**:
+
+| table | columns (new rows get the generator's neutral preset) |
 |---|---|
-| Stats | `config/masters_kicker_parameter.json` |
-| Passive | `config/masters_kicker_ability.json` |
-| Passive condition | `config/masters_kicker_ability_condition.json` |
-| Passive skill &middot; *id* | when the passive's `value` is a skill id (Jay's bat bomb, 40001): that `config/masters_skill.json` row (`coefficient` = blast damage × ATK) and its `masters_skill_*` rows — `skill_trap`: `duration` = fuse (s), `radius` = blast end radius, `interval` = blast lifetime (s), `effectPath` = explosion SPFX |
-| Kicker Skill | `config/masters_skill.json` (row `id == kicker_parameter.skillId`) |
-| Kicker Skill extra &middot; *name* | `config/masters_skill_condition.json`, `_trap`, `_heal`, `_blow_off`, `_pull_in`, `_collision`, `_hit` (rows with that `skillId`) |
-| Special Skill | `config/masters_special_skill.json` |
-| Special Skill extra &middot; *name* | `config/masters_special_skill_condition.json`, `_trap`, `_hit`, `_collision`, `_bullet`, `_blow_off` (rows with `specialSkillId == kickerId`) |
-| Basic Attack | `config/masters_weapon_attack.json`, grouped by `attackCount`, plus the matching `_hit` / `_collision` / `_bullet` / `_condition` rows for that kicker and `attackCount` |
+| `masters_skill_condition.json` | `conditionType`, `duration`, `interval`, `effectValue`, `triggerType` — default AttackRate ×1.2 for 10 s on hit |
+| `masters_skill_heal.json` | `skillHealType`, `coefficient` — default 30 % MaxHP |
+| `masters_skill_blow_off.json` | `distance`, `speed`, `rigorTime`, `directionType` — default slam (Down) |
+| `masters_skill_pull_in.json` | `distance`, `speed` |
+| `masters_skill_trap.json` | `trapType`, `duration`, `radius`, `effectValue`, `interval`, `executeSeId`, `effectPath`, `screenEffectPath` |
+| `masters_skill_collision.json` / `_hit.json` | guardian beam only (same shape as the generator) |
 
-Disc panel: the `config/masters_disc.json` row, the card text and rarity/type/attribute from
-`docs/disc_cards.json`, then the disc's `config/masters_skill.json` row and its extra
-`masters_skill_*` rows.
+The new row's `id` is `max(existing ids) + 1` in that table, so it never collides, and the link
+column (`skillId`; `specialSkillId` for special-skill extras) is filled with the skill being edited.
+Column semantics are in `docs/COMBAT_MASTERS_FILL_IN.md`; the presets mirror
+`scripts/generate_combat_masters.py`. The schema and defaults come from `GET /api/effect-schema`, so
+the browser and the server agree.
 
-Numbers render as `<input type="number" step="any">`, booleans as checkboxes, strings as
-read-only text. Row-link columns (`id`, `kickerId`, `attackCount`, `skillId`, `specialSkillId`,
-`kickerAbilityId`) are shown as read-only chips, as are the skill `description`/`skillType`/
-`skillActionType`/`skillCategoryType`/`targetAreaType`/`summonId`/`attributeType`/`seId` columns
-and the kicker `roleType`/`weaponType` columns. Booleans under `weapon_attack_*` are read-only
-(only the `special_skill_*` extras expose bools as editable), and rows cannot be added or
-removed — this tool tunes values.
+Writes are strict: the posted rows must have the id/key set/type the effective file has. Added and
+deleted rows are accepted **only** in the tables above; every other table must round-trip exactly
+(same ids, same keys, same types). A `100.0` in an integer column is stored as `100`; a wrong type, a
+duplicate id, an unknown/extra key or an add/delete on a core table is rejected with HTTP 400 and
+nothing is written.
 
-## Text tab (UI translations)
+Before an override file is overwritten (or deleted by a revert) the server copies the file that was
+in effect - the override if there was one, else the base `config/` file - to the backup dir as
+`<name>-<yyyymmdd-hhmmss>.json`; `GET /api/diff/<name>` lists the field-level differences against the
+newest backup.
 
-The third tab edits `config/masters_translation.json`, the Translation master every `LocalizeText` in the UI
-prefabs and every `LocalizeManager.GetText(enum)` call resolves its text from (a key without a row shows as an
-empty string in the game). The sidebar lists **screens** = the UI prefabs of the APK (`OutGameSettingWindow`,
-`MenuWindow`, `DiscSortWindow`, ...), plus "(keys used from code / enums)" for rows no prefab references
-(disc type labels `skillCategoryType.*`, status names `conditionType.*`, ...). Selecting a screen shows:
+## Apply tab (footer)
 
-* a **wireframe** of that prefab at 1/3 scale (1080x1920 canvas) with one box per localized text, showing the
-  current text (or the key, red border, when there is no row). Positions come from the prefabs' RectTransforms
-  (`docs/localize_layout.json`, built by `python scripts/extract_localize_layout.py` from a decoded `base.apk`);
-  layout groups / scroll lists are not simulated, so dashed boxes are elements whose static position falls
-  outside the canvas. Click a box to jump to its input.
-* the list of keys with their element path and an editable text; typing updates the box live. `Save` writes the
-  table like any other; restart the game server and relaunch the client to see it.
+The footer tracks override files newer than the running API container's start time
+(`docker inspect .State.StartedAt`) and shows "pending changes not yet applied". **Restart API to
+apply** asks for confirmation with an explicit warning that live matches are dropped, runs
+`KF_BALANCE_APPLY_CMD`, then polls `KF_BALANCE_HEALTH_CMD` until it succeeds or the timeout expires,
+and reports the probe result. It never restarts by itself.
 
-Keys are never added here: run `python scripts/generate_translations.py` after adding entries to its `TEXTS` (it
-also creates rows for every key the client can look up).
+## Maintenance tab
 
-## Saving
+Selecting **Maintenance** shows the current mode (`off` / `warning` / `hard`), the notice title and
+message and buttons **Off**, **Soft (notice)** and **Hard (503)**. It proxies the game server's
+`GET|POST /admin/maintenance` (`MaintenanceState`): `warning` adds one notice to `/home/index`,
+`hard` answers 503 to every non-exempt POST and stops matchmaking, and both take an optional
+title/message.
 
-Edited fields are highlighted, the footer counts them, and **Save** (or `Ctrl+S`) posts each
-changed table to `POST /api/table/<name>` as one request per table, in sequence, reporting
-success or failure per table. **Revert** reloads everything from `config/`.
+That endpoint only answers its own loopback and the API's HTTP port is never published, so the default
+command runs curl **inside the API container**:
 
-Before a file is overwritten the server copies it to `tools/balance/backups/<name>-<yyyymmdd-hhmmss>.json`,
-so a previous state can always be restored by hand (or compared with `GET /api/diff/<name>`,
-which lists the field-level differences between the file on disk and its newest backup).
+```
+docker exec -i deploy-api-1 curl -sS -X POST \
+    http://127.0.0.1:8080/admin/maintenance -H "Content-Type: application/json" -d @-
+```
 
-Writes are strict: the posted rows must have the same ids, the same key set and the same value
-types as the file (`100.0` for an integer field is stored as `100`, booleans stay booleans,
-strings stay strings). Anything else is rejected with HTTP 400 and the file is left untouched.
+For a native/dev API on the same host set `KF_BALANCE_ADMIN_URL` instead. If the container has no
+HTTP client, point `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` at another loopback path.
 
 ## API
 
 | route | result |
 |---|---|
-| `GET /api/kickers` | `{id, name, weaponType, roleType, skillId}` per kicker |
-| `GET /api/discs` | `{id, name, rarityType, discType, skillId, effect, type, attribute, rarity}` per disc |
-| `GET /api/table/<name>` | full array of `config/masters_<name>.json` (404 if the name is not `^[a-z_]+$` or the file is missing) |
-| `POST /api/table/<name>` | body `{"rows": [...]}`; validates, backs up, writes `indent=1` + trailing newline, returns `{"ok": true, "written": n}` |
+| `GET /api/kickers` | `{id, name, weaponType, roleType, skillId}` per kicker (override-aware) |
+| `GET /api/discs` | `{id, name, rarityType, discType, skillId, effect, type, attribute, rarity}` per disc (override-aware) |
+| `GET /api/effect-schema` | `{tables: {name: {fields: {col: type}, defaults: {...}}}}` |
+| `GET /api/tables` | `[{name, source, overridden, base, overrideMtime, baseMtime}, ...]` |
+| `GET /api/table/<name>` | full effective array: override file if present, else `config/masters_<name>.json` |
+| `POST /api/table/<name>` | body `{"rows": [...]}`; validates, backs up, writes the **override** file, returns `{ok, written, override}` |
+| `POST /api/table/<name>/revert` | deletes the override (backup first), returns `{ok, reverted, source}` |
+| `GET /api/overrides/export` | zip download of every override file |
+| `GET /api/apply` | `{pending, overrides, apiStartedAt, apiStartedAtIso, container, applyCmd, health}` |
+| `POST /api/apply` | runs the restart command, polls health, returns `{ok, command, output, health, elapsedSeconds, pending}` |
 | `GET /api/diff/<name>` | `{"changed": [{id, field, before, after}, ...]}` vs. the newest backup |
+| `GET /api/maintenance` | current `{mode, title, message, noticeId, changedAtUtc}` (proxied) |
+| `POST /api/maintenance` | body `{"mode": "off"\|"warning"\|"hard", "title"?, "message"?}` (proxied) |
 | `GET /icons/<file>.png` | the extracted kicker/disc icons |
 | `GET /` | `tools/balance/index.html` |
+
+Every route (including static files) requires HTTP basic auth when `KF_BALANCE_PASSWORD` is set.
+
+## Deploy on the VPS
+
+See `tools/balance/deploy/README.md` and `deploy/VPS.md`. Short version: the CI deploy delivers
+`tools/balance/` to `/opt/kickflight/tools/balance`, and the `kickflight-balance` systemd unit runs
+`python3 /opt/kickflight/tools/balance/server.py` on `127.0.0.1:8765` with
+`/etc/kickflight-balance.env`. Reach it with `ssh -N -L 8765:127.0.0.1:8765 kickflight` and open
+<http://127.0.0.1:8765/>.
 
 ## Notes
 
 * `masters_special_skill_heal.json` and `masters_special_skill_pull_in.json` do not exist in
-  `config/`, so those two SS extras are not requested by the page (it never asks for a file that
-  is not there); `masters_skill_blow_off.json`, `masters_skill_pull_in.json` and
-  `masters_weapon_attack_condition.json` exist but are empty arrays today.
+  `config/`, so those two SS extras are not requested by the page (it never asks for a file that is
+  not there).
 * `docs/disc_cards.json` stores its entries as a list under `cards`; the server reads them by
   `discId` and falls back to empty strings for a disc without a card.
-* The tool writes with a trailing newline, so the first save of a file adds one newline at the
-  end of the file compared to the generator output.
+* The CI deploy rsyncs the repo over `/opt/kickflight` and excludes `.local/` and `.env`, so override
+  files and backups there survive every push. `config/` edits do not: use the override dir.

@@ -96,6 +96,14 @@
     border-radius: 10px; padding: 1px 8px;
   }
   .chip b { color: var(--fg); font-weight: 600; }
+  .chip.ovr { color: var(--dirty); border-color: var(--dirty); }
+  button.mini.rev { border-color: var(--dirty); color: var(--dirty); }
+  #applyStatus:empty { display: none; }
+  #applyStatus { margin-top: 6px; }
+  #applyStatus .line { font: 11px/1.5 ui-monospace, Consolas, monospace; }
+  #applyStatus .line.ok { color: var(--ok); }
+  #applyStatus .line.err { color: var(--err); }
+  #applyStatus .line.info { color: var(--fg2); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 10px; }
   label.field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   label.field > .k { font-size: 11px; color: var(--fg2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -159,12 +167,44 @@
   .legend i { display: inline-block; width: 10px; height: 10px; border: 1px solid rgba(96,165,250,.55); background: rgba(96,165,250,.10); margin: 0 4px 0 8px; vertical-align: middle; }
   .legend i.empty { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.12); }
   .legend i.off { border-style: dashed; }
+  /* Effect rows: add / delete */
+  section.sec h2 .grow { flex: 1; }
+  button.mini {
+    padding: 2px 9px; border-radius: 5px; border: 1px solid var(--line);
+    background: var(--bg3); color: var(--fg); font: 11px inherit; cursor: pointer;
+  }
+  button.mini.add { border-color: var(--ok); color: var(--ok); }
+  button.mini.del { border-color: var(--err); color: var(--err); }
+  button.mini:hover { background: var(--bg); }
+  button.mini:disabled { opacity: .5; cursor: default; }
+  .rowhead .spacer { flex: 1; }
+  /* Maintenance panel */
+  .mpanel { max-width: 760px; }
+  .mstate { display: inline-block; padding: 2px 10px; border-radius: 10px; font-weight: 600; border: 1px solid var(--line); }
+  .mstate.mode-off { color: var(--ok); border-color: var(--ok); }
+  .mstate.mode-warning { color: var(--dirty); border-color: var(--dirty); }
+  .mstate.mode-hard { color: var(--err); border-color: var(--err); }
+  .mbtns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .mbtns button { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg3); color: var(--fg); font: inherit; cursor: pointer; }
+  .mbtns button.m-off { border-color: var(--ok); }
+  .mbtns button.m-warning { border-color: var(--dirty); }
+  .mbtns button.m-hard { border-color: var(--err); }
+  .mbtns button:disabled { opacity: .5; cursor: default; }
+  .mfield { display: flex; flex-direction: column; gap: 3px; margin: 8px 0; }
+  .mfield .k { font-size: 11px; color: var(--fg2); }
+  .mfield input, .mfield textarea { padding: 6px 8px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 5px; font: inherit; }
+  .mfield textarea { min-height: 60px; resize: vertical; }
+  #maintStatus:empty { display: none; }
+  #maintStatus .line { font: 11px/1.5 ui-monospace, Consolas, monospace; }
+  #maintStatus .line.ok { color: var(--ok); }
+  #maintStatus .line.err { color: var(--err); }
+  #maintStatus .line.info { color: var(--fg2); }
 </style>
 </head>
 <body>
 <header id="top">
   <h1>Kick-Flight Balance</h1>
-  <span class="hint">edits <code>config/masters_*.json</code> &mdash; backups go to <code>tools/balance/backups/</code></span>
+  <span class="hint">saves write <code>.local/masters-overrides</code> (never <code>config/</code>) &mdash; restart the API to load them</span>
 </header>
 
 <div id="layout">
@@ -173,6 +213,7 @@
       <button type="button" data-tab="kickers" class="on">Kickers</button>
       <button type="button" data-tab="discs">Discs</button>
       <button type="button" data-tab="text">Text</button>
+      <button type="button" data-tab="maintenance">Maintenance</button>
     </div>
     <div id="filters">
       <input type="text" id="filterText" placeholder="Filter by name or id" autocomplete="off">
@@ -191,8 +232,11 @@
     <span id="dirtyCount">Unsaved changes: 0</span>
     <button type="button" id="save" disabled>Save</button>
     <button type="button" id="revert">Revert</button>
-    <span class="note">restart the game server (<code>start-server.bat</code>) to apply</span>
+    <button type="button" id="apply">Restart API to apply</button>
+    <button type="button" id="exportOverrides">Export overrides</button>
+    <span class="note">saves write the override dir; restart the API to load them</span>
   </div>
+  <div id="applyStatus"></div>
   <div id="saveStatus"></div>
 </footer>
 
@@ -258,6 +302,12 @@ const state = {
   discs: [],
   data: {},       /* table name -> rows (working copy) or null when unreadable */
   pristine: {},   /* table name -> deep copy as loaded, for dirty detection */
+  effectSchema: {}, /* table name -> {fields, defaults} from /api/effect-schema (add/delete allowed) */
+  tables: {},      /* table name -> {overridden, source, ...} from /api/tables */
+  apply: null,     /* last /api/apply status (pending overrides + health) */
+  applying: false,
+  maintenance: null, /* last /admin/maintenance status snapshot */
+  savingMaintenance: false,
   inputs: new Map(),   /* "table|rowId|field" -> input element */
   dirtyFields: new Set(),
   dirtyTables: new Set(),
@@ -353,6 +403,73 @@ async function loadEverything(force) {
   await Promise.all(names.map(function (name) { return loadTable(name, force); }));
 }
 
+/* Which tables have an override file (masters:override layer) and the pending/health state. */
+function tableInfo(table) {
+  return state.tables[table] || null;
+}
+
+function isOverridden(table) {
+  const info = tableInfo(table);
+  return !!(info && info.overridden);
+}
+
+async function loadOverrides() {
+  try {
+    const tables = await fetchJSON("/api/tables", { cache: "no-store" });
+    const map = {};
+    for (const entry of (Array.isArray(tables) ? tables : [])) map[entry.name] = entry;
+    state.tables = map;
+  } catch (error) {
+    state.tables = {};
+  }
+}
+
+function renderApplyStatus() {
+  const box = document.getElementById("applyStatus");
+  if (!box) return;
+  clear(box);
+  const apply = state.apply;
+  if (!apply) {
+    box.appendChild(el("div", { class: "line info" }, "apply status unknown"));
+    return;
+  }
+  if (apply.error) {
+    box.appendChild(el("div", { class: "line err" }, "apply status: " + apply.error));
+    return;
+  }
+  const pending = apply.pending || [];
+  box.appendChild(el("div", { class: "line " + (pending.length ? "info" : "ok") }, pending.length
+    ? "pending changes not yet applied: " + pending.join(", ") + " (override files newer than the API container start)"
+    : "no pending changes: the API has loaded every override"));
+  if (apply.note) box.appendChild(el("div", { class: "line info" }, apply.note));
+  const health = apply.health || {};
+  box.appendChild(el("div", { class: "line " + (health.ok ? "ok" : "err") },
+    "health: " + (health.ok ? "ready" : "not ready") + (health.detail ? " - " + health.detail : "")));
+
+  const applyButton = document.getElementById("apply");
+  if (applyButton) {
+    applyButton.textContent = state.applying
+      ? "Restarting..."
+      : (pending.length ? "Restart API to apply (" + pending.length + ")" : "Restart API to apply");
+    applyButton.disabled = state.applying;
+  }
+  const exportButton = document.getElementById("exportOverrides");
+  if (exportButton) {
+    const overrides = apply.overrides || [];
+    exportButton.textContent = overrides.length ? "Export overrides (" + overrides.length + ")" : "Export overrides";
+    exportButton.disabled = overrides.length === 0;
+  }
+}
+
+async function loadApplyStatus() {
+  try {
+    state.apply = await fetchJSON("/api/apply", { cache: "no-store" });
+  } catch (error) {
+    state.apply = { error: error.message };
+  }
+  renderApplyStatus();
+}
+
 /* ----------------------------------------------------------------- sidebar */
 
 function buildDiscFilters() {
@@ -377,6 +494,7 @@ function buildDiscFilters() {
 
 function filteredItems() {
   const text = document.getElementById("filterText").value.trim().toLowerCase();
+  if (state.tab === "maintenance") return [];
   if (state.tab === "text") {
     return state.screens.filter(function (screen) {
       if (!text) return true;
@@ -424,6 +542,10 @@ function iconFor(kind, id, size) {
 function renderList() {
   const list = document.getElementById("list");
   clear(list);
+  if (state.tab === "maintenance") {
+    list.appendChild(el("li", { class: "count" }, "Server maintenance mode and notice text"));
+    return;
+  }
   const items = filteredItems();
   if (state.tab === "text") {
     list.appendChild(el("li", { class: "count" }, items.length + " of " + state.screens.length + " screens"));
@@ -474,12 +596,63 @@ function select(tab, id) {
 
 /* ------------------------------------------------------------------- panel */
 
+function canEditRows(table) {
+  return !!(state.effectSchema && state.effectSchema[table]);
+}
+
+/* Badge + "Revert to base" shown on every section whose table has an override file. */
+function appendOverrideControls(head, table) {
+  if (!isOverridden(table)) return;
+  head.appendChild(el("span", { class: "chip ovr" }, "override"));
+  const button = el("button", { type: "button", class: "mini rev" }, "Revert to base");
+  button.title = "Delete the override masters_" + table + ".json (a backup is kept) so the base config/ file applies again";
+  button.addEventListener("click", function () {
+    if (window.confirm("Revert masters_" + table + ".json to the base config file?\n\n" +
+        "This deletes the override file (a backup is kept). The API keeps serving the tuned values until you restart it.")) {
+      revertTable(table);
+    }
+  });
+  head.appendChild(button);
+}
+
+async function revertTable(table) {
+  if (state.saving) return;
+  state.saving = true;
+  refreshDirty();
+  setStatus([["info", "reverting masters_" + table + ".json to base ..."]]);
+  try {
+    const body = await fetchJSON("/api/table/" + table + "/revert", { method: "POST" });
+    if (!body || body.ok !== true) throw new Error("unexpected response");
+    await loadTable(table, true);
+    state.pristine[table] = JSON.parse(JSON.stringify(state.data[table]));
+    await loadOverrides();
+    await loadApplyStatus();
+    buildScreens();
+    renderPanel();
+    setStatus([["ok", "masters_" + table + ".json reverted to the base config file"]]);
+  } catch (error) {
+    setStatus([["err", "revert failed: " + error.message]]);
+  }
+  state.saving = false;
+  refreshDirty();
+}
+
 function makeSection(title, table, rows, options) {
   const opts = options || {};
+  const adds = opts.addable && canEditRows(table) &&
+    opts.linkField && opts.linkValue !== null && opts.linkValue !== undefined;
   const section = el("section", { class: "sec" + (opts.nested ? " nested" : "") });
   const head = el("h2");
   head.appendChild(el("span", { class: "t" }, title));
-  head.appendChild(el("code", { class: "src" }, "config/masters_" + table + ".json"));
+  head.appendChild(el("code", { class: "src" }, "masters_" + table + ".json"));
+  head.appendChild(el("span", { class: "grow" }));
+  appendOverrideControls(head, table);
+  if (adds) {
+    const button = el("button", { type: "button", class: "mini add" }, "+ Add row");
+    button.title = "Add a row to masters_" + table + ".json for " + opts.linkField + " " + opts.linkValue;
+    button.addEventListener("click", function () { addEffectRow(table, opts.linkField, opts.linkValue); });
+    head.appendChild(button);
+  }
   section.appendChild(head);
 
   if (!Array.isArray(rows)) {
@@ -490,11 +663,14 @@ function makeSection(title, table, rows, options) {
     section.appendChild(el("p", { class: "note" }, opts.empty || "no rows for this selection"));
     return section;
   }
-  for (const row of rows) section.appendChild(renderRow(table, row));
+  for (const row of rows) {
+    section.appendChild(renderRow(table, row, opts.deletable ? { deletable: true } : null));
+  }
   return section;
 }
 
-function renderRow(table, row) {
+function renderRow(table, row, options) {
+  const opts = options || {};
   const wrap = el("div", { class: "row" });
   const head = el("div", { class: "rowhead" });
   for (const key of Object.keys(row)) {
@@ -503,6 +679,16 @@ function renderRow(table, row) {
     chip.appendChild(document.createTextNode(key + " "));
     chip.appendChild(el("b", null, formatValue(row[key])));
     head.appendChild(chip);
+  }
+  if (opts.deletable) {
+    head.appendChild(el("span", { class: "spacer" }));
+    const button = el("button", { type: "button", class: "mini del" }, "Delete row");
+    button.addEventListener("click", function () {
+      if (window.confirm("Delete row id " + row.id + " from masters_" + table + ".json?")) {
+        deleteEffectRow(table, row.id);
+      }
+    });
+    head.appendChild(button);
   }
   if (head.childNodes.length) wrap.appendChild(head);
 
@@ -555,6 +741,44 @@ function findRow(table, rowId) {
   return null;
 }
 
+function nextEffectId(table) {
+  let maxId = 0;
+  for (const row of rowsOf(table)) {
+    if (typeof row.id === "number" && row.id > maxId) maxId = row.id;
+  }
+  return maxId + 1;   /* fresh against every row currently in the table */
+}
+
+function addEffectRow(table, linkField, linkValue) {
+  const schema = state.effectSchema[table];
+  if (!schema) return;
+  const row = {};
+  row.id = nextEffectId(table);
+  row[linkField] = linkValue;
+  const defaults = schema.defaults || {};
+  const fields = schema.fields || {};
+  for (const key of Object.keys(fields)) {
+    if (key === "id" || key === linkField) continue;
+    if (Object.prototype.hasOwnProperty.call(defaults, key)) {
+      row[key] = defaults[key];
+    } else {
+      const kind = fields[key];
+      row[key] = kind === "bool" ? false : kind === "str" ? "" : 0;
+    }
+  }
+  const rows = rowsOf(table);
+  rows.push(row);
+  state.data[table] = rows;
+  refreshDirty();
+  renderPanel();
+}
+
+function deleteEffectRow(table, rowId) {
+  state.data[table] = rowsOf(table).filter(function (row) { return String(row.id) !== String(rowId); });
+  refreshDirty();
+  renderPanel();
+}
+
 function onFieldInput(event) {
   const input = event.target;
   const table = input.dataset.table;
@@ -587,6 +811,10 @@ function renderPanel() {
   const panel = document.getElementById("panel");
   state.inputs.clear();
   clear(panel);
+  if (state.tab === "maintenance") {
+    renderMaintenancePanel(panel);
+    return;
+  }
   if (state.tab === "text") {
     const name = state.selection.text;
     const screen = state.screens.filter(function (sc) { return sc.name === name; })[0];
@@ -663,7 +891,10 @@ function renderKickerPanel(panel, kicker) {
     panel.appendChild(makeSection("Passive skill · " + passiveSkillId, "skill", passiveSkill));
     for (const table of KS_EXTRA_TABLES) {
       const rows = rowsOf(table).filter(function (r) { return r.skillId === passiveSkillId; });
-      if (rows.length) panel.appendChild(makeSection("Passive skill extra · " + table, table, rows));
+      panel.appendChild(makeSection("Passive skill extra · " + table, table, rows, {
+        addable: true, deletable: true, linkField: "skillId", linkValue: passiveSkillId,
+        empty: "no " + table + " rows for skillId " + passiveSkillId
+      }));
     }
   }
 
@@ -674,7 +905,10 @@ function renderKickerPanel(panel, kicker) {
     { empty: "no masters_skill row for skillId " + skillId }));
   for (const table of KS_EXTRA_TABLES) {
     const rows = rowsOf(table).filter(function (r) { return r.skillId === skillId; });
-    if (rows.length) panel.appendChild(makeSection("Kicker Skill extra · " + table, table, rows));
+    panel.appendChild(makeSection("Kicker Skill extra · " + table, table, rows, {
+      addable: true, deletable: true, linkField: "skillId", linkValue: skillId,
+      empty: "no " + table + " rows for this kicker skill"
+    }));
   }
 
   /* Special skill + extras */
@@ -693,7 +927,9 @@ function renderKickerPanel(panel, kicker) {
   const attackSection = el("section", { class: "sec" });
   const attackHead = el("h2");
   attackHead.appendChild(el("span", { class: "t" }, "Basic Attack"));
-  attackHead.appendChild(el("code", { class: "src" }, "config/masters_weapon_attack.json"));
+  attackHead.appendChild(el("code", { class: "src" }, "masters_weapon_attack.json"));
+  attackHead.appendChild(el("span", { class: "grow" }));
+  appendOverrideControls(attackHead, "weapon_attack");
   attackSection.appendChild(attackHead);
   if (!attacks.length) {
     attackSection.appendChild(el("p", { class: "note" }, "no weapon_attack rows for this kicker"));
@@ -739,7 +975,10 @@ function renderDiscPanel(panel, disc) {
     { empty: "no masters_skill row for skillId " + disc.skillId }));
   for (const table of KS_EXTRA_TABLES) {
     const rows = rowsOf(table).filter(function (r) { return r.skillId === disc.skillId; });
-    if (rows.length) panel.appendChild(makeSection("Skill extra · " + table, table, rows));
+    panel.appendChild(makeSection("Skill extra · " + table, table, rows, {
+      addable: true, deletable: true, linkField: "skillId", linkValue: disc.skillId,
+      empty: "no " + table + " rows for skillId " + disc.skillId
+    }));
   }
 }
 
@@ -781,7 +1020,7 @@ function renderTextPanel(panel, screen) {
   box.appendChild(el("h1", null, screen.name));
   box.appendChild(el("div", { class: "meta" }, screen.name === OTHER_SCREEN
     ? "translation rows that no UI prefab references directly: enum names (skillCategoryType.*, conditionType.* ...) and texts the code looks up by key"
-    : screen.keys.length + " localized texts · config/masters_translation.json · wireframe from docs/localize_layout.json (1/3 scale, 1080x1920 canvas)"));
+    : screen.keys.length + " localized texts · masters_translation.json · wireframe from docs/localize_layout.json (1/3 scale, 1080x1920 canvas)"));
   head.appendChild(box);
   panel.appendChild(head);
 
@@ -861,6 +1100,116 @@ function renderTextPanel(panel, screen) {
   panel.appendChild(wrap);
 }
 
+/* ---------------------------------------------------------- maintenance */
+
+function maintStatus(lines) {
+  const box = document.getElementById("maintStatus");
+  if (!box) return;
+  clear(box);
+  for (const line of lines) box.appendChild(el("div", { class: "line " + line[0] }, line[1]));
+}
+
+async function loadMaintenance() {
+  try {
+    state.maintenance = await fetchJSON("/api/maintenance", { cache: "no-store" });
+  } catch (error) {
+    state.maintenance = { error: error.message };
+  }
+  return state.maintenance;
+}
+
+function renderMaintenancePanel(panel) {
+  const wrap = el("div", { class: "mpanel" });
+  const head = el("div", { class: "phead" });
+  const box = el("div");
+  box.appendChild(el("h1", null, "Maintenance"));
+  box.appendChild(el("div", { class: "meta" },
+    "the game server's loopback-only /admin/maintenance toggle: off / soft notice / hard 503"));
+  head.appendChild(box);
+  wrap.appendChild(head);
+
+  const current = state.maintenance;
+  const mode = current && typeof current.mode === "string" ? current.mode : "unknown";
+  const section = el("section", { class: "sec" });
+  section.appendChild(el("h2", null, "Current state"));
+
+  if (current && current.error) {
+    section.appendChild(el("p", { class: "note" }, "could not read the state: " + current.error));
+  } else if (current) {
+    const line = el("p", { class: "note" });
+    line.appendChild(el("span", { class: "mstate mode-" + mode }, mode));
+    line.appendChild(document.createTextNode(
+      "  noticeId " + (current.noticeId === undefined ? "-" : current.noticeId) +
+      "  changedAtUtc " + (current.changedAtUtc || "-")));
+    section.appendChild(line);
+  } else {
+    section.appendChild(el("p", { class: "note" }, "state not loaded"));
+  }
+
+  const title = el("input", { type: "text", value: (current && current.title) || "" });
+  const message = el("textarea");
+  message.value = (current && current.message) || "";
+  const titleField = el("label", { class: "mfield" });
+  titleField.appendChild(el("span", { class: "k" }, "Notice title (blank = server default)"));
+  titleField.appendChild(title);
+  const messageField = el("label", { class: "mfield" });
+  messageField.appendChild(el("span", { class: "k" }, "Notice message (soft mode shows it on the home screen)"));
+  messageField.appendChild(message);
+  section.appendChild(titleField);
+  section.appendChild(messageField);
+
+  const buttons = el("div", { class: "mbtns" });
+  for (const pair of [["off", "Off"], ["warning", "Soft (notice)"], ["hard", "Hard (503)"]]) {
+    const button = el("button", { type: "button", class: "m-" + pair[0] }, pair[1]);
+    button.disabled = !!state.savingMaintenance;
+    button.addEventListener("click", function () {
+      setMaintenance(pair[0], title.value.trim(), message.value.trim());
+    });
+    buttons.appendChild(button);
+  }
+  section.appendChild(buttons);
+  wrap.appendChild(section);
+  wrap.appendChild(el("div", { id: "maintStatus" }));
+
+  const help = el("section", { class: "sec" });
+  help.appendChild(el("h2", null, "How it reaches the server"));
+  help.appendChild(el("p", { class: "note" },
+    "The API only accepts /admin/maintenance from its own loopback, and its HTTP port is not " +
+    "published. This tool runs it inside the container " +
+    "(docker exec deploy-api-1 curl -sS http://127.0.0.1:8080/admin/maintenance); set " +
+    "KF_BALANCE_ADMIN_URL to call the endpoint directly on a dev host."));
+  help.appendChild(el("p", { class: "note" },
+    "Saving a table writes masters_<table>.json under the override dir (KF_BALANCE_OVERRIDE_DIR), " +
+    "never config/. Use \"Restart API to apply\" so the API reloads them; overrides survive the CI deploy."));
+  wrap.appendChild(help);
+  panel.appendChild(wrap);
+}
+
+async function setMaintenance(mode, title, message) {
+  if (state.savingMaintenance) return;
+  state.savingMaintenance = true;
+  renderPanel();
+  maintStatus([["info", "setting maintenance to " + mode + " ..."]]);
+  let line;
+  try {
+    const body = { mode: mode };
+    if (title) body.title = title;
+    if (message) body.message = message;
+    await fetchJSON("/api/maintenance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    await loadMaintenance();
+    line = ["ok", "maintenance is now " + ((state.maintenance && state.maintenance.mode) || mode)];
+  } catch (error) {
+    line = ["err", "failed: " + error.message];
+  }
+  state.savingMaintenance = false;
+  renderPanel();
+  maintStatus([line]);
+}
+
 /* ------------------------------------------------------------ dirty + save */
 
 function refreshDirty() {
@@ -870,19 +1219,27 @@ function refreshDirty() {
     const rows = state.data[table];
     const pristine = state.pristine[table];
     if (!Array.isArray(rows) || !Array.isArray(pristine)) continue;
-    for (let index = 0; index < rows.length; index++) {
-      const row = rows[index];
-      const original = pristine[index];
-      if (!original || String(row.id) !== String(original.id)) {
+    const current = new Map(rows.map(function (row) { return [String(row.id), row]; }));
+    const before = new Map(pristine.map(function (row) { return [String(row.id), row]; }));
+    for (const pair of current) {
+      const original = before.get(pair[0]);
+      if (!original) {
+        /* A row added in the UI: the server accepts it only for effect tables. */
         state.dirtyTables.add(table);
+        state.dirtyFields.add(fieldKey(table, pair[0], "__row_added__"));
         continue;
       }
       for (const key of Object.keys(original)) {
-        if (!(key in row)) continue;
-        if (sameValue(row[key], original[key])) continue;
-        state.dirtyFields.add(fieldKey(table, row.id, key));
+        if (!(key in pair[1])) continue;
+        if (sameValue(pair[1][key], original[key])) continue;
+        state.dirtyFields.add(fieldKey(table, pair[0], key));
         state.dirtyTables.add(table);
       }
+    }
+    for (const id of before.keys()) {
+      if (current.has(id)) continue;
+      state.dirtyTables.add(table);
+      state.dirtyFields.add(fieldKey(table, id, "__row_deleted__"));
     }
   }
   for (const pair of state.inputs) {
@@ -916,7 +1273,7 @@ async function save() {
   refreshDirty();
   const results = [];
   for (const table of tables) {
-    setStatus(results.concat([["info", "saving config/masters_" + table + ".json ..."]]));
+    setStatus(results.concat([["info", "saving masters_" + table + ".json ..."]]));
     try {
       const body = await fetchJSON("/api/table/" + table, {
         method: "POST",
@@ -925,35 +1282,72 @@ async function save() {
       });
       if (!body || body.ok !== true) throw new Error("unexpected response");
       state.pristine[table] = JSON.parse(JSON.stringify(state.data[table]));
-      results.push(["ok", "ok   config/masters_" + table + ".json (" + body.written + " rows written)"]);
+      results.push(["ok", "ok   wrote override masters_" + table + ".json (" + body.written + " rows)"]);
     } catch (error) {
-      results.push(["err", "fail config/masters_" + table + ".json: " + error.message]);
+      results.push(["err", "fail masters_" + table + ".json: " + error.message]);
     }
     setStatus(results);
   }
   state.saving = false;
   refreshDirty();
   if (!results.some(function (line) { return line[0] === "err"; })) {
-    results.push(["info", "remember to restart the game server (start-server.bat)"]);
+    results.push(["info", "saved to the override dir - click \"Restart API to apply\" to load them"]);
   }
+  await loadOverrides();
+  await loadApplyStatus();
+  renderPanel();
   setStatus(results);
 }
 
 async function revert() {
   if (state.saving) return;
   state.saving = true;
-  setStatus([["info", "reloading from config/ ..."]]);
+  setStatus([["info", "reloading the masters ..."]]);
   try {
     await loadEverything(true);
+    await loadOverrides();
     buildScreens();
     state.inputs.clear();
     renderPanel();
-    setStatus([["info", "reloaded from config/"]]);
+    setStatus([["info", "masters reloaded"]]);
   } catch (error) {
     setStatus([["err", "reload failed: " + error.message]]);
   }
   state.saving = false;
   refreshDirty();
+}
+
+/* Restart the API so it re-reads the override files, then wait for the health probe. */
+async function applyNow() {
+  if (state.applying) return;
+  const command = (state.apply && state.apply.applyCmd) || "docker restart deploy-api-1";
+  const pending = (state.apply && state.apply.pending) || [];
+  if (!window.confirm("Restart the API to load the saved overrides?\n\n" +
+      "Live matches are dropped: players in a match disconnect or lose the battle state.\n\n" +
+      (pending.length ? "Pending override(s): " + pending.join(", ") + "\n\n" : "") +
+      "Command:\n" + command)) {
+    return;
+  }
+  state.applying = true;
+  renderApplyStatus();
+  setStatus([["info", "restarting the API: " + command]]);
+  try {
+    const body = await fetchJSON("/api/apply", { method: "POST" });
+    if (!body || body.ok !== true) throw new Error((body && body.error) || "apply failed");
+    setStatus([
+      ["ok", "API restarted and healthy after " + body.elapsedSeconds + "s (" +
+        ((body.health && body.health.attempts) || 0) + " probe(s))"],
+      ["info", (body.pending && body.pending.length)
+        ? "still pending: " + body.pending.join(", ")
+        : "no pending overrides: the API has loaded every override"],
+    ]);
+    state.apply = await fetchJSON("/api/apply", { cache: "no-store" });
+  } catch (error) {
+    setStatus([["err", "apply failed: " + error.message]]);
+    try { state.apply = await fetchJSON("/api/apply", { cache: "no-store" }); } catch (ignored) { /* keep the old status */ }
+  }
+  state.applying = false;
+  renderApplyStatus();
 }
 
 /* -------------------------------------------------------------------- boot */
@@ -964,6 +1358,8 @@ function wireEvents() {
     button.addEventListener("click", function () {
       state.tab = button.dataset.tab;
       for (const other of tabs) other.classList.toggle("on", other === button);
+      document.getElementById("filters").style.display =
+        state.tab === "maintenance" ? "none" : "flex";
       document.getElementById("discFilters").style.display =
         state.tab === "discs" ? "block" : "none";
       renderList();
@@ -976,6 +1372,10 @@ function wireEvents() {
   document.getElementById("filterType").addEventListener("change", renderList);
   document.getElementById("save").addEventListener("click", save);
   document.getElementById("revert").addEventListener("click", revert);
+  document.getElementById("apply").addEventListener("click", applyNow);
+  document.getElementById("exportOverrides").addEventListener("click", function () {
+    window.location.href = "/api/overrides/export";
+  });
   window.addEventListener("keydown", function (event) {
     if ((event.ctrlKey || event.metaKey) && String(event.key).toLowerCase() === "s") {
       event.preventDefault();
@@ -995,6 +1395,13 @@ async function boot() {
     state.discs = loaded[1];
     await loadEverything(false);
     try { state.layout = await fetchJSON("/api/layout", { cache: "no-store" }); } catch (error) { state.layout = []; }
+    try {
+      const schema = await fetchJSON("/api/effect-schema", { cache: "no-store" });
+      state.effectSchema = (schema && schema.tables) || {};
+    } catch (error) { state.effectSchema = {}; }
+    await loadOverrides();
+    await loadApplyStatus();
+    await loadMaintenance();
     buildScreens();
     buildDiscFilters();
     renderList();

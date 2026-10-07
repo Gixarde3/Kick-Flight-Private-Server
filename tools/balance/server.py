@@ -1,42 +1,170 @@
 #!/usr/bin/env python3
-"""Local balance WebUI for the Kick-Flight combat master tables.
+"""Balance WebUI for the Kick-Flight combat master tables.
 
-Serves ``tools/balance/index.html``, the icon folder and a small JSON API over
-``config/masters_*.json`` so the KS/SS/disc/kicker numbers can be tuned from the
-browser.  Python standard library only; nothing here needs the game server.
+Serves ``tools/balance/index.html``, the icon folder and a small JSON API over the
+``masters_*.json`` directory the game server reads, so the KS/SS/disc/kicker numbers can be
+tuned from the browser and effect rows can be added or deleted.  Python standard library only.
+
+Local (edits this checkout's ``config/``)::
 
     python tools/balance/server.py [--port 8765]
+
+Against the deployed server (edits the directory the API mounts, toggles maintenance through the
+loopback admin endpoint) see ``tools/balance/deploy/`` and ``tools/balance/README.md``.  Paths,
+the auth password and the maintenance endpoint all come from ``KF_BALANCE_*`` environment
+variables, never from hardcoded secrets.
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
+import io
 import json
 import math
+import os
 import re
+import subprocess
 import sys
 import threading
+import time
+import urllib.error
+import urllib.request
+import zipfile
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 BALANCE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BALANCE_DIR.parent.parent
-CONFIG_DIR = REPO_ROOT / "config"
+CONFIG_DIR = REPO_ROOT / "config"   # the checkout default; the deployment overrides it below
 DOCS_DIR = REPO_ROOT / "docs"
 ICON_DIR = BALANCE_DIR / "icons"
-BACKUP_DIR = BALANCE_DIR / "backups"
 INDEX_FILE = BALANCE_DIR / "index.html"
 DISC_CARDS_FILE = DOCS_DIR / "disc_cards.json"
+
+
+def _env_path(name, default):
+    """Path override so the same script can run next to the deployed config/ or its backups."""
+    value = os.environ.get(name)
+    if not value:
+        return default
+    return Path(value).expanduser()
+
+
+# The server the WebUI must edit mounts its masters from a config/ directory (the game server reads
+# config/masters_*.json at startup, there is no masters table in Postgres - see the report).  In the
+# VPS deployment that directory is /opt/kickflight/config, not this checkout.
+# KF_BALANCE_MASTERS_DIR is kept as a backwards-compatible alias for KF_BALANCE_BASE_DIR.
+MASTERS_DIR = _env_path("KF_BALANCE_BASE_DIR", _env_path("KF_BALANCE_MASTERS_DIR", CONFIG_DIR))
+# Tuned tables are persisted here, never in MASTERS_DIR: the CI deploy rsyncs config/ with --delete, but
+# .local/ is excluded and survives.  The API's master override layer reads this directory (reads only).
+OVERRIDE_DIR = _env_path("KF_BALANCE_OVERRIDE_DIR", REPO_ROOT / ".local" / "masters-overrides")
+BACKUP_DIR = _env_path("KF_BALANCE_BACKUP_DIR", BALANCE_DIR / "backups")
+
+# Production data protection.  The chosen deployment binds to loopback and is reached over an SSH
+# tunnel; setting KF_BALANCE_PASSWORD adds HTTP basic auth as a second layer for LAN use.  Both
+# values come from the environment, never from the repository.
+BASIC_USER = os.environ.get("KF_BALANCE_USER", "balance")
+BASIC_PASSWORD = os.environ.get("KF_BALANCE_PASSWORD", "")
+
+# Apply: saving writes override files, but the API reads them once at startup, so the restart command and
+# the readiness probe are configurable.  Defaults target the VPS container (its HTTP port is unpublished).
+API_CONTAINER = os.environ.get("KF_BALANCE_API_CONTAINER", "deploy-api-1")
+APPLY_CMD = os.environ.get("KF_BALANCE_APPLY_CMD", "docker restart %s" % API_CONTAINER)
+HEALTH_URL = os.environ.get("KF_BALANCE_HEALTH_URL", "http://127.0.0.1:8080/health/ready")
+HEALTH_CMD = os.environ.get(
+    "KF_BALANCE_HEALTH_CMD", "docker exec %s curl -fsS %s" % (API_CONTAINER, HEALTH_URL)
+)
+APPLY_TIMEOUT = float(os.environ.get("KF_BALANCE_APPLY_TIMEOUT", "120"))
+HEALTH_INTERVAL = float(os.environ.get("KF_BALANCE_HEALTH_INTERVAL", "2"))
+
+# Maintenance toggle.  The game server only accepts it from its own loopback
+# (MaintenanceState.IsLocalAdmin) and the VPS deployment never publishes the API's HTTP port, so the
+# default path is curl *inside* the api container.  KF_BALANCE_ADMIN_URL points at the real endpoint
+# directly instead, which is what a native/dev API on the same host needs.
+ADMIN_URL = os.environ.get("KF_BALANCE_ADMIN_URL", "")
+ADMIN_CONTAINER = os.environ.get("KF_BALANCE_ADMIN_CONTAINER", API_CONTAINER)
+ADMIN_INTERNAL_URL = os.environ.get(
+    "KF_BALANCE_ADMIN_INTERNAL_URL", "http://127.0.0.1:8080/admin/maintenance"
+)
+# Escape hatches: full shell commands (stdout = JSON; the set command gets the JSON body on stdin)
+# for hosts where docker exec + curl is not available.  Left empty, the default docker exec is used.
+ADMIN_CMD = os.environ.get("KF_BALANCE_ADMIN_CMD", "")
+ADMIN_SET_CMD = os.environ.get("KF_BALANCE_ADMIN_SET_CMD", "")
+ADMIN_TIMEOUT = 15
 
 TABLE_NAME_RE = re.compile(r"^[a-z_]+$")
 ICON_NAME_RE = re.compile(r"^(?:kicker|disc)_[0-9]+\.png$")
 TABLE_URL_RE = re.compile(r"^/api/table/([^/]*)$")
+REVERT_URL_RE = re.compile(r"^/api/table/([^/]*)/revert$")
 DIFF_URL_RE = re.compile(r"^/api/diff/([^/]*)$")
 
 MAX_BODY_BYTES = 32 * 1024 * 1024
 MAX_REPORTED_ERRORS = 12
 WRITE_LOCK = threading.Lock()
+
+# Effect tables that may gain/lose rows.  The game server reads a skill's rows by `skillId`
+# (DemoSessionApi loads SkillCondition/SkillHeal/SkillBlowOff/SkillPullIn/SkillTrap into the skill's
+# parameter), so a new row only needs a fresh id and the skill it belongs to.  The schema fixes the
+# column set and the type each column is served as; the UI builds new rows from DEFAULT_EFFECT_ROWS
+# (fetched through /api/effect-schema) so both sides agree on the exact shape.
+EFFECT_SCHEMAS = {
+    "skill_condition": {
+        "id": "int", "skillId": "int", "conditionType": "int", "duration": "float",
+        "interval": "float", "effectValue": "float", "triggerType": "int",
+    },
+    "skill_heal": {
+        "id": "int", "skillId": "int", "skillHealType": "int", "coefficient": "float",
+    },
+    "skill_blow_off": {
+        "id": "int", "skillId": "int", "distance": "float", "speed": "float",
+        "rigorTime": "float", "directionType": "int",
+    },
+    "skill_pull_in": {
+        "id": "int", "skillId": "int", "distance": "float", "speed": "float",
+    },
+    "skill_trap": {
+        "id": "int", "skillId": "int", "trapType": "int", "duration": "float",
+        "radius": "float", "effectValue": "float", "interval": "float", "executeSeId": "int",
+        "effectPath": "str", "screenEffectPath": "str",
+    },
+    "skill_collision": {
+        "id": "int", "skillId": "int", "collisionType": "int", "collisionHitType": "int",
+        "hitLayer": "int", "radius": "float", "length": "float", "originCenterFlag": "bool",
+        "scaleX": "float", "scaleY": "float", "scaleZ": "float",
+    },
+    "skill_hit": {
+        "id": "int", "skillId": "int", "commonHitEffectType": "int", "hitSeId": "int",
+        "effectPath": "str", "parentBone": "int", "offsetX": "float", "offsetY": "float",
+        "offsetZ": "float", "transformType": "int", "shakeVolume": "float",
+        "knockBackFlag": "bool", "fixedDamage": "int",
+    },
+}
+
+# Neutral "add row" payloads matching scripts/generate_combat_masters.py presets (a 10 s AttackRate
+# buff, a 30 % MaxHP heal, a slam-style blow-off, a long-range pull-in, a bomb trap).
+DEFAULT_EFFECT_ROWS = {
+    "skill_condition": {
+        "conditionType": 1, "duration": 10.0, "interval": 0.0, "effectValue": 1.2, "triggerType": 1,
+    },
+    "skill_heal": {"skillHealType": 1, "coefficient": 0.3},
+    "skill_blow_off": {"distance": 6.0, "speed": 25.0, "rigorTime": 0.5, "directionType": 2},
+    "skill_pull_in": {"distance": 8.0, "speed": 25.0},
+    "skill_trap": {
+        "trapType": 7, "duration": 8.0, "radius": 5.0, "effectValue": 0.0, "interval": 0.0,
+        "executeSeId": 0, "effectPath": "", "screenEffectPath": "",
+    },
+    "skill_collision": {
+        "collisionType": 1, "collisionHitType": 1, "hitLayer": 4864, "radius": 1.5,
+        "length": 0.0, "originCenterFlag": True, "scaleX": 1.0, "scaleY": 1.0, "scaleZ": 1.0,
+    },
+    "skill_hit": {
+        "commonHitEffectType": 11, "hitSeId": 0, "effectPath": "", "parentBone": 9,
+        "offsetX": 0.0, "offsetY": 0.0, "offsetZ": 0.0, "transformType": 0, "shakeVolume": 0.2,
+        "knockBackFlag": False, "fixedDamage": 0,
+    },
+}
 
 
 # --------------------------------------------------------------------------- #
@@ -44,24 +172,78 @@ WRITE_LOCK = threading.Lock()
 # --------------------------------------------------------------------------- #
 
 
-def table_path(name):
-    """config/masters_<name>.json for a well-formed name that exists, else None."""
+def base_path(name):
+    """MASTERS_DIR/masters_<name>.json for a well-formed name that exists, else None."""
     if not TABLE_NAME_RE.match(name):
         return None
-    path = CONFIG_DIR / ("masters_%s.json" % name)
+    path = MASTERS_DIR / ("masters_%s.json" % name)
     return path if path.is_file() else None
 
 
+def override_path(name):
+    """OVERRIDE_DIR/masters_<name>.json when a tuned override exists, else None."""
+    if not TABLE_NAME_RE.match(name):
+        return None
+    path = OVERRIDE_DIR / ("masters_%s.json" % name)
+    return path if path.is_file() else None
+
+
+def table_source(name):
+    """'override', 'base' or None: where the effective rows of a table come from."""
+    if override_path(name) is not None:
+        return "override"
+    if base_path(name) is not None:
+        return "base"
+    return None
+
+
+def table_path(name):
+    """The file the effective rows are read from (override first), else None."""
+    if not TABLE_NAME_RE.match(name):
+        return None
+    return override_path(name) or base_path(name)
+
+
 def read_table(name):
-    """Return the row list of config/masters_<name>.json."""
+    """Return the effective row list of masters_<name>.json (override file wins)."""
     path = table_path(name)
     if path is None:
         raise FileNotFoundError(name)
     with path.open(encoding="utf-8") as handle:
         rows = json.load(handle)
     if not isinstance(rows, list):
-        raise ValueError("config/masters_%s.json is not a JSON array" % name)
+        raise ValueError("%s is not a JSON array" % path)
     return rows
+
+
+def list_tables():
+    """Every base or override master table with its override state, for the UI badges."""
+    names = set()
+    for directory in (MASTERS_DIR, OVERRIDE_DIR):
+        if not directory.is_dir():
+            continue
+        for path in directory.glob("masters_*.json"):
+            name = path.name[len("masters_"):-len(".json")]
+            if TABLE_NAME_RE.match(name):
+                names.add(name)
+    tables = []
+    for name in sorted(names):
+        override = override_path(name)
+        base = base_path(name)
+        source = "override" if override is not None else ("base" if base is not None else None)
+        if source is None:
+            continue
+        tables.append(
+            {
+                "name": name,
+                "source": source,
+                "overridden": override is not None,
+                "base": base is not None,
+                "overrideMtime": override.stat().st_mtime if override is not None else None,
+                "baseMtime": base.stat().st_mtime if base is not None else None,
+            }
+        )
+    return tables
 
 
 def load_disc_cards():
@@ -236,26 +418,75 @@ def validate_row(current, posted, table, problems):
     return out if ok else None
 
 
+def validate_new_row(table, posted, problems):
+    """Validate a row the UI added: exact schema keys, a fresh positive id, the served types."""
+    schema = EFFECT_SCHEMAS.get(table)
+    if schema is None:
+        problems.add("table %r does not accept new rows" % table)
+        return None
+    if not isinstance(posted, dict):
+        problems.add("new row: expected an object, got %s" % describe(posted))
+        return None
+
+    posted_keys = set(posted)
+    schema_keys = set(schema)
+    if posted_keys != schema_keys:
+        parts = []
+        missing = sorted(schema_keys - posted_keys)
+        extra = sorted(posted_keys - schema_keys)
+        if missing:
+            parts.append("missing key(s) %s" % ", ".join(missing))
+        if extra:
+            parts.append("unknown key(s) %s" % ", ".join(extra))
+        problems.add("new row: %s" % "; ".join(parts))
+        return None
+
+    out = {}
+    ok = True
+    for key, kind in schema.items():
+        value = posted[key]
+        if key == "id":
+            normalized = normalize_id(value)
+            if normalized is None or normalized <= 0:
+                problems.add("new row id %s is not a positive integer" % describe(value))
+                ok = False
+                continue
+            value = normalized
+        coerced, error = coerce_value(kind, value, "new row field %r" % key)
+        if error is not None:
+            problems.add(error)
+            ok = False
+        else:
+            out[key] = coerced
+    return out if ok else None
+
+
 def validate_rows(table, current_rows, posted_rows):
-    """(rows to write, None) or (None, [messages]) - never a partial result."""
+    """(rows to write, None) or (None, [messages]) - never a partial result.
+
+    Effect tables (EFFECT_SCHEMAS) accept added and deleted rows; every other table keeps the
+    original rule (same ids, same key set, same value types, no add/remove).
+    """
     problems = Problems()
     if not isinstance(posted_rows, list):
         return None, ["body.rows must be a list, got %s" % describe(posted_rows)]
+
+    editable = table in EFFECT_SCHEMAS
 
     current_by_id = {}
     for row in current_rows:
         if not isinstance(row, dict) or "id" not in row:
             return None, [
-                "config/masters_%s.json has a row without an id; refusing to write" % table
+                "masters_%s.json has a row without an id; refusing to write" % table
             ]
         if row["id"] in current_by_id:
             return None, [
-                "config/masters_%s.json has duplicate id %s; refusing to write"
+                "masters_%s.json has duplicate id %s; refusing to write"
                 % (table, row["id"])
             ]
         current_by_id[row["id"]] = row
 
-    if len(posted_rows) != len(current_rows):
+    if not editable and len(posted_rows) != len(current_rows):
         return None, [
             "expected %d rows, got %d: adding or removing rows is not supported"
             % (len(current_rows), len(posted_rows))
@@ -281,25 +512,29 @@ def validate_rows(table, current_rows, posted_rows):
         (row_id for row_id in posted_by_id if row_id not in current_by_id),
         key=lambda value: (isinstance(value, str), str(value)),
     )
-    if missing_ids:
+    if missing_ids and not editable:
         problems.add("missing row(s) for id(s): %s" % ", ".join(map(str, missing_ids)))
-    if unknown_ids:
+    if unknown_ids and not editable:
         problems.add("unknown row id(s): %s" % ", ".join(map(str, unknown_ids)))
 
     new_rows = []
     for current in current_rows:
         posted = posted_by_id.get(current["id"])
         if posted is None:
-            continue
+            continue   # deleted; only reachable for an editable table
         row = validate_row(current, posted, table, problems)
+        if row is not None:
+            new_rows.append(row)
+    for key in unknown_ids:
+        row = validate_new_row(table, posted_by_id[key], problems)
         if row is not None:
             new_rows.append(row)
 
     messages = problems.result()
-    if messages or len(new_rows) != len(current_rows):
-        if not messages:
-            messages = ["could not validate every row of config/masters_%s.json" % table]
+    if messages:
         return None, messages
+    if not editable and len(new_rows) != len(current_rows):
+        return None, ["could not validate every row of masters_%s.json" % table]
     return new_rows, None
 
 
@@ -309,7 +544,7 @@ def validate_rows(table, current_rows, posted_rows):
 
 
 def backup_table(name, original_text):
-    """Copy the current file into tools/balance/backups/ before it is replaced."""
+    """Copy the file about to be replaced (override, else base) into the backup directory."""
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     stem = "%s-%s" % (name, stamp)
@@ -324,14 +559,24 @@ def backup_table(name, original_text):
 
 
 def write_table(name, rows):
-    """Write rows atomically so a failed write can never leave a partial file."""
-    path = CONFIG_DIR / ("masters_%s.json" % name)
+    """Write the override file atomically; the base config/ file is never touched."""
+    path = OVERRIDE_DIR / ("masters_%s.json" % name)
+    OVERRIDE_DIR.mkdir(parents=True, exist_ok=True)
     text = json.dumps(rows, ensure_ascii=False, indent=1) + "\n"
     tmp = path.with_name(path.name + ".tmp")
     with tmp.open("w", encoding="utf-8", newline="\n") as handle:
         handle.write(text)
     tmp.replace(path)
     return text
+
+
+def export_overrides_zip():
+    """In-memory zip of every override file, so the tuned values can be committed to git later."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(OVERRIDE_DIR.glob("masters_*.json")) if OVERRIDE_DIR.is_dir() else []:
+            archive.write(path, arcname=path.name)
+    return buffer.getvalue()
 
 
 BACKUP_NAME_RE = re.compile(r"-(\d{8}-\d{6})(?:-(\d+))?\.json$")
@@ -407,16 +652,245 @@ def diff_against_latest_backup(name, current_rows):
 
 
 # --------------------------------------------------------------------------- #
+# maintenance admin proxy
+# --------------------------------------------------------------------------- #
+
+
+def _run_admin(command, body):
+    """Run the loopback admin command (docker exec ... curl) and parse its JSON stdout."""
+    try:
+        completed = subprocess.run(
+            command, input=body, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            timeout=ADMIN_TIMEOUT, shell=isinstance(command, str),
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return 502, {"ok": False, "error": "admin command failed: %s" % error}
+    text = completed.stdout.decode("utf-8", "replace").strip()
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", "replace").strip() or text
+        return 502, {"ok": False, "error": "admin command exited %d: %s" % (completed.returncode, detail)}
+    if not text:
+        return 502, {
+            "ok": False,
+            "error": "empty response from the admin endpoint: the API only answers its own "
+                     "loopback and the command must run there (docker exec / SSH tunnel)",
+        }
+    try:
+        return 200, json.loads(text)
+    except ValueError:
+        return 502, {"ok": False, "error": "admin endpoint returned non-JSON: %s" % text[:200]}
+
+
+def _http_admin(method, url, body):
+    request = urllib.request.Request(url, data=body, method=method)
+    if body is not None:
+        request.add_header("Content-Type", "application/json")
+    try:
+        with urllib.request.urlopen(request, timeout=ADMIN_TIMEOUT) as response:
+            text = response.read().decode("utf-8", "replace").strip()
+            return response.status, (json.loads(text) if text else None)
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode("utf-8", "replace").strip()
+        return error.code, {"ok": False, "error": detail or ("HTTP %d" % error.code)}
+    except (urllib.error.URLError, ValueError, OSError) as error:
+        return 502, {"ok": False, "error": "admin request failed: %s" % error}
+
+
+def admin_state():
+    """(status, payload) of GET /admin/maintenance."""
+    if ADMIN_URL:
+        return _http_admin("GET", ADMIN_URL, None)
+    if ADMIN_CMD:
+        return _run_admin(ADMIN_CMD, None)
+    return _run_admin(["docker", "exec", ADMIN_CONTAINER, "curl", "-sS", ADMIN_INTERNAL_URL], None)
+
+
+def admin_set(payload):
+    """(status, payload) of POST /admin/maintenance with the given JSON body."""
+    body = json.dumps(payload).encode("utf-8")
+    if ADMIN_URL:
+        return _http_admin("POST", ADMIN_URL, body)
+    if ADMIN_SET_CMD:
+        return _run_admin(ADMIN_SET_CMD, body)
+    return _run_admin(
+        ["docker", "exec", "-i", ADMIN_CONTAINER, "curl", "-sS", "-X", "POST",
+         ADMIN_INTERNAL_URL, "-H", "Content-Type: application/json", "-d", "@-"],
+        body,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# apply (restart the API and wait for readiness)
+# --------------------------------------------------------------------------- #
+
+
+def _decode(data):
+    return (data or b"").decode("utf-8", "replace").strip()
+
+
+def _combined(completed):
+    out = _decode(completed.stdout)
+    err = _decode(completed.stderr)
+    if out and err:
+        return out + "\n" + err
+    return out or err
+
+
+def run_health_probe():
+    """(ok, detail) of the configured readiness command."""
+    try:
+        completed = subprocess.run(
+            HEALTH_CMD, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            timeout=ADMIN_TIMEOUT,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return False, "health probe failed: %s" % error
+    output = _combined(completed)[:400]
+    if completed.returncode != 0:
+        return False, output or ("health probe exited %d" % completed.returncode)
+    return True, output
+
+
+def api_started_at():
+    """Epoch seconds when the API container started, or None when it cannot be read."""
+    try:
+        completed = subprocess.run(
+            ["docker", "inspect", "-f", "{{.State.StartedAt}}", API_CONTAINER],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=ADMIN_TIMEOUT,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    text = _decode(completed.stdout)
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+
+
+def pending_overrides():
+    """Override files newer than the running API container's start time."""
+    names = []
+    if OVERRIDE_DIR.is_dir():
+        for path in sorted(OVERRIDE_DIR.glob("masters_*.json")):
+            name = path.name[len("masters_"):-len(".json")]
+            if TABLE_NAME_RE.match(name):
+                names.append((name, path.stat().st_mtime))
+    started = api_started_at()
+    pending = [name for name, mtime in names if started is not None and mtime > started]
+    result = {
+        "apiStartedAt": started,
+        "apiStartedAtIso": (datetime.fromtimestamp(started).isoformat() if started is not None else None),
+        "pending": pending,
+        "overrides": [name for name, _ in names],
+    }
+    if started is None:
+        result["note"] = ("could not read the API container start time (%s); "
+                          "pending status unknown" % API_CONTAINER)
+    return result
+
+
+def apply_status():
+    """Current pending-override state plus a live readiness probe."""
+    state = pending_overrides()
+    healthy, detail = run_health_probe()
+    state["container"] = API_CONTAINER
+    state["applyCmd"] = APPLY_CMD
+    state["health"] = {"ok": healthy, "detail": detail}
+    return state
+
+
+def apply_changes():
+    """(status, payload) after running the restart command and waiting for health."""
+    started = time.time()
+    try:
+        completed = subprocess.run(
+            APPLY_CMD, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            timeout=APPLY_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired as error:
+        return 502, {
+            "ok": False, "command": APPLY_CMD,
+            "error": "apply command timed out after %ss" % APPLY_TIMEOUT,
+            "output": _decode(error.stdout),
+        }
+    except OSError as error:
+        return 502, {"ok": False, "command": APPLY_CMD, "error": "apply command failed: %s" % error}
+
+    output = _combined(completed)
+    if completed.returncode != 0:
+        return 502, {
+            "ok": False, "command": APPLY_CMD,
+            "error": "apply command exited %d" % completed.returncode,
+            "output": output,
+        }
+
+    deadline = time.time() + APPLY_TIMEOUT
+    attempts = 0
+    healthy = False
+    detail = ""
+    while time.time() < deadline:
+        attempts += 1
+        healthy, detail = run_health_probe()
+        if healthy:
+            break
+        time.sleep(HEALTH_INTERVAL)
+
+    result = {
+        "ok": healthy,
+        "command": APPLY_CMD,
+        "output": output,
+        "health": {"ok": healthy, "detail": detail, "attempts": attempts},
+        "elapsedSeconds": round(time.time() - started, 1),
+    }
+    if healthy:
+        result["pending"] = pending_overrides()["pending"]
+        return 200, result
+    result["error"] = "API did not become ready: %s" % detail
+    return 502, result
+
+
+# --------------------------------------------------------------------------- #
 # HTTP
 # --------------------------------------------------------------------------- #
 
 
 class BalanceHandler(BaseHTTPRequestHandler):
-    server_version = "BalanceTool/1.0"
+    server_version = "BalanceTool/2.0"
     protocol_version = "HTTP/1.1"
     timeout = 60
 
     # -- helpers ----------------------------------------------------------- #
+
+    def authorized(self):
+        """True when no password is configured, or the Basic credentials match it."""
+        if not BASIC_PASSWORD:
+            return True
+        header = self.headers.get("Authorization", "")
+        if not header.startswith("Basic "):
+            return False
+        try:
+            decoded = base64.b64decode(header[6:].strip()).decode("utf-8")
+        except (ValueError, UnicodeDecodeError):
+            return False
+        user, _, password = decoded.partition(":")
+        return user == BASIC_USER and password == BASIC_PASSWORD
+
+    def require_auth(self):
+        if self.authorized():
+            return True
+        body = b"authentication required"
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="Kick-Flight Balance", charset="UTF-8"')
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(body)
+        return False
 
     def send_body(self, status, body, content_type, extra_headers=None):
         self.send_response(status)
@@ -465,6 +939,8 @@ class BalanceHandler(BaseHTTPRequestHandler):
     # -- routes ------------------------------------------------------------ #
 
     def do_GET(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
+        if not self.require_auth():
+            return
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path in ("/", "/index.html"):
             self.send_file(INDEX_FILE, "text/html; charset=utf-8")
@@ -477,6 +953,21 @@ class BalanceHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/discs":
             self.handle_discs()
+            return
+        if path == "/api/effect-schema":
+            self.handle_effect_schema()
+            return
+        if path == "/api/tables":
+            self.send_json(200, list_tables())
+            return
+        if path == "/api/overrides/export":
+            self.handle_export_overrides()
+            return
+        if path == "/api/apply":
+            self.send_json(200, apply_status())
+            return
+        if path == "/api/maintenance":
+            self.handle_get_maintenance()
             return
         if path == "/api/layout":
             # docs/localize_layout.json: where every LocalizeText of the UI prefabs sits (scripts/extract_localize_layout.py)
@@ -503,7 +994,19 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):  # noqa: N802
+        if not self.require_auth():
+            return
         path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if path == "/api/maintenance":
+            self.handle_post_maintenance()
+            return
+        if path == "/api/apply":
+            self.handle_apply()
+            return
+        match = REVERT_URL_RE.match(path)
+        if match:
+            self.handle_revert_table(match.group(1))
+            return
         match = TABLE_URL_RE.match(path)
         if not match:
             self.send_error_json(404, "no route for %s" % path)
@@ -565,6 +1068,54 @@ class BalanceHandler(BaseHTTPRequestHandler):
             )
         self.send_json(200, discs)
 
+    def handle_effect_schema(self):
+        """Column types and neutral payloads the UI needs to add an effect row."""
+        self.send_json(200, {
+            "tables": {
+                table: {"fields": schema, "defaults": DEFAULT_EFFECT_ROWS.get(table, {})}
+                for table, schema in EFFECT_SCHEMAS.items()
+            }
+        })
+
+    def handle_get_maintenance(self):
+        status, payload = admin_state()
+        if status == 200 and payload is None:
+            status, payload = 502, {
+                "ok": False,
+                "error": "empty response from the admin endpoint (is the API's loopback reachable "
+                         "from where this tool runs?)",
+            }
+        self.send_json(status, payload)
+
+    def handle_post_maintenance(self):
+        body, error = self.read_body()
+        if error is not None:
+            self.send_error_json(error[0], error[1])
+            return
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as decode_error:
+            self.send_error_json(400, "body is not valid JSON: %s" % decode_error)
+            return
+        if not isinstance(payload, dict) or not isinstance(payload.get("mode"), str):
+            self.send_error_json(400, "body must be an object with a string \"mode\"")
+            return
+        if payload["mode"] not in ("off", "warning", "hard"):
+            self.send_error_json(400, "mode must be off, warning or hard")
+            return
+        forward = {"mode": payload["mode"]}
+        for key in ("title", "message"):
+            if isinstance(payload.get(key), str):
+                forward[key] = payload[key]
+        status, result = admin_set(forward)
+        if status == 200 and result is None:
+            status, result = 502, {
+                "ok": False,
+                "error": "empty response from the admin endpoint (is the API's loopback reachable "
+                         "from where this tool runs?)",
+            }
+        self.send_json(status, result)
+
     def handle_get_table(self, name):
         path = table_path(name)
         if path is None:
@@ -594,16 +1145,16 @@ class BalanceHandler(BaseHTTPRequestHandler):
             self.send_error_json(400, "body must be an object with a \"rows\" array")
             return
 
-        path = CONFIG_DIR / ("masters_%s.json" % name)
+        path = override_path(name) or base_path(name)
         with WRITE_LOCK:
             try:
                 original_text = path.read_text(encoding="utf-8")
                 current_rows = json.loads(original_text)
             except (OSError, ValueError) as read_error:
-                self.send_error_json(500, "could not read config/masters_%s.json: %s" % (name, read_error))
+                self.send_error_json(500, "could not read masters_%s.json: %s" % (name, read_error))
                 return
             if not isinstance(current_rows, list):
-                self.send_error_json(500, "config/masters_%s.json is not a JSON array" % name)
+                self.send_error_json(500, "masters_%s.json is not a JSON array" % name)
                 return
 
             rows, messages = validate_rows(name, current_rows, payload["rows"])
@@ -619,10 +1170,60 @@ class BalanceHandler(BaseHTTPRequestHandler):
             try:
                 write_table(name, rows)
             except OSError as write_error:
-                self.send_error_json(500, "could not write the file: %s" % write_error)
+                self.send_error_json(500, "could not write the override: %s" % write_error)
                 return
 
-        self.send_json(200, {"ok": True, "written": len(rows)})
+        self.send_json(200, {
+            "ok": True,
+            "written": len(rows),
+            "override": str(OVERRIDE_DIR / ("masters_%s.json" % name)),
+        })
+
+    def handle_revert_table(self, name):
+        """Delete the override file so the table falls back to the base config/ file."""
+        if not TABLE_NAME_RE.match(name):
+            self.send_error_json(404, "unknown table %r" % name)
+            return
+        with WRITE_LOCK:
+            path = override_path(name)
+            if path is None:
+                self.send_error_json(404, "masters_%s.json has no override to revert" % name)
+                return
+            try:
+                original_text = path.read_text(encoding="utf-8")
+            except OSError as read_error:
+                self.send_error_json(500, "could not read the override: %s" % read_error)
+                return
+            try:
+                backup_table(name, original_text)
+            except OSError as backup_error:
+                self.send_error_json(500, "could not write the backup: %s" % backup_error)
+                return
+            try:
+                path.unlink()
+            except OSError as delete_error:
+                self.send_error_json(500, "could not delete the override: %s" % delete_error)
+                return
+        self.send_json(200, {
+            "ok": True,
+            "reverted": name,
+            "source": "base" if base_path(name) is not None else None,
+        })
+
+    def handle_export_overrides(self):
+        try:
+            payload = export_overrides_zip()
+        except OSError as error:
+            self.send_error_json(500, "could not build the archive: %s" % error)
+            return
+        self.send_body(
+            200, payload, "application/zip",
+            {"Content-Disposition": 'attachment; filename="masters-overrides.zip"'},
+        )
+
+    def handle_apply(self):
+        status, payload = apply_changes()
+        self.send_json(status, payload)
 
     def handle_diff(self, name):
         if table_path(name) is None:
@@ -666,21 +1267,53 @@ def lan_addresses():
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Balance WebUI for config/masters_*.json")
+    global MASTERS_DIR, OVERRIDE_DIR, BACKUP_DIR
+    parser = argparse.ArgumentParser(description="Balance WebUI for masters_*.json")
     parser.add_argument(
-        "--port", type=int, default=8765, help="TCP port to listen on (default: 8765)"
+        "--port", type=int, default=int(os.environ.get("KF_BALANCE_PORT", "8765")),
+        help="TCP port to listen on (default: 8765, env KF_BALANCE_PORT)",
     )
     parser.add_argument(
-        "--host", default="127.0.0.1",
-        help="interface to bind (default: 127.0.0.1 = this PC only; 0.0.0.0 = every device on the LAN)",
+        "--host", default=os.environ.get("KF_BALANCE_HOST", "127.0.0.1"),
+        help="interface to bind (default: 127.0.0.1 = loopback only; 0.0.0.0 = every device on the LAN)",
+    )
+    parser.add_argument(
+        "--masters-dir", default=None,
+        help="base directory the game server ships its masters in (env KF_BALANCE_BASE_DIR, alias KF_BALANCE_MASTERS_DIR)",
+    )
+    parser.add_argument(
+        "--override-dir", default=None,
+        help="where saves are written and overrides read from (env KF_BALANCE_OVERRIDE_DIR)",
+    )
+    parser.add_argument(
+        "--backup-dir", default=None,
+        help="where overwritten files are copied (env KF_BALANCE_BACKUP_DIR)",
     )
     parser.add_argument(
         "--open", action="store_true", help="open the UI in the default browser once the server is up"
     )
     args = parser.parse_args(argv)
 
+    if args.masters_dir:
+        MASTERS_DIR = Path(args.masters_dir).expanduser()
+    if args.override_dir:
+        OVERRIDE_DIR = Path(args.override_dir).expanduser()
+    if args.backup_dir:
+        BACKUP_DIR = Path(args.backup_dir).expanduser()
+
     if not INDEX_FILE.is_file():
         print("missing %s" % INDEX_FILE, file=sys.stderr)
+        return 1
+    if not MASTERS_DIR.is_dir():
+        print("base masters directory does not exist: %s" % MASTERS_DIR, file=sys.stderr)
+        return 1
+    if OVERRIDE_DIR == MASTERS_DIR:
+        print("override directory must differ from the base masters directory", file=sys.stderr)
+        return 1
+    try:
+        OVERRIDE_DIR.mkdir(parents=True, exist_ok=True)
+    except OSError as error:
+        print("could not create override directory %s: %s" % (OVERRIDE_DIR, error), file=sys.stderr)
         return 1
 
     try:
@@ -695,8 +1328,18 @@ def main(argv=None):
     if args.host == "0.0.0.0":
         for ip in lan_addresses():
             print("  from the LAN:  http://%s:%d/" % (ip, args.port))
-        print("  (anyone on the network can edit the config while this runs)")
-    print("editing %s (backups in %s)" % (CONFIG_DIR, BACKUP_DIR))
+        if BASIC_PASSWORD:
+            print("  (HTTP basic auth is required; user %r)" % BASIC_USER)
+        else:
+            print("  WARNING: no KF_BALANCE_PASSWORD set - anyone on the network can edit the masters")
+    print("base masters: %s" % MASTERS_DIR)
+    print("overrides (written here): %s" % OVERRIDE_DIR)
+    print("backups: %s" % BACKUP_DIR)
+    if ADMIN_URL:
+        print("maintenance via %s" % ADMIN_URL)
+    else:
+        print("maintenance via docker exec %s curl %s" % (ADMIN_CONTAINER, ADMIN_INTERNAL_URL))
+    print("apply via %r; health %r" % (APPLY_CMD, HEALTH_CMD))
     print("press Ctrl+C to stop")
     sys.stdout.flush()
     if args.open:
