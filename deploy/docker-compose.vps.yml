@@ -98,6 +98,7 @@ services:
       - ../config:/srv/repo/config:ro
       - ../content:/srv/repo/content:ro
       - ../.local:/srv/repo/.local:ro
+      - ../.local/maintenance:/srv/repo/data
       - ${KF_ASSETS_PATH:-../../Kick-Flight-Assets}:/srv/Kick-Flight-Assets:ro
     expose:
       - "8080"
