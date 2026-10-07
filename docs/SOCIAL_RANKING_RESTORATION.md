@@ -30,7 +30,7 @@ The `Invite Friend`/QR path uses `POST /realFriend/token` with an empty request 
 
 ## Crown ranking screen
 
-The crown window asks only for `battleRuleId`; the request carries no player ID or region. Its four request constructors route as follows:
+The crown window asks only for `battleRuleId`; the request carries no player ID or region. The client value can be stale after an hourly mode rotation, so the server chooses the active ranked rule from its UTC clock for every crown tab. Its four request constructors route as follows:
 
 | Crown tab | Endpoint | Client response setter / call site | Server behavior |
 | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ The first three responses contain `{battleRankingList,battleRanking,nextRewardRe
 
 In `SeasonRankingInfo`, `rank` and `number` are separate values: `rank` is the league/tier used for the division badge, `number` is the player's position, and `battlePoint` is the points display. The footer's `- / -pt` is the caller's own ranking/reward-progress area; the handler returns the caller's actual points, rank and global position when present. The screen does not consume `percentile` into `SeasonRankingInfo`; the server currently supplies 0. `appSeasonMatchResult` is returned with the response schema but uses the neutral no-season-result object rather than inventing a season outcome.
 
-For each request, `battleRuleId` is translated through the served `BattleRule` master to `battleRuleType`; the ladder stores points and tier per translated type. Results sort by points descending then player ID ascending, and `number` remains one-based global position even in the Follow-filtered list.
+For each request, the server resolves `RankedModeRotation.RuleIdAt(serverUtcNow)` through the served `BattleRule` master to `battleRuleType`; the request's `battleRuleId` is ignored for ladder selection because it reflects client state and may be absent or stale. Points and tier remain stored per translated type, and the crown queries are projections that do not modify those saved rank rows. Results sort by points descending then player ID ascending, and `number` remains one-based global position even in the Follow-filtered list. The endpoint test advances a fake clock across hour boundaries and checks all four tabs against distinct seeded ladders while sending stale rule IDs.
 
 ## Persistence and checks
 
