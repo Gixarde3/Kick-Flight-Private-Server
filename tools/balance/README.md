@@ -60,10 +60,14 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_ADMIN_CONTAINER` | container the default maintenance command `docker exec`s into (default `deploy-api-1`) |
 | `KF_BALANCE_ADMIN_INTERNAL_URL` | URL curl uses inside that container (default `http://127.0.0.1:8080/admin/maintenance`) |
 | `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` | escape hatches: full shell commands whose stdout is the JSON status |
+| `KF_BALANCE_ALLOWED_HOSTS` | extra comma-separated `Host` values accepted alongside `127.0.0.1:<port>`, `localhost:<port>` and `[::1]:<port>` (needed when binding to a LAN address or sitting behind a proxy) |
 
 Protection choice: the deployment binds `127.0.0.1:8765` on the VPS and is reached over an SSH
 tunnel, so nothing is exposed to the network. `KF_BALANCE_PASSWORD` is the optional second layer for
-LAN runs.
+LAN runs. Independently of auth, every request must carry an allowed `Host` (blocks DNS rebinding),
+an `Origin`, when the browser sends one, must be `http://<allowed host>`, and every
+POST/PUT/DELETE must be `Content-Type: application/json` (forces a CORS preflight the server never
+answers, so a foreign page cannot toggle maintenance or restart the API).
 
 ## What it edits
 

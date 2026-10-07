@@ -90,11 +90,15 @@ class MockAdmin(BaseHTTPRequestHandler):
         self.send_json(200, dict(MockAdmin.state))
 
 
-def request(path, method="GET", body=None, auth=True, raw=False):
+def request(path, method="GET", body=None, auth=True, raw=False, headers=None):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request("http://127.0.0.1:%d%s" % (PORT, path), data=data, method=method)
-    if data is not None:
+    if method in ("POST", "PUT", "DELETE") or data is not None:
+        # The WebUI now requires application/json on every state-changing request; callers pass a
+        # headers override (e.g. Content-Type text/plain, a foreign Host) to test the rejections.
         req.add_header("Content-Type", "application/json")
+    for key, value in (headers or {}).items():
+        req.add_header(key, value)
     if auth:
         token = base64.b64encode(("%s:%s" % (USER, PASSWORD)).encode()).decode()
         req.add_header("Authorization", "Basic " + token)
@@ -166,6 +170,7 @@ def main():
         "KF_BALANCE_ADMIN_URL": "http://127.0.0.1:%d/admin/maintenance" % ADMIN_PORT,
         "KF_BALANCE_USER": USER,
         "KF_BALANCE_PASSWORD": PASSWORD,
+        "KF_BALANCE_ALLOWED_HOSTS": "balance.test",
         "KF_BALANCE_API_CONTAINER": "fake-api",
         "KF_BALANCE_APPLY_CMD": "printf applied > %s" % APPLIED_MARKER,
         "KF_BALANCE_HEALTH_CMD": "true",
@@ -188,6 +193,21 @@ def main():
         status, discs = request("/api/discs")
         check("GET with credentials is 200 + disc list",
               status == 200 and isinstance(discs, list) and discs, "status %s" % status)
+
+        # -- CSRF / DNS-rebinding protection --------------------------------------
+        status, _ = request("/api/discs", headers={"Host": "evil.example"})
+        check("foreign Host -> 403", status == 403, "got %s" % status)
+        status, _ = request("/api/discs", headers={"Origin": "http://evil.example"})
+        check("foreign Origin -> 403", status == 403, "got %s" % status)
+        status, _ = request("/api/maintenance", "POST", {"mode": "off"},
+                            headers={"Content-Type": "text/plain"})
+        check("text/plain POST -> 415", status == 415, "got %s" % status)
+        status, _ = request("/api/discs")
+        check("legit request -> 200", status == 200, "got %s" % status)
+        status, _ = request("/api/discs", headers={"Host": "balance.test"})
+        check("extra KF_BALANCE_ALLOWED_HOSTS host -> 200", status == 200, "got %s" % status)
+        status, _ = request("/api/discs", headers={"Origin": "http://127.0.0.1:%d" % PORT})
+        check("same-origin Origin -> 200", status == 200, "got %s" % status)
 
         # -- override read: no override yet -> base file --------------------------
         status, tables = request("/api/tables")
@@ -359,6 +379,7 @@ def _failing_apply_works(base_env):
         for _ in range(80):
             try:
                 req = urllib.request.Request("http://127.0.0.1:%d/api/apply" % (PORT + 1), method="POST")
+                req.add_header("Content-Type", "application/json")
                 token = base64.b64encode(("%s:%s" % (USER, PASSWORD)).encode()).decode()
                 req.add_header("Authorization", "Basic " + token)
                 with urllib.request.urlopen(req, timeout=10) as response:

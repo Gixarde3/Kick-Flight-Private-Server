@@ -68,6 +68,20 @@ BACKUP_DIR = _env_path("KF_BALANCE_BACKUP_DIR", BALANCE_DIR / "backups")
 BASIC_USER = os.environ.get("KF_BALANCE_USER", "balance")
 BASIC_PASSWORD = os.environ.get("KF_BALANCE_PASSWORD", "")
 
+# CSRF / DNS-rebinding protection.  The tool is bound to loopback and normally reached through an SSH
+# tunnel at 127.0.0.1:8765, but a page open in the user's browser can still send it a "simple" POST
+# (text/plain, form-urlencoded, ...) without a CORS preflight and toggle maintenance or restart the
+# API.  Every request therefore needs a Host that belongs to the tunnel (the loopback names on the
+# bound port, plus KF_BALANCE_ALLOWED_HOSTS for LAN/proxy use), every state-changing request needs an
+# application/json Content-Type (which does force a preflight, one the server never answers), and an
+# Origin header, when the browser sends one, must be exactly http://<allowed host>.
+ALLOWED_HOSTS_EXTRA = tuple(
+    host.strip().lower()
+    for host in os.environ.get("KF_BALANCE_ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+)
+JSON_CONTENT_TYPE = "application/json"
+
 # Apply: saving writes override files, but the API reads them once at startup, so the restart command and
 # the readiness probe are configurable.  Defaults target the VPS container (its HTTP port is unpublished).
 API_CONTAINER = os.environ.get("KF_BALANCE_API_CONTAINER", "deploy-api-1")
@@ -865,6 +879,61 @@ class BalanceHandler(BaseHTTPRequestHandler):
 
     # -- helpers ----------------------------------------------------------- #
 
+    def allowed_hosts(self):
+        """Host values accepted for this instance: the loopback names on the bound port + env extras."""
+        try:
+            port = self.server.server_address[1]
+        except (AttributeError, IndexError, TypeError):
+            port = 0
+        hosts = {
+            "127.0.0.1:%d" % port,
+            "localhost:%d" % port,
+            "[::1]:%d" % port,
+        }
+        hosts.update(ALLOWED_HOSTS_EXTRA)
+        return hosts
+
+    def host_allowed(self):
+        """Reject DNS-rebinding: the Host must name this loopback service, not an attacker's domain."""
+        return (self.headers.get("Host") or "").strip().lower() in self.allowed_hosts()
+
+    def origin_allowed(self):
+        """An Origin, when present, must be exactly http://<allowed host> (never a foreign page)."""
+        origin = self.headers.get("Origin")
+        if origin is None:
+            return True
+        origin = origin.strip().lower()
+        if not origin.startswith("http://"):
+            return False
+        return origin[len("http://"):] in self.allowed_hosts()
+
+    def content_type_is_json(self):
+        return (self.headers.get("Content-Type") or "").strip().lower().split(";", 1)[0].strip() == JSON_CONTENT_TYPE
+
+    def reject(self, status, message):
+        """Refuse a request that did not pass the CSRF checks; close so an unread body is discarded."""
+        self.close_connection = True
+        self.send_error_json(status, message)
+
+    def origin_and_host_ok(self):
+        """False (after answering 403) when the Host or Origin does not belong to this service."""
+        if not self.host_allowed():
+            self.reject(403, "forbidden: Host %r is not allowed" % (self.headers.get("Host") or ""))
+            return False
+        if not self.origin_allowed():
+            self.reject(403, "forbidden: Origin %r is not allowed" % (self.headers.get("Origin") or ""))
+            return False
+        return True
+
+    def state_change_ok(self):
+        """The CSRF gate for POST/PUT/DELETE: Host + Origin first, then the JSON Content-Type."""
+        if not self.origin_and_host_ok():
+            return False
+        if not self.content_type_is_json():
+            self.reject(415, "Content-Type must be application/json")
+            return False
+        return True
+
     def authorized(self):
         """True when no password is configured, or the Basic credentials match it."""
         if not BASIC_PASSWORD:
@@ -939,6 +1008,9 @@ class BalanceHandler(BaseHTTPRequestHandler):
     # -- routes ------------------------------------------------------------ #
 
     def do_GET(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
+        # The Host check also covers GET so a DNS-rebinding page cannot read the masters.
+        if not self.origin_and_host_ok():
+            return
         if not self.require_auth():
             return
         path = self.path.split("?", 1)[0].split("#", 1)[0]
@@ -994,6 +1066,8 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):  # noqa: N802
+        if not self.state_change_ok():
+            return
         if not self.require_auth():
             return
         path = self.path.split("?", 1)[0].split("#", 1)[0]
@@ -1012,6 +1086,18 @@ class BalanceHandler(BaseHTTPRequestHandler):
             self.send_error_json(404, "no route for %s" % path)
             return
         self.handle_post_table(match.group(1))
+
+    def do_PUT(self):  # noqa: N802
+        self.handle_unsupported_state_change()
+
+    def do_DELETE(self):  # noqa: N802
+        self.handle_unsupported_state_change()
+
+    def handle_unsupported_state_change(self):
+        """No put/delete routes exist; still apply the CSRF gate before answering 405."""
+        if not self.state_change_ok():
+            return
+        self.send_error_json(405, "method %s is not supported" % self.command)
 
     # -- endpoint bodies --------------------------------------------------- #
 

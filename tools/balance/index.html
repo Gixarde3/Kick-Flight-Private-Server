@@ -621,7 +621,10 @@ async function revertTable(table) {
   refreshDirty();
   setStatus([["info", "reverting masters_" + table + ".json to base ..."]]);
   try {
-    const body = await fetchJSON("/api/table/" + table + "/revert", { method: "POST" });
+    const body = await fetchJSON("/api/table/" + table + "/revert", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
     if (!body || body.ok !== true) throw new Error("unexpected response");
     await loadTable(table, true);
     state.pristine[table] = JSON.parse(JSON.stringify(state.data[table]));
@@ -1332,7 +1335,10 @@ async function applyNow() {
   renderApplyStatus();
   setStatus([["info", "restarting the API: " + command]]);
   try {
-    const body = await fetchJSON("/api/apply", { method: "POST" });
+    const body = await fetchJSON("/api/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
     if (!body || body.ok !== true) throw new Error((body && body.error) || "apply failed");
     setStatus([
       ["ok", "API restarted and healthy after " + body.elapsedSeconds + "s (" +
