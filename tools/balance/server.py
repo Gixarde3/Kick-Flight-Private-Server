@@ -820,6 +820,9 @@ def apply_status():
 def apply_changes():
     """(status, payload) after running the restart command and waiting for health."""
     started = time.time()
+    # A command that exits 0 without restarting anything (a bare "docker" from an unquoted systemd
+    # Environment= line did exactly that) must not report success, so compare the container start time.
+    container_started_before = api_started_at()
     try:
         completed = subprocess.run(
             APPLY_CMD, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -860,6 +863,11 @@ def apply_changes():
         "health": {"ok": healthy, "detail": detail, "attempts": attempts},
         "elapsedSeconds": round(time.time() - started, 1),
     }
+    if healthy and container_started_before is not None and api_started_at() == container_started_before:
+        result["ok"] = False
+        result["error"] = ("%s was not restarted (start time unchanged): check the apply command %r"
+                           % (API_CONTAINER, APPLY_CMD))
+        return 502, result
     if healthy:
         result["pending"] = pending_overrides()["pending"]
         return 200, result

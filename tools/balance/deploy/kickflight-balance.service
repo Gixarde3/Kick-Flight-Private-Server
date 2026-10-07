@@ -21,8 +21,9 @@ Environment=KF_BALANCE_HOST=127.0.0.1
 Environment=KF_BALANCE_PORT=8765
 # Apply + maintenance both target the compose api service (its HTTP port is not published).
 Environment=KF_BALANCE_API_CONTAINER=deploy-api-1
-Environment=KF_BALANCE_APPLY_CMD=docker restart deploy-api-1
-Environment=KF_BALANCE_HEALTH_CMD=docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready
+# Values with spaces must be quoted: systemd splits an unquoted Environment= line on whitespace.
+Environment="KF_BALANCE_APPLY_CMD=docker restart deploy-api-1"
+Environment="KF_BALANCE_HEALTH_CMD=docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready"
 Environment=KF_BALANCE_ADMIN_CONTAINER=deploy-api-1
 Environment=KF_BALANCE_ADMIN_INTERNAL_URL=http://127.0.0.1:8080/admin/maintenance
 # Optional secrets overrides (KF_BALANCE_PASSWORD=...). root-only, mode 0600; see the example file.

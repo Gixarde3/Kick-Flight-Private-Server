@@ -172,7 +172,9 @@ def main():
         "KF_BALANCE_PASSWORD": PASSWORD,
         "KF_BALANCE_ALLOWED_HOSTS": "balance.test",
         "KF_BALANCE_API_CONTAINER": "fake-api",
-        "KF_BALANCE_APPLY_CMD": "printf applied > %s" % APPLIED_MARKER,
+        # A real restart changes the container start time; the fake one moves it forward too.
+        "KF_BALANCE_APPLY_CMD": "printf applied > %s && printf '2099-06-01T00:00:00Z\\n' > %s"
+                                % (APPLIED_MARKER, STARTED_AT),
         "KF_BALANCE_HEALTH_CMD": "true",
         "KF_BALANCE_APPLY_TIMEOUT": "3",
         "KF_BALANCE_HEALTH_INTERVAL": "0.2",
@@ -334,7 +336,8 @@ def main():
         check("invalid maintenance mode is rejected", status == 400, "status %s" % status)
 
         # -- apply failure is reported, not swallowed -----------------------------
-        check("failing apply command returns an error", _failing_apply_works(env))
+        check("failing apply command returns an error", _failing_apply_works(env, "exit 3"))
+        check("apply that exits 0 without restarting is an error", _failing_apply_works(env, "true"))
     finally:
         webui.terminate()
         try:
@@ -367,9 +370,9 @@ def wait_for_port(webui):
     raise SystemExit(1)
 
 
-def _failing_apply_works(base_env):
+def _failing_apply_works(base_env, command):
     env = dict(base_env)
-    env["KF_BALANCE_APPLY_CMD"] = "exit 3"
+    env["KF_BALANCE_APPLY_CMD"] = command
     proc = subprocess.Popen(
         [sys.executable, str(REPO / "tools/balance/server.py"), "--host", "127.0.0.1",
          "--port", str(PORT + 1)],
