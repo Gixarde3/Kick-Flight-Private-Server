@@ -396,7 +396,8 @@ KICKER_SKILL_EXTRAS = {
 BAT_BOMB_TRAP = {"trapType": 10, "duration": 2.0, "radius": 6.0, "effectValue": 0.0, "interval": 0.5,
                  "effectPath": "effect/ds/ef_ds_0037/ef_ds_0037", "blow_off": _KNOCK_UP}
 
-# Disc TRAP skills (skillActionType 7) by disc card text. conditions = (type, duration, interval, effectValue, trigger 5)
+# Disc TRAP skills (skillActionType 7) by disc card text. Bomb/turret effects carried by damage use trigger 1
+# (ReceiveDamage); trigger 5 is only evaluated by ConditionTrapAction, not BombTrapAction/TurretTrapAction.
 # Knock-away = a masters_skill_blow_off row (SkillBlowOffMaster.GetDataFromSkillId, read by DiscSkillParameter..ctor and
 # attached to the skill's damage); directionType 1 Up, 2 Down, 3 Press, 4 AttackDirection.
 # Bombs/turrets launch (Up): AttackDirection is victim - attacker position (PlayerStateBlowOff.BeginAction), and a
@@ -409,20 +410,20 @@ DISC_TRAPS = {
     10031: {"trapType": 8, "duration": 8.0, "effectValue": 0.0, "interval": 0.42,
             "conditions": [(COND_DOT, 8.0, 0.42, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},
     10036: _B, 10037: _B, 10038: _B, 10039: _B, 10040: _B,                                       # Hyper/Booby Bomb, R/G/B Mine
-    10041: {**_B, "blow_off": None, "conditions": [(COND_PARALYSIS, 3.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},   # Hedgefish: bomb + paralyse
+    10041: {**_B, "blow_off": None, "conditions": [(COND_PARALYSIS, 3.0, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},   # Hedgefish: bomb + paralyse
     10042: _T(0.4), 10044: _T(0.4),                                                              # Killer Billet, Raging Bulldog: ultra fast
     10043: _T(1.0), 10046: _T(1.0),                                                              # Septicopter, Robo Turret: medium
-    10049: {**_B, "blow_off": None, "conditions": [(COND_SILENT, 8.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},      # Aerojammer: bomb + skill seal 8 s
+    10049: {**_B, "blow_off": None, "conditions": [(COND_SILENT, 8.0, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},      # Aerojammer: bomb + skill seal 8 s
     10050: {"trapType": 1, "duration": 10.0, "effectValue": 0.3, "interval": 0.0},              # Snazzy Snail: greatly slows 10 s
     # Jack o' Lantern: bomb + poison 60 % of max HP over 10 s (Poison ticks = target MaxHP x effectValue)
-    10082: {**_B, "conditions": [(COND_POISON, 10.0, 1.0, 0.06, TRIGGER_ENTER_ENEMY_TRAP)]},
+    10082: {**_B, "conditions": [(COND_POISON, 10.0, 1.0, 0.06, TRIGGER_RECEIVE_DAMAGE)]},
     10086: {"trapType": 8, "duration": 8.0, "effectValue": 0.0, "interval": 1.0,               # Pranky Pumpkin: damage area + ally regen 8 %/s
             "conditions": [(COND_DOT, 8.0, 1.0, 0.4, TRIGGER_ENTER_ENEMY_TRAP), (COND_REGENERATION, 8.0, 1.0, 0.08, TRIGGER_ENTER_ALLY_TRAP)]},
-    10097: {**_B, "blow_off": None, "conditions": [(COND_STUN, 2.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},        # Starnova: bomb + stun
-    10105: {**_T(1.0, 8.0), "conditions": [(COND_ATTACK_RATE, 5.0, 0.0, 0.7, TRIGGER_ENTER_ENEMY_TRAP)]},  # Dynaduck: turret 8 s, attack down
+    10097: {**_B, "blow_off": None, "conditions": [(COND_STUN, 2.0, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},        # Starnova: bomb + stun
+    10105: {**_T(1.0, 8.0), "conditions": [(COND_ATTACK_RATE, 5.0, 0.0, 0.7, TRIGGER_RECEIVE_DAMAGE)]},  # Dynaduck: turret 8 s, attack down
     10114: {**_B, "duration": 30.0},                                                             # Glass Bomb: stealth bomb 30 s
-    10128: {**_T(0.6), "conditions": [(COND_SILENT, 1.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},  # Hellfire Crow: fast turret, seals 1 s
-    10134: {**_T(2.0), "blow_off": _KNOCK_UP},                                                  # Princess Izana: AoE turret, knocks away
+    10128: {**_T(0.6), "conditions": [(COND_SILENT, 1.0, 0.0, 1.0, TRIGGER_RECEIVE_DAMAGE)]},  # Hellfire Crow: fast turret, seals 1 s
+    10134: {**_T(3.0), "blow_off": _KNOCK_UP},                                                  # Princess Izana: 15 s turret, 5 shots at 0/3/6/9/12; knocks away
 }
 
 # Disc MOVE skills. AutoMoveSkillAction (skillActionType 22) does nothing by itself: OnBeginForceMove only calls

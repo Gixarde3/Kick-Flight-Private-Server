@@ -165,6 +165,45 @@ public sealed class BattleMatchmakingTests
         Assert.Equal(8, roster.Count);
         Assert.Equal("1000001", roster[0].GetProperty("userId").GetString());
         Assert.Equal(7, roster.Count(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0));
+
+        var costumeRows = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(
+            RepositoryPaths.FindRoot(AppContext.BaseDirectory), "config/masters_kicker_costume.json")));
+        var costumesById = costumeRows.RootElement.EnumerateArray()
+            .ToDictionary(row => row.GetProperty("id").GetInt32(), row => row.GetProperty("kickerId").GetInt32());
+        var kickerRows = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(
+            RepositoryPaths.FindRoot(AppContext.BaseDirectory), "config/masters_kicker_parameter.json")));
+        var kickerIds = kickerRows.RootElement.EnumerateArray()
+            .Select(row => row.GetProperty("id").GetInt32())
+            .ToHashSet();
+        foreach (var bot in roster.Where(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0))
+        {
+            var kickerId = bot.GetProperty("kickerId").GetInt32();
+            var costumeRowId = bot.GetProperty("kickerCostumeId").GetInt32();
+            Assert.True(costumesById.TryGetValue(costumeRowId, out var costumeOwner), $"missing costume row {costumeRowId}");
+            Assert.Equal(kickerId, costumeOwner);
+            Assert.Contains(kickerId, kickerIds);
+        }
+
+        var root = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
+        using var aiDecks = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(root, "config/masters_kicker_ai_disc_deck.json")));
+        using var aiDiscs = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(root, "config/masters_kicker_ai_disc.json")));
+        var deck3 = Assert.Single(aiDecks.RootElement.EnumerateArray(), row => row.GetProperty("id").GetInt32() == 3);
+        var aiDiscById = aiDiscs.RootElement.EnumerateArray()
+            .ToDictionary(row => row.GetProperty("id").GetInt32(), row => row.GetProperty("discId").GetInt32());
+        var deck3DiscIds = Enumerable.Range(1, 4)
+            .Select(slot => aiDiscById[deck3.GetProperty($"kickerAiDiscId{slot}").GetInt32()])
+            .ToArray();
+        Assert.Equal(new[] { 3010020, 3010022, 3010134, 3010082 }, deck3DiscIds);
+
+        if (Environment.GetEnvironmentVariable("KF_TEST_BOT_DISCS") == "1")
+        {
+            foreach (var bot in roster.Where(entry => entry.GetProperty("kickerAiParameterId").GetInt32() > 0))
+            {
+                Assert.Equal(3, bot.GetProperty("kickerAiDiscDeckId").GetInt32());
+                Assert.Equal(deck3DiscIds, Enumerable.Range(1, 4)
+                    .Select(slot => bot.GetProperty($"discId{slot}").GetInt32()).ToArray());
+            }
+        }
     }
 
     [Fact]

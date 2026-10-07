@@ -886,7 +886,7 @@ public sealed class BattleMatchmakingService
         }
     }
 
-    public sealed record BotProfile(int KickerId, string Name);
+    public sealed record BotProfile(int KickerId, string Name, int CostumeRowId);
 
     // Gym mode (toggled at runtime with GET /gym/on | /gym/off | /gym): the next match is the human(s) on Blue against
     // exactly GymBotCount mannequin bots on Red, and /battle/start hands out the harmless guardian row. Mannequin =
@@ -897,25 +897,31 @@ public sealed class BattleMatchmakingService
     public const int GymAiParameterBase = 100;
     public const int GymBotCount = 3;
 
+    // Local combat-balance test roster. Opt in only on a local API process with
+    // KF_TEST_BOT_DISCS=1; production/default matches keep the ordinary starter deck.
+    private static readonly bool TestBotDiscDeckEnabled =
+        string.Equals(Environment.GetEnvironmentVariable("KF_TEST_BOT_DISCS"), "1", StringComparison.Ordinal);
+    private static readonly int[] TestBotDiscIds = [3010020, 3010022, 3010134, 3010082];
+
     // Names from config/masters_kicker.json. Bots are taken in this order (skipping the human's kicker), so the
     // kickers whose weapons/skills were reworked on 2026-09-19 (Owlbert drone + smog, Buzzy Big shields + front
     // barrier, Yuyan nunchaku + panda, Sid wrist lasers) come first and show up in every solo match for testing.
     private static readonly BotProfile[] BotProfiles =
     [
-        new(5, "Owlbert Bot"),
-        new(12, "Buzzy Big Bot"),
-        new(10, "Yuyan Bot"),
-        new(14, "Sid Bot"),
-        new(1, "Tsubame Bot"),
-        new(2, "Ruriha Bot"),
-        new(3, "Coco Bot"),
-        new(4, "Kite Bot"),
-        new(6, "Pitophy Bot"),
-        new(7, "Grenhawk Bot"),
-        new(8, "Anna Bot"),
-        new(9, "Jay Bot"),
-        new(11, "Diatrius Bot"),
-        new(13, "Hitagi Bot")
+        new(5, "Owlbert Bot", 2050101),
+        new(12, "Buzzy Big Bot", 2120101),
+        new(10, "Yuyan Bot", 2100101),
+        new(14, "Sid Bot", 2140101),
+        new(1, "Tsubame Bot", 2010101),
+        new(2, "Ruriha Bot", 2020101),
+        new(3, "Coco Bot", 2030101),
+        new(4, "Kite Bot", 2040101),
+        new(6, "Pitophy Bot", 2060101),
+        new(7, "Grenhawk Bot", 2070101),
+        new(8, "Anna Bot", 2080101),
+        new(9, "Jay Bot", 2090101),
+        new(11, "Diatrius Bot", 2110101),
+        new(13, "Hitagi Bot", 2130101)
     ];
 
     /// <summary>
@@ -1078,7 +1084,7 @@ public sealed class BattleMatchmakingService
     }
 
     /// <summary>Final roster, built only when the room's window closes: the humans plus the bots for the free slots.</summary>
-    private static MatchingBattleInfo BuildRoster(
+    private MatchingBattleInfo BuildRoster(
         ActiveBattleRoom room,
         IReadOnlyDictionary<BattleEntrySession, int> humanTeams)
     {
@@ -1107,8 +1113,10 @@ public sealed class BattleMatchmakingService
             int team = gym ? 1 : (team0Count < MaxPerTeam) ? 0 : 1;
             if (team == 0) team0Count++; else team1Count++;
 
-            var profile = (botIdx < availableBots.Count) ? availableBots[botIdx++] : new BotProfile(botIdx + 1, $"Bot {botIdx + 1}");
-            var botDiscs = new[] { 3010001, 3010002, 3010003, 3010004 };
+            var profile = (botIdx < availableBots.Count) ? availableBots[botIdx++] : new BotProfile(botIdx + 1, $"Bot {botIdx + 1}", 2010101);
+            var botDiscs = TestBotDiscDeckEnabled
+                ? TestBotDiscIds
+                : [3010001, 3010002, 3010003, 3010004];
 
             info.battlePlayerList.Add(new MatchingPlayerBattleInfo
             {
@@ -1121,12 +1129,12 @@ public sealed class BattleMatchmakingService
                 // so a lower rank leaves the bot without AI parameters and it never acts.
                 rank = 13,
                 kickerId = profile.KickerId,
-                kickerCostumeId = 1,
+                kickerCostumeId = profile.CostumeRowId,
                 honorId = 6010000,
                 teamType = team,
                 // KickerAiParameterMaster row *id* (PlayerCharacter.GetKickerAIParameterMaster = get_Item(_kickerAiParameterId))
                 kickerAiParameterId = gym ? GymAiParameterBase + profile.KickerId : profile.KickerId,
-                kickerAiDiscDeckId = 1,                 // Valid AI deck
+                kickerAiDiscDeckId = TestBotDiscDeckEnabled ? 3 : 1, // Test deck 3 exists only for local balance runs.
                 languageCode = "es",
                 frameId = 1,
                 discId1 = botDiscs[0], discLevel1 = 10,
@@ -1134,6 +1142,20 @@ public sealed class BattleMatchmakingService
                 discId3 = botDiscs[2], discLevel3 = 10,
                 discId4 = botDiscs[3], discLevel4 = 10
             });
+        }
+
+        if (TestBotDiscDeckEnabled)
+        {
+            for (var index = 0; index < info.battlePlayerList.Count; index++)
+            {
+                var player = info.battlePlayerList[index];
+                _logger.LogInformation(
+                    "KF_TEST_BOT_ROSTER battle={BattleId} rosterIndex={RosterIndex} user={UserId} isBot={IsBot} team={Team} kicker={KickerId} costumeRow={CostumeRowId} aiParameter={AiParameterId} aiDeck={AiDeckId} discIds=[{Disc1},{Disc2},{Disc3},{Disc4}] levels=[{Level1},{Level2},{Level3},{Level4}]",
+                    room.BattleId, index, player.userId, player.kickerAiParameterId > 0, player.teamType, player.kickerId,
+                    player.kickerCostumeId, player.kickerAiParameterId, player.kickerAiDiscDeckId,
+                    player.discId1, player.discId2, player.discId3, player.discId4,
+                    player.discLevel1, player.discLevel2, player.discLevel3, player.discLevel4);
+            }
         }
 
         return info;
