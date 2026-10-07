@@ -210,6 +210,10 @@ PY
   )
 }
 restart_balance_service() {
+  jwt_secret_file=$(sudo -n python3 "$release_dir/scripts/resolve-balance-jwt-secret-path.py" \
+    "$app_dir" /etc/kickflight-balance.env)
+  sudo -n bash "$release_dir/scripts/ensure-balance-jwt-secret.sh" \
+    "$release_dir/tools/balance/generate_jwt_secret.py" "$jwt_secret_file" ubuntu
   sudo -n systemctl daemon-reload
   sudo -n systemctl restart kickflight-balance
 }

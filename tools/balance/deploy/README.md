@@ -22,7 +22,9 @@ Two facts drive this plan:
 The WebUI listens only on **127.0.0.1:8765**. Caddy routes the HTTPS prefix
 `https://kick-flight-fenix.us.ci/balance/` to that loopback service and keeps the prefix intact.
 All other paths continue to the existing API/CDN on port 18080. Port 8765 is never public. The app
-requires a manually inserted SQLite account and uses secure server-side sessions.
+requires a manually inserted account in its private panel SQLite database and a private JWT signing
+key. These authentication changes affect only the panel database; they do not migrate or change the
+game API's PostgreSQL database or its deployment services.
 
 ## Files
 
@@ -35,8 +37,8 @@ requires a manually inserted SQLite account and uses secure server-side sessions
 | `docs/disc_cards.json`, `docs/localize_layout.json` | optional (card text / Text tab); also delivered by CI |
 
 CI only rsyncs when a deployed component changed. A `src/` change sets `api=true` (and therefore
-`deploy=true`), which delivers `tools/balance/` too, because the whole tree is synced. A change under
-`tools/` alone would **not** trigger a deploy, so land the C# override layer together with the tool.
+`deploy=true`), which delivers `tools/balance/` too, because the whole tree is synced. Changes under
+`tools/balance/` or the balance JWT deploy helpers trigger the panel deployment directly.
 
 ## Steps
 
@@ -53,8 +55,15 @@ scp tools/balance/deploy/kickflight-balance.env.example "$VPS:/tmp/kickflight-ba
 ssh "$VPS" "sudo -n install -m 644 /tmp/kickflight-balance.service /etc/systemd/system/kickflight-balance.service && \
             sudo -n install -m 600 /tmp/kickflight-balance.env /etc/kickflight-balance.env && \
             rm -f /tmp/kickflight-balance.service /tmp/kickflight-balance.env && \
-            sudo -n systemctl daemon-reload && sudo -n systemctl enable kickflight-balance && \
-            sudo -n systemctl restart kickflight-balance"
+sudo -n systemctl daemon-reload && sudo -n systemctl enable kickflight-balance"
+
+# Create the independent 256-bit signing key after CI has delivered the helper and before
+# starting the service. This fails if the key exists and never prints or overwrites the key.
+ssh "$VPS" "cd /opt/kickflight && sudo -u ubuntu python3 tools/balance/generate_jwt_secret.py \
+    --path /opt/kickflight/.local/balance-auth/jwt-secret"
+
+# Start after the key exists.
+ssh "$VPS" "sudo -n systemctl restart kickflight-balance"
 
 # 2. Verify the private listener and public login page.
 ssh "$VPS" "systemctl status --no-pager kickflight-balance | head -15; \

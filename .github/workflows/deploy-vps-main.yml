@@ -90,7 +90,11 @@ jobs:
                   flags["site"] = True
               if path.startswith("deploy/caddy/"):
                   flags["caddy"] = True
-              if path.startswith("tools/balance/"):
+              if path.startswith("tools/balance/") or path in {
+                  "scripts/deploy-vps-ci.sh",
+                  "scripts/ensure-balance-jwt-secret.sh",
+                  "scripts/resolve-balance-jwt-secret-path.py",
+              }:
                   flags["balance"] = True
               if path in {
                   "deploy/docker-compose.vps.yml", "deploy/docker-compose.vps.external-db.yml",
