@@ -1044,6 +1044,8 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
+        if self.close_connection:
+            self.send_header("Connection", "close")
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
@@ -1175,6 +1177,9 @@ class BalanceHandler(BaseHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):  # noqa: N802
+        # Rejecting before reading a body can leave it in the HTTP/1.1 stream. Close after
+        # every POST response so a proxy/client cannot parse that body as the next request.
+        self.close_connection = True
         if not self.state_change_ok():
             return
         path = self.request_path()
@@ -1213,6 +1218,7 @@ class BalanceHandler(BaseHTTPRequestHandler):
 
     def handle_unsupported_state_change(self):
         """No put/delete routes exist; still apply the CSRF gate before answering 405."""
+        self.close_connection = True
         if not self.state_change_ok():
             return
         if not self.require_auth():

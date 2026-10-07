@@ -21,6 +21,7 @@ apply command can be exercised without Docker), then drives the WebUI HTTP API:
 from __future__ import annotations
 
 import io
+import http.client
 import json
 import os
 import shutil
@@ -59,6 +60,18 @@ def check(name, condition, detail=""):
     print("[%s] %s%s" % (status, name, (": " + detail) if detail and not condition else ""))
     if not condition:
         FAILURES.append(name)
+
+
+def persistent_post(connection, path, payload, origin, cookie=None):
+    headers = {"Content-Type": "application/json", "Origin": origin}
+    if cookie:
+        headers["Cookie"] = cookie
+    connection.request("POST", BASE_PATH + path, body=json.dumps(payload).encode(), headers=headers)
+    response = connection.getresponse()
+    status = response.status
+    response_headers = dict(response.getheaders())
+    body = response.read()
+    return status, response_headers, body
 
 
 class MockAdmin(BaseHTTPRequestHandler):
@@ -271,6 +284,56 @@ def main():
         status, discs = request("/api/discs")
         check("GET with a session is 200 + disc list",
               status == 200 and isinstance(discs, list) and discs, "status %s" % status)
+
+        # POST error/success responses close persistent HTTP/1.1 connections because early
+        # auth/CSRF responses and logout may leave the request body unread in the stream.
+        local_origin = "http://127.0.0.1:%d" % PORT
+        unauthorized_connection = http.client.HTTPConnection("127.0.0.1", PORT, timeout=5)
+        try:
+            denied_status, denied_headers, _ = persistent_post(
+                unauthorized_connection, "/api/apply", {}, local_origin
+            )
+            relogin_status, _, _ = persistent_post(
+                unauthorized_connection, "/api/login", {"username": USER, "password": PASSWORD}, local_origin
+            )
+            check("unauthorized POST body cannot poison the next request",
+                  denied_status == 401 and denied_headers.get("Connection") == "close" and relogin_status == 200,
+                  "denied %s, next %s" % (denied_status, relogin_status))
+        finally:
+            unauthorized_connection.close()
+
+        forbidden_connection = http.client.HTTPConnection("127.0.0.1", PORT, timeout=5)
+        try:
+            forbidden_status, forbidden_headers, _ = persistent_post(
+                forbidden_connection, "/api/apply", {}, "https://evil.example"
+            )
+            relogin_status, _, _ = persistent_post(
+                forbidden_connection, "/api/login", {"username": USER, "password": PASSWORD}, local_origin
+            )
+            check("forbidden-Origin POST body cannot poison the next request",
+                  forbidden_status == 403 and forbidden_headers.get("Connection") == "close" and
+                  relogin_status == 200, "denied %s, next %s" % (forbidden_status, relogin_status))
+        finally:
+            forbidden_connection.close()
+
+        logout_connection = http.client.HTTPConnection("127.0.0.1", PORT, timeout=5)
+        try:
+            login_status, login_headers, _ = persistent_post(
+                logout_connection, "/api/login", {"username": USER, "password": PASSWORD}, local_origin
+            )
+            session_cookie = login_headers.get("Set-Cookie", "").split(";", 1)[0]
+            logout_status, logout_headers, _ = persistent_post(
+                logout_connection, "/api/logout", {}, local_origin, session_cookie
+            )
+            relogin_status, _, _ = persistent_post(
+                logout_connection, "/api/login", {"username": USER, "password": PASSWORD}, local_origin
+            )
+            check("logout body cannot poison the next request",
+                  login_status == 200 and logout_status == 200 and
+                  logout_headers.get("Connection") == "close" and relogin_status == 200,
+                  "login %s, logout %s, next %s" % (login_status, logout_status, relogin_status))
+        finally:
+            logout_connection.close()
 
         # The application is mounted behind /balance; routes outside that prefix are not exposed.
         status, _ = request("/api/discs", auth=True, raw_path=True)
