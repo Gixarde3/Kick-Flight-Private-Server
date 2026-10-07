@@ -50,7 +50,7 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_OVERRIDE_DIR` | where saves are written and overrides read from (default: `.local/masters-overrides/`) |
 | `KF_BALANCE_BACKUP_DIR` | where each replaced file is copied (default: `tools/balance/backups/`) |
 | `KF_BALANCE_HOST` / `KF_BALANCE_PORT` | bind interface / port (default `127.0.0.1` / `8765`) |
-| `KF_BALANCE_AUTH_DB` | required SQLite file for manually inserted users and server-side sessions (default: `.local/balance-auth.sqlite3`); an empty user table denies sign-in |
+| `KF_BALANCE_AUTH_DB` | required SQLite file for manually inserted users and server-side sessions (default: `.local/balance-auth/auth.sqlite3`); an empty user table denies sign-in |
 | `KF_BALANCE_BASE_PATH` | mount prefix when served below a path such as `/balance` (default: empty) |
 | `KF_BALANCE_ALLOWED_ORIGINS` | comma-separated exact HTTPS origins accepted through the TLS proxy |
 | `KF_BALANCE_TRUSTED_PROXIES` | immediate proxy IPs allowed to supply `X-Real-IP` for login throttling |
@@ -80,18 +80,13 @@ cd /opt/kickflight
 sudo -u ubuntu python3 tools/balance/password_hash.py
 ```
 
-Insert a row manually as the service user, replacing the placeholders with the normalized username
-and hash printed by the helper. Keep the hash out of shell history and logs:
-
-```bash
-sudo -u ubuntu sqlite3 /opt/kickflight/.local/balance-auth.sqlite3
-INSERT INTO users(username, password_hash, created_at)
-VALUES ('operator-name', 'pbkdf2_sha256$600000$...$...', unixepoch());
-.quit
-```
+Insert one row into the `users(username, password_hash, created_at)` table with a
+parameterized SQLite statement as the service user, using the normalized username and hash
+from the helper. Do not put the password or hash in shell arguments or history. Production
+provisioning steps are in `tools/balance/deploy/README.md`.
 
 For local development, use the same process with the default database at
-`.local/balance-auth.sqlite3`. The helper prompts for the password and prints only its derived
+`.local/balance-auth/auth.sqlite3`. The helper prompts for the password and prints only its derived
 hash; it cannot create, list, or delete accounts.
 
 Every UI/API route, export and static icon requires a valid session. The login endpoint is the only

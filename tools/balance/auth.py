@@ -122,8 +122,22 @@ class AuthStore:
     def __init__(self, path: str | Path, *, session_ttl: int = SESSION_TTL_SECONDS):
         self.path = Path(path).expanduser().resolve()
         self.session_ttl = session_ttl
-        self.path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
-        os.chmod(self.path.parent, 0o700)
+        parent_created = False
+        try:
+            self.path.parent.mkdir(parents=True, mode=0o700)
+            parent_created = True
+        except FileExistsError:
+            pass
+        if parent_created:
+            # It is safe to tighten permissions on a directory this service just created.
+            os.chmod(self.path.parent, 0o700)
+        parent_stat = self.path.parent.stat()
+        if (not stat.S_ISDIR(parent_stat.st_mode) or parent_stat.st_uid != os.geteuid()
+                or stat.S_IMODE(parent_stat.st_mode) != 0o700):
+            raise PermissionError(
+                f"authentication database directory {self.path.parent} must be owned by the service user "
+                "and have mode 0700; choose a dedicated private directory"
+            )
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:

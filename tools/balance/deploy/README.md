@@ -87,7 +87,7 @@ import unicodedata
 username = unicodedata.normalize(\"NFKC\", input(\"Username: \")).strip().casefold()
 assert username, \"username cannot be empty\"
 password_hash = input(\"PBKDF2 hash from the helper: \")
-db = sqlite3.connect(\"/opt/kickflight/.local/balance-auth.sqlite3\")
+db = sqlite3.connect(\"/opt/kickflight/.local/balance-auth/auth.sqlite3\")
 db.execute(\"INSERT INTO users(username, password_hash, created_at) VALUES (?, ?, ?)\",
            (username, password_hash, int(time.time())))
 db.commit()

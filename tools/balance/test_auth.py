@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import sqlite3
 import sys
 import tempfile
@@ -56,6 +57,17 @@ class AuthTests(unittest.TestCase):
             self.assertNotEqual(stored, token)
             store.revoke_session(token)
             self.assertIsNone(store.resolve_session(token, now=201))
+
+    def test_insecure_existing_database_parent_is_rejected_without_chmod(self):
+        with tempfile.TemporaryDirectory() as directory:
+            shared = Path(directory) / "shared"
+            shared.mkdir(mode=0o755)
+            os.chmod(shared, 0o755)
+            database = shared / "auth.sqlite3"
+            with self.assertRaisesRegex(PermissionError, "mode 0700"):
+                AuthStore(database)
+            self.assertEqual(shared.stat().st_mode & 0o777, 0o755)
+            self.assertFalse(database.exists())
 
     def test_rate_limiter_blocks_then_expires(self):
         limiter = LoginRateLimiter(window_seconds=10, max_failures=2)

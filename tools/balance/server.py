@@ -70,7 +70,7 @@ BACKUP_DIR = _env_path("KF_BALANCE_BACKUP_DIR", BALANCE_DIR / "backups")
 
 # Authentication is mandatory. The local DB is never committed, and an empty user table denies
 # every login until an operator inserts an account manually.
-AUTH_DB_PATH = _env_path("KF_BALANCE_AUTH_DB", REPO_ROOT / ".local" / "balance-auth.sqlite3")
+AUTH_DB_PATH = _env_path("KF_BALANCE_AUTH_DB", REPO_ROOT / ".local" / "balance-auth" / "auth.sqlite3")
 SESSION_COOKIE_NAME = "__Secure-kf_balance_session"
 BASE_PATH = os.environ.get("KF_BALANCE_BASE_PATH", "").strip()
 if BASE_PATH in ("", "/"):

@@ -48,7 +48,7 @@ ADMIN_PORT = 19080
 USER = "balance"
 PASSWORD = "correct horse battery staple"
 BASE_PATH = "/balance"
-AUTH_DB = ROOT / "auth.sqlite3"
+AUTH_DB = ROOT / "balance-auth" / "auth.sqlite3"
 SESSION_COOKIE = None
 
 FAILURES = []
