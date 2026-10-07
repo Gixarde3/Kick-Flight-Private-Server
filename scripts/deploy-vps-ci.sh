@@ -3,8 +3,8 @@
 # must be available without sudo. Arguments are supplied by the workflow and are not secrets.
 set -Eeuo pipefail
 
-if [[ $# -ne 10 ]]; then
-  echo "usage: deploy-vps-ci.sh APP_DIR SHA ARCHIVE API PHOTON CDN FARM SITE CADDY FULL" >&2
+if [[ $# -ne 11 ]]; then
+  echo "usage: deploy-vps-ci.sh APP_DIR SHA ARCHIVE API PHOTON CDN FARM SITE CADDY FULL BALANCE" >&2
   exit 2
 fi
 
@@ -18,12 +18,13 @@ rebuild_farm=$7
 sync_site=$8
 deploy_caddy=$9
 full_deploy=${10}
+deploy_balance=${11}
 
 [[ "$app_dir" == /* ]] || { echo "VPS_APP_DIR must be an absolute path" >&2; exit 2; }
 [[ "$app_dir" != "/" && -d "$app_dir" ]] || { echo "VPS_APP_DIR must be an existing application directory" >&2; exit 2; }
 [[ "$release_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "invalid commit SHA" >&2; exit 2; }
 [[ "$archive" == "/tmp/kf-vps-$release_sha.tar.gz" && -f "$archive" ]] || { echo "release archive path is invalid or missing" >&2; exit 2; }
-for flag in "$deploy_api" "$deploy_photon" "$deploy_cdn" "$rebuild_farm" "$sync_site" "$deploy_caddy" "$full_deploy"; do
+for flag in "$deploy_api" "$deploy_photon" "$deploy_cdn" "$rebuild_farm" "$sync_site" "$deploy_caddy" "$full_deploy" "$deploy_balance"; do
   [[ "$flag" == true || "$flag" == false ]] || { echo "invalid component flag" >&2; exit 2; }
 done
 cleanup_upload() { rm -f -- "$archive"; }
@@ -133,6 +134,9 @@ rollback_on_error() {
     if [[ "$source_sync_started" == true && -n "$previous_release" && -d "$previous_release" ]]; then
       sync_release "$previous_release" || true
       compose_from_app up -d --build || true
+      if [[ "$deploy_balance" == true ]]; then
+        sudo -n systemctl daemon-reload && sudo -n systemctl restart kickflight-balance || true
+      fi
     elif [[ "$cdn_restored" == true ]]; then
       compose_from_app restart cdn || true
     fi
@@ -180,6 +184,10 @@ compose_from_app() {
       -f "$app_dir/deploy/docker-compose.vps.external-db.yml" "$@"
   )
 }
+restart_balance_service() {
+  sudo -n systemctl daemon-reload
+  sudo -n systemctl restart kickflight-balance
+}
 if [[ "$rebuild_farm" == true ]]; then
   [[ ! -e "$backup_dir" ]] || { echo "stale CDN rollback directory exists; inspect it before retrying" >&2; exit 1; }
   trap rollback_on_error EXIT ERR
@@ -197,6 +205,10 @@ sync_release "$release_dir"
 compose_from_app config --quiet
 if [[ "$full_deploy" == true ]]; then
   compose_from_app up -d --build
+  if [[ "$deploy_caddy" == true ]]; then
+    # A full compose up may leave a bind-mounted Caddy config stale in the running container.
+    compose_from_app up -d --no-deps --force-recreate caddy
+  fi
   if [[ "$deploy_api" == true ]]; then
     compose_from_app restart cdn grpc
   fi
@@ -222,6 +234,9 @@ else
   if [[ "$deploy_caddy" == true ]]; then
     compose_from_app up -d --no-deps --force-recreate caddy
   fi
+fi
+if [[ "$deploy_balance" == true ]]; then
+  restart_balance_service
 fi
 
 http_port=$(python3 - "$app_dir/.env" <<'PY'
