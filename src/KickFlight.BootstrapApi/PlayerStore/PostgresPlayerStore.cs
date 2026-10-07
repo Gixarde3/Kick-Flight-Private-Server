@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace KickFlight.BootstrapApi.PlayerStore;
 
@@ -15,7 +16,7 @@ namespace KickFlight.BootstrapApi.PlayerStore;
 // the API once. `schema_meta` records which have been applied, so applying is idempotent and additive.
 public sealed class PostgresPlayerStore : IPlayerStore
 {
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = 2;
 
     private static readonly (int Version, string Sql)[] Migrations =
     [
@@ -58,6 +59,37 @@ public sealed class PostgresPlayerStore : IPlayerStore
                 updated_at      timestamptz not null default now(),
                 primary key (player_id, battle_rule_type)
             );
+            """),
+        (2, """
+            create table player_follows (
+                follower_id bigint not null references players(id) on delete cascade,
+                followed_id bigint not null references players(id) on delete cascade,
+                created_at  timestamptz not null default now(),
+                read_at     timestamptz,
+                primary key (follower_id, followed_id),
+                check (follower_id <> followed_id)
+            );
+
+            create index player_follows_followed_created_idx
+                on player_follows (followed_id, created_at desc, follower_id);
+            create index player_follows_follower_created_idx
+                on player_follows (follower_id, created_at desc, followed_id);
+
+            create table real_friend_tokens (
+                player_id bigint primary key references players(id) on delete cascade,
+                token     text not null unique,
+                created_at timestamptz not null default now()
+            );
+
+            create table player_real_friends (
+                player_low_id  bigint not null references players(id) on delete cascade,
+                player_high_id bigint not null references players(id) on delete cascade,
+                created_at     timestamptz not null default now(),
+                primary key (player_low_id, player_high_id),
+                check (player_low_id < player_high_id)
+            );
+
+            create index player_real_friends_high_idx on player_real_friends (player_high_id, player_low_id);
             """)
     ];
 
@@ -131,10 +163,10 @@ public sealed class PostgresPlayerStore : IPlayerStore
         using var verify = connection.CreateCommand();
         verify.CommandText = "select coalesce(max(version), 0) from schema_meta";
         var applied = Convert.ToInt32(verify.ExecuteScalar());
-        if (applied < SchemaVersion)
+        if (applied != SchemaVersion)
         {
             throw new InvalidOperationException(
-                $"Player store migrations did not reach version {SchemaVersion} (at {applied}).");
+                $"Player store schema version must be {SchemaVersion} (at {applied}).");
         }
     }
 
@@ -337,4 +369,326 @@ public sealed class PostgresPlayerStore : IPlayerStore
         command.Parameters.AddWithValue(exceptPlayerId);
         return Convert.ToBoolean(command.ExecuteScalar());
     }
+
+    public PlayerProfile? FindProfile(long playerId)
+    {
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select id, coalesce(display_name, ''), kicker_id, kicker_costume_id
+            from players where id = $1
+            """;
+        command.Parameters.AddWithValue(playerId);
+        using var reader = command.ExecuteReader();
+        return reader.Read() ? ReadProfile(reader, 0) : null;
+    }
+
+    public IReadOnlyList<PlayerProfile> FindProfiles(IReadOnlyCollection<long> playerIds)
+    {
+        ArgumentNullException.ThrowIfNull(playerIds);
+        if (playerIds.Count == 0) return Array.Empty<PlayerProfile>();
+
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select id, coalesce(display_name, ''), kicker_id, kicker_costume_id
+            from players where id = any($1) order by id
+            """;
+        command.Parameters.Add(new NpgsqlParameter
+        {
+            NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Bigint,
+            Value = playerIds.Distinct().ToArray()
+        });
+
+        var profiles = new List<PlayerProfile>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read()) profiles.Add(ReadProfile(reader, 0));
+        return profiles;
+    }
+
+    public IReadOnlyList<long> FindFollowedIds(long followerId, IReadOnlyCollection<long> candidateIds)
+    {
+        ArgumentNullException.ThrowIfNull(candidateIds);
+        if (candidateIds.Count == 0) return Array.Empty<long>();
+
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select followed_id from player_follows
+            where follower_id = $1 and followed_id = any($2)
+            order by followed_id
+            """;
+        command.Parameters.AddWithValue(followerId);
+        command.Parameters.Add(new NpgsqlParameter
+        {
+            NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Bigint,
+            Value = candidateIds.Distinct().ToArray()
+        });
+
+        var result = new List<long>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read()) result.Add(reader.GetInt64(0));
+        return result;
+    }
+
+    public void AddFollow(long followerId, long followedId)
+    {
+        ValidateFollowIds(followerId, followedId);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            insert into player_follows (follower_id, followed_id)
+            values ($1, $2)
+            on conflict (follower_id, followed_id) do nothing
+            """;
+        command.Parameters.AddWithValue(followerId);
+        command.Parameters.AddWithValue(followedId);
+        command.ExecuteNonQuery();
+    }
+
+    public void RemoveFollow(long followerId, long followedId)
+    {
+        ValidateFollowIds(followerId, followedId);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "delete from player_follows where follower_id = $1 and followed_id = $2";
+        command.Parameters.AddWithValue(followerId);
+        command.Parameters.AddWithValue(followedId);
+        command.ExecuteNonQuery();
+    }
+
+    public int CountFollowing(long playerId) => CountFollowEdges("follower_id", playerId);
+
+    public int CountFollowers(long playerId) => CountFollowEdges("followed_id", playerId);
+
+    public IReadOnlyList<FollowedProfile> ListFollowing(long playerId, int offset, int limit)
+    {
+        ValidatePage(offset, limit);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select p.id, coalesce(p.display_name, ''), p.kicker_id, p.kicker_costume_id,
+                   f.created_at, false
+            from player_follows f
+            join players p on p.id = f.followed_id
+            where f.follower_id = $1
+            order by f.created_at desc, p.id asc
+            offset $2 limit $3
+            """;
+        command.Parameters.AddWithValue(playerId);
+        command.Parameters.AddWithValue(offset);
+        command.Parameters.AddWithValue(limit);
+        return ReadFollowedProfiles(command);
+    }
+
+    public IReadOnlyList<FollowedProfile> ListFollowers(long playerId, int offset, int limit)
+    {
+        ValidatePage(offset, limit);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select p.id, coalesce(p.display_name, ''), p.kicker_id, p.kicker_costume_id,
+                   f.created_at, f.read_at is null
+            from player_follows f
+            join players p on p.id = f.follower_id
+            where f.followed_id = $1
+            order by f.created_at desc, p.id asc
+            offset $2 limit $3
+            """;
+        command.Parameters.AddWithValue(playerId);
+        command.Parameters.AddWithValue(offset);
+        command.Parameters.AddWithValue(limit);
+        return ReadFollowedProfiles(command);
+    }
+
+    public int CountNewFollowers(long playerId)
+    {
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "select count(*) from player_follows where followed_id = $1 and read_at is null";
+        command.Parameters.AddWithValue(playerId);
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    public void MarkFollowersRead(long playerId, IReadOnlyCollection<long> followerIds)
+    {
+        ArgumentNullException.ThrowIfNull(followerIds);
+        if (followerIds.Count == 0) return;
+
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            update player_follows set read_at = coalesce(read_at, now())
+            where followed_id = $1 and follower_id = any($2)
+            """;
+        command.Parameters.AddWithValue(playerId);
+        command.Parameters.Add(new NpgsqlParameter
+        {
+            NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Bigint,
+            Value = followerIds.Distinct().ToArray()
+        });
+        command.ExecuteNonQuery();
+    }
+
+    public string GetOrCreateRealFriendToken(long playerId)
+    {
+        if (playerId <= 0) throw new ArgumentOutOfRangeException(nameof(playerId));
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            insert into real_friend_tokens (player_id, token) values ($1, $2)
+            on conflict (player_id) do update set player_id = excluded.player_id
+            returning token
+            """;
+        command.Parameters.AddWithValue(playerId);
+        command.Parameters.AddWithValue(CreateOpaqueToken());
+        return Convert.ToString(command.ExecuteScalar())!;
+    }
+
+    public long? TryGetRealFriendTokenOwner(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return null;
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "select player_id from real_friend_tokens where token = $1";
+        command.Parameters.AddWithValue(token);
+        var owner = command.ExecuteScalar();
+        return owner is null or DBNull ? null : Convert.ToInt64(owner);
+    }
+
+    public void AddRealFriend(long firstPlayerId, long secondPlayerId)
+    {
+        ValidateFollowIds(firstPlayerId, secondPlayerId);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            insert into player_real_friends (player_low_id, player_high_id)
+            values ($1, $2)
+            on conflict (player_low_id, player_high_id) do nothing
+            """;
+        command.Parameters.AddWithValue(Math.Min(firstPlayerId, secondPlayerId));
+        command.Parameters.AddWithValue(Math.Max(firstPlayerId, secondPlayerId));
+        command.ExecuteNonQuery();
+    }
+
+    public bool AreRealFriends(long firstPlayerId, long secondPlayerId)
+    {
+        ValidateFollowIds(firstPlayerId, secondPlayerId);
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            select exists (
+                select 1 from player_real_friends
+                where player_low_id = $1 and player_high_id = $2
+            )
+            """;
+        command.Parameters.AddWithValue(Math.Min(firstPlayerId, secondPlayerId));
+        command.Parameters.AddWithValue(Math.Max(firstPlayerId, secondPlayerId));
+        return Convert.ToBoolean(command.ExecuteScalar());
+    }
+
+    public IReadOnlyList<RankedPlayer> ListRanks(
+        int battleRuleType,
+        IReadOnlyCollection<long>? playerIds,
+        int offset,
+        int limit)
+    {
+        ValidatePage(offset, limit);
+        if (playerIds is { Count: 0 }) return Array.Empty<RankedPlayer>();
+
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = playerIds is null
+            ? RankingQuery(includePlayerFilter: false)
+            : RankingQuery(includePlayerFilter: true);
+        command.Parameters.AddWithValue(battleRuleType);
+        command.Parameters.AddWithValue(RankProgression.StartBattlePoint);
+        command.Parameters.AddWithValue(RankProgression.StartRank);
+        if (playerIds is not null)
+        {
+            command.Parameters.Add(new NpgsqlParameter
+            {
+                NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Bigint,
+                Value = playerIds.Distinct().ToArray()
+            });
+        }
+        command.Parameters.AddWithValue(offset);
+        command.Parameters.AddWithValue(limit);
+
+        var result = new List<RankedPlayer>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var profile = ReadProfile(reader, 0);
+            result.Add(new RankedPlayer(profile, reader.GetInt32(4), reader.GetInt32(5), reader.GetInt64(6)));
+        }
+        return result;
+    }
+
+    private static string RankingQuery(bool includePlayerFilter)
+    {
+        var filter = includePlayerFilter ? "where id = any($4)" : "";
+        var offsetParameter = includePlayerFilter ? "$5" : "$4";
+        var limitParameter = includePlayerFilter ? "$6" : "$5";
+        return $"""
+            with scored as (
+                select p.id, coalesce(p.display_name, '') as display_name, p.kicker_id, p.kicker_costume_id,
+                       coalesce(r.battle_point, $2) as battle_point,
+                       coalesce(r.rank, $3) as rank,
+                       row_number() over (order by coalesce(r.battle_point, $2) desc, p.id asc) as position
+                from players p
+                left join player_ranks r on r.player_id = p.id and r.battle_rule_type = $1
+                where nullif(p.display_name, '') is not null
+            )
+            select id, display_name, kicker_id, kicker_costume_id, battle_point, rank, position
+            from scored
+            {filter}
+            order by position
+            offset {offsetParameter} limit {limitParameter}
+            """;
+    }
+
+    private static PlayerProfile ReadProfile(NpgsqlDataReader reader, int firstColumn) =>
+        new(reader.GetInt64(firstColumn), reader.GetString(firstColumn + 1),
+            reader.GetInt32(firstColumn + 2), reader.GetInt32(firstColumn + 3));
+
+    private static IReadOnlyList<FollowedProfile> ReadFollowedProfiles(NpgsqlCommand command)
+    {
+        var result = new List<FollowedProfile>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var createdAt = DateTime.SpecifyKind(reader.GetDateTime(4), DateTimeKind.Utc);
+            result.Add(new FollowedProfile(ReadProfile(reader, 0), new DateTimeOffset(createdAt), reader.GetBoolean(5)));
+        }
+        return result;
+    }
+
+    private static void ValidateFollowIds(long followerId, long followedId)
+    {
+        if (followerId <= 0) throw new ArgumentOutOfRangeException(nameof(followerId));
+        if (followedId <= 0) throw new ArgumentOutOfRangeException(nameof(followedId));
+        if (followerId == followedId) throw new ArgumentException("A player cannot follow themselves.", nameof(followedId));
+    }
+
+    private static void ValidatePage(int offset, int limit)
+    {
+        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+        if (limit < 0) throw new ArgumentOutOfRangeException(nameof(limit));
+    }
+
+    private int CountFollowEdges(string playerColumn, long playerId)
+    {
+        using var connection = _dataSource.OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = $"select count(*) from player_follows where {playerColumn} = $1";
+        command.Parameters.AddWithValue(playerId);
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    private static string CreateOpaqueToken() =>
+        Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
 }

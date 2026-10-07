@@ -6,6 +6,17 @@ public sealed record SessionRecord(long PlayerId, byte[] Key);
 // A player's standing in one battle rule. Rank is what the client renders as a league badge.
 public sealed record RankState(int BattlePoint, int Rank);
 
+// Public data used by profile cards and social/ranking lists. An unset display name stays empty; callers must
+// not invent a player identity for an ID that has no persisted profile.
+public sealed record PlayerProfile(long PlayerId, string DisplayName, int KickerId, int KickerCostumeId);
+
+// A persisted follow edge. IsNew is meaningful for followers (incoming edges) and false for following rows.
+public sealed record FollowedProfile(PlayerProfile Profile, DateTimeOffset FollowedAt, bool IsNew);
+
+// Position is one-based in the complete named-player ranking for this battle rule, including when the query is
+// filtered to a set of followed players.
+public sealed record RankedPlayer(PlayerProfile Profile, int BattlePoint, int Rank, long Position);
+
 // Where player state lives.
 //
 // Two implementations, chosen by whether a connection string is configured (see PlayerStoreFactory):
@@ -44,4 +55,30 @@ public interface IPlayerStore
     // identified on the ranking and profile screens, where "Tanuki" and "tanuki" reading as two people is a bug
     // rather than a feature. `exceptPlayerId` is the caller, so re-submitting one's own name is not a clash.
     bool IsNameTaken(string name, long exceptPlayerId);
+
+    // Social graph. Edges are directed: followerId follows followedId. Repeated add/remove calls are safe.
+    PlayerProfile? FindProfile(long playerId);
+    IReadOnlyList<PlayerProfile> FindProfiles(IReadOnlyCollection<long> playerIds);
+    IReadOnlyList<long> FindFollowedIds(long followerId, IReadOnlyCollection<long> candidateIds);
+    void AddFollow(long followerId, long followedId);
+    void RemoveFollow(long followerId, long followedId);
+    int CountFollowing(long playerId);
+    int CountFollowers(long playerId);
+    IReadOnlyList<FollowedProfile> ListFollowing(long playerId, int offset, int limit);
+    IReadOnlyList<FollowedProfile> ListFollowers(long playerId, int offset, int limit);
+    int CountNewFollowers(long playerId);
+    void MarkFollowersRead(long playerId, IReadOnlyCollection<long> followerIds);
+
+    // Explicit real-friend invitations are a separate symmetric relation from following.
+    string GetOrCreateRealFriendToken(long playerId);
+    long? TryGetRealFriendTokenOwner(string token);
+    void AddRealFriend(long firstPlayerId, long secondPlayerId);
+    bool AreRealFriends(long firstPlayerId, long secondPlayerId);
+
+    // A null playerIds selects the complete named-player ranking. Filtered results retain their global position.
+    IReadOnlyList<RankedPlayer> ListRanks(
+        int battleRuleType,
+        IReadOnlyCollection<long>? playerIds,
+        int offset,
+        int limit);
 }

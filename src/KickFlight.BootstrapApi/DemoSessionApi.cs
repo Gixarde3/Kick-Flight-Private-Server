@@ -62,6 +62,7 @@ public sealed partial class DemoSessionApi
     private readonly IPlayerStore _playerStore;
     private readonly Dictionary<string, byte[]> _encryptedMasters = new(StringComparer.Ordinal);
     private readonly Dictionary<int, int> _battleRuleTypeById = [];
+    private readonly Dictionary<int, int> _battleMatchTypeById = [];
     private long _customBattleSequence;
     private readonly List<KickerInfo> _kickerList = [];
     // kickerId -> KickerCostume master ROW ids. The client keys everything by row id (KickerCostumeMaster is a plain
@@ -198,8 +199,8 @@ public sealed partial class DemoSessionApi
         // before the team can score. The file is the source; the literal is only the fallback.
         var battleRuleJson = LoadJson(contentRoot, "config/masters_battle_rule.json", BattleRuleFallbackJson);
         _encryptedMasters["BattleRule"] = EncryptMaster(battleRuleJson);
-        // id -> battleRuleType, read by /battle/start to pick the guardian for the requested rule. Parsed once here
-        // because the request handler only sees the rule id, not its type.
+        // id -> mode and rule type. Entries snapshot both values at matchmaking time, so results never infer mode
+        // from a result request or from a master that may have changed while the battle was running.
         try
         {
             using var brDoc = JsonDocument.Parse(battleRuleJson);
@@ -208,6 +209,8 @@ public sealed partial class DemoSessionApi
                 if (el.TryGetProperty("id", out var idProp) && el.TryGetProperty("battleRuleType", out var typeProp))
                 {
                     _battleRuleTypeById[idProp.GetInt32()] = typeProp.GetInt32();
+                    if (el.TryGetProperty("matchType", out var matchTypeProp))
+                        _battleMatchTypeById[idProp.GetInt32()] = matchTypeProp.GetInt32();
                 }
             }
         }
@@ -852,6 +855,17 @@ public sealed partial class DemoSessionApi
     private string LoadJson(string contentRoot, string relativePath, string fallback) =>
         _mastersOverrides.Read(contentRoot, relativePath, fallback);
 
+    private (int? MatchType, int? BattleRuleType) BattleRuleMetadata(int battleRuleId)
+    {
+        int? matchType = _battleMatchTypeById.TryGetValue(battleRuleId, out var foundMatchType)
+            ? foundMatchType
+            : null;
+        int? battleRuleType = _battleRuleTypeById.TryGetValue(battleRuleId, out var foundRuleType)
+            ? foundRuleType
+            : null;
+        return (matchType, battleRuleType);
+    }
+
     // The client's master getters subtract a fixed anti-tamper offset from these integer columns
     // (SkillMasterData.get_CoolTime = coolTime - 230, DiscMasterData.get_MinHp = minHp - 928, ...), so the served
     // JSON must carry value + offset. Config files hold the human-readable values; the offset is added here.
@@ -935,6 +949,7 @@ public sealed partial class DemoSessionApi
 
         var key = cached.Key;
         var state = cached.State;
+        _onlineActivityByPlayer[state.PlayerId] = _timeProvider.GetUtcNow();
 
         if (path == "/training/index")
         {
@@ -1133,14 +1148,12 @@ public sealed partial class DemoSessionApi
 
         if (path == "/follow/index")
         {
-            context.Response.Headers["x-app-status-code"] = "0";
-            return BinaryJson("""{"userProfileList":[],"mutualFollowCount":0,"followerCount":0,"followingCount":0,"followLimit":100}""", key);
+            return await HandleFollowIndexAsync(context, state, key);
         }
 
         if (path == "/follow/online")
         {
-            context.Response.Headers["x-app-status-code"] = "0";
-            return BinaryJson("{\"userProfileList\":[]}", key);
+            return await HandleFollowOnlineAsync(context, state, key);
         }
 
         if (path == "/user/online")
@@ -1789,9 +1802,11 @@ public sealed partial class DemoSessionApi
 
         NormalizeCostume(state);
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
+        var ruleMetadata = BattleRuleMetadata(battleRuleId);
         var entry = _matchmaking.CreateTeam(
             state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck, code,
-            isDiag: IsDiagClient(context));
+            isDiag: IsDiagClient(context), matchType: ruleMetadata.MatchType,
+            battleRuleType: ruleMetadata.BattleRuleType);
         // TeamCreate is called before Photon joins the recruiting room. Echo the app-asset revision the client
         // already has; an empty list is interpreted as missing application data and sends it to the update/restart
         // flow before it reaches Photon.
@@ -2015,9 +2030,11 @@ public sealed partial class DemoSessionApi
 
         var deck = state.Decks.GetValueOrDefault(state.ActiveDeckNumber) ?? [3010001, 3010002, 3010003, 3010004];
         NormalizeCostume(state);
+        var ruleMetadata = BattleRuleMetadata(battleRuleId);
         var (battleEntryId, ticketId) = _matchmaking.RegisterEntry(
             state.UserId, state.UserName, state.KickerId, state.KickerCostumeId, battleRuleId, deck,
-            isDiag: IsDiagClient(context));
+            isDiag: IsDiagClient(context), matchType: ruleMetadata.MatchType,
+            battleRuleType: ruleMetadata.BattleRuleType);
 
         var resp = new
         {
@@ -2187,9 +2204,8 @@ public sealed partial class DemoSessionApi
     // constructs BattleResultInfo from it unconditionally and NREs on a missing array, which leaves the
     // ResultScene stuck on the score board.
     //
-    // Rank is real here: the battle's outcome is applied to the player's persisted standing, so
-    // beforeUserBattleRank and userBattleRank differ and the result screen animates a change. The mode comes from
-    // the entry ticket, so a result never re-evaluates the hourly schedule.
+    // Rank progress applies only to ranked matches. The entry stores a server-derived snapshot of matchType and
+    // battleRuleType; neither a result body nor a later master/schedule change can reclassify the match.
     private async Task<IResult?> HandleBattleResultAsync(HttpContext context, SessionState state, byte[] key)
     {
         var battleEntryId = "";
@@ -2209,43 +2225,40 @@ public sealed partial class DemoSessionApi
             _logger.LogWarning("Failed to parse battle result body: {Error}", ex.Message);
         }
 
-        // The entry ticket is the only thing that ties a result to the mode that was actually played. An entry id
-        // that was never issued (a stale/forged id, or a body we could not decode) must not be attributed to the
-        // casual ladder, so the rank is left untouched rather than silently moved by a result we cannot place.
-        // A body without any entry id (the custom battle result shape) keeps the historical casual handling.
-        var entryRuleId = _matchmaking.GetBattleRuleIdForEntry(battleEntryId);
-        int battleRuleType;
-        var applyProgression = true;
-        if (entryRuleId is { } ruleId)
+        // Only an issued entry owned by this session can be ranked. Missing/forged IDs (including custom battle
+        // results, which have no normal entry) fail closed. matchType 2 is the ranked mode in BattleRule master.
+        var entry = string.IsNullOrEmpty(battleEntryId) ? null : _matchmaking.GetBattleResultEntry(battleEntryId);
+        var ownedEntry = entry is { } candidate && candidate.UserId == state.UserId ? candidate : null;
+        var battleRuleType = ownedEntry?.BattleRuleType ?? RegularBattleRuleType;
+        var applyProgression = ownedEntry is { MatchType: 2, BattleRuleType: >= 1 and <= 3 };
+        if (!string.IsNullOrEmpty(battleEntryId) && entry is null)
         {
-            if (_battleRuleTypeById.TryGetValue(ruleId, out var knownType))
-            {
-                battleRuleType = knownType;
-            }
-            else
-            {
-                applyProgression = false;
-                battleRuleType = RegularBattleRuleType;
-                _logger.LogWarning("Battle result for {UserId}: entry {BattleEntryId} has unknown rule {RuleId}",
-                    state.UserId, battleEntryId, ruleId);
-            }
-        }
-        else if (!string.IsNullOrEmpty(battleEntryId))
-        {
-            applyProgression = false;
-            battleRuleType = RegularBattleRuleType;
             _logger.LogWarning("Battle result for {UserId}: unknown entry {BattleEntryId}, rank left unchanged",
                 state.UserId, battleEntryId);
         }
-        else
+        else if (entry is not null && ownedEntry is null)
         {
-            battleRuleType = RegularBattleRuleType;
+            _logger.LogWarning("Battle result for {UserId}: entry {BattleEntryId} belongs to another user, rank left unchanged",
+                state.UserId, battleEntryId);
+        }
+        else if (ownedEntry is not null && ownedEntry.MatchType is null)
+        {
+            _logger.LogWarning("Battle result for {UserId}: entry {BattleEntryId} has no known match type, rank left unchanged",
+                state.UserId, battleEntryId);
         }
 
-        var before = _playerStore.LoadRank(state.PlayerId, battleRuleType);
-        var after = applyProgression ? RankProgression.Apply(before, won: true) : before;
-        if (applyProgression)
-            _playerStore.SaveRank(state.PlayerId, battleRuleType, after);
+        var processedRankedResult = applyProgression
+            ? _matchmaking.ProcessRankedResultOnce(battleEntryId, state.UserId, ruleType =>
+            {
+                var beforeRank = _playerStore.LoadRank(state.PlayerId, ruleType);
+                var afterRank = RankProgression.Apply(beforeRank, won: true);
+                _playerStore.SaveRank(state.PlayerId, ruleType, afterRank);
+                return new BattleMatchmakingService.RankedResultSnapshot(ruleType, beforeRank, afterRank);
+            })
+            : null;
+        var rankSnapshot = processedRankedResult?.RankedResult;
+        var before = rankSnapshot?.Before ?? _playerStore.LoadRank(state.PlayerId, battleRuleType);
+        var after = rankSnapshot?.After ?? before;
 
         var rank = new { battleRuleType, battlePoint = after.BattlePoint, rank = after.Rank };
         var resp = new
@@ -2272,8 +2285,8 @@ public sealed partial class DemoSessionApi
 
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-result";
-        _logger.LogInformation("Handled /battle/result for {UserId}: entry={BattleEntryId} rule={RuleId} type={RuleType} ranked={Applied}",
-            state.UserId, battleEntryId, entryRuleId, battleRuleType, applyProgression);
+        _logger.LogInformation("Handled /battle/result for {UserId}: entry={BattleEntryId} rule={RuleId} type={RuleType} matchType={MatchType} ranked={Applied}",
+            state.UserId, battleEntryId, entry?.BattleRuleId, battleRuleType, entry?.MatchType, applyProgression);
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
