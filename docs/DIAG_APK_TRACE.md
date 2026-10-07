@@ -71,6 +71,19 @@ La carpeta `.local/diag-runs/<UTC>-<serial>/` contiene `logcat-threadtime.txt`, 
 tombstone cuando fue legible, `capture.json` con comandos/hashes y `analysis.json`. `capture` requiere que el operador
 lo invoque con un serial concreto; los comandos `build --dry-run` y `analyze` no usan ADB.
 
+En el VPS, el punto de recepción público para un próximo arranque de la APK es
+`POST https://kick-flight-fenix.us.ci/diag/upload-file`, con un formulario multipart y el archivo en el campo `file`.
+Puede ser un ZIP opaco con el buffer KFDIAG, `ApplicationExitInfo`, el tombstone disponible y un manifiesto JSON;
+el servidor no extrae el ZIP ni confía en su nombre. La respuesta es JSON con `saved` y `bytes`. El máximo del archivo
+es 200 MiB y el máximo de cuerpo HTTP es 210 MiB. Nginx aplica dos solicitudes por minuto más una ráfaga de dos por
+IP; responde 429 al exceder el límite. El handler responde 413 si se excede el tamaño y 507 si el almacén alcanza
+2 GiB. En cada subida se borran los ficheros recibidos hace más de 14 días y los temporales incompletos de más de
+24 horas; no hay un limpiador en segundo plano, así que una carpeta sin nuevas subidas puede conservar archivos
+vencidos hasta la siguiente.
+
+La carga de texto existente usa `POST /diag/upload` con el cuerpo sin envolver, hasta 4 MiB. El directorio de
+recepción del VPS es `/opt/kickflight/.local/diag-uploads`; no se sirve como contenido web.
+
 ## Analizar artefactos existentes
 
 ```bash

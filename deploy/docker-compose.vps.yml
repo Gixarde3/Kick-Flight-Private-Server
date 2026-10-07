@@ -94,11 +94,13 @@ services:
       Harness__DirectClientHosts__0: ${KF_PUBLIC_HOST:?Set KF_PUBLIC_HOST in .env}
       Harness__DirectClientHosts__1: kick-flight-fenix.us.ci
       Harness__PersistCaptures: "false"
+      Diagnostics__UploadDirectory: /srv/diag-uploads
     volumes:
       - ../config:/srv/repo/config:ro
       - ../content:/srv/repo/content:ro
       - ../.local:/srv/repo/.local:ro
       - ../.local/maintenance:/srv/repo/data
+      - ../.local/diag-uploads:/srv/diag-uploads
       - ${KF_ASSETS_PATH:-../../Kick-Flight-Assets}:/srv/Kick-Flight-Assets:ro
     expose:
       - "8080"

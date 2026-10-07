@@ -18,7 +18,9 @@ la VM.
 Los puertos 18080 (API/CDN) y 18081 (gRPC) usan TCP. Photon requiere UDP y TCP: el NameServer anuncia
 Master/Game y el cliente puede usar ambos transportes. La API solo queda en la red privada de Compose. El
 puerto público 18081 termina en nginx, que solo reenvía `/openmatch.Frontend/GetAssignments`; otras rutas,
-incluidas `/diag`, reciben 404. `/diag`, `/gym` y `/gym/*` también se bloquean en el frontend HTTP.
+incluidas las rutas de control, reciben 404. El frontend HTTP deja pasar únicamente los `POST /diag/upload` y
+`POST /diag/upload-file` para recibir trazas; el formulario `/diag`, `/gym` y `/gym/*` siguen bloqueados. Las cargas
+usan un volumen privado en `.local/diag-uploads`, con máximo de 2 GiB y limpieza de archivos de más de 14 días.
 El servicio Caddy escucha en 80/443 en el host y reenvía las peticiones al CDN existente en 18080. Caddy
 obtiene y renueva automáticamente el certificado de Let's Encrypt para `kick-flight-fenix.us.ci`; conserva
 certificados y estado en los volúmenes Docker `caddy-data` y `caddy-config`. El DNS A del dominio debe
