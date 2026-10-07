@@ -84,7 +84,8 @@ public sealed class SocialRankingEndpointsTests
     [Fact]
     public async Task Ranking_tabs_use_real_points_global_positions_and_follow_filter()
     {
-        using var factory = NewFactory();
+        var clock = new AdjustableTimeProvider(DateTimeOffset.UnixEpoch);
+        using var factory = NewFactory(clock);
         var alice = await CreateSessionAsync(factory);
         var bob = await CreateSessionAsync(factory);
         var carol = await CreateSessionAsync(factory);
@@ -141,6 +142,93 @@ public sealed class SocialRankingEndpointsTests
         Assert.Equal(world.GetProperty("battleRankingList")[0].GetProperty("userId").GetString(),
             local.GetProperty("battleRankingList")[0].GetProperty("userId").GetString());
         Assert.StartsWith("Rank Alice ", store.FindProfile(aliceId)?.DisplayName ?? "");
+    }
+
+    [Fact]
+    public async Task Ranking_tabs_follow_the_active_rotation_and_ignore_stale_rule_requests()
+    {
+        var clock = new AdjustableTimeProvider(DateTimeOffset.UnixEpoch);
+        using var contentRoot = new IsolatedContentRoot();
+        using var factory = NewFactory(clock, contentRoot.Path);
+        var alice = await CreateSessionAsync(factory);
+        var bob = await CreateSessionAsync(factory);
+        var carol = await CreateSessionAsync(factory);
+        await PostAsync(alice, "/user/change", new { name = "Rotation Alice " + alice.UserId[^4..] });
+        await PostAsync(bob, "/user/change", new { name = "Rotation Bob " + bob.UserId[^4..] });
+        await PostAsync(carol, "/user/change", new { name = "Rotation Carol " + carol.UserId[^4..] });
+        var store = factory.Services.GetRequiredService<IPlayerStore>();
+        var aliceId = long.Parse(alice.UserId);
+        var bobId = long.Parse(bob.UserId);
+        var carolId = long.Parse(carol.UserId);
+
+        // Give each ladder a different order and points so a stale client battleRuleId cannot pass by coincidence.
+        store.SaveRank(aliceId, 1, new RankState(100_001_100, 11));
+        store.SaveRank(bobId, 1, new RankState(100_001_200, 12));
+        store.SaveRank(carolId, 1, new RankState(100_001_300, 13));
+        store.SaveRank(aliceId, 2, new RankState(200_002_300, 23));
+        store.SaveRank(bobId, 2, new RankState(200_002_100, 21));
+        store.SaveRank(carolId, 2, new RankState(200_002_200, 22));
+        store.SaveRank(aliceId, 3, new RankState(300_003_100, 31));
+        store.SaveRank(bobId, 3, new RankState(300_003_300, 33));
+        store.SaveRank(carolId, 3, new RankState(300_003_200, 32));
+        await PostAsync(alice, "/follow/add", new { followUserId = bob.UserId });
+
+        var routes = new[] { "/ranking/index", "/ranking/user", "/ranking/follow", "/ranking/region" };
+        var expectedModes = new[]
+        {
+            new { ruleId = RankedModeRotation.CrystalRuleId, ruleType = 1, topUser = carol.UserId, topPoints = 100_001_300, alicePoints = 100_001_100, bobPoints = 100_001_200, staleRule = RankedModeRotation.RapidBallRuleId },
+            new { ruleId = RankedModeRotation.FlagRuleId, ruleType = 2, topUser = alice.UserId, topPoints = 200_002_300, alicePoints = 200_002_300, bobPoints = 200_002_100, staleRule = RankedModeRotation.CrystalRuleId },
+            new { ruleId = RankedModeRotation.RapidBallRuleId, ruleType = 3, topUser = bob.UserId, topPoints = 300_003_300, alicePoints = 300_003_100, bobPoints = 300_003_300, staleRule = RankedModeRotation.FlagRuleId }
+        };
+
+        foreach (var mode in expectedModes)
+        {
+            Assert.Equal(mode.ruleId, RankedModeRotation.RuleIdAt(clock.GetUtcNow()));
+            foreach (var route in routes)
+            {
+                foreach (var requestBody in new object[] { new { battleRuleId = mode.staleRule }, new { } })
+                {
+                var response = await PostAsync(alice, route, requestBody);
+                var list = response.GetProperty("battleRankingList");
+                if (route == "/ranking/follow")
+                {
+                    var row = Assert.Single(list.EnumerateArray());
+                    Assert.Equal(bob.UserId, row.GetProperty("userId").GetString());
+                    Assert.Equal(mode.bobPoints, row.GetProperty("battlePoint").GetInt32());
+                    Assert.True(row.GetProperty("number").GetInt32() > 0);
+                }
+                else if (route == "/ranking/user")
+                {
+                    Assert.Contains(list.EnumerateArray(), row =>
+                        row.GetProperty("userId").GetString() == mode.topUser &&
+                        row.GetProperty("battlePoint").GetInt32() == mode.topPoints);
+                }
+                else
+                {
+                    Assert.Equal(mode.topUser, list[0].GetProperty("userId").GetString());
+                    Assert.Equal(mode.topPoints, list[0].GetProperty("battlePoint").GetInt32());
+                }
+
+                if (route != "/ranking/region")
+                {
+                    Assert.Equal(mode.alicePoints, response.GetProperty("battleRanking").GetProperty("battlePoint").GetInt32());
+                    if (route != "/ranking/follow")
+                        Assert.Equal(mode.alicePoints, Assert.Single(list.EnumerateArray(), row =>
+                            row.GetProperty("userId").GetString() == alice.UserId).GetProperty("battlePoint").GetInt32());
+                }
+                }
+            }
+
+            // Ranking queries are projections and must not alter any of the three stored ladders.
+            Assert.Equal(new[] { new RankState(100_001_100, 11), new RankState(200_002_300, 23), new RankState(300_003_100, 31) },
+                Enumerable.Range(1, 3).Select(type => store.LoadRank(aliceId, type)).ToArray());
+            Assert.Equal(new[] { new RankState(100_001_200, 12), new RankState(200_002_100, 21), new RankState(300_003_300, 33) },
+                Enumerable.Range(1, 3).Select(type => store.LoadRank(bobId, type)).ToArray());
+            Assert.Equal(new[] { new RankState(100_001_300, 13), new RankState(200_002_200, 22), new RankState(300_003_200, 32) },
+                Enumerable.Range(1, 3).Select(type => store.LoadRank(carolId, type)).ToArray());
+
+            clock.Advance(TimeSpan.FromHours(1));
+        }
     }
 
     [Fact]
@@ -213,10 +301,10 @@ public sealed class SocialRankingEndpointsTests
         Assert.All(Enumerable.Range(1, 4), slot => Assert.True(partial.GetProperty($"discLevel{slot}").GetInt32() > 0));
     }
 
-    private static WebApplicationFactory<Program> NewFactory(TimeProvider? clock = null) =>
+    private static WebApplicationFactory<Program> NewFactory(TimeProvider? clock = null, string? contentRoot = null) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.UseContentRoot(AppContext.BaseDirectory);
+            builder.UseContentRoot(contentRoot ?? AppContext.BaseDirectory);
             if (clock is not null)
             {
                 builder.ConfigureTestServices(services =>
@@ -226,6 +314,21 @@ public sealed class SocialRankingEndpointsTests
                 });
             }
         });
+
+    private sealed class IsolatedContentRoot : IDisposable
+    {
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "kf-ranking-" + Guid.NewGuid().ToString("N"));
+
+        public IsolatedContentRoot()
+        {
+            Directory.CreateDirectory(Path);
+            var repositoryRoot = RepositoryPaths.FindRoot(AppContext.BaseDirectory);
+            Directory.CreateSymbolicLink(System.IO.Path.Combine(Path, "config"), System.IO.Path.Combine(repositoryRoot, "config"));
+            Directory.CreateSymbolicLink(System.IO.Path.Combine(Path, "content"), System.IO.Path.Combine(repositoryRoot, "content"));
+        }
+
+        public void Dispose() => Directory.Delete(Path, recursive: true);
+    }
 
     private static async Task<DemoSession> CreateSessionAsync(WebApplicationFactory<Program> factory)
     {

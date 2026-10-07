@@ -95,11 +95,11 @@ public sealed partial class DemoSessionApi
     {
         var request = await ReadRequestRootAsync(context, key);
         if (request is null) return StatusError(context, key);
-        var root = request.Value;
-        var battleRuleId = root.TryGetProperty("battleRuleId", out var ruleElement) && ruleElement.TryGetInt32(out var requestedRule)
-            ? requestedRule : 1;
-        var battleRuleType = _battleRuleTypeById.TryGetValue(battleRuleId, out var mappedType)
-            ? mappedType : RegularBattleRuleType;
+        // Crown ranking tabs show the currently rotating ranked mode. The request's battleRuleId is client
+        // state and can be stale (or absent), so it must not select a different ladder than matchmaking.
+        var battleRuleId = RankedModeRotation.RuleIdAt(_timeProvider.GetUtcNow());
+        if (!_battleRuleTypeById.TryGetValue(battleRuleId, out var battleRuleType))
+            battleRuleType = RegularBattleRuleType;
 
         IReadOnlyCollection<long>? filter = null;
         IReadOnlyList<RankedPlayer> ranked;
