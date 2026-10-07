@@ -1,10 +1,10 @@
 # Kick-Flight en OCI con Docker Compose
 
-La instancia actual corre en una VM de OCI: Docker Compose ejecuta la API .NET, Luxon/Photon, Nginx para el
-CDN y la landing, Caddy para HTTPS y un proxy Nginx para gRPC. Los datos de jugadores viven en PostgreSQL
-externo de Neon. Usa `deploy/docker-compose.vps.external-db.yml` para esta topología. El archivo
-`deploy/docker-compose.vps.yml` mantiene la variante alternativa con PostgreSQL local. Las imágenes se
-construyen en la arquitectura de la VM.
+La instancia corre en una VM de OCI: Docker Compose ejecuta la API .NET, PostgreSQL 17.11, Luxon/Photon, Nginx
+para el CDN y la landing, Caddy para HTTPS y un proxy Nginx para gRPC. La API usa PostgreSQL local en la
+red privada de Compose y guarda sus datos en el volumen persistente `postgres-data`. El despliegue de CI y
+la operación manual usan `deploy/docker-compose.vps.yml`. Las imágenes se construyen en la arquitectura de
+la VM.
 
 ## Requisitos
 
@@ -37,7 +37,7 @@ omite un evento si su SHA ya no es la punta de `origin/main`. Usa el environment
 
 ### Preparar el host una vez
 
-El workflow entrega código y fuente de Photon, pero no aprovisiona la VM, Neon, DNS, firewall, secretos,
+El workflow entrega código y fuente de Photon, pero no aprovisiona la VM, PostgreSQL, DNS, firewall, secretos,
 APK, assets ni bundles fuera del repositorio. Antes de habilitarlo:
 
 1. Instala Docker Engine con el plugin Docker Compose v2, `rsync`, `flock`, `curl`, Python 3 y herramientas
@@ -46,9 +46,11 @@ APK, assets ni bundles fuera del repositorio. Antes de habilitarlo:
    árbol de assets.
 2. Crea el directorio absoluto que se configurará como `VPS_APP_DIR`. Ahí se conservan `.env`, `.local/`,
    `.ci/`, el estado de Compose y los datos locales que el despliegue no administra.
-3. Crea `VPS_APP_DIR/.env` con `DATABASE_URL` de Neon (PostgreSQL con `sslmode=require`), `KF_PUBLIC_HOST`
-   sin esquema ni puerto, `KF_HTTP_PORT` (normalmente `18080`) y, si los assets viven en otra ruta,
-   `KF_ASSETS_PATH` con su ruta absoluta. Protege este archivo en el host y no lo subas a Git ni a GitHub.
+3. Crea `VPS_APP_DIR/.env` con `KF_DB_PASSWORD` (rol de API `kickflight`, sin privilegios de superusuario)
+   y `KF_PG_SUPERUSER_PASSWORD` (credencial administrativa separada), además de `KF_PUBLIC_HOST` sin
+   esquema ni puerto, `KF_HTTP_PORT` (normalmente `18080`) y, si los assets viven en otra ruta,
+   `KF_ASSETS_PATH` con su ruta absoluta. Protege este archivo en el host y no lo subas a Git ni
+   a GitHub. La URL externa anterior no debe quedar como configuración efectiva.
 4. Prepara `VPS_APP_DIR/.local/` con todos los archivos requeridos por las entradas habilitadas de
    `config/resources/catalog.json`. En el catálogo de esta versión son 36 fuentes: la APK remota y 35 bundles
    de fallback. El workflow nunca copia `.local/`.
@@ -75,8 +77,9 @@ Crea o usa el environment **`production`** del repositorio. Agrega ahí los sigu
 
 SSH usa verificación estricta de host (`StrictHostKeyChecking=yes`); la entrada configurada en
 `VPS_KNOWN_HOSTS` debe coincidir con el host y, para un puerto distinto de 22, con el formato
-`[host]:puerto`. `DATABASE_URL` y el resto de la configuración de producción permanecen en el `.env` de la
-VM, no como secretos de GitHub.
+`[host]:puerto`. `KF_DB_PASSWORD`, `KF_PG_SUPERUSER_PASSWORD` y el resto de la configuración de producción
+permanecen en el `.env` de la VM, no como secretos de GitHub. El workflow no recibe ni inyecta
+`DATABASE_URL` ni cadenas de conexión.
 
 ### Qué despliega
 
@@ -106,11 +109,13 @@ Antes de arrancar servicios, el script comprueba la configuración de Compose. A
 `/health/ready` responda, descarga una entrada habilitada de `/cdn/` y compara su SHA-256 con el catálogo;
 si cambió `deploy/site/`, también compara el HTML servido con `deploy/site/index.html`. Un fallo restaura el
 árbol CDN anterior cuando hubo rebuild, sincroniza la versión de código previa e intenta volver a construir y
-levantar Compose. Es una recuperación de código y archivos estáticos; **no revierte migraciones, esquema ni
-datos de Neon**.
+levantar Compose. Es una recuperación de código y archivos estáticos; no revierte migraciones, esquema ni
+datos PostgreSQL.
 
 El workflow no ejecuta `dotnet test` ni la suite Python: la comprobación de automatización es de configuración
-y salud del servicio desplegado. Ejecuta esas pruebas por separado antes de integrar cambios a `main`.
+y salud del servicio desplegado. Ejecuta esas pruebas por separado antes de integrar cambios a `main`. Su
+script no usa `rsync --delete`: sincroniza los ficheros versionados que gestiona mediante manifiesto, y excluye
+`.env`, `.local/`, `.ci/` y `data/`; el volumen PostgreSQL con nombre queda fuera del árbol sincronizado.
 
 ### Primer arranque manual y operación
 
@@ -120,20 +125,26 @@ Compose y catálogo; configura `KF_ASSETS_PATH` en `.env` si la ruta no es la he
 
 ```sh
 docker compose --env-file .env --project-name deploy \
-  -f deploy/docker-compose.vps.external-db.yml config --quiet
+  -f deploy/docker-compose.vps.yml config --quiet
 python3 scripts/build-cdn-tree.py --assets-root /ruta/absoluta/Kick-Flight-Assets \
   --repo-root . --verify-all-enabled --dry-run
 python3 scripts/build-cdn-tree.py --assets-root /ruta/absoluta/Kick-Flight-Assets \
   --repo-root . --verify-all-enabled --atomic
 docker compose --env-file .env --project-name deploy \
-  -f deploy/docker-compose.vps.external-db.yml up -d --build
+  -f deploy/docker-compose.vps.yml up -d --build
 curl -fsS http://127.0.0.1:18080/health/ready
 ```
 
-Para una instalación Neon, usa siempre el mismo proyecto `deploy` al operar manualmente y desde Actions; de
-lo contrario Compose creará una segunda pila. La configuración del host, APK, catálogo y assets está en las
-secciones siguientes. El despliegue selectivo normal se hace con un `push` que actualice el workflow en
-`main`; para revertir una versión, revierte el commit en `main` y deja que el workflow despliegue ese commit.
+Usa siempre el mismo proyecto `deploy` al operar manualmente y desde Actions; de lo contrario Compose
+creará una segunda pila. El CI fija el perfil PostgreSQL local, así un futuro redeploy no puede volver a
+inyectar la conexión externa. El archivo `.env` está excluido del rsync administrado y conserva la
+credencial local; el volumen `postgres-data` tampoco lo administra rsync. Hasta integrar este cambio, un
+workflow antiguo pide `DATABASE_URL`; como se quita del `.env`, su `docker compose config --quiet` falla
+antes de ejecutar `up` y deja los contenedores actuales intactos. El CI viejo puede fallar hasta desplegar
+esta actualización, pero no reconectará la API al externo. La configuración del host, APK, catálogo y assets
+está en las secciones siguientes. El despliegue selectivo normal se hace con un `push`
+que actualice el workflow en `main`; para revertir una versión, revierte el commit en `main` y deja que el
+workflow despliegue ese commit.
 
 ## Preparar catálogo, APK y assets
 
@@ -213,23 +224,24 @@ y `scripts/build-kicker-skin-thumbnail-bundles.py`; ambos toman los assets fuent
 el catálogo. Para no compilar el APK en el VPS, copia a ese mismo checkout el artefacto con el nombre exacto,
 el catálogo/fixtures regenerados y los bundles generados bajo `.local/` antes de levantar Compose.
 
-El API lee `config/`, `content/` y `.local/` en modo solo lectura. En la configuración actual, las cuentas y
-el progreso se guardan en Neon; no hay un contenedor ni volumen PostgreSQL local. La variante local guarda
-los datos en `postgres-data`. Ninguna de las dos configuraciones publica el puerto 5432.
+El API lee `config/`, `content/` y `.local/` en modo solo lectura. Las cuentas y el progreso se guardan en
+PostgreSQL local, en el volumen `postgres-data`. PostgreSQL solo está en la red privada `backend`; ninguna
+configuración publica el puerto 5432. SQLite del panel de balance permanece en su archivo propio y no forma
+parte de la base de jugadores.
 
-## Variante alternativa: PostgreSQL local
-
-Esta sección es para instalaciones que prefieren correr PostgreSQL en la VM. La instancia actual usa Neon
-y el `.env` del directorio raíz, descrito en [Usar Neon u otro PostgreSQL externo](#usar-neon-u-otro-postgresql-externo).
+## PostgreSQL local
 
 ```sh
-cp deploy/.env.vps.example deploy/.env
-openssl rand -hex 32
+cp deploy/.env.vps.example .env
+openssl rand -hex 32  # genera KF_DB_PASSWORD
+openssl rand -hex 32  # genera KF_PG_SUPERUSER_PASSWORD
 ```
 
-Edita `deploy/.env`: asigna a `KF_PUBLIC_HOST` la IPv4 pública o el DNS, sin `http://` ni puerto, y pega el
-secreto aleatorio en `KF_DB_PASSWORD`. Si guardas los assets en otra ubicación, cambia `KF_ASSETS_PATH` a
-una ruta absoluta. El archivo `.env` contiene una credencial y no debe publicarse.
+Edita el `.env` de la raíz de aplicación: asigna a `KF_PUBLIC_HOST` la IPv4 pública o el DNS, sin `http://`
+ni puerto, y genera valores aleatorios distintos para `KF_DB_PASSWORD` y `KF_PG_SUPERUSER_PASSWORD`. El
+primero autentica al API con el rol no-superusuario `kickflight`; el segundo se reserva para administración
+de PostgreSQL. Si guardas los assets en otra ubicación, cambia `KF_ASSETS_PATH` a una ruta absoluta. El
+archivo `.env` contiene credenciales y debe permanecer privado.
 
 La dirección se aplica en dos sitios: Luxon responde a los clientes con esa IP/DNS para los endpoints de
 Photon; la API permite ese host en las peticiones del juego. La API prueba la salud de Photon usando el DNS
@@ -238,23 +250,51 @@ interno de Compose `photon`, así que no depende de que el VPS pueda hacer hairp
 ## Construir e iniciar
 
 ```sh
-docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml config
-docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml up -d --build
-docker compose --env-file deploy/.env --project-name deploy -f deploy/docker-compose.vps.yml ps
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.yml config
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.yml up -d --build
+docker compose --env-file .env --project-name deploy -f deploy/docker-compose.vps.yml ps
 ```
 
 La primera compilación de Luxon descarga dependencias y puede tardar varios minutos. PostgreSQL debe estar
 healthy antes de que arranque la API; Photon también debe estar healthy. Nginx espera a que la API esté
-healthy. La API aplica migraciones de la base de datos al iniciar.
+healthy. La API aplica migraciones de la base de datos al iniciar. El bootstrap crea la base `kickflight` y
+el login `kickflight` como propietario no-superusuario; PostgreSQL queda solo en la red `backend`, sin
+publicar `5432`. En volúmenes ya inicializados, los scripts de `docker-entrypoint-initdb.d` no se vuelven a
+ejecutar: la migración debe dejar los roles existentes en ese mismo estado.
 
-### Usar Neon u otro PostgreSQL externo
+## Copias y rollback de la base de jugadores
 
-Si PostgreSQL vive fuera del VPS, usa `deploy/docker-compose.vps.external-db.yml`. Este modo levanta API,
-Photon, CDN y gRPC, y conecta la API al `DATABASE_URL` del `.env` en la raíz del directorio de aplicación.
+El [registro de migración](../docs/DB_VPS_MIGRATION.md) recoge la comparación del restore y la evidencia
+del corte. El VPS conserva los dumps diarios en `/opt/kickflight/.local/db-migration-20261007/backups/`. El timer
+`kickflight-db-backup.timer` ejecuta el servicio `kickflight-db-backup.service` todos los días a las 02:15
+UTC y retiene 14 días. El directorio es modo `0700` y los dumps modo `0600`.
+
+```sh
+systemctl list-timers kickflight-db-backup.timer
+systemctl status kickflight-db-backup.service --no-pager
+ls -lh /opt/kickflight/.local/db-migration-20261007/backups/
+```
+
+Estos dumps están en el mismo VPS: sirven para errores operativos, pero no protegen contra la pérdida del
+host o de su almacenamiento. Mantén una copia cifrada fuera del VPS para recuperación ante desastre.
+
+El rollback de datos está en `/opt/kickflight/.local/db-migration-20261007/rollback-to-external.sh`. Detiene
+el escritor API, genera y conserva un dump actual de PostgreSQL local y aplica ese dump a la base externa en
+una sola transacción antes de volver a arrancar solo la API contra el perfil externo. Así incluye las
+escrituras posteriores al corte. Sigue las validaciones y guardas del script; cambiar Compose por sí solo
+volvería al estado anterior del proveedor y perdería esas escrituras. El `.env` externo de antes del corte se
+conserva en `pre-cutover.env` dentro de ese directorio privado; no imprimas ni copies sus secretos.
+
+### Perfil externo de recuperación
+
+Para una recuperación autorizada hacia PostgreSQL externo, usa `deploy/docker-compose.vps.external-db.yml`.
+Este modo levanta API, Photon, CDN y gRPC, y conecta la API al `DATABASE_URL` del `.env` en la raíz del
+directorio de aplicación. El perfil está excluido del CI normal y se reserva para una recuperación de datos.
 Ese mismo `.env` debe definir `KF_PUBLIC_HOST` y puede definir `KF_HTTP_PORT` (por defecto `18080`) y
 `KF_ASSETS_PATH` (absoluta; por defecto, `Kick-Flight-Assets/` junto al directorio de aplicación). La URL estándar
 `postgresql://usuario:contraseña@host/base?sslmode=require` se convierte a parámetros de Npgsql al iniciar;
-la conexión exige TLS. No copies la URL a `deploy/.env` ni a un archivo versionado.
+la conexión exige TLS. No copies la URL a `deploy/.env` ni a un archivo versionado. Después del corte,
+`.env` ya no contiene esa URL; usa el script de rollback anterior en vez de ejecutar este perfil a mano.
 
 Desde la raíz del repositorio:
 
@@ -287,7 +327,7 @@ curl -m 15 -fsS https://kick-flight-fenix.us.ci/health/ready
 curl -m 15 -fsS http://127.0.0.1:18080/health/ready
 curl -i http://127.0.0.1:18080/diag  # debe devolver 404
 docker compose --env-file .env --project-name deploy \
-  -f deploy/docker-compose.vps.external-db.yml logs --tail=100
+  -f deploy/docker-compose.vps.yml logs --tail=100
 cat .ci/current-sha  # commit desplegado por el workflow, si ya corrió
 ```
 
@@ -299,13 +339,12 @@ Para detener y volver a iniciar los contenedores sin borrar datos:
 
 ```sh
 docker compose --env-file .env --project-name deploy \
-  -f deploy/docker-compose.vps.external-db.yml down
+  -f deploy/docker-compose.vps.yml down
 docker compose --env-file .env --project-name deploy \
-  -f deploy/docker-compose.vps.external-db.yml up -d
+  -f deploy/docker-compose.vps.yml up -d
 ```
 
-Evita `down -v` si quieres conservar los volúmenes de Caddy y GeoIP. Con la variante PostgreSQL local,
-`down -v` también borra la base de jugadores; en el modo Neon, los datos siguen en Neon.
+Evita `down -v`: además de los volúmenes de Caddy y GeoIP, borraría `postgres-data` y la base de jugadores.
 
 ## WebUI de balance (masters con overrides persistentes)
 

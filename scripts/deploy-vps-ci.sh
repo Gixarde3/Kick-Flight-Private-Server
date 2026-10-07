@@ -181,7 +181,7 @@ compose_from_app() {
     cd "$app_dir"
     KF_ASSETS_PATH="$assets_root" docker compose \
       --env-file "$app_dir/.env" --project-name deploy \
-      -f "$app_dir/deploy/docker-compose.vps.external-db.yml" "$@"
+      -f "$app_dir/deploy/docker-compose.vps.yml" "$@"
   )
 }
 restart_balance_service() {
