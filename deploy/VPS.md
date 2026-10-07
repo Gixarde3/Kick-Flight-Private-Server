@@ -306,3 +306,38 @@ docker compose --env-file .env --project-name deploy \
 
 Evita `down -v` si quieres conservar los volúmenes de Caddy y GeoIP. Con la variante PostgreSQL local,
 `down -v` también borra la base de jugadores; en el modo Neon, los datos siguen en Neon.
+
+## WebUI de balance (masters con overrides persistentes)
+
+El servidor no lee los masters de PostgreSQL: `DemoSessionApi` carga `config/masters_*.json` una sola vez al
+arrancar. Para ajustar valores sin tocar `config/` (que el deploy de CI reemplaza entero), la API tiene una capa
+de overrides: si existe `<override dir>/masters_<tabla>.json`, se sirve ese fichero en lugar del de `config/`.
+El directorio por defecto es `.local/masters-overrides` resuelto con `RepositoryPaths`; dentro del contenedor
+es `/srv/repo/.local/masters-overrides` y en el host `/opt/kickflight/.local/masters-overrides` (el mismo
+directorio: `.local/` está montado y el rsync de CI lo excluye, así que sobrevive a cada deploy). La API
+registra al arrancar una línea con las tablas que han quedado overrideadas. Los masters que son constantes
+inline de C# (`Field`, `BattleRank`, `Guardian`, ...) no tienen fichero y no se pueden overridear.
+
+La WebUI (`tools/balance/`) llega con el árbol que sincroniza el CI a `/opt/kickflight/tools/balance/`. Se
+ejecuta como servicio systemd `kickflight-balance` en `127.0.0.1:8765`, con el fichero de entorno
+`/etc/kickflight-balance.env` (modo 0600) y estos directorios:
+
+* base: `/opt/kickflight/config`
+* overrides: `/opt/kickflight/.local/masters-overrides`
+* copias: `/opt/kickflight/.local/balance-backups`
+
+Acceso desde el puesto de trabajo (deja el túnel abierto mientras editas):
+
+```sh
+ssh -N -L 8765:127.0.0.1:8765 kickflight
+# y abre http://127.0.0.1:8765/
+```
+
+Al guardar, la WebUI escribe **solo** en el directorio de overrides y guarda copia del fichero anterior. Cada
+sección indica por tabla si está overrideada y ofrece **Revert to base** (borra el override, con copia previa) y
+**Export overrides** (zip de los ficheros). Para convertir un ajuste en el valor por defecto: descarga el zip,
+copia los `masters_*.json` a `config/` del checkout y haz commit; al llegar a `main`, el CI reconstruye la API
+(`config/` marca `api` y `full`) y luego los overrides se pueden revertir tabla por tabla. El botón
+**Restart API to apply** avisa de que las partidas en curso se caen, ejecuta `docker restart deploy-api-1` y
+espera a `/health/ready`; hasta entonces la UI muestra los cambios pendientes. Detalle completo en
+`tools/balance/README.md` y `tools/balance/deploy/README.md`.

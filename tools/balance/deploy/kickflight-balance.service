@@ -1,0 +1,34 @@
+[Unit]
+Description=Kick-Flight balance WebUI (masters overrides + maintenance + apply)
+Documentation=file:///opt/kickflight/tools/balance/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/kickflight
+# The base masters the deployed API mounts read-only into its container.
+Environment=KF_BALANCE_BASE_DIR=/opt/kickflight/config
+# Tuned per-table overrides. .local/ is excluded from the CI rsync, so these survive every deploy
+# (config/ is not: the CI replaces it). The API reads them with Masters__OverrideDir.
+Environment=KF_BALANCE_OVERRIDE_DIR=/opt/kickflight/.local/masters-overrides
+Environment=KF_BALANCE_BACKUP_DIR=/opt/kickflight/.local/balance-backups
+# Loopback only; reach it through: ssh -N -L 8765:127.0.0.1:8765 kickflight
+Environment=KF_BALANCE_HOST=127.0.0.1
+Environment=KF_BALANCE_PORT=8765
+# Apply + maintenance both target the compose api service (its HTTP port is not published).
+Environment=KF_BALANCE_API_CONTAINER=deploy-api-1
+Environment=KF_BALANCE_APPLY_CMD=docker restart deploy-api-1
+Environment=KF_BALANCE_HEALTH_CMD=docker exec deploy-api-1 curl -fsS http://127.0.0.1:8080/health/ready
+Environment=KF_BALANCE_ADMIN_CONTAINER=deploy-api-1
+Environment=KF_BALANCE_ADMIN_INTERNAL_URL=http://127.0.0.1:8080/admin/maintenance
+# Optional secrets overrides (KF_BALANCE_PASSWORD=...). root-only, mode 0600; see the example file.
+EnvironmentFile=-/etc/kickflight-balance.env
+ExecStart=/usr/bin/python3 /opt/kickflight/tools/balance/server.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
