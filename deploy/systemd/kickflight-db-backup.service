@@ -1,0 +1,21 @@
+[Unit]
+Description=Create a private Kick Flight PostgreSQL backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+SupplementaryGroups=docker
+UMask=0077
+Environment=DOCKER_CONFIG=/opt/kickflight/.local/docker-backup-config
+Environment=KF_APP_DIR=/opt/kickflight
+Environment=KF_DB_BACKUP_DIR=/opt/kickflight/.local/db-migration-20261007/backups
+Environment=KF_DB_BACKUP_RETENTION_DAYS=14
+ExecStart=/opt/kickflight/scripts/backup-kickflight-db.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/opt/kickflight/.local/db-migration-20261007/backups

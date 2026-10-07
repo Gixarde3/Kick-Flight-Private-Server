@@ -179,9 +179,34 @@ sync_release() {
 compose_from_app() {
   (
     cd "$app_dir"
+    local db_mode
+    db_mode=$(python3 - "$app_dir/.env" <<'PY'
+import pathlib
+import sys
+
+mode = "local"
+for raw in pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+    line = raw.strip()
+    if line.startswith("export "):
+        line = line[7:].lstrip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    key, value = line.split("=", 1)
+    if key.strip() == "KF_DB_MODE":
+        value = value.strip().strip("\"'")
+        mode = value or "local"
+if mode not in {"local", "external"}:
+    raise SystemExit("KF_DB_MODE must be local or external")
+print(mode)
+PY
+)
+    local compose_file="$app_dir/deploy/docker-compose.vps.yml"
+    if [[ "$db_mode" == external ]]; then
+      compose_file="$app_dir/deploy/docker-compose.vps.external-db.yml"
+    fi
     KF_ASSETS_PATH="$assets_root" docker compose \
       --env-file "$app_dir/.env" --project-name deploy \
-      -f "$app_dir/deploy/docker-compose.vps.external-db.yml" "$@"
+      -f "$compose_file" "$@"
   )
 }
 restart_balance_service() {

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Kick Flight PostgreSQL backup
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+Persistent=true
+AccuracySec=1min
+Unit=kickflight-db-backup.service
+
+[Install]
+WantedBy=timers.target

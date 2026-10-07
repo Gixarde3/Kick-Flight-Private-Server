@@ -19,15 +19,17 @@ services:
     networks: [backend]
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17.11-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: kickflight
-      POSTGRES_DB: kickflight
-      POSTGRES_PASSWORD: ${KF_DB_PASSWORD:-}
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${KF_PG_SUPERUSER_PASSWORD:?Set KF_PG_SUPERUSER_PASSWORD in the root .env}
+      KF_DB_PASSWORD: ${KF_DB_PASSWORD:?Set KF_DB_PASSWORD in the root .env}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./postgres/010-kickflight-role.sql:/docker-entrypoint-initdb.d/010-kickflight-role.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U kickflight -d kickflight"]
       interval: 5s
@@ -82,7 +84,7 @@ services:
       HttpPort: "8080"
       GrpcPort: "18081"
       KF_REPO_ROOT: /srv/repo
-      PlayerStore__ConnectionString: Host=postgres;Port=5432;Database=kickflight;Username=kickflight;Password=${KF_DB_PASSWORD:-}
+      PlayerStore__ConnectionString: Host=postgres;Port=5432;Database=kickflight;Username=kickflight;Password=${KF_DB_PASSWORD:?Set KF_DB_PASSWORD in the root .env}
       PhotonServer__Enabled: "true"
       # This value is for health checks from the API container. Photon itself advertises KF_PUBLIC_HOST to clients.
       PhotonServer__Host: photon
