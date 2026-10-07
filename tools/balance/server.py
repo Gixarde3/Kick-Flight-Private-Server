@@ -38,7 +38,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from auth import AuthStore, LoginRateLimiter, normalize_username
+from auth import (ACCOUNT_LOGIN_MAX_FAILURES, AuthStore, LoginRateLimiter, load_jwt_secret,
+                  normalize_username)
 
 BALANCE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BALANCE_DIR.parent.parent
@@ -71,6 +72,7 @@ BACKUP_DIR = _env_path("KF_BALANCE_BACKUP_DIR", BALANCE_DIR / "backups")
 # Authentication is mandatory. The local DB is never committed, and an empty user table denies
 # every login until an operator inserts an account manually.
 AUTH_DB_PATH = _env_path("KF_BALANCE_AUTH_DB", REPO_ROOT / ".local" / "balance-auth" / "auth.sqlite3")
+JWT_SECRET_PATH = _env_path("KF_BALANCE_JWT_SECRET_FILE", AUTH_DB_PATH.parent / "jwt-secret")
 SESSION_COOKIE_NAME = "__Secure-kf_balance_session"
 BASE_PATH = os.environ.get("KF_BALANCE_BASE_PATH", "").strip()
 if BASE_PATH in ("", "/"):
@@ -1254,20 +1256,33 @@ class BalanceHandler(BaseHTTPRequestHandler):
             return
         normalized = normalize_username(username)
         ip_address = self.client_ip()
-        retry_after = LOGIN_LIMITER.blocked_for(ip_address, normalized)
-        if retry_after:
+        ip_retry_after = LOGIN_LIMITER.blocked_for(ip_address, normalized)
+        account_blocked = store.account_retry_after(
+            normalized, max_failures=ACCOUNT_LOGIN_MAX_FAILURES,
+        ) > 0
+        if ip_retry_after:
             self.send_error_json_with_headers(429, "login temporarily unavailable",
-                                               {"Retry-After": str(retry_after)})
+                                               {"Retry-After": str(ip_retry_after)})
             return
         if not AUTH_WORK_SLOTS.acquire(blocking=False):
             self.send_error_json_with_headers(429, "login temporarily unavailable", {"Retry-After": "1"})
             return
         try:
-            authenticated = store.authenticate(normalized, password)
+            if account_blocked:
+                store.dummy_authenticate(password)
+                authenticated = None
+            else:
+                authenticated = store.authenticate(normalized, password)
         finally:
             AUTH_WORK_SLOTS.release()
+        if account_blocked:
+            # Never verify a throttled account's submitted password. The dummy PBKDF above matches
+            # unknown-user work and the generic error prevents username enumeration.
+            self.send_error_json(401, "invalid username or password")
+            return
         if authenticated is None:
             LOGIN_LIMITER.record_failure(ip_address, normalized)
+            store.record_account_failure(normalized, max_failures=ACCOUNT_LOGIN_MAX_FAILURES)
             self.send_error_json(401, "invalid username or password")
             return
         LOGIN_LIMITER.clear(ip_address, normalized)
@@ -1594,9 +1609,13 @@ def main(argv=None):
         return 1
 
     try:
-        auth_store = AuthStore(AUTH_DB_PATH)
+        jwt_secret = load_jwt_secret(JWT_SECRET_PATH)
+        auth_store = AuthStore(AUTH_DB_PATH, jwt_secret=jwt_secret)
     except (OSError, RuntimeError, sqlite3.Error) as error:
-        print("could not initialize required authentication database: %s" % error, file=sys.stderr)
+        print("could not initialize required authentication: %s" % error, file=sys.stderr)
+        return 1
+    except ValueError as error:
+        print("could not initialize required authentication: %s" % error, file=sys.stderr)
         return 1
 
     try:

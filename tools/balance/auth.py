@@ -7,8 +7,11 @@ PBKDF2 password hash with ``password_hash.py``.
 from __future__ import annotations
 
 import hashlib
+import base64
 import hmac
+import json
 import os
+import re
 import secrets
 import sqlite3
 import stat
@@ -25,7 +28,38 @@ SESSION_TOKEN_BYTES = 32
 SESSION_TTL_SECONDS = 8 * 60 * 60
 LOGIN_WINDOW_SECONDS = 15 * 60
 LOGIN_MAX_FAILURES = 5
+ACCOUNT_LOGIN_MAX_FAILURES = 8
 LOGIN_BUCKET_LIMIT = 4096
+JWT_HEADER = b'{"alg":"HS256","typ":"JWT"}'
+JWT_MAX_BYTES = 2048
+
+
+def load_jwt_secret(path: str | Path) -> bytes:
+    """Read an operator-generated signing secret without ever logging its contents."""
+    secret_path = Path(path).expanduser().resolve()
+    info = secret_path.stat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+            or stat.S_IMODE(info.st_mode) != 0o600):
+        raise PermissionError(
+            f"JWT secret {secret_path} must be a regular file owned by the service user with mode 0600"
+        )
+    secret = secret_path.read_bytes()
+    if len(secret) < 32:
+        raise ValueError(f"JWT secret {secret_path} must contain at least 32 bytes")
+    return secret
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def _unb64url(value: str) -> bytes:
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", value):
+        raise ValueError("invalid base64url")
+    decoded = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+    if _b64url(decoded) != value:
+        raise ValueError("non-canonical base64url")
+    return decoded
 
 
 def normalize_username(username: str) -> str:
@@ -68,7 +102,7 @@ def verify_password(password: str, encoded_hash: str) -> bool:
 
 
 class LoginRateLimiter:
-    """Bounded in-memory IP and account throttling for a single-process service."""
+    """Bounded per-IP and per-IP/account throttling for one service process."""
 
     def __init__(self, *, window_seconds: int = LOGIN_WINDOW_SECONDS, max_failures: int = LOGIN_MAX_FAILURES,
                  bucket_limit: int = LOGIN_BUCKET_LIMIT):
@@ -78,10 +112,9 @@ class LoginRateLimiter:
         self._failures: dict[str, list[float]] = {}
         self._lock = threading.Lock()
 
-    @staticmethod
-    def _keys(ip_address: str, username: str) -> tuple[str, str]:
-        # A shared account bucket lets anyone who knows a username deny service to its owner.
-        # Keep the account-specific counter scoped to the source IP and retain a global IP cap.
+    def _keys(self, ip_address: str, username: str) -> tuple[str, str]:
+        # Persistent cross-IP account throttling is stored by AuthStore; these bounded buckets
+        # constrain one source without letting it spray many usernames.
         return ("ip:" + ip_address, "pair:" + ip_address + "\0" + username)
 
     def blocked_for(self, ip_address: str, username: str, *, now: float | None = None) -> int:
@@ -112,15 +145,19 @@ class LoginRateLimiter:
 
     def clear(self, ip_address: str, username: str) -> None:
         with self._lock:
-            # Successful login resets this IP/account pair without erasing the IP-wide cap.
+            # Successful login clears only this IP/account pair. Keep the account-wide rolling
+            # history so guesses from other sources cannot be erased by a concurrent real login.
             self._failures.pop("pair:" + ip_address + "\0" + username, None)
 
 
 class AuthStore:
-    """Users and hashed opaque session tokens in a local SQLite database."""
+    """Users and revocable JWT sessions in a local SQLite database."""
 
-    def __init__(self, path: str | Path, *, session_ttl: int = SESSION_TTL_SECONDS):
+    def __init__(self, path: str | Path, *, jwt_secret: bytes, session_ttl: int = SESSION_TTL_SECONDS):
         self.path = Path(path).expanduser().resolve()
+        if not isinstance(jwt_secret, bytes) or len(jwt_secret) < 32:
+            raise ValueError("JWT signing secret must contain at least 32 bytes")
+        self.jwt_secret = jwt_secret
         self.session_ttl = session_ttl
         parent_created = False
         try:
@@ -163,8 +200,75 @@ class AuthStore:
                         expires_at INTEGER NOT NULL
                     );
                     CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires_at);
+                    CREATE TABLE IF NOT EXISTS login_failures (
+                        attempt_id TEXT PRIMARY KEY,
+                        account_hash TEXT NOT NULL,
+                        failed_at INTEGER NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS login_failures_account_time
+                        ON login_failures(account_hash, failed_at);
                 """)
         os.chmod(self.path, stat.S_IRUSR | stat.S_IWUSR)
+
+    @staticmethod
+    def _account_hash(username: str) -> str:
+        normalized = normalize_username(username)
+        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+    def account_retry_after(self, username: str, *, now: int | None = None,
+                            window_seconds: int = LOGIN_WINDOW_SECONDS,
+                            max_failures: int = 8) -> int:
+        """Return a rolling account cooldown shared across IPs and service restarts."""
+        now = int(time.time()) if now is None else int(now)
+        account_hash = self._account_hash(username)
+        cutoff = now - window_seconds
+        with closing(self._connect()) as connection:
+            with connection:
+                exists = connection.execute(
+                    "SELECT 1 FROM users WHERE username = ?", (normalize_username(username),)
+                ).fetchone()
+                if exists is None:
+                    return 0
+                # Only expired rows are removed; active failures survive login success/restarts.
+                connection.execute(
+                    "DELETE FROM login_failures WHERE account_hash = ? AND failed_at <= ?",
+                    (account_hash, cutoff),
+                )
+                row = connection.execute(
+                    "SELECT COUNT(*) AS failures, MIN(failed_at) AS oldest "
+                    "FROM login_failures WHERE account_hash = ? AND failed_at > ?",
+                    (account_hash, cutoff),
+                ).fetchone()
+        if row["failures"] < max_failures:
+            return 0
+        return max(1, window_seconds - (now - row["oldest"]))
+
+    def record_account_failure(self, username: str, *, now: int | None = None,
+                               window_seconds: int = LOGIN_WINDOW_SECONDS,
+                               max_failures: int = ACCOUNT_LOGIN_MAX_FAILURES) -> None:
+        """Persist a failed attempt using a normalized-account hash, never the username/password."""
+        now = int(time.time()) if now is None else int(now)
+        account_hash = self._account_hash(username)
+        cutoff = now - window_seconds
+        with closing(self._connect()) as connection:
+            with connection:
+                exists = connection.execute(
+                    "SELECT 1 FROM users WHERE username = ?", (normalize_username(username),)
+                ).fetchone()
+                if exists is None:
+                    return
+                connection.execute("DELETE FROM login_failures WHERE failed_at <= ?", (cutoff,))
+                row = connection.execute(
+                    "SELECT COUNT(*) AS failures FROM login_failures "
+                    "WHERE account_hash = ? AND failed_at > ?",
+                    (account_hash, cutoff),
+                ).fetchone()
+                if row["failures"] >= max_failures:
+                    return
+                connection.execute(
+                    "INSERT INTO login_failures(attempt_id, account_hash, failed_at) VALUES (?, ?, ?)",
+                    (secrets.token_hex(16), account_hash, now),
+                )
 
     def authenticate(self, username: str, password: str) -> str | None:
         normalized = normalize_username(username)
@@ -174,17 +278,34 @@ class AuthStore:
             ).fetchone()
         if row is None:
             # Keep unknown-account failures comparable to wrong-password failures without accepting a dummy hash.
-            dummy = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), b"\x00" * 16,
-                                        PASSWORD_ITERATIONS, dklen=32)
-            hmac.compare_digest(dummy, b"\xff" * 32)
+            self.dummy_authenticate(password)
             return None
         return row["username"] if verify_password(password, row["password_hash"]) else None
 
+    @staticmethod
+    def dummy_authenticate(password: str) -> None:
+        """Spend one normal PBKDF2 verification without revealing or checking an account."""
+        dummy = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), b"\x00" * 16,
+                                    PASSWORD_ITERATIONS, dklen=32)
+        hmac.compare_digest(dummy, b"\xff" * 32)
+
     def create_session(self, username: str, *, now: int | None = None) -> tuple[str, int]:
         now = int(time.time()) if now is None else now
-        token = secrets.token_urlsafe(SESSION_TOKEN_BYTES)
-        token_hash = hashlib.sha256(token.encode("ascii")).hexdigest()
+        jti = secrets.token_urlsafe(SESSION_TOKEN_BYTES)
         expires_at = now + self.session_ttl
+        header = _b64url(JWT_HEADER)
+        payload = _b64url(json.dumps({
+            "iss": "kickflight-balance",
+            "aud": "kickflight-balance",
+            "sub": normalize_username(username),
+            "iat": now,
+            "exp": expires_at,
+            "jti": jti,
+        }, separators=(",", ":"), sort_keys=True).encode("utf-8"))
+        signing_input = f"{header}.{payload}".encode("ascii")
+        signature = _b64url(hmac.new(self.jwt_secret, signing_input, hashlib.sha256).digest())
+        token = f"{header}.{payload}.{signature}"
+        token_hash = hashlib.sha256(jti.encode("ascii")).hexdigest()
         with closing(self._connect()) as connection:
             with connection:
                 connection.execute("DELETE FROM sessions WHERE expires_at <= ?", (now,))
@@ -195,32 +316,58 @@ class AuthStore:
         return token, expires_at
 
     def resolve_session(self, token: str | None, *, now: int | None = None) -> str | None:
-        if not token or len(token) > 128:
-            return None
-        try:
-            token_hash = hashlib.sha256(token.encode("ascii")).hexdigest()
-        except UnicodeEncodeError:
+        claims = self._verified_claims(token, now=now)
+        if claims is None:
             return None
         now = int(time.time()) if now is None else now
+        token_hash = hashlib.sha256(claims["jti"].encode("ascii")).hexdigest()
         with closing(self._connect()) as connection:
             row = connection.execute(
                 "SELECT username, expires_at FROM sessions WHERE token_hash = ?", (token_hash,)
             ).fetchone()
             if row is None:
                 return None
-            if row["expires_at"] <= now:
+            if (row["expires_at"] <= now or row["expires_at"] != claims["exp"]
+                    or row["username"] != claims["sub"]):
                 with connection:
                     connection.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
                 return None
             return row["username"]
 
-    def revoke_session(self, token: str | None) -> None:
-        if not token or len(token) > 128:
+    def revoke_session(self, token: str | None, *, now: int | None = None) -> None:
+        claims = self._verified_claims(token, now=now)
+        if claims is None:
             return
-        try:
-            token_hash = hashlib.sha256(token.encode("ascii")).hexdigest()
-        except UnicodeEncodeError:
-            return
+        token_hash = hashlib.sha256(claims["jti"].encode("ascii")).hexdigest()
         with closing(self._connect()) as connection:
             with connection:
                 connection.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
+
+    def _verified_claims(self, token: str | None, *, now: int | None = None) -> dict | None:
+        if not isinstance(token, str) or not token or len(token) > JWT_MAX_BYTES:
+            return None
+        try:
+            header_text, payload_text, signature_text = token.split(".")
+            header = json.loads(_unb64url(header_text))
+            claims = json.loads(_unb64url(payload_text))
+            signature = _unb64url(signature_text)
+            signing_input = f"{header_text}.{payload_text}".encode("ascii")
+            expected = hmac.new(self.jwt_secret, signing_input, hashlib.sha256).digest()
+            if not hmac.compare_digest(signature, expected):
+                return None
+            if header != {"alg": "HS256", "typ": "JWT"} or not isinstance(claims, dict):
+                return None
+            if (claims.get("iss") != "kickflight-balance" or claims.get("aud") != "kickflight-balance"
+                    or not isinstance(claims.get("sub"), str)
+                    or not isinstance(claims.get("jti"), str)
+                    or not re.fullmatch(r"[A-Za-z0-9_-]{40,64}", claims["jti"])):
+                return None
+            issued, expires = claims.get("iat"), claims.get("exp")
+            if type(issued) is not int or type(expires) is not int or expires - issued != self.session_ttl:
+                return None
+            now = int(time.time()) if now is None else now
+            if issued > now + 60 or expires <= now:
+                return None
+            return claims
+        except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+            return None

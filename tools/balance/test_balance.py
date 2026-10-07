@@ -48,8 +48,11 @@ PORT = 18765
 ADMIN_PORT = 19080
 USER = "balance"
 PASSWORD = "correct horse battery staple"
+LOCKED_USER = "locked-balance-user"
+LOCKED_PASSWORD = "another correct horse battery staple"
 BASE_PATH = "/balance"
 AUTH_DB = ROOT / "balance-auth" / "auth.sqlite3"
+JWT_SECRET = ROOT / "balance-auth" / "jwt-secret"
 SESSION_COOKIE = None
 
 FAILURES = []
@@ -200,6 +203,7 @@ def main():
         "KF_BALANCE_OVERRIDE_DIR": str(OVERRIDES),
         "KF_BALANCE_BACKUP_DIR": str(BACKUPS),
         "KF_BALANCE_AUTH_DB": str(AUTH_DB),
+        "KF_BALANCE_JWT_SECRET_FILE": str(JWT_SECRET),
         "KF_BALANCE_BASE_PATH": BASE_PATH,
         "KF_BALANCE_ALLOWED_ORIGINS": "https://balance.test",
         "KF_BALANCE_ADMIN_URL": "http://127.0.0.1:%d/admin/maintenance" % ADMIN_PORT,
@@ -216,12 +220,21 @@ def main():
     })
     sys.path.insert(0, str(REPO / "tools/balance"))
     from auth import AuthStore, hash_password
-    AuthStore(AUTH_DB)
+    AUTH_DB.parent.mkdir(parents=True, mode=0o700)
+    JWT_SECRET.write_bytes(os.urandom(32))
+    os.chmod(JWT_SECRET, 0o600)
+    auth_store = AuthStore(AUTH_DB, jwt_secret=JWT_SECRET.read_bytes())
     with __import__("sqlite3").connect(AUTH_DB) as connection:
         connection.execute(
             "INSERT INTO users(username,password_hash,created_at) VALUES(?,?,?)",
             (USER, hash_password(PASSWORD), int(time.time())),
         )
+        connection.execute(
+            "INSERT INTO users(username,password_hash,created_at) VALUES(?,?,?)",
+            (LOCKED_USER, hash_password(LOCKED_PASSWORD), int(time.time())),
+        )
+    for _ in range(8):
+        auth_store.record_account_failure(LOCKED_USER)
     webui = subprocess.Popen(
         [sys.executable, str(REPO / "tools/balance/server.py"),
          "--host", "127.0.0.1", "--port", str(PORT)],
@@ -262,6 +275,16 @@ def main():
               "got %s" % status)
         status, _ = request("/api/logout", "POST", {}, auth=False)
         check("logout also requires an authenticated session", status == 401, "got %s" % status)
+        locked_status, locked_body = request(
+            "/api/login", "POST", {"username": LOCKED_USER, "password": LOCKED_PASSWORD}, auth=False
+        )
+        unknown_status, unknown_body = request(
+            "/api/login", "POST", {"username": "missing-user", "password": LOCKED_PASSWORD}, auth=False
+        )
+        check("locked account and unknown user have identical generic response",
+              locked_status == unknown_status == 401 and locked_body == unknown_body and
+              locked_body.get("error") == "invalid username or password",
+              "locked=%s unknown=%s" % (locked_status, unknown_status))
         status, _ = request("/api/apply", "POST", {}, auth=False, headers={"Origin": ""})
         check("state-changing requests require Origin", status == 403, "got %s" % status)
         status, failed = request("/api/login", "POST", {"username": USER, "password": "wrong password"},
@@ -588,11 +611,15 @@ def _failing_apply_works(base_env, command):
 
 
 def __session_is_hashed(database, token):
+    import base64
     import hashlib
+    import json
     import sqlite3
+    claims = json.loads(base64.urlsafe_b64decode(token.split(".")[1] + "=="))
     with sqlite3.connect(database) as connection:
         row = connection.execute("SELECT token_hash FROM sessions").fetchone()
-    return bool(row and row[0] == hashlib.sha256(token.encode("ascii")).hexdigest() and row[0] != token)
+    return bool(row and row[0] == hashlib.sha256(claims["jti"].encode("ascii")).hexdigest()
+                and row[0] != claims["jti"])
 
 
 if __name__ == "__main__":

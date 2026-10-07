@@ -51,6 +51,7 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_BACKUP_DIR` | where each replaced file is copied (default: `tools/balance/backups/`) |
 | `KF_BALANCE_HOST` / `KF_BALANCE_PORT` | bind interface / port (default `127.0.0.1` / `8765`) |
 | `KF_BALANCE_AUTH_DB` | required SQLite file for manually inserted users and server-side sessions (default: `.local/balance-auth/auth.sqlite3`); an empty user table denies sign-in |
+| `KF_BALANCE_JWT_SECRET_FILE` | required 32-byte-or-longer JWT HS256 key (default: sibling `jwt-secret`); file must be owned by the service user with mode `0600`, otherwise startup fails closed |
 | `KF_BALANCE_BASE_PATH` | mount prefix when served below a path such as `/balance` (default: empty) |
 | `KF_BALANCE_ALLOWED_ORIGINS` | comma-separated exact HTTPS origins accepted through the TLS proxy |
 | `KF_BALANCE_TRUSTED_PROXIES` | immediate proxy IPs allowed to supply `X-Real-IP` for login throttling |
@@ -65,13 +66,29 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` | escape hatches: full shell commands whose stdout is the JSON status |
 | `KF_BALANCE_ALLOWED_HOSTS` | extra comma-separated `Host` values accepted alongside `127.0.0.1:<port>`, `localhost:<port>` and `[::1]:<port>` (needed when binding to a LAN address or sitting behind a proxy) |
 
+In the systemd deployment, configure `KF_BALANCE_AUTH_DB` and any override for
+`KF_BALANCE_JWT_SECRET_FILE` as absolute paths; the deploy-time provisioner requires this so it
+validates and creates the same key path the service will read.
+
 ### Accounts and sessions
 
 Authentication is mandatory and there is no signup or user-administration route. No account is
-seeded at startup. The SQLite database contains a `users(username,password_hash,created_at)` table
-and hashed opaque sessions; the application stores neither plaintext passwords nor session tokens.
-Passwords use PBKDF2-HMAC-SHA256 with a per-password random salt and 600,000 iterations. Sessions
-expire after eight hours and logout revokes the server-side record.
+seeded at startup. The panel's private SQLite database contains a `users(username,password_hash,created_at)`
+table, hashes of JWT session IDs, and rolling login failures keyed by normalized-account hashes; it
+stores neither plaintext passwords nor bearer tokens. This database is separate from the game API's
+PostgreSQL database and requires no API migration. Passwords
+use PBKDF2-HMAC-SHA256 with a per-password random salt and 600,000 iterations. JWTs use HS256 with
+a random secret of at least 256 bits, fixed issuer/audience/algorithm checks and an eight-hour
+expiry. Their session IDs remain in SQLite, so logout and account deletion revoke them immediately.
+The signing key is read from a separate file owned by the service account with mode `0600`; startup
+fails if it is absent or insecure. Generate it without displaying its value:
+
+```bash
+sudo -u ubuntu python3 tools/balance/generate_jwt_secret.py \
+  --path /opt/kickflight/.local/balance-auth/jwt-secret
+```
+
+For development, run the helper with no arguments; it creates `.local/balance-auth/jwt-secret`.
 
 Initialize the service once so it creates the private database, then generate a hash interactively:
 
@@ -90,7 +107,12 @@ For local development, use the same process with the default database at
 hash; it cannot create, list, or delete accounts.
 
 Every UI/API route, export and static icon requires a valid session. The login endpoint is the only
-unauthenticated API route. Login is rate-limited; the session cookie is Secure, HttpOnly,
+unauthenticated API route. Login is rate-limited to five failures per source IP in memory and eight
+per registered normalized account in a rolling 15-minute window persisted in the panel SQLite DB;
+account history survives service restarts and failures from multiple IPs count together. Unknown
+usernames retain the dummy PBKDF path and are not written to the account-failure table; locked
+accounts return the same generic credential error and perform the same PBKDF work. Concurrent
+password hashes are capped. The session cookie is Secure, HttpOnly,
 SameSite=Strict, scoped to the configured base path, and has no Domain attribute. State-changing
 requests require JSON and an allowed Origin. Requests also require an allowed Host to block DNS
 rebinding.
