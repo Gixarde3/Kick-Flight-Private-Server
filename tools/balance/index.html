@@ -201,6 +201,7 @@
   .latest-preview p { margin: 0 0 10px; }
   .latest-preview h2, .latest-preview h3, .latest-preview h4 { margin: 12px 0 6px; }
   .latest-preview ul { margin: 0 0 10px; padding-left: 22px; }
+  .latest-html-frame { display: block; width: 100%; min-height: 320px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
   #maintStatus:empty { display: none; }
   #maintStatus .line { font: 11px/1.5 ui-monospace, Consolas, monospace; }
   #maintStatus .line.ok { color: var(--ok); }
@@ -1141,7 +1142,7 @@ async function loadLatestInformation() {
   try {
     state.latestInformation = await fetchJSON("/api/latest-information", { cache: "no-store" });
   } catch (error) {
-    state.latestInformation = { error: error.message, content: "" };
+    state.latestInformation = { error: error.message, mode: "text", content: "", htmlContent: "", externalUrl: "" };
   }
   return state.latestInformation;
 }
@@ -1157,56 +1158,174 @@ function renderLatestInformationPanel(panel) {
   wrap.appendChild(head);
 
   const section = el("section", { class: "sec" });
-  section.appendChild(el("h2", null, "Announcement text"));
+  section.appendChild(el("h2", null, "Announcement page"));
   const current = state.latestInformation || {};
-  if (current.error) section.appendChild(el("p", { class: "note" }, "could not load current notice: " + current.error));
-  else section.appendChild(el("p", { class: "note" }, "Saved " + (current.changedAtUtc || "-")));
+  if (current.error) section.appendChild(el("p", { class: "note" }, "could not load current page: " + current.error));
+  else section.appendChild(el("p", { class: "note" }, "Saved " + (current.changedAtUtc || "-") + " · mode: " + (current.mode || "text")));
 
-  const editor = el("textarea", { class: "latest-editor", maxlength: "12000", "aria-label": "Latest information announcement" });
-  editor.value = current.content || "";
+  const modeField = el("label", { class: "mfield" });
+  modeField.appendChild(el("span", { class: "k" }, "Content source"));
+  const mode = el("select", { "aria-label": "Latest information content source" });
+  mode.append(el("option", { value: "text" }, "Formatted text"),
+              el("option", { value: "html" }, "HTML page"),
+              el("option", { value: "url" }, "External URL"));
+  mode.value = current.mode || "text";
+  modeField.appendChild(mode);
+  section.appendChild(modeField);
+
+  const textEditor = el("textarea", { class: "latest-editor", maxlength: "12000", "aria-label": "Latest information text" });
+  textEditor.value = current.content || "";
+  const htmlEditor = el("textarea", { class: "latest-editor", maxlength: "1048576", "aria-label": "Latest information HTML" });
+  htmlEditor.value = current.htmlContent || "";
+  const htmlFile = el("input", { type: "file", accept: ".html,.htm,text/html", "aria-label": "Upload an HTML page" });
+  const htmlFileStatus = el("p", { class: "note" });
+  htmlFile.addEventListener("change", async function () {
+    const file = htmlFile.files && htmlFile.files[0];
+    if (!file) return;
+    if (file.size > 1048576) {
+      latestInformationStatus([["err", "HTML file exceeds 1 MiB"]]);
+      htmlFile.value = "";
+      return;
+    }
+    try {
+      try {
+        htmlEditor.value = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+      } catch (error) {
+        latestInformationStatus([["err", "HTML file is not valid UTF-8"]]);
+        htmlFile.value = "";
+        return;
+      }
+      htmlFileStatus.textContent = "Loaded " + file.name + " (" + file.size + " bytes); save to apply this page.";
+      updatePreview();
+    } catch (error) {
+      latestInformationStatus([["err", "could not read HTML file: " + error.message]]);
+    }
+  });
+  const urlEditor = el("input", { type: "url", maxlength: "2048", placeholder: "https://example.com/announcements", "aria-label": "Latest information URL" });
+  urlEditor.value = current.externalUrl || "";
+
+  const textField = el("label", { class: "mfield" });
+  textField.appendChild(el("span", { class: "k" }, "Text (plain text with Markdown-like formatting)"));
+  textField.appendChild(textEditor);
+  const htmlField = el("div");
+  const uploadField = el("label", { class: "mfield" });
+  uploadField.appendChild(el("span", { class: "k" }, "Upload a UTF-8 .html or .htm file (maximum 1 MiB)"));
+  uploadField.appendChild(htmlFile);
+  htmlField.append(uploadField, htmlFileStatus);
+  const htmlTextField = el("label", { class: "mfield" });
+  htmlTextField.appendChild(el("span", { class: "k" }, "HTML source (editable after upload; maximum 1 MiB UTF-8)"));
+  htmlTextField.appendChild(htmlEditor);
+  htmlField.appendChild(htmlTextField);
+  const urlField = el("label", { class: "mfield" });
+  urlField.appendChild(el("span", { class: "k" }, "Absolute HTTP(S) URL (the game WebView redirects here; this server does not fetch the page)"));
+  urlField.appendChild(urlEditor);
+  section.append(textField, htmlField, urlField);
+
   const preview = el("div", { class: "latest-preview", "aria-live": "polite" });
   const count = el("p", { class: "note" });
   const updatePreview = function () {
-    renderLatestInformationPreview(preview, editor.value);
-    count.textContent = editor.value.length + " / 12000 characters";
+    clear(preview);
+    textField.hidden = mode.value !== "text";
+    htmlField.hidden = mode.value !== "html";
+    urlField.hidden = mode.value !== "url";
+    if (mode.value === "text") {
+      renderLatestInformationPreview(preview, textEditor.value);
+      count.textContent = textEditor.value.length + " / 12000 characters";
+    } else if (mode.value === "html") {
+      const frame = el("iframe", {
+        class: "latest-html-frame", title: "Isolated HTML preview", sandbox: "allow-scripts",
+        referrerpolicy: "no-referrer"
+      });
+      frame.srcdoc = latestInformationPreviewDocument(htmlEditor.value, current.htmlResourceCsp || "");
+      preview.appendChild(frame);
+      count.textContent = new TextEncoder().encode(htmlEditor.value).length + " / 1048576 UTF-8 bytes";
+    } else {
+      const target = validatedLatestInformationUrl(urlEditor.value);
+      count.textContent = "Enter an absolute HTTP or HTTPS URL. The external site controls its own cache.";
+      if (target) preview.appendChild(el("a", { href: target, target: "_blank", rel: "noopener noreferrer" }, target));
+      else preview.appendChild(el("p", { class: "note" }, urlEditor.value || "No URL set."));
+    }
   };
-  editor.addEventListener("input", updatePreview);
+  textEditor.addEventListener("input", updatePreview);
+  htmlEditor.addEventListener("input", updatePreview);
+  urlEditor.addEventListener("input", updatePreview);
+  mode.addEventListener("change", updatePreview);
   updatePreview();
-  const field = el("label", { class: "mfield" });
-  field.appendChild(el("span", { class: "k" }, "Content (plain text with the formatting shown below)"));
-  field.appendChild(editor);
-  section.appendChild(field);
-  section.appendChild(count);
   section.appendChild(el("h3", null, "Preview"));
   section.appendChild(preview);
+  section.appendChild(count);
 
   const buttons = el("div", { class: "mbtns" });
-  const saveButton = el("button", { type: "button", class: "m-warning" }, "Save announcement");
+  const saveButton = el("button", { type: "button", class: "m-warning" }, "Save page");
   saveButton.disabled = !!current.error || !!state.savingLatestInformation;
-  saveButton.addEventListener("click", function () { saveLatestInformation(editor.value); });
+  saveButton.addEventListener("click", function () {
+    const payload = latestInformationPayload(mode.value, textEditor.value, htmlEditor.value, urlEditor.value);
+    if (payload.error) { latestInformationStatus([["err", payload.error]]); return; }
+    saveLatestInformation(payload);
+  });
   const clearButton = el("button", { type: "button" }, "Clear");
   clearButton.disabled = !!state.savingLatestInformation;
-  clearButton.addEventListener("click", function () { editor.value = ""; updatePreview(); editor.focus(); });
+  clearButton.addEventListener("click", function () {
+    if (mode.value === "text") { textEditor.value = ""; textEditor.focus(); }
+    else if (mode.value === "html") { htmlEditor.value = ""; htmlFileStatus.textContent = ""; htmlEditor.focus(); }
+    else { urlEditor.value = ""; urlEditor.focus(); }
+    updatePreview();
+  });
   const restoreButton = el("button", { type: "button" }, "Restore default notices");
   restoreButton.disabled = !!state.savingLatestInformation;
   restoreButton.addEventListener("click", function () {
-    editor.value = current.defaultContent || "";
+    mode.value = "text";
+    textEditor.value = current.defaultContent || "";
     updatePreview();
-    editor.focus();
+    textEditor.focus();
   });
   buttons.append(saveButton, clearButton, restoreButton);
   section.appendChild(buttons);
   section.appendChild(el("div", { id: "latestInformationStatus" }));
+  section.appendChild(el("p", { class: "note" },
+    "The game reads this page from Notices → Latest information. Saving does not force a popup; the new page appears the next time that page or its existing popup is opened. External URL cache behavior belongs to that website."));
   wrap.appendChild(section);
 
   const help = el("section", { class: "sec" });
-  help.appendChild(el("h2", null, "Supported formatting"));
+  help.appendChild(el("h2", null, "Content modes"));
   help.appendChild(el("p", { class: "note" }, "Use # Heading, ## Subheading, or ### Small heading on a line by itself."));
   help.appendChild(el("p", { class: "note" }, "Use a blank line to start a new paragraph; use - text for a bullet; wrap text in **double asterisks** for bold or `backticks` for inline code."));
-  help.appendChild(el("p", { class: "note" }, "http:// and https:// links become clickable. Raw HTML is shown as text for safety. Maximum: 12000 characters."));
-  help.appendChild(el("p", { class: "note" }, "Changes take effect immediately. The content is saved by the API and survives API restarts."));
+  help.appendChild(el("p", { class: "note" }, "HTML mode accepts a UTF-8 .html/.htm upload or editable source up to 1 MiB. It is served with a browser sandbox (scripts may run without same-origin access); embed CSS or use absolute CDN URLs for images, styles, fonts, and scripts. Relative assets from an uploaded file are not uploaded. The dashboard preview blocks forms, popups, and navigation, so those parts can behave differently in game."));
+  help.appendChild(el("p", { class: "note" }, "URL mode redirects the game WebView to an absolute HTTP(S) address. The server validates and stores the URL only; it does not fetch the page."));
+  help.appendChild(el("p", { class: "note" }, "All modes are saved persistently by the API. No APK update or API restart is needed; content is shown when the client next opens Latest information."));
   wrap.appendChild(help);
   panel.appendChild(wrap);
+}
+
+function validatedLatestInformationUrl(value) {
+  try {
+    const input = (value || "").trim();
+    if (input.length > 2048 || /[\u0000-\u001f\u007f]/.test(input)) return "";
+    const parsed = new URL(input);
+    return (parsed.protocol === "https:" || parsed.protocol === "http:") && parsed.hostname &&
+      !parsed.username && !parsed.password && parsed.href.length <= 2048 ? parsed.href : "";
+  } catch (ignored) { return ""; }
+}
+
+function latestInformationPreviewDocument(source, resourcePolicy) {
+  const safePolicy = (resourcePolicy || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  const meta = '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="' + safePolicy + '">';
+  // Keep the policy ahead of every supplied byte; untrusted/malformed markup may contain a
+  // fake <head> in a comment or script, so inserting into the source via regex is unsafe.
+  return "<!doctype html><html><head>" + meta + "</head><body>" + source + "</body></html>";
+}
+
+function latestInformationPayload(mode, text, html, url) {
+  if (mode === "text") return text.length <= 12000
+    ? { mode: "text", content: text } : { error: "Text exceeds 12000 characters." };
+  if (mode === "html") {
+    const bytes = new TextEncoder().encode(html).length;
+    return bytes <= 1048576 ? { mode: "html", htmlContent: html }
+      : { error: "HTML exceeds 1 MiB UTF-8." };
+  }
+  const target = validatedLatestInformationUrl(url);
+  return target ? { mode: "url", externalUrl: target }
+    : { error: "Enter an absolute HTTP or HTTPS URL without embedded credentials." };
 }
 
 function appendLatestInline(parent, text) {
@@ -1268,19 +1387,19 @@ function renderLatestInformationPreview(preview, content) {
   flushParagraph();
 }
 
-async function saveLatestInformation(content) {
+async function saveLatestInformation(payload) {
   if (state.savingLatestInformation) return;
   state.savingLatestInformation = true;
-  latestInformationStatus([["info", "saving announcement ..."]]);
+  latestInformationStatus([["info", "saving page ..."]]);
   let line;
   try {
     await fetchJSON("/api/latest-information", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: content })
+      body: JSON.stringify(payload)
     });
     await loadLatestInformation();
-    line = ["ok", "announcement saved and active"];
+    line = ["ok", "page saved; it appears the next time Latest information is opened"];
   } catch (error) {
     line = ["err", "failed: " + error.message];
   }

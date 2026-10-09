@@ -85,8 +85,8 @@ app.MapPost("/admin/latest-information", LatestInformationAdmin.PostAsync);
 app.Map("/admin/{**rest}", () => Results.NotFound());
 // The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
 // /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
-app.MapGet("/webview/information/index", (LatestInformationState latestInformation) =>
-    Results.Content(latestInformation.BuildHtml(), "text/html; charset=utf-8"));
+app.MapGet("/webview/information/index", (HttpContext context, LatestInformationState latestInformation) =>
+    latestInformation.Serve(context));
 app.MapGet("/webview/{**rest}", (string? rest) => Results.Content($"""
 <!doctype html><html lang="es"><meta charset="utf-8">
 <meta name=viewport content="width=device-width,initial-scale=1">

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using KickFlight.BootstrapApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -78,6 +79,65 @@ public sealed class LatestInformationTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, await AdminAsync(IPAddress.Loopback, "POST", """{"content":123}"""));
         Assert.Equal(HttpStatusCode.BadRequest, await AdminAsync(IPAddress.Loopback, "POST",
             "{\"content\":\"" + new string('x', LatestInformationState.MaximumContentLength + 1) + "\"}"));
+    }
+
+    [Fact]
+    public void Legacy_state_file_migrates_to_text_mode_without_changing_its_content()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(_stateFile)!);
+        File.WriteAllText(_stateFile, """{"Content":"## Older notice","ChangedAtUtc":"2026-10-07T00:00:00Z"}""");
+
+        var state = new LatestInformationState(NullLogger<LatestInformationState>.Instance, _stateFile);
+
+        Assert.Equal("text", state.Current.Mode);
+        Assert.Equal("## Older notice", state.Current.Content);
+        Assert.Equal("", state.Current.HtmlContent);
+        Assert.Contains("<h3>Older notice</h3>", state.BuildHtml());
+    }
+
+    [Fact]
+    public async Task Html_mode_serves_sandboxed_no_store_page_and_url_mode_redirects_without_fetching()
+    {
+        const string html = "<!doctype html><html><head><style>body{color:navy}</style></head><body><script>document.title='news'</script><h1>News</h1></body></html>";
+        Assert.Equal(HttpStatusCode.OK,
+            await AdminAsync(IPAddress.Loopback, "POST", JsonSerializer.Serialize(new { mode = "html", htmlContent = html })));
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using (var response = await client.GetAsync("/webview/information/index"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("text/html", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+            Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
+            var policy = response.Headers.GetValues("Content-Security-Policy").Single();
+            Assert.Contains("sandbox allow-scripts", policy);
+            Assert.DoesNotContain("allow-same-origin", policy);
+            Assert.Contains("img-src https: http: data: blob:", policy);
+            Assert.Equal(html, await response.Content.ReadAsStringAsync());
+        }
+
+        Assert.Equal(HttpStatusCode.BadRequest,
+            await AdminAsync(IPAddress.Loopback, "POST", """{"mode":"url","externalUrl":"javascript:alert(1)"}"""));
+        Assert.Equal(HttpStatusCode.BadRequest,
+            await AdminAsync(IPAddress.Loopback, "POST", """{"mode":"url","externalUrl":"https://user:pass@example.com/"}"""));
+        Assert.Equal(HttpStatusCode.BadRequest,
+            await AdminAsync(IPAddress.Loopback, "POST", "{\"mode\":\"url\",\"externalUrl\":\"https://example.com/a\\r\\nb\"}"));
+        Assert.True(LatestInformationState.IsValidExternalUrl("http://127.0.0.1:18084/announcements.html"));
+        Assert.Equal(HttpStatusCode.OK,
+            await AdminAsync(IPAddress.Loopback, "POST", """{"mode":"url","externalUrl":"https://news.example.test/announcements"}"""));
+        using (var response = await client.GetAsync("/webview/information/index"))
+        {
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.Equal("https://news.example.test/announcements", response.Headers.Location?.AbsoluteUri);
+            Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+        }
+    }
+
+    [Fact]
+    public void Html_limit_counts_utf8_bytes()
+    {
+        var state = new LatestInformationState(NullLogger<LatestInformationState>.Instance, _stateFile);
+        Assert.Throws<ArgumentOutOfRangeException>(() => state.SetHtml(new string('é', LatestInformationState.MaximumHtmlBytes / 2 + 1)));
     }
 
     private async Task<HttpStatusCode> AdminAsync(IPAddress remote, string method, string? body, string? proxyHeader = null)

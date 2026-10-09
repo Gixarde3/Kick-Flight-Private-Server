@@ -105,7 +105,9 @@ class MockAdmin(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length) or b"{}")
         if self.path == "/admin/latest-information":
-            MockAdmin.latest_information["content"] = payload.get("content", "")
+            mode = payload.get("mode", "text")
+            MockAdmin.latest_information.update(payload)
+            MockAdmin.latest_information["mode"] = mode
             MockAdmin.latest_information["changedAtUtc"] = "2026-10-08T00:00:00Z"
             self.send_json(200, dict(MockAdmin.latest_information))
             return
@@ -117,6 +119,7 @@ class MockAdmin(BaseHTTPRequestHandler):
 
 
 MockAdmin.latest_information = {"content": "Default news", "defaultContent": "Default news",
+                               "mode": "text", "htmlContent": "", "externalUrl": "",
                                "changedAtUtc": "2026-10-05T00:00:00Z"}
 
 
@@ -528,15 +531,33 @@ def main():
         # -- Latest Information -------------------------------------------------
         status, news = request("/api/latest-information")
         check("GET /api/latest-information proxies the game API",
-              status == 200 and news.get("content") == "Default news", "status %s %s" % (status, news))
+              status == 200 and news.get("content") == "Default news" and news.get("mode") == "text",
+              "status %s %s" % (status, news))
         status, news = request("/api/latest-information", "POST", {"content": "## Update\n\n- New battle mode"})
         check("POST /api/latest-information saves announcement text",
-              status == 200 and news.get("content") == "## Update\n\n- New battle mode",
+              status == 200 and news.get("content") == "## Update\n\n- New battle mode" and news.get("mode") == "text",
               "status %s %s" % (status, news))
-        status, _ = request("/api/latest-information", "POST", {"content": 123})
+        html_page = "<!doctype html><html><style>body{color:navy}</style><body><h1>News</h1></body></html>"
+        status, news = request("/api/latest-information", "POST", {"mode": "html", "htmlContent": html_page})
+        check("POST /api/latest-information saves editable HTML mode",
+              status == 200 and news.get("mode") == "html" and news.get("htmlContent") == html_page,
+              "status %s %s" % (status, news))
+        status, news = request("/api/latest-information", "POST",
+                               {"mode": "url", "externalUrl": "https://news.example.test/announcements"})
+        check("POST /api/latest-information saves HTTP(S) URL mode",
+              status == 200 and news.get("mode") == "url" and
+              news.get("externalUrl") == "https://news.example.test/announcements",
+              "status %s %s" % (status, news))
+        status, _ = request("/api/latest-information", "POST", {"mode": "text", "content": 123})
         check("invalid Latest Information body is rejected", status == 400, "status %s" % status)
-        status, _ = request("/api/latest-information", "POST", {"content": "x" * 12001})
-        check("Latest Information length is bounded", status == 400, "status %s" % status)
+        status, _ = request("/api/latest-information", "POST", {"mode": "text", "content": "x" * 12001})
+        check("Latest Information text length is bounded", status == 400, "status %s" % status)
+        status, _ = request("/api/latest-information", "POST", {"mode": "html", "htmlContent": "é" * 524289})
+        check("Latest Information HTML UTF-8 byte size is bounded", status == 400, "status %s" % status)
+        status, _ = request("/api/latest-information", "POST", {"mode": "url", "externalUrl": "javascript:alert(1)"})
+        check("Latest Information rejects non-HTTP URL schemes", status == 400, "status %s" % status)
+        status, _ = request("/api/latest-information", "POST", {"mode": "url", "externalUrl": "https://user:pass@example.com/"})
+        check("Latest Information rejects credentialed URLs", status == 400, "status %s" % status)
 
         # -- logout ---------------------------------------------------------------
         status, _ = request("/api/logout", "POST", {})
