@@ -24,6 +24,19 @@ bundles' clip _startTime / _compatibilityTime to within ~0.1 s). retime() shifts
 _compatibilityTime of each disc skill by (kicker time - donor time) of the disc's category, in place (floats only,
 the serialized size never changes). --no-retime keeps the donor's timings.
 
+Kicker skills: the donor bundle's single kicker-skill EventItemGroup still says `_id = 20000+donor`. The client
+looks the group up under the kicker's own id (`SkillActionDataManager.GetEventItemGroup(kicker, 20000+kicker)`);
+with no group, `SkillParameterBase.GetReadyTime()` returns 0 and the kicker skill has no cast time -- the reported
+"KS has no cast time" defect for the nine donor-built kickers. make_bundle() renumbers that group to
+`20000+kicker` (a 4-byte in-place int, serialized size unchanged) and asserts the donor group is the *only*
+kicker-skill group in the table. The group's `_compatibilityTime` (ready time) is `KS_CAST_TIMES[kicker]` when set,
+otherwise it stays the donor's: the capture
+holds no per-kicker KS timings. The five pristine captures measure 0.5 s for Tsubame(1)/Kite(4)/Owlbert(5)/Anna(8)
+and 0.15 s for Diatrius(11), so the donor values (0.5 for donors 4/5, 0.15 for donor 11) are the only
+evidence-backed default; Hitagi(13)/Sid(14) inherit Diatrius's 0.15 s and are the two to re-tune if real timings
+surface. There is no per-kicker field for it anywhere: `KickerParameterMasterData` has no ready/cast column and
+`KickerSkillMaster` is per weapon type, not per kicker.
+
 Octo bundle container (verified on all captured bundles): standard UnityFS 6 where the 8-byte "UnityFS\\0"
 signature is replaced by XOR("UnityFS", 6F 0F FA 46 D3 28 3A) + the tail "tyFS\\0" (file is 4 bytes longer, the size
 field is the standard one) and byte 5 of the LZ4-compressed blocks-info is XOR 0xFF.
@@ -68,10 +81,53 @@ CAST_TIMES = {
     13: (0.85, 1.5, 1.5, 1.0, 1.6, 1.7, 0.8, 1.3, 1.0),   # Hitagi
     14: (1.25, 1.0, 1.2, 1.7, 1.4, 0.9, 1.3, 0.9, 0.9),   # Sid
 }
+
+# Kicker-skill cast (ready) time per donor-built kicker, seconds: written into the kicker-skill EventItemGroup's
+# `_compatibilityTime`, which `SkillParameterBase.GetReadyTime()` returns. None keeps the donor's captured value
+# (0.5 s from donors 4/5, 0.15 s from donor 11). The five pristine bundles (kickers 1, 4, 5, 8, 11) are not rebuilt
+# here. After editing: rerun this script, bump `revision` in title-minimum.json (+ fromRevisions), rebuild the
+# catalog with the public --server-base-url, deploy.
+KS_CAST_TIMES = {
+    2: None,    # Ruriha   (donor Owlbert: 0.5)
+    3: None,    # Coco     (donor Owlbert: 0.5)
+    6: None,    # Pitophy  (donor Owlbert: 0.5)
+    7: None,    # Grenhawk (donor Kite: 0.5)
+    9: None,    # Jay      (donor Owlbert: 0.5)
+    10: None,   # Yuyan    (donor Owlbert: 0.5)
+    12: None,   # Buzzy    (donor Owlbert: 0.5)
+    13: None,   # Hitagi   (donor Diatrius: 0.15)
+    14: None,   # Sid      (donor Diatrius: 0.15)
+}
 DISC_CARDS = REPO_ROOT / "docs" / "disc_cards.json"  # card "type" -> CAST_CATEGORIES ("MOVE(vertical loop)" counts as MOVE)
 
 XOR_KEY = bytes((0x6F, 0x0F, 0xFA, 0x46, 0xD3, 0x28, 0x3A))
 HEADER_SIZE = 50  # standard UnityFS 6 header: "UnityFS\0" + version + 2 version strings + size + 2 sizes + flags
+
+
+def resolve_asset(source_path: str) -> Path:
+    """Resolve a `title-minimum.json` `sourcePath`. The extracted assets tree
+    (`../Kick-Flight-Assets/octo_sorted/...`) is not present in every checkout, but the repo-root
+    `octo_cache.tar` holds the same bundles keyed by their md5 basename, so fall back to extracting the file on
+    demand into `.local/octo_cached/`."""
+    path = (REPO_ROOT / source_path).resolve()
+    if path.exists():
+        return path
+    md5 = Path(source_path).name.rsplit("_", 1)[-1].split(".")[0]
+    cached = REPO_ROOT / ".local" / "octo_cached" / f"{md5}.bundle"
+    if cached.exists():
+        return cached
+    tar_path = REPO_ROOT / "octo_cache.tar"
+    if tar_path.exists():
+        import tarfile
+        with tarfile.open(tar_path) as tf:
+            for member in tf.getmembers():
+                if member.isfile() and member.name.endswith("/" + md5):
+                    data = tf.extractfile(member)
+                    if data is not None:
+                        cached.parent.mkdir(parents=True, exist_ok=True)
+                        cached.write_bytes(data.read())
+                        return cached
+    raise FileNotFoundError(f"{path} (assets tree absent and not found in {tar_path.name})")
 
 
 def octo_to_unityfs(data: bytes) -> bytes:
@@ -162,9 +218,10 @@ def skill_categories() -> dict[int, str]:
 
 def parse_action_event(serialized: bytes, name: bytes):
     """Walk the ActionEvent MonoBehaviour (m_GameObject, m_Enabled, m_Script, m_Name, _events[]) in the serialized
-    file and return [(skillId, compatibilityTime offset, [clip _startTime offsets])] - the floats retime() shifts.
-    Layout = the EventItemGroup/EventItem fields of the Il2Cpp dump, serialized with 4-byte alignment after strings
-    and byte arrays (validated against the pipeline JSON dumps of aed_001/005/011: 133 groups, 327 clips each)."""
+    file and return [(skillId, id offset, compatibilityTime offset, [clip _startTime offsets])] - the int at the id
+    offset and the floats at the other offsets are the fields the builder patches. Layout = the EventItemGroup/
+    EventItem fields of the Il2Cpp dump, serialized with 4-byte alignment after strings and byte arrays (validated
+    against the pipeline JSON dumps of aed_001/005/011: 133 groups, 327 clips each)."""
     p = serialized.index(struct.pack("<I", len(name)) + name) + 4 + len(name)
     p = (p + 3) & ~3
 
@@ -176,6 +233,7 @@ def parse_action_event(serialized: bytes, name: bytes):
 
     groups = []
     for _ in range(rd("i")):                       # _events
+        id_off = p
         skill_id, starts = rd("i"), []
         for _list in range(rd("i")):               # _list[7] (one per ClipType)
             for _item in range(rd("i")):           # _items
@@ -193,7 +251,7 @@ def parse_action_event(serialized: bytes, name: bytes):
                 p = (p + n + 3) & ~3
                 n = rd("i")                        # _vector3Parameters
                 p += 12 * n
-        groups.append((skill_id, p, starts))
+        groups.append((skill_id, id_off, p, starts))
         p += 12 + 36 + 8                           # _compatibilityTime, _directionUpdateSpeed, _finishTime, 3 x Vector3, _cameraType, _targetRange
     return groups
 
@@ -203,7 +261,7 @@ def retime(serialized: bytes, donor_kicker: int, kicker: int, categories: dict[i
     category (never below 0). Returns the patched bytes and the applied delta per category."""
     out = bytearray(serialized)
     deltas = {}
-    for skill_id, compat_off, starts in parse_action_event(serialized, f"aed_{kicker:03d}".encode()):
+    for skill_id, _id_off, compat_off, starts in parse_action_event(serialized, f"aed_{kicker:03d}".encode()):
         cat = categories.get(skill_id)
         if cat is None:
             continue
@@ -221,6 +279,31 @@ def retime(serialized: bytes, donor_kicker: int, kicker: int, categories: dict[i
     return bytes(out), deltas
 
 
+def renumber_kicker_skill(serialized: bytes, name: bytes, kicker: int, donor_kicker: int) -> bytes:
+    """A donor bundle's single kicker-skill `EventItemGroup` still carries the donor's id (20000+donor). The
+    client looks the group up under the kicker's own id (20000+kicker), and `SkillParameterBase.GetReadyTime`
+    returns 0.0 when the lookup is missing, so the kicker skill has no cast time. Renumber that one group in place
+    (same 4-byte int, the serialized size never changes). Fails loudly if the group table does not hold exactly one
+    kicker-skill group or if its id is not the donor's."""
+    groups = parse_action_event(serialized, name)
+    ks_old, ks_new = 20000 + donor_kicker, 20000 + kicker
+    ks = [(sid, id_off, compat) for sid, id_off, compat, _starts in groups if 20001 <= sid <= 20014]
+    if len(ks) != 1:
+        raise AssertionError(f"aed_{kicker:03d}: expected exactly one kicker-skill group, found {ks}")
+    if ks[0][0] != ks_old:
+        raise AssertionError(f"aed_{kicker:03d}: kicker-skill group id {ks[0][0]} != donor's {ks_old}")
+    if any(g[0] == ks_new for g in groups):
+        raise AssertionError(f"aed_{kicker:03d}: group {ks_new} is already present")
+    out = bytearray(serialized)
+    struct.pack_into("<i", out, ks[0][1], ks_new)
+    cast = KS_CAST_TIMES.get(kicker)
+    if cast is not None:
+        if cast < 0:
+            raise ValueError(f"aed_{kicker:03d}: KS_CAST_TIMES must be >= 0, got {cast}")
+        struct.pack_into("<f", out, ks[0][2], float(cast))
+    return bytes(out)
+
+
 def make_bundle(donor_octo: bytes, donor_kicker: int, kicker: int, categories: dict[int, str] | None = None) -> bytes:
     (header_prefix, info_hash), _blocks, nodes, serialized = parse_unityfs(octo_to_unityfs(donor_octo))
     if len(nodes) != 1:
@@ -233,6 +316,7 @@ def make_bundle(donor_octo: bytes, donor_kicker: int, kicker: int, categories: d
         patched, deltas = retime(patched, donor_kicker, kicker, categories)
         print(f"  aed_{kicker:03d}: cast-time shifts vs donor aed_{donor_kicker:03d}: "
               + ", ".join(f"{k} {v:+.2f}" for k, v in sorted(deltas.items())))
+    patched = renumber_kicker_skill(patched, new, kicker, donor_kicker)
     cab = "CAB-" + hashlib.md5(f"kickflight actioneditor/aed_{kicker:03d} from aed_{donor_kicker:03d}".encode()).hexdigest()
     return unityfs_to_octo(build_unityfs(header_prefix, info_hash, cab, patched))
 
@@ -272,7 +356,7 @@ def main() -> int:
             print(f"{name}: already served by {by_name[name]['id']}, skipping")
             continue
         donor_entry = by_name[f"actioneditor/aed_{donor:03d}.unity3d"]
-        donor_path = (REPO_ROOT / donor_entry["sourcePath"]).resolve()
+        donor_path = resolve_asset(donor_entry["sourcePath"])
         octo = make_bundle(donor_path.read_bytes(), donor, kicker, categories)
         verify(octo, kicker)
         object_name = f"aed0{kicker:02d}"  # Octo objectName: exactly six characters, must be unique
