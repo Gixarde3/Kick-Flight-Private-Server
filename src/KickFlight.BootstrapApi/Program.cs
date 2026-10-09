@@ -21,6 +21,7 @@ builder.Services.AddSingleton<SafeRequestInspector>();
 builder.Services.AddSingleton<IPhotonServerManager, PhotonServerManager>();
 builder.Services.AddSingleton<MaintenanceState>();
 builder.Services.AddSingleton<ClientUpdateState>();
+builder.Services.AddSingleton<LatestInformationState>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<BattleMatchmakingService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
@@ -58,6 +59,7 @@ app.Services.GetRequiredService<IPlayerStore>();
 app.Services.GetRequiredService<MaintenanceState>();
 // Loads data/client-update.json now, so a restart keeps the forced-update minimum from the first request.
 app.Services.GetRequiredService<ClientUpdateState>();
+app.Services.GetRequiredService<LatestInformationState>();
 // Loads every master now (rather than on the first player request) so the one-line "master overrides"
 // startup summary - and any missing config - is reported while the server boots.
 app.Services.GetRequiredService<DemoSessionApi>();
@@ -78,23 +80,13 @@ app.MapPost("/admin/maintenance", MaintenanceAdmin.PostAsync);
 //   docker exec deploy-api-1 curl -s -X POST http://127.0.0.1:8080/admin/client-update -d '{"minimumVersion":"2.12.0"}'
 app.MapGet("/admin/client-update", ClientUpdateAdmin.Get);
 app.MapPost("/admin/client-update", ClientUpdateAdmin.PostAsync);
+app.MapGet("/admin/latest-information", LatestInformationAdmin.Get);
+app.MapPost("/admin/latest-information", LatestInformationAdmin.PostAsync);
 app.Map("/admin/{**rest}", () => Results.NotFound());
 // The client's noticeboard opens a WebView and paints its network-error page for any non-200 answer, so every
 // /webview/ URL has to return HTML: the real one below, and the catch-all for every other page it may link to.
-app.MapGet("/webview/information/index", () => Results.Content("""
-<!doctype html><html lang="es"><meta charset="utf-8">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<title>Avisos</title>
-<body style="font-family:sans-serif;padding:24px;max-width:640px;line-height:1.5">
-<h2>Avisos</h2>
-<ul>
-<li><b>Bienvenido a Kick-Flight</b><br>Este es un servidor privado de pruebas. El progreso es local y puede
-reiniciarse sin aviso.</li>
-<li><b>Tienda y gacha</b><br>La tienda y el gacha todavia no estan disponibles; llegaran en una proxima
-actualizacion.</li>
-</ul>
-</body></html>
-""", "text/html; charset=utf-8"));
+app.MapGet("/webview/information/index", (LatestInformationState latestInformation) =>
+    Results.Content(latestInformation.BuildHtml(), "text/html; charset=utf-8"));
 app.MapGet("/webview/{**rest}", (string? rest) => Results.Content($"""
 <!doctype html><html lang="es"><meta charset="utf-8">
 <meta name=viewport content="width=device-width,initial-scale=1">

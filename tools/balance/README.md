@@ -64,6 +64,10 @@ runs `docker restart deploy-api-1` and polls `/health/ready`). There is no hot r
 | `KF_BALANCE_ADMIN_CONTAINER` | container the default maintenance command `docker exec`s into (default `deploy-api-1`) |
 | `KF_BALANCE_ADMIN_INTERNAL_URL` | URL curl uses inside that container (default `http://127.0.0.1:8080/admin/maintenance`) |
 | `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` | escape hatches: full shell commands whose stdout is the JSON status |
+| `KF_BALANCE_LATEST_INFO_URL` | full URL of `/admin/latest-information`; when set, the tool calls it directly |
+| `KF_BALANCE_LATEST_INFO_CONTAINER` | container the default `docker exec` command targets (defaults to `KF_BALANCE_ADMIN_CONTAINER`) |
+| `KF_BALANCE_LATEST_INFO_INTERNAL_URL` | loopback URL used inside that container (default `http://127.0.0.1:8080/admin/latest-information`) |
+| `KF_BALANCE_LATEST_INFO_CMD` / `KF_BALANCE_LATEST_INFO_SET_CMD` | escape hatches for GET and POST commands; stdout is JSON and POST receives JSON on stdin |
 | `KF_BALANCE_ALLOWED_HOSTS` | extra comma-separated `Host` values accepted alongside `127.0.0.1:<port>`, `localhost:<port>` and `[::1]:<port>` (needed when binding to a LAN address or sitting behind a proxy) |
 
 In the systemd deployment, configure `KF_BALANCE_AUTH_DB` and any override for
@@ -119,8 +123,16 @@ rebinding.
 
 ## What it edits
 
-Left sidebar: **Kickers** (14), **Discs**, **Text** and **Maintenance**. A text filter and, for discs,
+Left sidebar: **Kickers** (14), **Discs**, **Text**, **Latest information** and **Maintenance**. A text filter and, for discs,
 rarity/type dropdowns. Every entry shows its icon from `tools/balance/icons/`.
+
+**Latest information** edits the HTML page opened by the game at Notices → Latest information. The field accepts up to
+12,000 characters and saves immediately to the API's persistent `data/latest-information.json`; no API restart is
+needed. Use plain text with blank lines for paragraphs, `# Heading` / `## Subheading` / `### Small heading`, `- item`
+for bullets, `**bold**`, `` `inline code` ``, and `http://` or `https://` URLs for clickable links. Raw HTML is escaped and shown as text.
+The editor previews the supported formatting, can clear the announcement, and can restore the original sample notices.
+Saving changes the content of the page but does not force the game's version-timed popup to open; players can always
+open the same page from Notices → Latest information.
 
 Kicker panel — one section per source table (Stats, Passive, Passive condition, passive/kicker/special
 skill and their extras, Basic Attack). Disc panel — the `Disc` row, the card text from
@@ -212,6 +224,8 @@ HTTP client, point `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` at anothe
 | `GET /api/diff/<name>` | `{"changed": [{id, field, before, after}, ...]}` vs. the newest backup |
 | `GET /api/maintenance` | current `{mode, title, message, noticeId, changedAtUtc}` (proxied) |
 | `POST /api/maintenance` | body `{"mode": "off"\|"warning"\|"hard", "title"?, "message"?}` (proxied) |
+| `GET /api/latest-information` | current `{content, defaultContent, changedAtUtc}` (proxied) |
+| `POST /api/latest-information` | body `{"content": "..."}` (proxied; max. 12,000 characters) |
 | `GET /icons/<file>.png` | the extracted kicker/disc icons |
 | `GET /` | `tools/balance/index.html` |
 
