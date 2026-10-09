@@ -147,6 +147,8 @@ LATEST_INFO_INTERNAL_URL = os.environ.get(
 LATEST_INFO_CMD = os.environ.get("KF_BALANCE_LATEST_INFO_CMD", "")
 LATEST_INFO_SET_CMD = os.environ.get("KF_BALANCE_LATEST_INFO_SET_CMD", "")
 LATEST_INFO_MAX_CHARS = 12000
+LATEST_INFO_MAX_HTML_BYTES = 1024 * 1024
+LATEST_INFO_MAX_URL_CHARS = 2048
 
 TABLE_NAME_RE = re.compile(r"^[a-z_]+$")
 ICON_NAME_RE = re.compile(r"^(?:kicker|disc)_[0-9]+\.png$")
@@ -1461,13 +1463,40 @@ class BalanceHandler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError) as decode_error:
             self.send_error_json(400, "body is not valid JSON: %s" % decode_error)
             return
-        if not isinstance(payload, dict) or not isinstance(payload.get("content"), str):
-            self.send_error_json(400, 'body must be an object with a string "content"')
+        if not isinstance(payload, dict):
+            self.send_error_json(400, "body must be a Latest Information object")
             return
-        if len(payload["content"]) > LATEST_INFO_MAX_CHARS:
-            self.send_error_json(400, "content must be %d characters or fewer" % LATEST_INFO_MAX_CHARS)
+        mode = payload.get("mode", "text")  # Legacy clients sent only {content: ...}.
+        if mode == "text" and isinstance(payload.get("content"), str):
+            if len(payload["content"]) > LATEST_INFO_MAX_CHARS:
+                self.send_error_json(400, "content must be %d characters or fewer" % LATEST_INFO_MAX_CHARS)
+                return
+            forward = {"mode": "text", "content": payload["content"]}
+        elif mode == "html" and isinstance(payload.get("htmlContent"), str):
+            html_content = payload["htmlContent"]
+            if len(html_content.encode("utf-8")) > LATEST_INFO_MAX_HTML_BYTES:
+                self.send_error_json(400, "HTML must be %d UTF-8 bytes or fewer" % LATEST_INFO_MAX_HTML_BYTES)
+                return
+            forward = {"mode": "html", "htmlContent": html_content}
+        elif mode == "url" and isinstance(payload.get("externalUrl"), str):
+            external_url = payload["externalUrl"].strip()
+            try:
+                parsed = urlsplit(external_url)
+                valid_url = (len(external_url) <= LATEST_INFO_MAX_URL_CHARS and
+                             not any(ord(character) < 0x20 or ord(character) == 0x7f for character in external_url) and
+                             parsed.scheme.lower() in ("http", "https") and bool(parsed.hostname) and
+                             parsed.username is None and parsed.password is None)
+                _ = parsed.port  # Make malformed ports fail validation too.
+            except ValueError:
+                valid_url = False
+            if not valid_url:
+                self.send_error_json(400, "URL must be an absolute HTTP or HTTPS URL without embedded credentials")
+                return
+            forward = {"mode": "url", "externalUrl": external_url}
+        else:
+            self.send_error_json(400, "mode must be text, html, or url with its corresponding string value")
             return
-        status, result = latest_information_set({"content": payload["content"]})
+        status, result = latest_information_set(forward)
         if status == 200 and result is None:
             status, result = 502, {"ok": False, "error": "empty response from the latest-information admin endpoint"}
         self.send_json(status, result)

@@ -126,13 +126,24 @@ rebinding.
 Left sidebar: **Kickers** (14), **Discs**, **Text**, **Latest information** and **Maintenance**. A text filter and, for discs,
 rarity/type dropdowns. Every entry shows its icon from `tools/balance/icons/`.
 
-**Latest information** edits the HTML page opened by the game at Notices → Latest information. The field accepts up to
-12,000 characters and saves immediately to the API's persistent `data/latest-information.json`; no API restart is
-needed. Use plain text with blank lines for paragraphs, `# Heading` / `## Subheading` / `### Small heading`, `- item`
-for bullets, `**bold**`, `` `inline code` ``, and `http://` or `https://` URLs for clickable links. Raw HTML is escaped and shown as text.
-The editor previews the supported formatting, can clear the announcement, and can restore the original sample notices.
-Saving changes the content of the page but does not force the game's version-timed popup to open; players can always
-open the same page from Notices → Latest information.
+**Latest information** edits the page opened by the game at Notices → Latest information. Choose one of three modes;
+the saved mode and content live in `data/latest-information.json`, and no API restart is needed:
+
+- **Formatted text** keeps the original editor and accepts up to 12,000 characters. Use blank lines for paragraphs,
+  `# Heading` / `## Subheading` / `### Small heading`, `- item` for bullets, `**bold**`, `` `inline code` ``, and
+  `http://` or `https://` URLs for clickable links. Raw HTML is escaped in this mode.
+- **HTML page** accepts editable HTML source or a UTF-8 `.html` / `.htm` upload up to 1 MiB. HTML is returned inline
+  under a browser sandbox that permits scripts, forms, popups, and user-activated top navigation, but omits
+  `allow-same-origin` so it cannot read the balance dashboard's origin or cookies. Use inline CSS or absolute CDN URLs
+  for images, styles, fonts, and scripts. Uploads do not include sibling assets or zip files, so relative file paths
+  will not resolve after upload. The dashboard preview also uses a sandboxed iframe.
+- **External URL** stores an absolute `http://` or `https://` URL and redirects the game WebView there with HTTP 302.
+  The server validates and stores the URL only; it never fetches the destination. The external website controls its
+  own caching and content updates.
+
+Save updates what the next Latest Information page open displays; it does not force the game's timed popup to open.
+The API sends `Cache-Control: no-store` for the local page and URL redirect. Clear the selected editor value or restore
+the original sample notices in text mode.
 
 Kicker panel — one section per source table (Stats, Passive, Passive condition, passive/kicker/special
 skill and their extras, Basic Attack). Disc panel — the `Disc` row, the card text from
@@ -224,8 +235,8 @@ HTTP client, point `KF_BALANCE_ADMIN_CMD` / `KF_BALANCE_ADMIN_SET_CMD` at anothe
 | `GET /api/diff/<name>` | `{"changed": [{id, field, before, after}, ...]}` vs. the newest backup |
 | `GET /api/maintenance` | current `{mode, title, message, noticeId, changedAtUtc}` (proxied) |
 | `POST /api/maintenance` | body `{"mode": "off"\|"warning"\|"hard", "title"?, "message"?}` (proxied) |
-| `GET /api/latest-information` | current `{content, defaultContent, changedAtUtc}` (proxied) |
-| `POST /api/latest-information` | body `{"content": "..."}` (proxied; max. 12,000 characters) |
+| `GET /api/latest-information` | current `{mode, content, htmlContent, externalUrl, defaultContent, changedAtUtc}` (proxied) |
+| `POST /api/latest-information` | legacy body `{"content": "..."}` or `{mode:"text",content:"..."}`, `{mode:"html",htmlContent:"..."}` (UTF-8 max 1 MiB), `{mode:"url",externalUrl:"https://..."}` (proxied) |
 | `GET /icons/<file>.png` | the extracted kicker/disc icons |
 | `GET /` | `tools/balance/index.html` |
 

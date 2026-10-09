@@ -6,15 +6,34 @@ using System.Text.RegularExpressions;
 
 namespace KickFlight.BootstrapApi;
 
-public sealed record LatestInformationSnapshot(string Content, DateTime ChangedAtUtc);
+public sealed record LatestInformationSnapshot(
+    string Content,
+    DateTime ChangedAtUtc,
+    string Mode = "text",
+    string HtmlContent = "",
+    string ExternalUrl = "");
 
 /// <summary>
-/// Editable announcements shown by the client's Latest Information WebView. Plain Markdown-like text is persisted
-/// under data/latest-information.json and rendered as safe HTML; raw HTML is always escaped.
+/// Editable announcements shown by the client's Latest Information WebView. Text is rendered as escaped HTML;
+/// operator-supplied HTML is served verbatim under a restrictive browser sandbox policy.
 /// </summary>
 public sealed class LatestInformationState
 {
     public const int MaximumContentLength = 12000;
+    public const int MaximumHtmlBytes = 1024 * 1024;
+    public const int MaximumExternalUrlLength = 2048;
+    public const string HtmlResourceContentSecurityPolicy =
+        "default-src https: http: data: blob:; " +
+        "script-src 'unsafe-inline' https: http: data: blob:; " +
+        "style-src 'unsafe-inline' https: http: data: blob:; " +
+        "img-src https: http: data: blob:; " +
+        "font-src https: http: data: blob:; " +
+        "connect-src https: http: data: blob:; " +
+        "media-src https: http: data: blob:; " +
+        "frame-src https: http:; " +
+        "object-src 'none'; base-uri 'none'; form-action https: http:";
+    public const string HtmlContentSecurityPolicy =
+        "sandbox allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation; " + HtmlResourceContentSecurityPolicy;
     public const string DefaultContent = """
 **Bienvenido a Kick-Flight**
 Este es un servidor privado de pruebas. El progreso es local y puede reiniciarse sin aviso.
@@ -62,7 +81,12 @@ La tienda y el gacha todavia no estan disponibles; llegaran en una proxima actua
         LatestInformationSnapshot next;
         lock (_lock)
         {
-            next = new LatestInformationSnapshot(normalized.Replace("\r\n", "\n").Replace('\r', '\n'), DateTime.UtcNow);
+            next = _current with
+            {
+                Content = normalized.Replace("\r\n", "\n").Replace('\r', '\n'),
+                Mode = "text",
+                ChangedAtUtc = DateTime.UtcNow
+            };
             Save(next);
             _current = next;
         }
@@ -70,9 +94,79 @@ La tienda y el gacha todavia no estan disponibles; llegaran en una proxima actua
         return next;
     }
 
+    public LatestInformationSnapshot SetHtml(string? htmlContent)
+    {
+        var html = htmlContent ?? "";
+        if (Encoding.UTF8.GetByteCount(html) > MaximumHtmlBytes)
+            throw new ArgumentOutOfRangeException(nameof(htmlContent), $"HTML must be {MaximumHtmlBytes} UTF-8 bytes or fewer");
+
+        LatestInformationSnapshot next;
+        lock (_lock)
+        {
+            next = _current with { HtmlContent = html, Mode = "html", ChangedAtUtc = DateTime.UtcNow };
+            Save(next);
+            _current = next;
+        }
+        _logger.LogInformation("Latest information HTML updated ({Bytes} UTF-8 bytes)", Encoding.UTF8.GetByteCount(html));
+        return next;
+    }
+
+    public LatestInformationSnapshot SetExternalUrl(string? externalUrl)
+    {
+        if (!TryNormalizeExternalUrl(externalUrl, out var normalizedUrl))
+            throw new ArgumentException("URL must be an absolute HTTP or HTTPS URL without embedded credentials", nameof(externalUrl));
+
+        LatestInformationSnapshot next;
+        lock (_lock)
+        {
+            next = _current with { ExternalUrl = normalizedUrl, Mode = "url", ChangedAtUtc = DateTime.UtcNow };
+            Save(next);
+            _current = next;
+        }
+        _logger.LogInformation("Latest information external URL updated");
+        return next;
+    }
+
+    public static bool IsValidExternalUrl(string? value) => TryNormalizeExternalUrl(value, out _);
+
+    public static bool TryNormalizeExternalUrl(string? value, out string normalized)
+    {
+        normalized = "";
+        if (string.IsNullOrWhiteSpace(value)) return false;
+        var trimmed = value.Trim();
+        if (trimmed.Length > MaximumExternalUrlLength || trimmed.Any(char.IsControl)
+            || !Uri.TryCreate(trimmed, UriKind.Absolute, out var parsed)
+            || (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps)
+            || string.IsNullOrWhiteSpace(parsed.Host) || !string.IsNullOrEmpty(parsed.UserInfo))
+            return false;
+
+        normalized = parsed.AbsoluteUri;
+        return normalized.Length <= MaximumExternalUrlLength;
+    }
+
+    public IResult Serve(HttpContext context)
+    {
+        var snapshot = Current;
+        context.Response.Headers.CacheControl = "no-store";
+        context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        if (snapshot.Mode == "url") return Results.Redirect(snapshot.ExternalUrl, permanent: false);
+        if (snapshot.Mode == "html")
+        {
+            context.Response.Headers["Content-Security-Policy"] = HtmlContentSecurityPolicy;
+            return Results.Content(snapshot.HtmlContent, "text/html; charset=utf-8");
+        }
+
+        return Results.Content(BuildTextHtml(snapshot.Content), "text/html; charset=utf-8");
+    }
+
     public string BuildHtml()
     {
         var content = Current.Content;
+        return BuildTextHtml(content);
+    }
+
+    private static string BuildTextHtml(string content)
+    {
         var body = RenderContent(content);
         if (body.Length == 0) body = "<p>No hay avisos nuevos.</p>";
         return """
@@ -171,7 +265,19 @@ La tienda y el gacha todavia no estan disponibles; llegaran en una proxima actua
         try
         {
             var loaded = JsonSerializer.Deserialize<LatestInformationSnapshot>(File.ReadAllText(FilePath), FileJson);
-            if (loaded is not null && loaded.Content is { Length: <= MaximumContentLength }) _current = loaded;
+            if (loaded is not null && loaded.Content is { Length: <= MaximumContentLength })
+            {
+                var htmlContent = loaded.HtmlContent ?? "";
+                var externalUrl = loaded.ExternalUrl ?? "";
+                var mode = loaded.Mode is "text" or "html" or "url" ? loaded.Mode : "text";
+                if (Encoding.UTF8.GetByteCount(htmlContent) > MaximumHtmlBytes)
+                {
+                    mode = mode == "html" ? "text" : mode;
+                    htmlContent = "";
+                }
+                if (!IsValidExternalUrl(externalUrl) && mode == "url") mode = "text";
+                _current = loaded with { Mode = mode, HtmlContent = htmlContent, ExternalUrl = externalUrl };
+            }
             _logger.LogInformation("Loaded latest information from {Path}", FilePath);
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
@@ -210,17 +316,52 @@ public static class LatestInformationAdmin
         {
             using var document = await JsonDocument.ParseAsync(context.Request.Body);
             var root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("content", out var property)
-                || property.ValueKind != JsonValueKind.String)
-                return Results.BadRequest(new { error = "body must be JSON {content: string}" });
-            var content = property.GetString() ?? "";
-            if (content.Length > LatestInformationState.MaximumContentLength)
-                return Results.BadRequest(new { error = $"content must be {LatestInformationState.MaximumContentLength} characters or fewer" });
-            return Status(state.Set(content));
+            if (root.ValueKind != JsonValueKind.Object)
+                return Results.BadRequest(new { error = "body must be a JSON object" });
+            if (!root.TryGetProperty("mode", out var modeProperty))
+            {
+                if (root.TryGetProperty("content", out var legacyProperty) && legacyProperty.ValueKind == JsonValueKind.String)
+                {
+                    var legacyContent = legacyProperty.GetString() ?? "";
+                    if (legacyContent.Length > LatestInformationState.MaximumContentLength)
+                        return Results.BadRequest(new { error = $"content must be {LatestInformationState.MaximumContentLength} characters or fewer" });
+                    return Status(state.Set(legacyContent));
+                }
+                return Results.BadRequest(new { error = "body must include mode: text, html, or url" });
+            }
+            if (modeProperty.ValueKind != JsonValueKind.String)
+                return Results.BadRequest(new { error = "mode must be text, html, or url" });
+
+            switch (modeProperty.GetString())
+            {
+                case "text":
+                    if (!root.TryGetProperty("content", out var contentProperty) || contentProperty.ValueKind != JsonValueKind.String)
+                        return Results.BadRequest(new { error = "text mode requires a string content" });
+                    var content = contentProperty.GetString() ?? "";
+                    if (content.Length > LatestInformationState.MaximumContentLength)
+                        return Results.BadRequest(new { error = $"content must be {LatestInformationState.MaximumContentLength} characters or fewer" });
+                    return Status(state.Set(content));
+                case "html":
+                    if (!root.TryGetProperty("htmlContent", out var htmlProperty) || htmlProperty.ValueKind != JsonValueKind.String)
+                        return Results.BadRequest(new { error = "html mode requires a string htmlContent" });
+                    var html = htmlProperty.GetString() ?? "";
+                    if (Encoding.UTF8.GetByteCount(html) > LatestInformationState.MaximumHtmlBytes)
+                        return Results.BadRequest(new { error = $"HTML must be {LatestInformationState.MaximumHtmlBytes} UTF-8 bytes or fewer" });
+                    return Status(state.SetHtml(html));
+                case "url":
+                    if (!root.TryGetProperty("externalUrl", out var urlProperty) || urlProperty.ValueKind != JsonValueKind.String)
+                        return Results.BadRequest(new { error = "URL mode requires a string externalUrl" });
+                    var url = urlProperty.GetString() ?? "";
+                    if (!LatestInformationState.TryNormalizeExternalUrl(url, out var normalizedUrl))
+                        return Results.BadRequest(new { error = "URL must be an absolute HTTP or HTTPS URL without embedded credentials" });
+                    return Status(state.SetExternalUrl(normalizedUrl));
+                default:
+                    return Results.BadRequest(new { error = "mode must be text, html, or url" });
+            }
         }
         catch (JsonException ex)
         {
-            return Results.BadRequest(new { error = "body must be JSON {content: string}", detail = ex.Message });
+            return Results.BadRequest(new { error = "body must be valid Latest Information JSON", detail = ex.Message });
         }
         catch (InvalidOperationException)
         {
@@ -232,6 +373,10 @@ public static class LatestInformationAdmin
     private static IResult Status(LatestInformationSnapshot current) => Results.Json(new
     {
         content = current.Content,
+        mode = current.Mode,
+        htmlContent = current.HtmlContent,
+        externalUrl = current.ExternalUrl,
+        htmlResourceCsp = LatestInformationState.HtmlResourceContentSecurityPolicy,
         defaultContent = LatestInformationState.DefaultContent,
         changedAtUtc = current.ChangedAtUtc.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture)
     });
