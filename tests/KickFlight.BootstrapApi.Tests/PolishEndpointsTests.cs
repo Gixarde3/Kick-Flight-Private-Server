@@ -522,7 +522,7 @@ public sealed class PolishEndpointsTests : IClassFixture<PolishEndpointsFixture>
     }
 
     [Theory]
-    [InlineData("/webview/information/index", "Avisos")]
+    [InlineData("/webview/information/index", "Latest Information")]
     [InlineData("/webview/anything", "/webview/anything")]
     public async Task Webview_pages_return_html(string path, string expectedTitle)
     {

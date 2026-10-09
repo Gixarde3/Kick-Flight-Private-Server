@@ -138,6 +138,16 @@ ADMIN_CMD = os.environ.get("KF_BALANCE_ADMIN_CMD", "")
 ADMIN_SET_CMD = os.environ.get("KF_BALANCE_ADMIN_SET_CMD", "")
 ADMIN_TIMEOUT = 15
 
+# Latest Information uses its own loopback-only API endpoint, with independent overrides for split dev setups.
+LATEST_INFO_URL = os.environ.get("KF_BALANCE_LATEST_INFO_URL", "")
+LATEST_INFO_CONTAINER = os.environ.get("KF_BALANCE_LATEST_INFO_CONTAINER", ADMIN_CONTAINER)
+LATEST_INFO_INTERNAL_URL = os.environ.get(
+    "KF_BALANCE_LATEST_INFO_INTERNAL_URL", "http://127.0.0.1:8080/admin/latest-information"
+)
+LATEST_INFO_CMD = os.environ.get("KF_BALANCE_LATEST_INFO_CMD", "")
+LATEST_INFO_SET_CMD = os.environ.get("KF_BALANCE_LATEST_INFO_SET_CMD", "")
+LATEST_INFO_MAX_CHARS = 12000
+
 TABLE_NAME_RE = re.compile(r"^[a-z_]+$")
 ICON_NAME_RE = re.compile(r"^(?:kicker|disc)_[0-9]+\.png$")
 TABLE_URL_RE = re.compile(r"^/api/table/([^/]*)$")
@@ -763,6 +773,29 @@ def admin_set(payload):
     )
 
 
+def latest_information_state():
+    """(status, payload) of GET /admin/latest-information."""
+    if LATEST_INFO_URL:
+        return _http_admin("GET", LATEST_INFO_URL, None)
+    if LATEST_INFO_CMD:
+        return _run_admin(LATEST_INFO_CMD, None)
+    return _run_admin(["docker", "exec", LATEST_INFO_CONTAINER, "curl", "-sS", LATEST_INFO_INTERNAL_URL], None)
+
+
+def latest_information_set(payload):
+    """(status, payload) of POST /admin/latest-information with the given JSON body."""
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    if LATEST_INFO_URL:
+        return _http_admin("POST", LATEST_INFO_URL, body)
+    if LATEST_INFO_SET_CMD:
+        return _run_admin(LATEST_INFO_SET_CMD, body)
+    return _run_admin(
+        ["docker", "exec", "-i", LATEST_INFO_CONTAINER, "curl", "-sS", "-X", "POST",
+         LATEST_INFO_INTERNAL_URL, "-H", "Content-Type: application/json", "-d", "@-"],
+        body,
+    )
+
+
 # --------------------------------------------------------------------------- #
 # apply (restart the API and wait for readiness)
 # --------------------------------------------------------------------------- #
@@ -1154,6 +1187,9 @@ class BalanceHandler(BaseHTTPRequestHandler):
         if path == "/api/maintenance":
             self.handle_get_maintenance()
             return
+        if path == "/api/latest-information":
+            self.handle_get_latest_information()
+            return
         if path == "/api/layout":
             # docs/localize_layout.json: where every LocalizeText of the UI prefabs sits (scripts/extract_localize_layout.py)
             layout = DOCS_DIR / "localize_layout.json"
@@ -1198,6 +1234,9 @@ class BalanceHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/maintenance":
             self.handle_post_maintenance()
+            return
+        if path == "/api/latest-information":
+            self.handle_post_latest_information()
             return
         if path == "/api/apply":
             self.handle_apply()
@@ -1404,6 +1443,33 @@ class BalanceHandler(BaseHTTPRequestHandler):
                 "error": "empty response from the admin endpoint (is the API's loopback reachable "
                          "from where this tool runs?)",
             }
+        self.send_json(status, result)
+
+    def handle_get_latest_information(self):
+        status, payload = latest_information_state()
+        if status == 200 and payload is None:
+            status, payload = 502, {"ok": False, "error": "empty response from the latest-information admin endpoint"}
+        self.send_json(status, payload)
+
+    def handle_post_latest_information(self):
+        body, error = self.read_body()
+        if error is not None:
+            self.send_error_json(error[0], error[1])
+            return
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as decode_error:
+            self.send_error_json(400, "body is not valid JSON: %s" % decode_error)
+            return
+        if not isinstance(payload, dict) or not isinstance(payload.get("content"), str):
+            self.send_error_json(400, 'body must be an object with a string "content"')
+            return
+        if len(payload["content"]) > LATEST_INFO_MAX_CHARS:
+            self.send_error_json(400, "content must be %d characters or fewer" % LATEST_INFO_MAX_CHARS)
+            return
+        status, result = latest_information_set({"content": payload["content"]})
+        if status == 200 and result is None:
+            status, result = 502, {"ok": False, "error": "empty response from the latest-information admin endpoint"}
         self.send_json(status, result)
 
     def handle_get_table(self, name):

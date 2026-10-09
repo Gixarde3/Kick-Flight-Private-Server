@@ -94,18 +94,30 @@ class MockAdmin(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path != "/admin/maintenance":
-            self.send_json(404, {})
+            if self.path != "/admin/latest-information":
+                self.send_json(404, {})
+                return
+            self.send_json(200, dict(MockAdmin.latest_information))
             return
         self.send_json(200, dict(MockAdmin.state))
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length) or b"{}")
+        if self.path == "/admin/latest-information":
+            MockAdmin.latest_information["content"] = payload.get("content", "")
+            MockAdmin.latest_information["changedAtUtc"] = "2026-10-08T00:00:00Z"
+            self.send_json(200, dict(MockAdmin.latest_information))
+            return
         MockAdmin.state["mode"] = payload.get("mode", "off")
         MockAdmin.state["title"] = payload.get("title", "")
         MockAdmin.state["message"] = payload.get("message", "")
         MockAdmin.state["noticeId"] += 1
         self.send_json(200, dict(MockAdmin.state))
+
+
+MockAdmin.latest_information = {"content": "Default news", "defaultContent": "Default news",
+                               "changedAtUtc": "2026-10-05T00:00:00Z"}
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -207,6 +219,7 @@ def main():
         "KF_BALANCE_BASE_PATH": BASE_PATH,
         "KF_BALANCE_ALLOWED_ORIGINS": "https://balance.test",
         "KF_BALANCE_ADMIN_URL": "http://127.0.0.1:%d/admin/maintenance" % ADMIN_PORT,
+        "KF_BALANCE_LATEST_INFO_URL": "http://127.0.0.1:%d/admin/latest-information" % ADMIN_PORT,
         "KF_BALANCE_ALLOWED_HOSTS": "balance.test",
         "KF_BALANCE_API_CONTAINER": "fake-api",
         # A real restart changes the container start time; the fake one moves it forward too.
@@ -270,6 +283,8 @@ def main():
         check("static icons also require a session", status == 401, "got %s" % status)
         status, _ = request("/api/overrides/export", auth=False)
         check("override export requires a session", status == 401, "got %s" % status)
+        status, _ = request("/api/latest-information", auth=False)
+        check("Latest Information is protected by the dashboard session", status == 401, "got %s" % status)
         status, _ = request("/api/apply", "POST", {}, auth=False)
         check("unauthorized apply is denied before side effects", status == 401 and not APPLIED_MARKER.exists(),
               "got %s" % status)
@@ -509,6 +524,19 @@ def main():
               status == 200 and state.get("mode") == "hard", "status %s %s" % (status, state))
         status, _ = request("/api/maintenance", "POST", {"mode": "bogus"})
         check("invalid maintenance mode is rejected", status == 400, "status %s" % status)
+
+        # -- Latest Information -------------------------------------------------
+        status, news = request("/api/latest-information")
+        check("GET /api/latest-information proxies the game API",
+              status == 200 and news.get("content") == "Default news", "status %s %s" % (status, news))
+        status, news = request("/api/latest-information", "POST", {"content": "## Update\n\n- New battle mode"})
+        check("POST /api/latest-information saves announcement text",
+              status == 200 and news.get("content") == "## Update\n\n- New battle mode",
+              "status %s %s" % (status, news))
+        status, _ = request("/api/latest-information", "POST", {"content": 123})
+        check("invalid Latest Information body is rejected", status == 400, "status %s" % status)
+        status, _ = request("/api/latest-information", "POST", {"content": "x" * 12001})
+        check("Latest Information length is bounded", status == 400, "status %s" % status)
 
         # -- logout ---------------------------------------------------------------
         status, _ = request("/api/logout", "POST", {})
