@@ -231,12 +231,30 @@ public sealed class BattleReplayService
                 var record = JsonSerializer.Deserialize<ReplayRecord>(File.ReadAllText(metaFile));
                 if (record is null || string.IsNullOrEmpty(record.ReplayId)) continue;
                 if (!File.Exists(BlobPath(record.ReplayId))) continue;
+                if (string.IsNullOrEmpty(record.ApplicationVersion)) BackfillVersion(record, metaFile);
                 _records[record.ReplayId] = record;
             }
             catch (Exception ex)
             {
                 _logger.LogWarning("Ignoring unreadable replay metadata {File}: {Error}", metaFile, ex.Message);
             }
+        }
+    }
+
+    // Replays stored before the archive parser handled path-qualified member names have no application version, and
+    // the client marks such cells as an invalid version. Re-read it from the blob once and rewrite the metadata.
+    private void BackfillVersion(ReplayRecord record, string metaFile)
+    {
+        try
+        {
+            var version = ParseGzip(File.ReadAllBytes(BlobPath(record.ReplayId))).AppVersion;
+            if (string.IsNullOrEmpty(version)) return;
+            record.ApplicationVersion = version;
+            File.WriteAllText(metaFile, JsonSerializer.Serialize(record));
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or JsonException)
+        {
+            _logger.LogWarning("Could not backfill the version of replay {ReplayId}: {Error}", record.ReplayId, ex.Message);
         }
     }
 
@@ -428,7 +446,8 @@ public sealed class BattleReplayService
 
     // ------------------------------------------------------------------ index queries
 
-    /// <summary>The frozen Featured set for the current rotation. Recomputes and persists only when the rotation rolls.</summary>
+    /// <summary>The frozen Featured set for the current rotation. Recomputed when the rotation rolls; until it is full
+    /// (fewer than FeaturedCount replays existed when it was computed) new replays are appended, never swapped in.</summary>
     public IReadOnlyList<ReplayRecord> GetFeatured(DateTime nowUtc)
     {
         lock (_rotationLock)
@@ -441,6 +460,16 @@ public sealed class BattleReplayService
                 PersistFeatured(_featured);
                 _logger.LogInformation("Featured rotation {Start:o}: {Count} replay(s)",
                     rotationStart, _featured.ReplayIds.Count);
+            }
+            else if (_featured.ReplayIds.Count < _featuredCount)
+            {
+                var fill = RankFeatured(nowUtc).Where(id => !_featured.ReplayIds.Contains(id))
+                    .Take(_featuredCount - _featured.ReplayIds.Count).ToList();
+                if (fill.Count > 0)
+                {
+                    _featured.ReplayIds.AddRange(fill);
+                    PersistFeatured(_featured);
+                }
             }
 
             return _featured.ReplayIds
@@ -456,18 +485,20 @@ public sealed class BattleReplayService
         get { lock (_rotationLock) return _featured; }
     }
 
-    private FeaturedSnapshot ComputeFeatured(DateTime rotationStart, DateTime nowUtc)
+    private FeaturedSnapshot ComputeFeatured(DateTime rotationStart, DateTime nowUtc) =>
+        new() { RotationStartUtc = rotationStart, ReplayIds = RankFeatured(nowUtc).Take(_featuredCount).ToList(), ComputedUtc = nowUtc };
+
+    // Most humans first among the replays of the last window; older replays only fill what the window cannot, so a quiet
+    // server still shows something.
+    private IEnumerable<string> RankFeatured(DateTime nowUtc)
     {
         var windowStart = nowUtc - _featuredWindow;
-        var ids = _records.Values
-            .Where(r => r.CreatedUtc >= windowStart)
-            .OrderByDescending(r => r.HumanCount)
+        return _records.Values
+            .OrderByDescending(r => r.CreatedUtc >= windowStart)
+            .ThenByDescending(r => r.HumanCount)
             .ThenByDescending(r => r.EndUtc)
             .ThenByDescending(r => r.ReplayId, StringComparer.Ordinal)
-            .Take(_featuredCount)
-            .Select(r => r.ReplayId)
-            .ToList();
-        return new FeaturedSnapshot { RotationStartUtc = rotationStart, ReplayIds = ids, ComputedUtc = nowUtc };
+            .Select(r => r.ReplayId);
     }
 
     public IReadOnlyList<ReplayRecord> GetLatestForKicker(int kickerId, DateTime nowUtc) =>
@@ -796,6 +827,11 @@ public sealed class BattleReplayService
                 throw new InvalidDataException("archive member body is truncated");
             var body = archive.Slice(position, (int)length).ToArray();
             position += (int)length;
+
+            // The client writes each member under its full device path (".../Replay/Work/header") and the JSON
+            // members start with a UTF-8 BOM, which JsonDocument.Parse(byte[]) rejects.
+            name = name[(name.LastIndexOfAny(['/', '\\']) + 1)..];
+            if (body.Length >= 3 && body[0] == 0xEF && body[1] == 0xBB && body[2] == 0xBF) body = body[3..];
 
             switch (name)
             {

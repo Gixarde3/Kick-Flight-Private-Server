@@ -48,6 +48,22 @@ public sealed class BattleReplayTests
     }
 
     [Fact]
+    public void Archive_parser_matches_device_path_member_names_and_strips_the_bom()
+    {
+        // Captured from a 2.11.1 upload: members are named by their full path and JSON members carry a UTF-8 BOM.
+        const string dir = "/storage/emulated/0/Android/data/jp.grenge.kickflight/files/Replay/Work/";
+        var json = Encoding.UTF8.GetBytes("{\"_appVersion\":\"2.11.1\"}");
+        var withBom = new byte[] { 0xEF, 0xBB, 0xBF }.Concat(json).ToArray();
+        var archive = BuildArchive((dir + "header", withBom), (dir + "frames", new byte[] { 1 }), (dir + "result", withBom));
+
+        var parsed = BattleReplayService.ParseArchive(archive);
+
+        Assert.Equal(json, parsed.Header);
+        Assert.Equal(json, parsed.Result);
+        Assert.Null(parsed.Battle);
+    }
+
+    [Fact]
     public void Archive_parser_rejects_a_stream_with_the_wrong_value_type_tag()
     {
         var archive = BuildArchive(("header", new byte[] { 1 }));
@@ -171,6 +187,30 @@ public sealed class BattleReplayTests
         var restarted = NewService(directory.Path, clock, featuredCount: 2, rotationHours: 3);
         Assert.Equal(rotated.Select(r => r.ReplayId).ToArray(),
             restarted.GetFeatured(clock.GetUtcNow().UtcDateTime).Select(r => r.ReplayId).ToArray());
+    }
+
+    [Fact]
+    public void Featured_computed_while_short_is_topped_up_inside_the_rotation()
+    {
+        using var directory = new TempDirectory();
+        var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 10, 10, 0, 0, 0, TimeSpan.Zero));
+        var service = NewService(directory.Path, clock, featuredCount: 2, rotationHours: 3);
+
+        // The first index request of a rotation can come before any upload: an empty set must not stay frozen.
+        Assert.Empty(service.GetFeatured(clock.GetUtcNow().UtcDateTime));
+
+        clock.Advance(TimeSpan.FromMinutes(10));
+        Store(service, clock, "battle-a", ticksBase: 1, humans: 1, kickers: [1]);
+        Assert.Equal(new[] { "battle-a" }, service.GetFeatured(clock.GetUtcNow().UtcDateTime).Select(r => r.ReplayId).ToArray());
+
+        Store(service, clock, "battle-b", ticksBase: 2, humans: 5, kickers: [2]);
+        Store(service, clock, "battle-c", ticksBase: 3, humans: 6, kickers: [3]);
+        // Appended up to the count, never swapped: battle-a stays although battle-c has more humans.
+        Assert.Equal(new[] { "battle-a", "battle-c" }, service.GetFeatured(clock.GetUtcNow().UtcDateTime).Select(r => r.ReplayId).ToArray());
+
+        // Outside the window, old replays still fill a rotation that has nothing newer.
+        clock.Advance(TimeSpan.FromHours(30));
+        Assert.Equal(new[] { "battle-c", "battle-b" }, service.GetFeatured(clock.GetUtcNow().UtcDateTime).Select(r => r.ReplayId).ToArray());
     }
 
     // ---------------------------------------------------------------- playback
