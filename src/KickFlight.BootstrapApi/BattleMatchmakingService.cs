@@ -406,6 +406,19 @@ public sealed class BattleMatchmakingService
         return Math.Max(0, JoinIncrementBaseSeconds - step * (humansInRoom - 2));
     }
 
+    /// <summary>
+    /// Seconds the Photon room master waits in the matching scene for the other humans before it starts the battle
+    /// (home/index `battleStartWaitTime`). The client's NormalMatchingJoinBattleRoomState starts the countdown when the
+    /// master enters the room, restarts it on every CallbackPlayerEnteredRoom, and sends /battle/start the moment the
+    /// room holds every human of the assignment (NormalMatchingController.IsBattleStart: MaxPlayerCount - AICount ==
+    /// room player count) or the countdown hits 0. Serving 0 made the master start instantly, so a human whose
+    /// Name -> Master -> GameServer hop took longer than the master's scene load (RoomIsCreatePlayer at +2.6 s) joined a
+    /// room that had already instantiated its players and never got in (5 of 5 failed rooms, 2026-10-10).
+    /// The wait ends early once everyone is present, so it only costs time when a matched human never arrives.
+    /// KF_BATTLE_START_WAIT_SECONDS overrides it; 0 restores the old behaviour.
+    /// </summary>
+    public static readonly double BattleStartWaitSeconds = ParseMatchConfiguration("KF_BATTLE_START_WAIT_SECONDS", 10.0);
+
     private static double ParseMatchConfiguration(string variable, double fallback)
     {
         // Invariant culture: with a comma-decimal culture "5.0" parses as 50.

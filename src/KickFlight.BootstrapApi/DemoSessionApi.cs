@@ -1704,7 +1704,7 @@ public sealed partial class DemoSessionApi
             festivalMatchResultNotification = (object?)null,
             appFestivalMatchResult = (object?)null,
             photonReconnectWaitTimeList = new[] { 0.5, 1.0, 2.0 },
-            battleStartWaitTime = 0.0,
+            battleStartWaitTime = BattleMatchmakingService.BattleStartWaitSeconds,
             battlePlayablePingThreshold = 1000,
             battleRetryPingThreshold = 1000,
             battleRetryPingMaxCount = 0,
