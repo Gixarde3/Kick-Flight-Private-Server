@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "assetVersion": 12345,
-  "revision": 38,
+  "revision": 39,
   "fromRevisions": [
     0,
     1,
@@ -41,7 +41,8 @@
     35,
     36,
     37,
-    38
+    38,
+    39
   ],
   "urlPathFormat": "/cdn/{o}",
   "entries": [
@@ -31547,7 +31548,7 @@
         "actioneditor/aed_013.unity3d"
       ],
       "objectName": "aed013",
-      "sourcePath": "content/resources/actioneditor/41616564303133_75ad2d43854b5758179fe8ef1f83e9cb.bundle",
+      "sourcePath": "content/resources/actioneditor/41616564303133_a71afc179b4bee7bc53418b114e34a1a.bundle",
       "logicalName": "Unity AssetBundle actioneditor/aed_013.unity3d",
       "description": "Disc action timelines for kicker 13: copy of the captured aed_011 bundle (kicker 11) with its own serialized-file name and the kicker's own per-category cast times (CAST_TIMES); built by scripts/build-action-asset-bundles.py"
     },
@@ -31559,7 +31560,7 @@
         "actioneditor/aed_014.unity3d"
       ],
       "objectName": "aed014",
-      "sourcePath": "content/resources/actioneditor/41616564303134_c29be8f797f7e3375d35573bdc55ae81.bundle",
+      "sourcePath": "content/resources/actioneditor/41616564303134_9b23d2ac8b9238b44e45f09cc493aed3.bundle",
       "logicalName": "Unity AssetBundle actioneditor/aed_014.unity3d",
       "description": "Disc action timelines for kicker 14: copy of the captured aed_011 bundle (kicker 11) with its own serialized-file name and the kicker's own per-category cast times (CAST_TIMES); built by scripts/build-action-asset-bundles.py"
     },

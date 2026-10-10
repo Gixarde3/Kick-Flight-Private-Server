@@ -96,7 +96,7 @@ KS_CAST_TIMES = {
     10: None,   # Yuyan    (donor Owlbert: 0.5)
     12: None,   # Buzzy    (donor Owlbert: 0.5)
     13: None,   # Hitagi   (donor Diatrius: 0.15)
-    14: None,   # Sid      (donor Diatrius: 0.15)
+    14: 0.5,    # Sid      (donor Diatrius: 0.15, too short to notice in game)
 }
 DISC_CARDS = REPO_ROOT / "docs" / "disc_cards.json"  # card "type" -> CAST_CATEGORIES ("MOVE(vertical loop)" counts as MOVE)
 
@@ -279,6 +279,9 @@ def retime(serialized: bytes, donor_kicker: int, kicker: int, categories: dict[i
     return bytes(out), deltas
 
 
+KS_TARGET_RANGE_DELTA = 4 * 3 + 36 + 4   # _targetRange offset from _compatibilityTime in the serialized group
+
+
 def renumber_kicker_skill(serialized: bytes, name: bytes, kicker: int, donor_kicker: int) -> bytes:
     """A donor bundle's single kicker-skill `EventItemGroup` still carries the donor's id (20000+donor). The
     client looks the group up under the kicker's own id (20000+kicker), and `SkillParameterBase.GetReadyTime`
@@ -301,6 +304,10 @@ def renumber_kicker_skill(serialized: bytes, name: bytes, kicker: int, donor_kic
         if cast < 0:
             raise ValueError(f"aed_{kicker:03d}: KS_CAST_TIMES must be >= 0, got {cast}")
         struct.pack_into("<f", out, ks[0][2], float(cast))
+    # _targetRange (after _directionUpdateSpeed, _finishTime, 3 x Vector3, _cameraType) is the donor's KS range;
+    # Diatrius's 4.0 shrank Hitagi's no-target warp from her 20 to 4 units. 0 makes the GetRange cave in
+    # patch-il2cpp-endpoints.py fall back to masters_skill.json `range`, so the KS range stays tunable per kicker.
+    struct.pack_into("<f", out, ks[0][2] + KS_TARGET_RANGE_DELTA, 0.0)
     return bytes(out)
 
 
