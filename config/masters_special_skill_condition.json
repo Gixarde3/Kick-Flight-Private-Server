@@ -131,7 +131,7 @@
   "conditionType": 27,
   "duration": 5.0,
   "interval": 0.0,
-  "effectValue": 9999999.0,
+  "effectValue": 0.0,
   "triggerType": 3
  },
  {

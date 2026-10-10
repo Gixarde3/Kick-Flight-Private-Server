@@ -364,7 +364,7 @@ KICKER_SKILL_EXTRAS = {
     20011: {"blow_off": {"distance": 18.0, "speed": 40.0, "rigorTime": 0.8, "directionType": 4}},
     # Buzzy Big: ShieldSkillAction.UpdateExecute only does player.AcceptCondition(trigger 3 rows) - without a row the
     # kicker skill fires (cooldown) and spawns nothing. The forward barrier lasts `duration` s or until it has absorbed
-    # `effectValue` damage (ShieldAll for the special uses 9999999 = unbreakable).
+    # `effectValue` damage. (ShieldAll is different: its effectValue is an incoming-damage multiplier, see WT_SHIELD.)
     20012: {"conditions": [(COND_SHIELD_FORWARD, 6.0, 0.0, 4000.0, TRIGGER_EXECUTE)]},
     # Sid: decoy statue. LaserSkillAction.OnBeginAction = CreateTrap + player.AcceptCondition(trigger 3 rows).
     # CreateTrap sends the trap with the kicker skill's TrapInfo (= this SkillTrap row, SkillParameterBase..ctor) and
@@ -786,7 +786,11 @@ SPECIAL_SKILL_DATA = {
     WT_PUNCH_GLOVE:    {"duration": 6.0, "trap": {"trapType": 8, "duration": 6.0, "radius": 1000.0, "effectValue": 0.0},  # in-game the trap reached ~1/100 of this
                         "conditions": [(COND_GRAVITY, 6.0, 0.0, 1.0, TRIGGER_ENTER_ENEMY_TRAP)]},
     WT_BOWGUN:         {"duration": 12.0, "conditions": [(COND_SPEED_RATE, 12.0, 0.0, 1.2), (28, 12.0, 0.0, 1.3)]},   # allies: move speed +20 %, attack speed +30 % (28 = AttackSpeedRate)
-    WT_SHIELD:         {"duration": 5.0, "conditions": [(27, 5.0, 0.0, 9999999.0)]},                                  # allies: unbreakable shield 5 s
+    # ShieldAll (27): IsProtectDamage blocks every non-shield-break hit while it lasts (LimitCount defaults to -1 =
+    # unlimited); effectValue is multiplied into the target's DamageRate (ConditionActionController.UpdateParameter
+    # 0x17C1DF4) and shield-break hits only use their fixed correction while DamageRate < 1 (AcceptDamageInfo
+    # 0x13D36F0). The old 9999999 made Sonic Rush / pierce discs hit a shielded target for int.MaxValue. 0 = blocked.
+    WT_SHIELD:         {"duration": 5.0, "conditions": [(27, 5.0, 0.0, 0.0)]},                                        # allies: shield 5 s
     WT_BAT:            {"duration": 8.0, "conditions": [(22, 8.0, 0.0, 1.0)]},                                        # enemies Confusion
     WT_NUNCHAKU:       {"duration": 15.0, "conditions": [(25, 15.0, 0.0, 1.0)]},                                      # self Panda
     WT_JAPANESE_SWORD: {"duration": 15.0, "conditions": [(34, 15.0, 0.0, 1.0)]},                                      # self OneShotKiller
