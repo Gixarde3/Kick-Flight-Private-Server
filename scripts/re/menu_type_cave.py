@@ -4,6 +4,9 @@ GameManager.GetMenuType (0x1570EA8) entry is `b 0x13CE4B0; nop`. Pristine GetMen
 Tutorial 2, ReplayMode 1, HomeInfo.IsTrainingMode 3, BattleRuleInfo.IsTrial 4, HomeInfo.BattleModeType == 1
 (custom battle) -> spectator ? 6 : 5, else 0. Its body cannot be re-entered: production caves live in it
 (PlayerAnimator.SetParamVelocity guard at 0x1570FF0) and so do DIAG caves, so the cave re-implements the part we want:
+  ReplayManager.get_ReplayMode (0x1773670) == 1 (playback)       -> 1 (MenuType.Replay: replay controls, spectator
+                                                                     HUD; pristine 0x1570F30. Offline builds stub the
+                                                                     getter to 0, Photon builds run the real one)
   BattleUtil.GetMyTeamType (0x15B8F24) == 2 (Photon spectator)  -> 6 (MenuType spectator, unchanged)
   ColorfulManager.Archive.BattleRuleInfo.IsTrial                -> 4 (MenuType.Trial: TrialSettingWindow with the
                                                                      End button and the infinite-cooldown toggle)
@@ -25,25 +28,24 @@ LIB = os.environ.get("KF_CLEAN_LIBIL2CPP") or os.path.join(
 
 SRC = """
 stp x29, x30, [sp, #-0x10]!
-mov x29, sp
+bl #0x1773670
+cmp w0, #1
+b.eq out
 bl #0x15b8f24
 cmp w0, #2
-b.eq spectator
-mov x0, xzr
-bl #0x31dc818
-cbz x0, normal
-ldr x0, [x0, #0x230]
-cbz x0, normal
-ldr w8, [x0, #0x18]
-cmp w8, #100
-b.ne normal
-mov w0, #4
-b out
-spectator:
+b.ne trial
 mov w0, #6
 b out
-normal:
-mov w0, wzr
+trial:
+mov x0, xzr
+bl #0x31dc818
+cbz x0, out
+ldr x0, [x0, #0x230]
+cbz x0, out
+ldr w8, [x0, #0x18]
+cmp w8, #100
+cset w0, eq
+lsl w0, w0, #2
 out:
 ldp x29, x30, [sp], #0x10
 ret

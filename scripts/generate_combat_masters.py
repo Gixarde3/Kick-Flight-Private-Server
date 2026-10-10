@@ -332,6 +332,7 @@ _KNOCK_FAR = {"distance": 14.0, "speed": 30.0, "rigorTime": 0.7, "directionType"
 _RUSH_PURSUIT = {"distance": 0.1, "speed": 30.0, "rigorTime": 0.4, "directionType": 4, "fixed_distance": True}
 STATUE_DURATION = 10.0  # Sid's decoy statue lifetime (s) and the length of his attack-speed buff
 COND_RESTRAINTED = 14   # RestraintedConditionAction: bound in place (movement disabled) until it expires
+COND_RESTRAINT = 15     # RestraintConditionAction: on the caster; GunSkillAction roots while it is held
 ANNA_BIND_SECONDS = 3.0  # Anna's binding ray
 KICKER_SKILL_EXTRAS = {
     # Ruriha: backstep shot, the ice bullets paralyse the target (ConditionActionController.CheckEnableMove blocks
@@ -353,7 +354,12 @@ KICKER_SKILL_EXTRAS = {
     # tick setter attack x effectValue every `interval` s (accumulator >= interval, so 0 = every frame); the interval is
     # longer than the bind so it never ticks (no CommonConditionHit row for 14 is needed). It used to be a SkillPullIn
     # row (play-test 2026-10: "drags enemies instead of binding them").
-    20008: {"conditions": [(COND_RESTRAINTED, ANNA_BIND_SECONDS, ANNA_BIND_SECONDS + 1.0, 0.0, TRIGGER_RECEIVE_DAMAGE)]},
+    # Restraint (15) on the caster: GunSkillAction.OnUpdateAction/UpdateFinish gate their StopVelocity on IsExists(15),
+    # so Anna must hold 15 while the ray binds. In 2.11.0 no data path applies it (GunSkillAction never calls
+    # GetKickerSkillConditionInitInfo(3)); the production cave in patch-il2cpp-endpoints.py injects this trigger-3 row
+    # from RestraintedConditionAction.StartAction (handoff/dsh-anna-1/report.md section 4, handoff/dsh-patch-1).
+    20008: {"conditions": [(COND_RESTRAINTED, ANNA_BIND_SECONDS, ANNA_BIND_SECONDS + 1.0, 0.0, TRIGGER_RECEIVE_DAMAGE),
+                           (COND_RESTRAINT, ANNA_BIND_SECONDS, 0.0, 0.0, TRIGGER_EXECUTE)]},
     # Jay: BatSkillAction.OnBeginAction is only player.AcceptCondition(trigger 3 rows). Stealth (24,
     # StealthConditionAction) fades the model (BatAttackAction.PlayMaskFade), plays the condition effect and makes him
     # un-lock-on-able (ConditionActionController.EnableLockedOn) until the duration ends or he attacks / takes damage.
@@ -765,6 +771,11 @@ SPECIAL_SKILL_DATA = {
     # radius = this special's TrapInfo.Radius, next cloud every radius+1 units, SendAddTrap of trapType 6). Players
     # inside a cloud then get SmogProtection (20, trigger 6 EnterMyTeamTrap) / SmogDisturb (19, trigger 5). Serving
     # 20 on trigger 3 (2026-09-14..19) applied a no-op buff and no drone/smog ever appeared.
+    # dsh-patch-2 (2026-10-10): the `interval` column of the SpecialSkillTrap row is now the smog PATCH SPACING in
+    # world units: a production cave in SmogConditionAction uses `S = TrapInfo.Interval` when S > 0, otherwise the
+    # old 2 * TrapInfo.Radius. TrapInfo.Interval is otherwise read only by TurretTrapAction, never by the Smog trap
+    # path, so Owlbert's row is free to use it. This generator still emits interval 0.0 for every trap, so rows keep
+    # the old spacing unless the override/WebUI sets the column (the local test row 5 sets 3.0).
     WT_DRONE:          {"duration": 8.0, "range": 100.0,
                         "trap": {"trapType": 6, "duration": 8.0, "radius": 5.0, "effectValue": 0.0},
                         "conditions": [(18, 8.0, 0.0, 1.0), (20, 8.0, 0.0, 1.0, TRIGGER_ENTER_ALLY_TRAP),

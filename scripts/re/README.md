@@ -88,6 +88,13 @@ Rules learned the hard way:
   the room `RoomState`, `8940` + the failing cause, `8971` + each player's index and `PlayerState`) and `8992` +
   `SetReconnectFailedCause`, which named the empty-room mastership bug (patch `0010` in `docs/PHOTON_SERVER.md`). The docstring in the script carries the full reasoning, including why the two
   `<>4__this` guards cannot fire.
+* `scripts/re/replay_diag_caves.py` — KFDIAG 9303-9338, replay recording/upload/playback (KF_PHOTON only):
+  `BeginSession` / `CanBeginSession` result / recording session created / `EndSession` / `StartPlayback`
+  entered, and the four `ResultManager.<UploadReplayDataAsync>` gates (`IsMyPlayerMaster`,
+  `IsUploadReplayData`, empty `BattleId`, raw `ReplayWriteResult.WriteState`). The same script also emits the
+  production Photon cave that re-implements the real `ReplayManager.get_ReplayMode` (the offline stub's body
+  keeps the `CharacterBase.IsMine` cave and the 940+ `SetState` probe). Caves live in return-stubbed bodies
+  (`List<LocalClient.InternalMsg>.Contains`, `<CallbackBattleStartSuccess>b__46_0`).
 * Regenerate entries with the script and paste them before `# ---- END DIAGNOSTIC ----` in
   `patch-il2cpp-endpoints.py` (replace the whole previous block: caves are re-packed and move); build with
   `KF_DIAG=1 OUT=.local/KickFlight-2.11.0-DIAG.apk bash .local/build.sh` (Tanuki's machine) or

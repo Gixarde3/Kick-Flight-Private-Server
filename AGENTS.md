@@ -60,6 +60,9 @@ producción; solo sirve para leer qué hace el cliente por dentro. Documentació
 | 7700–7830 | warp de Hitagi (KS sin objetivo), `SetVisible` | `scripts/re/warp_diag_caves.py` |
 | 8100–8823 | bucle de ataque básico: combo, `IsUpdateAction` con motivos (`87x0/87x1`) y estado actual (`8790+n`), alcance, ángulos, `IsAttack`, `Play*AttackIn`, destrucción de colisiones (`8800+tipo`, `8810+impactos`) | `scripts/re/attack_diag_caves.py` |
 | 8901–8992 | reconexión Photon tras un corte: entrada de `CallbackDisconnected` y su causa, identidad del objeto que arrancó la máquina de estados (`8921`), `UpdateReconnect` con `_reconnectInfo` nulo (`8961`), `SetReconnectState`, `IsReconnectEnable`, el ida y vuelta de RPC de reconexión (`8981`-`8985`) y la causa final (`8992`) | `scripts/re/reconnect_diag_caves.py` |
+| 9100–9113 | fixes de kicker (2026-10-09): puerta del dron de Owlbert (`9100` `_setter.IsMine`, `9101` `_target.IsMine`, `9102` resultado, `9103` el match de dueño de `CreateSmog` pasa) y raíz del bind de Anna (`9110` arranca la condición 15 en el caster, `9111` entra la cueva con `_setterPlayer != null`, `9112` `GetKickerSkillConditionInitInfo(3)` no nulo, `9113` vuelve `AcceptCondition`). Overrides DIAG en `StartDisconnectTime` (A) y `PhotonPropertyManagerBase.CheckInitializeError` (B + sondas pequeñas), cuerpos muertos en TODOS los flavours | `scripts/re/kicker_fix_caves.py` |
+| 9190+ | spacing del smog de la SS de Owlbert (2026-10-10; reubicado 2026-10-11): `9190 + int(paso × 10)` en cada `SmogConditionAction.CreateSmog`, donde `paso = SpecialSkillTrap.interval (>0)`, si no `2 × radius`. `9220` = S=3, `9270` = fallback radius 4. Caves de producción y override DIAG en `HomeSummonModelController.<LoadModelAsync>d__25.MoveNext` 0x159E25C (muerto en TODOS los flavours; la revisión anterior en `GameManager.BeginReconnectRoomFailed` pisaba código vivo con KF_PHOTON=1) | `scripts/re/smog_spacing_cave.py` |
+| 9303–9338 | replays con `KF_PHOTON=1` (2026-10-12): `9303` entra `ReplayManager.BeginSession`, `9304/9305` resultado de `CanBeginSession`, `9306` `BeginRecordingSession` devolvió una `ReplayRecordingSession`, `9307` entra `EndSession`, `9310` entra `ResultManager.<UploadReplayDataAsync>` estado 0, `9311/9312` `PhotonManager.IsMyPlayerMaster`, `9313/9314` `ArchiveData.IsUploadReplayData`, `9315/9316` `BattleId` no vacío/vacío, `9329`–`9332` `ReplayWriteResult.WriteState` crudo (Invalid=-1 → 9329, Progress=0 → 9330, FinishSucceeded=1 → 9331), `9338` entra `StartPlayback`. Solo en `KF_DIAG=1 & KF_PHOTON=1`; las caves viven en cuerpos muertos ya `ret`-stubbeados (`List<LocalClient.InternalMsg>.Contains` 0x2F277C0 — compartido con la cave del getter real —, `<CallbackBattleStartSuccess>b__46_0` 0x13ED8FC) y el hook de entrada es `b` | `scripts/re/replay_diag_caves.py` |
 | LR crudo | origen de cada NRE (`KF_NRE_LR=1`) | cave H |
 
 ### Añadir o cambiar una sonda
@@ -68,7 +71,10 @@ producción; solo sirve para leer qué hace el cliente por dentro. Documentació
   entradas `DIAG cave`/`DIAG hook` listas para pegar en `patch-il2cpp-endpoints.py` antes de `# ---- END DIAGNOSTIC ----`
   (reemplaza el bloque anterior completo: las caves se re-empaquetan y cambian de dirección).
 - Reglas que costaron crashes: nunca `UnityEngine.Debug.Log` desde código parcheado (muere en `libunity+0x34426c`);
-  hook de entrada de función = `b` + salto de vuelta, nunca `bl` (pisa el LR del llamador); nada de hooks en
+  hook de entrada de función = `b` + salto de vuelta, nunca `bl` (pisa el LR del llamador); un hook `bl` después del
+  `ldp x29, x30` del epílogo o antes de un tail call pisa el LR del llamador ("a `bl` hook after the epilogue's x30
+  restore or before a tail call clobbers the caller's LR": la sonda 9570 en `ThrowingStarSpecialSkillAction.OnEndCutScene`
+  hacía que `b set_State` volviera al epílogo); nada de hooks en
   funciones hoja ni sobre `bl`/saltos; la cave pierde NZCV (si el hook cae sobre un `fcmp`, repítelo al final);
   no asumas que un registro sigue teniendo `this` (`IsUpdateAction` reutiliza x19: la primera sonda 8230 crasheó en
   la pantalla de carga 5/5 veces); solo cuerpos muertos verificados (entrada stub a `ret` en producción y ningún
