@@ -102,7 +102,7 @@ CONDITIONS = [
     # Bowgun only takes conditions whose conditionType is AttackRate.
     (7, 1, 5.0, 1.3, 1, 1),
     # Shield: ShieldAll (27 -- ShieldForward 26 is his Kicker Skill), one instance blocked.
-    (12, 27, 5.0, 1.0, 3, 1),
+    (12, 27, 5.0, 0.0, 3, 1),   # ShieldAll effectValue = DamageRate multiplier; 0 lets shield-break hits take their bonus (AcceptDamageInfo 0x13D36F0)
 ]
 
 

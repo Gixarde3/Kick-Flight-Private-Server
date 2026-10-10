@@ -35,7 +35,7 @@
   "conditionType": 27,
   "duration": 5.0,
   "interval": 1.0,
-  "effectValue": 1.0,
+  "effectValue": 0.0,
   "triggerType": 3,
   "limitCount": 1
  }
