@@ -90,6 +90,17 @@
       "sha256": "f8951a73c607b1dd78ac1e334ca86bf17f26053ab8dbd07e5722e26723c99683"
     },
     {
+      "id": "apk-remote-2112",
+      "enabled": true,
+      "host": "10.0.2.2",
+      "requestPath": "/apk/KickFlight-2.11.2-remote.apk",
+      "logicalName": "Remote-play APK download (2.11.2)",
+      "description": "Patched 2.11.2 client for the VPS (Photon); the website links here",
+      "sourcePath": ".local/KickFlight-2.11.2-remote.apk",
+      "contentType": "application/vnd.android.package-archive",
+      "sha256": "7969069454bb3453f381a75f444c144a5b23d9243305c89d480dd697a6bd6c88"
+    },
+    {
       "id": "kicker-skin-thumb-001-022-direct",
       "enabled": true,
       "host": "10.0.2.2",
