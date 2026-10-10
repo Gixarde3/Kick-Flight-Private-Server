@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "battleReplayChannelType": 3,
+    "name": "Featured",
+    "kickerId": 0,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 1
+  },
+  {
+    "id": 1001,
+    "battleReplayChannelType": 2,
+    "name": "Tsubame",
+    "kickerId": 1,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 1
+  },
+  {
+    "id": 1002,
+    "battleReplayChannelType": 2,
+    "name": "Ruriha",
+    "kickerId": 2,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 2
+  },
+  {
+    "id": 1003,
+    "battleReplayChannelType": 2,
+    "name": "Coco",
+    "kickerId": 3,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 3
+  },
+  {
+    "id": 1004,
+    "battleReplayChannelType": 2,
+    "name": "Kite",
+    "kickerId": 4,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 4
+  },
+  {
+    "id": 1005,
+    "battleReplayChannelType": 2,
+    "name": "Owlbert",
+    "kickerId": 5,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 5
+  },
+  {
+    "id": 1006,
+    "battleReplayChannelType": 2,
+    "name": "Pitophy",
+    "kickerId": 6,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 6
+  },
+  {
+    "id": 1007,
+    "battleReplayChannelType": 2,
+    "name": "Grenhawk",
+    "kickerId": 7,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 7
+  },
+  {
+    "id": 1008,
+    "battleReplayChannelType": 2,
+    "name": "Anna",
+    "kickerId": 8,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 8
+  },
+  {
+    "id": 1009,
+    "battleReplayChannelType": 2,
+    "name": "Jay",
+    "kickerId": 9,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 9
+  },
+  {
+    "id": 1010,
+    "battleReplayChannelType": 2,
+    "name": "Yuyan",
+    "kickerId": 10,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 10
+  },
+  {
+    "id": 1011,
+    "battleReplayChannelType": 2,
+    "name": "Diatrius",
+    "kickerId": 11,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 11
+  },
+  {
+    "id": 1012,
+    "battleReplayChannelType": 2,
+    "name": "Buzzy Big",
+    "kickerId": 12,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 12
+  },
+  {
+    "id": 1013,
+    "battleReplayChannelType": 2,
+    "name": "Hitagi",
+    "kickerId": 13,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 13
+  },
+  {
+    "id": 1014,
+    "battleReplayChannelType": 2,
+    "name": "Sid",
+    "kickerId": 14,
+    "minRank": 1,
+    "maxRank": 99,
+    "matchType": 1,
+    "sortOrder": 14
+  }
+]

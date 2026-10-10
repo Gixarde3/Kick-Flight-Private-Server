@@ -91,12 +91,8 @@ public sealed partial class DemoSessionApi
             case "/mission/change":
                 return OkJson(context, key, $$"""{"userDailyRandomMissionTask":{{NeutralDailyRandomMissionTask}}}""");
 
-            case "/battleReplay/index":
-                return OkJson(context, key, """{"battleReplayChannelList":[],"appMovieList":[]}""");
             case "/battleReplay/checkMovie":
                 return OkJson(context, key, "{}");
-            case "/battleReplay/play":
-                return OkJson(context, key, """{"battleReplayUrl":"","encryptionKey":""}""");
 
             case "/battleReplayNotification/read":
             case "/interruptNotification/read":

@@ -24,6 +24,7 @@ builder.Services.AddSingleton<ClientUpdateState>();
 builder.Services.AddSingleton<LatestInformationState>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<BattleMatchmakingService>();
+builder.Services.AddSingleton<BattleReplayService>();
 builder.Services.AddSingleton<OpenMatchFrontendService>();
 // Player state: PostgreSQL when a connection string is configured, the per-user JSON files otherwise.
 builder.Services.AddSingleton<IPlayerStore>(services => PlayerStoreFactory.Create(services, builder.Configuration));

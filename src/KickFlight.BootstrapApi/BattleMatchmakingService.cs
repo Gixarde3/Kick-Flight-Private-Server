@@ -330,6 +330,14 @@ public sealed class BattleMatchmakingService
     public int? GetRoomBattleRuleId(string battleId) =>
         _roomsByBattleId.TryGetValue(battleId, out var room) ? room.BattleRuleId : null;
 
+    /// <summary>
+    /// The final roster of a room still in memory, or an empty list. Used by /battle/end to snapshot the players
+    /// (with their kickerCostumeId row ids) into the replay index; a restarted process has no rooms, which is why
+    /// the upload's own battle/result JSON is the primary roster source.
+    /// </summary>
+    public IReadOnlyList<MatchingPlayerBattleInfo> GetRoomRoster(string battleId) =>
+        _roomsByBattleId.TryGetValue(battleId, out var room) ? room.MatchingInfo.battlePlayerList : [];
+
     /// <summary>The rule selected on entry, retained for result reporting after the room has started.</summary>
     public int? GetBattleRuleIdForEntry(string battleEntryId) =>
         _entriesByBattleEntryId.TryGetValue(battleEntryId, out var entry) ? entry.BattleRuleId : null;

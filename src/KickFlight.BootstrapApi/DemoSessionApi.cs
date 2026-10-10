@@ -74,16 +74,19 @@ public sealed partial class DemoSessionApi
     private readonly List<int> _gearIdList = [];                 // Gear master row ids, the pool gear/create rolls from
     private readonly ILogger<DemoSessionApi> _logger;
     private readonly BattleMatchmakingService _matchmaking;
+    private readonly BattleReplayService _replays;
     private readonly MaintenanceState _maintenance;
     private readonly ClientUpdateState _clientUpdate;
     private readonly TimeProvider _timeProvider;
 
     public DemoSessionApi(ILogger<DemoSessionApi> logger, IWebHostEnvironment environment,
-        BattleMatchmakingService matchmaking, IPlayerStore playerStore, IConfiguration configuration,
-        MaintenanceState maintenance, ClientUpdateState clientUpdate, TimeProvider timeProvider)
+        BattleMatchmakingService matchmaking, BattleReplayService replays, IPlayerStore playerStore,
+        IConfiguration configuration, MaintenanceState maintenance, ClientUpdateState clientUpdate,
+        TimeProvider timeProvider)
     {
         _logger = logger;
         _matchmaking = matchmaking;
+        _replays = replays;
         _maintenance = maintenance;
         _clientUpdate = clientUpdate;
         _timeProvider = timeProvider;
@@ -737,6 +740,16 @@ public sealed partial class DemoSessionApi
         // tables the draw endpoints read. Registered here so the master hash covers them too.
         InitializeGachaMasters(contentRoot);
 
+        // Replay channels: BattleReplayChannelMaster (type-2 Kicker rows + the type-3 Featured row) and
+        // MovieCategoryMaster (the Pickup tab's categories; empty keeps it empty). The served key is the client's
+        // master class name without the "Master" suffix - the same convention as every other table here (see
+        // docs/REPLAYS.md for the disassembly evidence: MasterBase.get_ClassName, RVA 0x1798DF4).
+        var battleReplayChannelJson = LoadJson(contentRoot, "config/masters_battle_replay_channel.json",
+            BuildBattleReplayChannelFallbackJson());
+        var movieCategoryJson = LoadJson(contentRoot, "config/masters_movie_category.json", "[]");
+        _encryptedMasters["BattleReplayChannel"] = EncryptMaster(battleReplayChannelJson);
+        _encryptedMasters["MovieCategory"] = EncryptMaster(movieCategoryJson);
+
         using (var sha = SHA256.Create())
         {
             foreach (var kvp in _encryptedMasters.OrderBy(k => k.Key, StringComparer.Ordinal))
@@ -749,6 +762,33 @@ public sealed partial class DemoSessionApi
             MasterVersion = "demo-master-" + Convert.ToHexString(sha.Hash!)[..16].ToLowerInvariant();
         }
         _logger.LogInformation("Master version {MasterVersion} ({Count} tables)", MasterVersion, _encryptedMasters.Count);
+    }
+
+    // Fallback for a checkout without config/masters_battle_replay_channel.json: the same table the config file
+    // holds (Featured type-3 id 1 + one type-2 row per kicker, channel id 1000+kickerId), built from the kicker
+    // master so names stay real.
+    private string BuildBattleReplayChannelFallbackJson()
+    {
+        var rows = new List<object>
+        {
+            new { id = 1, battleReplayChannelType = 3, name = "Featured", kickerId = 0, minRank = 1, maxRank = 99, matchType = 1, sortOrder = 1 }
+        };
+        var sortOrder = 1;
+        foreach (var kicker in _kickerList)
+        {
+            rows.Add(new
+            {
+                id = 1000 + kicker.Id,
+                battleReplayChannelType = 2,
+                name = kicker.Name,
+                kickerId = kicker.Id,
+                minRank = 1,
+                maxRank = 99,
+                matchType = 1,
+                sortOrder = sortOrder++
+            });
+        }
+        return JsonSerializer.Serialize(rows);
     }
 
     // Loads a player, creating them empty if the id is unknown, and repairs whatever the masters no longer
@@ -910,6 +950,16 @@ public sealed partial class DemoSessionApi
                 return new LocalFixtureResult(masterBytes, "application/octet-stream", StatusCodes.Status200OK);
             }
             return Results.NotFound();
+        }
+
+        // The replay blob /battleReplay/play handed out. UnityWebRequest.Get sends no session headers, so this is
+        // authenticated by the one-shot key id in the URL only.
+        if (HttpMethods.IsGet(context.Request.Method) && path.StartsWith("/battleReplay/blob/", StringComparison.Ordinal))
+        {
+            var keyId = path["/battleReplay/blob/".Length..];
+            return _replays.TryEncodeBlob(keyId, _timeProvider.GetUtcNow().UtcDateTime, out var encoded)
+                ? Results.Bytes(encoded, "application/octet-stream")
+                : Results.NotFound();
         }
 
         if (!HttpMethods.IsPost(context.Request.Method)) return null;
@@ -1091,14 +1141,17 @@ public sealed partial class DemoSessionApi
             return await HandleCustomBattleStartAsync(context, state, key);
         }
 
-        if (path == "/customBattle/end" || path == "/customBattle/result")
+        if (path == "/customBattle/end")
         {
-            // Both response DTOs are empty in the retail client. Keep them explicit so these calls never depend on
-            // the broad route fallback and are easy to distinguish in captured API traces.
+            return await HandleCustomBattleEndAsync(context, state, key);
+        }
+
+        if (path == "/customBattle/result")
+        {
+            // CustomBattleResultResponseData carries no fields in the retail client. Keep it explicit so the call
+            // never depends on the broad route fallback and is easy to distinguish in captured API traces.
             context.Response.Headers["x-app-status-code"] = "0";
-            context.Response.Headers["x-kickflight-fixture"] = path.EndsWith("/end", StringComparison.Ordinal)
-                ? "dynamic-custom-battle-end"
-                : "dynamic-custom-battle-result";
+            context.Response.Headers["x-kickflight-fixture"] = "dynamic-custom-battle-result";
             return BinaryJson("{}", key);
         }
 
@@ -1107,7 +1160,7 @@ public sealed partial class DemoSessionApi
             return await HandleBattleStartAsync(context, state, key);
         }
 
-        if (path == "/battle/end" || path == "/customBattle/end")
+        if (path == "/battle/end")
         {
             return await HandleBattleEndAsync(context, state, key);
         }
@@ -1115,6 +1168,23 @@ public sealed partial class DemoSessionApi
         if (path == "/battle/result" || path == "/customBattle/result")
         {
             return await HandleBattleResultAsync(context, state, key);
+        }
+
+        // Replays: /battle/upload receives the master client's gzip archive, /battleReplay/index lists the Kicker
+        // and Featured channels, /battleReplay/play hands out a per-download key and blob URL.
+        if (path == "/battle/upload")
+        {
+            return await HandleBattleUploadAsync(context, state, key);
+        }
+
+        if (path == "/battleReplay/index")
+        {
+            return HandleBattleReplayIndex(context, state, key);
+        }
+
+        if (path == "/battleReplay/play")
+        {
+            return await HandleBattleReplayPlayAsync(context, state, key);
         }
 
         if (path == "/battle/cancel")
@@ -2290,15 +2360,21 @@ public sealed partial class DemoSessionApi
         return BinaryJson(JsonSerializer.Serialize(resp), key);
     }
 
-    private Task<IResult?> HandleBattleEndAsync(HttpContext context, SessionState state, byte[] key)
+    private async Task<IResult?> HandleBattleEndAsync(HttpContext context, SessionState state, byte[] key)
     {
         state.ItemKickPoints += 200;
         state.ItemJetCoins += 1000;
         SaveUserState(state);
 
+        // Snapshot the match while the matchmaking room is still in memory: /battle/upload arrives seconds later
+        // with the replay and its own battle/result JSON, but that JSON has no kickerCostumeId field.
+        await RecordMatchEndAsync(context, state, key, custom: false);
+
         var resp = new
         {
-            replayUploadFlag = false,
+            // The master client uploads the replay because of this flag (GameManager.CallbackBattleEndSuccess ->
+            // ArchiveData.set_IsUploadReplayData). Everything else is unchanged.
+            replayUploadFlag = true,
             // The same delta /battle/result persisted, so the reward screen and the stored rank agree.
             battlePoint = RankProgression.WinBattlePoint,
             exp = 800,
@@ -2309,7 +2385,251 @@ public sealed partial class DemoSessionApi
         context.Response.Headers["x-app-status-code"] = "0";
         context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-end";
         _logger.LogInformation("Handled /battle/end for {UserId}", state.UserId);
-        return Task.FromResult<IResult?>(BinaryJson(JsonSerializer.Serialize(resp), key));
+        return BinaryJson(JsonSerializer.Serialize(resp), key);
+    }
+
+    // The custom-battle end DTO has no replayUploadFlag; the production client cave (scripts/re/replay_upload_cave.py)
+    // sets ArchiveData.IsUploadReplayData itself, so this only records the match and answers the empty DTO.
+    private async Task<IResult?> HandleCustomBattleEndAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        await RecordMatchEndAsync(context, state, key, custom: true);
+        context.Response.Headers["x-app-status-code"] = "0";
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-custom-battle-end";
+        return BinaryJson("{}", key);
+    }
+
+    private async Task RecordMatchEndAsync(HttpContext context, SessionState state, byte[] key, bool custom)
+    {
+        try
+        {
+            var body = await ReadBodyAsync(context.Request);
+            if (body.Length <= D2CCodec.VectorSizeBytes) return;
+            using var document = JsonDocument.Parse(D2CCodec.Decode(body, key));
+            var root = document.RootElement;
+            var battleId = custom
+                ? (TryGetString(root, "customBattleId", out var customId) ? customId : "")
+                : (TryGetString(root, "battleId", out var normalId) ? normalId : "");
+            if (string.IsNullOrEmpty(battleId)) return;
+
+            IReadOnlyList<BattleMatchmakingService.MatchingPlayerBattleInfo> roster =
+                custom ? [] : _matchmaking.GetRoomRoster(battleId);
+            var players = BuildPendingPlayers(root, roster);
+            var teams = BuildPendingTeams(root, players);
+            _replays.RecordBattleEnd(new BattleReplayService.PendingMatch
+            {
+                BattleId = battleId,
+                Custom = custom,
+                BattleRuleId = custom ? 0 : _matchmaking.GetRoomBattleRuleId(battleId) ?? 0,
+                FieldId = custom ? 0 : _matchmaking.GetRoomFieldId(battleId) ?? 0,
+                HumanCount = CountHumans(root, roster, players),
+                Teams = teams,
+                Players = players
+            }, _timeProvider.GetUtcNow().UtcDateTime);
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or ArgumentException)
+        {
+            _logger.LogWarning("Could not record match end for {UserId}: {Error}", state.UserId, ex.Message);
+        }
+    }
+
+    private static List<BattleReplayService.PendingPlayer> BuildPendingPlayers(JsonElement root,
+        IReadOnlyList<BattleMatchmakingService.MatchingPlayerBattleInfo> roster)
+    {
+        var rosterByUser = roster.ToDictionary(p => p.userId, StringComparer.Ordinal);
+        var players = new List<BattleReplayService.PendingPlayer>();
+        if (root.TryGetProperty("userScoreList", out var scores) && scores.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var element in scores.EnumerateArray())
+            {
+                var userId = TryGetString(element, "userId", out var parsed) ? parsed : "";
+                rosterByUser.TryGetValue(userId, out var match);
+                players.Add(new BattleReplayService.PendingPlayer
+                {
+                    UserId = userId,
+                    Name = match?.name ?? "",
+                    Rank = match?.rank ?? 0,
+                    KickerId = match?.kickerId ?? 0,
+                    KickerCostumeId = match?.kickerCostumeId ?? 0,
+                    FrameId = match?.frameId ?? 0,
+                    LanguageCode = match?.languageCode ?? "",
+                    TeamType = match?.teamType ?? 0,
+                    Ai = TryGetBool(element, "aiFlag", out var ai) ? ai : (match?.kickerAiParameterId ?? 0) > 0,
+                    Mvp = TryGetBool(element, "mvpFlag", out var mvp) && mvp
+                });
+            }
+        }
+
+        // A roster entry missing from userScoreList (rare) still belongs to the match.
+        foreach (var match in roster)
+        {
+            if (players.Any(p => p.UserId == match.userId)) continue;
+            players.Add(new BattleReplayService.PendingPlayer
+            {
+                UserId = match.userId,
+                Name = match.name,
+                Rank = match.rank,
+                KickerId = match.kickerId,
+                KickerCostumeId = match.kickerCostumeId,
+                FrameId = match.frameId,
+                LanguageCode = match.languageCode,
+                TeamType = match.teamType,
+                Ai = match.kickerAiParameterId > 0
+            });
+        }
+        return players;
+    }
+
+    private static List<BattleReplayService.PendingTeam> BuildPendingTeams(JsonElement root,
+        List<BattleReplayService.PendingPlayer> players)
+    {
+        var teams = new Dictionary<int, BattleReplayService.PendingTeam>();
+        if (root.TryGetProperty("teamScoreList", out var teamScores) && teamScores.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var element in teamScores.EnumerateArray())
+            {
+                var teamType = element.TryGetProperty("teamType", out var typeProp) && typeProp.ValueKind == JsonValueKind.Number
+                    ? typeProp.GetInt32() : 0;
+                teams[teamType] = new BattleReplayService.PendingTeam
+                {
+                    TeamType = teamType,
+                    Score = ReadInt(element, "score"),
+                    RemainingDistance = ReadInt(element, "remainingDistance"),
+                    LastRemainingDistance = ReadInt(element, "lastRemainingDistance")
+                };
+            }
+        }
+        foreach (var player in players)
+        {
+            if (!teams.ContainsKey(player.TeamType))
+                teams[player.TeamType] = new BattleReplayService.PendingTeam { TeamType = player.TeamType };
+        }
+        return teams.Values.OrderBy(team => team.TeamType).ToList();
+    }
+
+    private static int CountHumans(JsonElement root,
+        IReadOnlyList<BattleMatchmakingService.MatchingPlayerBattleInfo> roster,
+        List<BattleReplayService.PendingPlayer> players)
+    {
+        if (root.TryGetProperty("userScoreList", out var scores) && scores.ValueKind == JsonValueKind.Array)
+        {
+            var any = false;
+            var humans = 0;
+            foreach (var element in scores.EnumerateArray())
+            {
+                any = true;
+                if (TryGetBool(element, "aiFlag", out var ai))
+                {
+                    if (!ai) humans++;
+                    continue;
+                }
+                var userId = TryGetString(element, "userId", out var parsed) ? parsed : "";
+                if (!userId.StartsWith("bot-", StringComparison.OrdinalIgnoreCase)) humans++;
+            }
+            if (any) return humans;
+        }
+        if (roster.Count > 0) return roster.Count(p => p.kickerAiParameterId == 0);
+        return players.Count(p => !p.Ai && !p.UserId.StartsWith("bot-", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static int ReadInt(JsonElement element, string name) =>
+        element.TryGetProperty(name, out var prop) && prop.ValueKind == JsonValueKind.Number && prop.TryGetInt32(out var value)
+            ? value : 0;
+
+    private static bool TryGetBool(JsonElement element, string name, out bool value)
+    {
+        value = false;
+        if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var prop)) return false;
+        if (prop.ValueKind == JsonValueKind.True) { value = true; return true; }
+        if (prop.ValueKind == JsonValueKind.False) { value = false; return true; }
+        return false;
+    }
+
+    // /battle/upload: base64( gzip( archive ) ) inside the D2C body, exactly what ReplayUtility.GetReplayWorkZipData
+    // hands to Convert.ToBase64String (see docs/REPLAYS.md). The response DTO is empty.
+    private async Task<IResult?> HandleBattleUploadAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var body = await ReadBodyAsync(context.Request);
+        try
+        {
+            var plaintext = D2CCodec.Decode(body, key);
+            using var document = JsonDocument.Parse(plaintext);
+            var root = document.RootElement;
+            var battleId = TryGetString(root, "battleId", out var parsedId) ? parsedId : "";
+            var uploadFile = TryGetString(root, "uploadFile", out var parsedFile) ? parsedFile : "";
+            if (string.IsNullOrEmpty(uploadFile)) return StatusError(context, key);
+
+            // Reject on the base64 length before allocating the decoded buffer (base64 is 4/3 of the raw size).
+            if (uploadFile.Length > _replays.MaxUploadBytes / 3 * 4 + 8)
+            {
+                _logger.LogWarning("Rejected /battle/upload for {UserId}: base64 upload is over the {Cap}-byte cap",
+                    state.UserId, _replays.MaxUploadBytes);
+                return StatusError(context, key);
+            }
+
+            byte[] gzip;
+            try
+            {
+                gzip = Convert.FromBase64String(uploadFile);
+            }
+            catch (FormatException)
+            {
+                _logger.LogWarning("Rejected /battle/upload for {UserId}: uploadFile is not base64", state.UserId);
+                return StatusError(context, key);
+            }
+
+            var stored = _replays.StoreUpload(battleId, gzip, _timeProvider.GetUtcNow().UtcDateTime);
+            context.Response.Headers["x-app-status-code"] = "0";
+            context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-upload";
+            _logger.LogInformation("Handled /battle/upload for {UserId}: battle={BattleId} bytes={Bytes} stored={Stored}",
+                state.UserId, battleId, gzip.Length, stored);
+            return BinaryJson("{}", key);
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or ArgumentException or InvalidDataException or IOException)
+        {
+            _logger.LogWarning("Could not handle /battle/upload for {UserId}: {Error}", state.UserId, ex.Message);
+            return StatusError(context, key);
+        }
+    }
+
+    // /battleReplay/index: Featured is channel id 1 (the served type-3 master row); each kicker is 1000+kickerId
+    // (the type-2 rows). The client matches entries by battleReplayChannelId against BattleReplayChannelMaster.
+    private IResult HandleBattleReplayIndex(HttpContext context, SessionState state, byte[] key)
+    {
+        var kickerIds = _kickerList.Select(k => k.Id).OrderBy(id => id).ToArray();
+        var json = _replays.BuildIndexJson(kickerIds, DefaultCostumeRowId, _timeProvider.GetUtcNow().UtcDateTime);
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-replay-index";
+        return OkJson(context, key, json);
+    }
+
+    private int DefaultCostumeRowId(int kickerId) =>
+        _costumesByKicker.TryGetValue(kickerId, out var rows) && rows.Count > 0 ? rows[0] : 1;
+
+    private async Task<IResult?> HandleBattleReplayPlayAsync(HttpContext context, SessionState state, byte[] key)
+    {
+        var replayId = "";
+        try
+        {
+            var body = await ReadBodyAsync(context.Request);
+            if (body.Length > D2CCodec.VectorSizeBytes)
+            {
+                using var document = JsonDocument.Parse(D2CCodec.Decode(body, key));
+                if (TryGetString(document.RootElement, "battleReplayId", out var parsed)) replayId = parsed;
+            }
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or ArgumentException)
+        {
+            _logger.LogWarning("Could not decode /battleReplay/play request: {Error}", ex.Message);
+            return StatusError(context, key);
+        }
+
+        var (keyId, encryptionKey) = _replays.CreatePlayKey(replayId, _timeProvider.GetUtcNow().UtcDateTime);
+        var url = string.IsNullOrEmpty(keyId)
+            ? ""
+            : $"{context.Request.Scheme}://{context.Request.Host}/battleReplay/blob/{keyId}";
+        _logger.LogInformation("Handled /battleReplay/play for {UserId}: replay={ReplayId} found={Found}",
+            state.UserId, replayId, !string.IsNullOrEmpty(keyId));
+        context.Response.Headers["x-kickflight-fixture"] = "dynamic-battle-replay-play";
+        return OkJson(context, key, JsonSerializer.Serialize(new { battleReplayUrl = url, encryptionKey }));
     }
 
     private static LocalFixtureResult BinaryJson(string json, byte[] key) =>
